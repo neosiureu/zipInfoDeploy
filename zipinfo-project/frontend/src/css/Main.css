@@ -1,0 +1,229 @@
+.main-visual {
+  position: relative;
+  width: 100vw;
+  height: 520px;
+  min-width: 1200px;
+  overflow: hidden;
+  background: #23243a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-visual-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: url("../assets/메인 이미지.svg") center/cover no-repeat;
+  opacity: 1;
+  z-index: 1;
+}
+
+.main-visual-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-visual-content h1 {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: -1px;
+}
+
+.subtitle {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 59px;
+  color: #fff;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0 24px;
+  width: 540px;
+  height: 60px;
+  margin: 0 auto 70px auto;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+.search-icon {
+  margin-right: 12px;
+  display: block;
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  font-size: 1.1rem;
+  width: 100%;
+  background: transparent;
+  font-family: "Pretendard", sans-serif;
+}
+
+.main-icons {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 0;
+}
+
+.main-icons > button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.banner {
+  width: 1280px;
+  height: 120px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 80px auto;
+}
+
+.section-main {
+  width: 1280px;
+  margin: 0 auto 40px auto;
+  padding: 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.section-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111;
+}
+
+.more-btn {
+  background: #fff;
+  color: #222;
+  border: 1px solid #e5e5ec;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.card-list {
+  width: 100%;
+  display: flex;
+  gap: 16px;
+  flex-wrap: nowrap; /* 한 줄로 고정 */
+  padding-bottom: 8px;
+}
+
+.card {
+  padding: 0 0 12px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  transition: none;
+}
+
+.card img {
+  width: 308px;
+  height: 210px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 12px 0 4px 4px;
+  color: #767676;
+}
+
+.card-price {
+  font-size: 18px;
+  font-weight: 700;
+  margin-left: 4px;
+  margin-bottom: 4px;
+}
+
+.card-price span {
+  color: #495cf8;
+}
+
+.card-desc {
+  font-size: 14px;
+  color: #767676;
+  font-weight: 400;
+  margin-left: 4px;
+  margin-bottom: 12px;
+}
+
+.card-desc span {
+  font-size: 12px;
+  color: #dbdbdb;
+  margin: 0 4px;
+}
+
+.card-agent {
+  font-size: 12px;
+  color: #333;
+  font-weight: 700;
+  margin-left: 4px;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-agent img {
+  width: 12px;
+  height: 10px;
+  object-fit: contain;
+  display: inline-block;
+}
+
+.card-sale img {
+  width: 308px;
+  height: 420px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.sale {
+  margin-top: 120px;
+}
+
+.card-adress {
+  font-size: 14px;
+  color: #767676;
+  font-weight: 400;
+  margin-left: 4px;
+  margin-bottom: 2px;
+}
+
+.card-area {
+  font-size: 14px;
+  color: #767676;
+  font-weight: 400;
+  margin-left: 4px;
+  margin-bottom: 120px;
+}

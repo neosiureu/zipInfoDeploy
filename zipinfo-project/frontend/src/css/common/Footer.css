@@ -1,0 +1,42 @@
+.footer {
+  width: 100vw;
+  min-height: 250px;
+  background: #1e1e1e;
+  color: #fff;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0 30px 0;
+  box-sizing: border-box;
+}
+
+.footer-menu {
+  display: flex;
+  gap: 48px;
+  margin-bottom: 40px;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.privacy-policy {
+  font-weight: 600;
+}
+
+.footer-menu a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.footer-info {
+  font-size: 12px;
+  color: #dbdbdb;
+  margin-bottom: 24px;
+}
+
+.footer-copy {
+  font-size: 12px;
+  color: #dbdbdb;
+  margin-bottom: 20px;
+}
