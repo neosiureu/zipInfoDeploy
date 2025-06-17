@@ -1,0 +1,258 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.admin-form-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Header */
+.header {
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  color: #2563eb;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.header-right {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Main Container */
+.main-container {
+  max-width: 1024px;
+  margin: 40px auto;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* Title Section */
+.title-section {
+  text-align: center;
+  padding: 32px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.main-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+/* Tabs */
+.tabs-container {
+  display: flex;
+  background-color: #f3f4f6;
+}
+
+.tab {
+  flex: 1;
+  padding: 16px 24px;
+  background-color: #e5e7eb;
+  color: #6b7280;
+  border: none;
+  border-right: 1px solid #d1d5db;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tab:last-child {
+  border-right: none;
+}
+
+.tab:hover {
+  background-color: #d1d5db;
+}
+
+.tab-active {
+  background-color: #3b82f6 !important;
+  color: white !important;
+}
+
+/* Form Content */
+.form-content {
+  padding: 40px;
+}
+
+/* Admin Info */
+.admin-info {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.admin-status {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.admin-id {
+  font-size: 16px;
+  color: #6b7280;
+}
+
+.highlight {
+  font-weight: bold;
+  color: #dc2626;
+}
+
+/* Form Fields */
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #374151;
+  font-size: 14px;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #f9fafb;
+  font-size: 14px;
+  color: #1f2937;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-input::placeholder {
+  color: #9ca3af;
+}
+
+.input-close {
+  color: #9ca3af;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #f9fafb;
+  font-size: 14px;
+  color: #1f2937;
+  resize: vertical;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* Submit Section */
+.submit-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.submit-btn {
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 500;
+  padding: 12px 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.submit-btn:hover {
+  background-color: #2563eb;
+}
+
+.submit-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5),
+    0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .main-container {
+    margin: 20px;
+    border-radius: 6px;
+  }
+
+  .form-content {
+    padding: 20px;
+  }
+
+  .tabs-container {
+    flex-direction: column;
+  }
+
+  .tab {
+    border-right: none;
+    border-bottom: 1px solid #d1d5db;
+  }
+
+  .tab:last-child {
+    border-bottom: none;
+  }
+
+  .input-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input-close {
+    align-self: flex-end;
+    margin-top: 8px;
+  }
+}

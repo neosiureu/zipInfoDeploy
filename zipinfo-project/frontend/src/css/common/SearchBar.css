@@ -57,7 +57,7 @@
 }
 
 .searchbar select:focus {
-  border-color: #495cf8;
+  border-color: #007bff;
   outline: none;
 }
 

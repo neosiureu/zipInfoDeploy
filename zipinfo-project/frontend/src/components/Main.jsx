@@ -144,7 +144,7 @@ const Main = () => {
                 아파트 · 에스아이팰리스올림픽공원
               </div>
               <div className="card-price">
-                <span>분양가</span> 10억 9,000
+                <span>분양가</span> 10억 9,000 ~ 11억 4,000
               </div>
               <div className="card-adress">서울시 강동구 성내동 459-3</div>
               <div className="card-area">70.02㎡</div>
@@ -153,7 +153,7 @@ const Main = () => {
               <img src={saleMain02} alt="분양 썸네일 이미지" />
               <div className="card-title">아파트 · 한신더휴하이엔에듀포레</div>
               <div className="card-price">
-                <span>분양가</span> 5억
+                <span>분양가</span> 5억 ~ 6억 8,950
               </div>
               <div className="card-adress">서울시 금천구 시흥동 220-2</div>
               <div className="card-area">62.04㎡ ~ 82.05㎡</div>
@@ -162,7 +162,7 @@ const Main = () => {
               <img src={saleMain03} alt="분양 썸네일 이미지" />
               <div className="card-title">아파트 · 교산푸르지오더퍼스트</div>
               <div className="card-price">
-                <span>분양가</span> 4억 6,778
+                <span>분양가</span> 4억 6,778 ~ 5억 7,167
               </div>
               <div className="card-adress">경기도 하남시 천현동 130번지</div>
               <div className="card-area">73.60㎡ ~ 85.12㎡</div>
@@ -171,7 +171,7 @@ const Main = () => {
               <img src={saleMain04} alt="분양 썸네일 이미지" />
               <div className="card-title">아파트 · 월드메르디앙올림픽파크</div>
               <div className="card-price blue">
-                <span>분양가</span> 8억 2,000
+                <span>분양가</span> 8억 2,000 ~ 18억 6,900
               </div>
               <div className="card-adress">서울시 강동구 둔촌동 435-5</div>
               <div className="card-area">70.67㎡ ~ 77.57㎡</div>
