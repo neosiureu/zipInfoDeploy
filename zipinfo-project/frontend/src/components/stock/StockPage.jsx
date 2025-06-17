@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react"; // useRef 추가
 import SearchBar from "../common/SearchBar";
 import "../../css/stock/stockPage.css";
-import { axiosApi } from "../../api/axiosApi";
+import { axiosAPI } from "../../api/axiosAPI";
 const StockPage = () => {
   /**********************Kakao api 세팅****************** */
   const mapRef = useRef(null); // 지도를 담을 div의 ref
@@ -25,7 +25,7 @@ const StockPage = () => {
         console.log("좌하단(SW):", sw.getLat(), sw.getLng());
         console.log("우상단(NE):", ne.getLat(), ne.getLng());
         try {
-          const resp = await axiosApi.post("/stock/selectItems", {
+          const resp = await axiosAPI.post("/stock/selectItems", {
             swLat: sw.getLat(),
             swLng: sw.getLng(),
             neLat: ne.getLat(),
