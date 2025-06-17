@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/common/Layout";
 import Main from "./components/Main";
 import SalePage from "./components/sale/SalePage";
+import StockPage from "./components/stock/StockPage";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Main />} />
           <Route path="sale" element={<SalePage />} />
+          <Route path="stock" element={<StockPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
