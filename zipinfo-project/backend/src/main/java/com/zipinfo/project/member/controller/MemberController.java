@@ -38,10 +38,7 @@ public class MemberController {
         }
         return ResponseEntity.ok(member); 
     }
-	
-	
-	
-	
+
 	@PostMapping("login")
 	public Member login(@RequestBody Member inputMember, Model model) {
 		

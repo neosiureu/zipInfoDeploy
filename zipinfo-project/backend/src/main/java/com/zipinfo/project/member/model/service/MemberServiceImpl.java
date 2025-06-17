@@ -10,8 +10,6 @@ import com.zipinfo.project.member.model.dto.Member;
 
 import lombok.extern.slf4j.Slf4j;
 
-
-
 @Service
 @Transactional(rollbackFor = Exception.class)
 @Slf4j
@@ -41,8 +39,5 @@ public class MemberServiceImpl implements MemberService{
 		
 		return loginMember;
 	}
-
-	
-	
 
 }

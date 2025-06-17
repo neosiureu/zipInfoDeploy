@@ -23,10 +23,10 @@ const Header = () => {
             <Link to="/notice">공지사항</Link>
           </li>
           <li>
-            <Link to="/help">관심목록</Link>
+            <Link to="/help">문의하기</Link>
           </li>
           <li>
-            <Link to="/interest">우리동네</Link>
+            <Link to="/interest">관심목록</Link>
           </li>
         </ul>
       </div>
@@ -34,6 +34,7 @@ const Header = () => {
         <ul className="member">
           <li id="signup-btn">회원가입</li>
           <li id="login-btn">로그인</li>
+          <li id="my-page"><Link to="/myPage">마이페이지</Link></li>
         </ul>
       </div>
     </header>
