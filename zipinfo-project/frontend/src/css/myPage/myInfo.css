@@ -1,0 +1,161 @@
+/* MyPage.css */
+
+.my-page {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.my-page-container {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.page-title {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.page-title h1 {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 2rem;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.tab-container {
+  display: flex;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.tab-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.tab-button.active {
+  background-color: #111827;
+  color: white;
+}
+
+.tab-button.inactive {
+  background-color: white;
+  color: #6b7280;
+}
+
+.tab-button.inactive:hover {
+  background-color: #f9fafb;
+}
+
+/* Profile Card */
+.profile-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 2rem;
+  max-width: 448px;
+  margin: 0 auto;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.info-value {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Edit Button */
+.edit-button-container {
+  margin-top: 2rem;
+}
+
+.edit-button {
+  width: 100%;
+  background-color: #2563eb;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.edit-button:hover {
+  background-color: #1d4ed8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .my-page-container {
+    padding: 1rem 0.5rem;
+  }
+  
+  .tab-container {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  
+  .tab-button {
+    flex: 1;
+    min-width: auto;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .profile-card {
+    margin: 0 0.5rem;
+    padding: 1.5rem;
+  }
+  
+  .page-title h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tab-button {
+    padding: 0.5rem;
+    font-size: 0.7rem;
+  }
+  
+  .profile-card {
+    padding: 1rem;
+  }
+  
+  .profile-info {
+    gap: 1rem;
+  }
+}
