@@ -17,8 +17,8 @@ public class Member {
 	String memberLogin;   
     String memberNickname;
     String memberName;
-    int authContext;
-    String accessTocken;
+    int memberAuth;
+    String accessToken;
     
 
 }

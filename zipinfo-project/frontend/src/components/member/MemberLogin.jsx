@@ -1,8 +1,14 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import axios from "axios";
 import "./MemberLogin.css";
+import { MemberContext } from "../member/MemberContext";
+
+import { useNavigate } from "react-router-dom";
 
 export default function MemberLogin() {
+  const navigate = useNavigate();
+  const { setMember } = useContext(MemberContext);
+
   const [formData, setFormData] = useState({
     email: "", // 화면용
     password: "", // 화면용
@@ -24,26 +30,27 @@ export default function MemberLogin() {
 
     try {
       const resp = await axios.post("http://localhost:8080/member/login", {
-        memberEmail: formData.email, // ← DTO 필드명과 동일
+        memberEmail: formData.email, //  DTO 필드명과 동일
         memberPw: formData.password,
       });
 
       // 200 OK 인 경우
       const loginMember = resp.data; // 백엔드가 돌려준 Member
 
-      // 아이디 저장 check → localStorage
+      // 아이디 저장 check  후 localStorage
       if (formData.saveId) {
         localStorage.setItem("saveId", formData.email);
       } else {
         localStorage.removeItem("saveId");
       }
 
-      // 로그인 정보 저장 (예: 전역 상태, context, Recoil 등)
+      // 로그인 정보 저장
       localStorage.setItem("loginMember", JSON.stringify(loginMember));
+      setMember(loginMember);
 
       alert(`${loginMember.memberNickname}님 반갑습니다!`);
-      // TODO: 메인 페이지 이동
-      // navigate("/");  ← react-router 사용 시
+
+      navigate("/"); //router 사용
     } catch (err) {
       if (err.response?.status === 401) {
         alert("이메일 또는 비밀번호가 다릅니다.");
@@ -54,18 +61,18 @@ export default function MemberLogin() {
     }
   };
 
-  /* 부가 버튼 --------------------------------------------- */
+  // 기타
   const handleKakaoLogin = () => console.log("카카오 로그인");
   const handleFindPassword = () => console.log("비밀번호 찾기");
   const handleSignUp = () => console.log("회원가입 페이지");
 
-  /* 최초 렌더링 시 저장된 ID 불러오기 ----------------------- */
+  // 최초 렌더링 시 저장된 ID 불러오기
   React.useEffect(() => {
     const saved = localStorage.getItem("saveId");
     if (saved) setFormData((p) => ({ ...p, email: saved, saveId: true }));
   }, []);
 
-  /* JSX ---------------------------------------------------- */
+  // JSX
   return (
     <div className="login-container">
       <div className="login-form">
