@@ -73,7 +73,7 @@ public class MemberController {
 	
 	@GetMapping("checkNickname")
 	public int checkNickname(@RequestParam("memberNickname") String memberNickname) {
-		
+		 
 		return service.checkNickname(memberNickname);
 		
 	}
