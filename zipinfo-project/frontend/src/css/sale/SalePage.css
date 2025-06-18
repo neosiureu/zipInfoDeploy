@@ -110,8 +110,8 @@
   gap: 12px;
 }
 
-/* 표 스타일 */
-table {
+/* 표 스타일 - SalePage 전용 */
+.sale-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
@@ -120,21 +120,21 @@ table {
   word-break: break-word;
 }
 
-table tr td {
+.sale-table tr td {
   padding: 6px;
   vertical-align: top;
   line-height: 24px;
   text-align: left;
 }
 
-table tr td:first-child {
+.sale-table tr td:first-child {
   width: 35%;
   white-space: nowrap;
   color: #111;
   font-weight: 600;
 }
 
-table tr td:last-child {
+.sale-table tr td:last-child {
   color: #111;
 }
 

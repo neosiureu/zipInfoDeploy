@@ -26,7 +26,7 @@ const Header = () => {
         </span>
         <ul className="menu">
           <li>
-            <Link to="/realprice">실거래가</Link>
+            <Link to="/stock">실거래가</Link>
           </li>
           <li>
             <Link to="/sale">분양</Link>
@@ -45,6 +45,7 @@ const Header = () => {
 
       <div className="navbar-right">
         <ul className="member">
+
           {member ? (
             member.memberAuth == 0 ? (
               <>
