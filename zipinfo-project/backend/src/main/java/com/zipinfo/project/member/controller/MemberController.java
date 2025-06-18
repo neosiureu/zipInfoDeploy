@@ -55,6 +55,7 @@ public class MemberController {
 	              .body("아이디 또는 비밀번호가 올바르지 않습니다.");
 	    }
 	    session.setAttribute("loginMember", loginMember);
+	    System.out.println("해당 멤버의 권한은"+loginMember.getMemberAuth()+"입니다.");
 	    return ResponseEntity.ok(loginMember);
 	}
 	

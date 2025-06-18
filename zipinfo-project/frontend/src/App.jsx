@@ -13,6 +13,7 @@ import WithDraw from "./components/myPage/WithDraw";
 import UpdateInfo from "./components/myPage/UpdateInfo";
 import MemberLogin from "./components/member/MemberLogin";
 import { MemberProvider } from "./components/member/MemberContext";
+import MemberSignup from "./components/member/MemberSignup";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="sale" element={<SalePage />} />
             <Route path="stock" element={<StockPage />} />
             <Route path="login" element={<MemberLogin />} />
+            <Route path="signUp" element={<MemberSignup />} />
             <Route path="myPage" element={<MyInfo />} />
             <Route path="myPage/updateInfo" element={<UpdateInfo />} />
             <Route path="myPage/myStock" element={<MyStock />} />

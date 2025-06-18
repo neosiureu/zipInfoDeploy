@@ -1,0 +1,214 @@
+/* MemberSignUp.css */
+
+.signup-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #fff;
+}
+
+.signup-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  margin-bottom: 30px;
+  border: none;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.tab-button:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.tab-button:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+.tab-button.active {
+  color: white;
+  background-color: #4285f4;
+}
+
+.tab-button:hover:not(.active) {
+  background-color: #e8e8e8;
+}
+
+/* Form Styles */
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.form-input {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  outline: none;
+  background-color: #fff;
+}
+
+.form-input:focus {
+  border-color: #4285f4;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+}
+
+.form-input::placeholder {
+  color: #999;
+  font-size: 13px;
+}
+
+/* Input Wrapper for buttons */
+.input-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.input-wrapper .form-input {
+  flex: 1;
+}
+
+.verify-button {
+  padding: 10px 16px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+  min-width: 70px;
+}
+
+.verify-button:hover {
+  background-color: #555;
+}
+
+.address-button {
+  padding: 10px 16px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+.address-button:hover {
+  background-color: #555;
+}
+
+/* Address Detail Inputs */
+.address-detail {
+  margin-top: 6px;
+}
+
+/* Message Styles */
+.input-description {
+  font-size: 12px;
+  color: #666;
+  margin: 2px 0 0 0;
+}
+
+.success-message {
+  font-size: 12px;
+  color: #28a745;
+  margin: 2px 0 0 0;
+}
+
+.error-message {
+  font-size: 12px;
+  color: #dc3545;
+  margin: 2px 0 0 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .signup-container {
+    padding: 20px 15px;
+    max-width: 100%;
+  }
+
+  .signup-title {
+    font-size: 22px;
+  }
+
+  .input-wrapper {
+    flex-direction: column;
+  }
+
+  .verify-button,
+  .address-button {
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  .tab-button {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Additional Styling */
+.form-input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.form-input[type="number"]::-webkit-outer-spin-button,
+.form-input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Focus states for accessibility */
+.tab-button:focus-visible {
+  outline: 2px solid #4285f4;
+  outline-offset: 2px;
+}
+
+.verify-button:focus-visible,
+.address-button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}

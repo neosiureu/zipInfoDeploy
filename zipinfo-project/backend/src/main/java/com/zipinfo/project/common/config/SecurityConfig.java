@@ -42,7 +42,7 @@ public class SecurityConfig {
         return source;
     }
 
-    /* 1) /admin/** 체인 ------------------------------------ */
+    /* 기존 /admin/** 체인 ------------------------------------ */
     @Bean
     @Order(1)
     public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -61,13 +61,13 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /* 2) 기타 모든 요청 체인 -------------------------------- */
+    /*  기타 모든 요청 체인 -------------------------------- */
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
         http.securityMatcher("/**")
-            .cors(Customizer.withDefaults())                 // ← CorsFilter 활성화
+            .cors(Customizer.withDefaults())                 // CorsFilter 활성화
             .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
             .csrf(csrf -> csrf.disable());
 

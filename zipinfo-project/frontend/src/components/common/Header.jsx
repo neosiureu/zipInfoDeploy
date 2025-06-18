@@ -12,6 +12,7 @@ const Header = () => {
   const handleLogout = () => {
     setMember(null);
     localStorage.removeItem("loginMember");
+    alert("로그아웃 되었습니다");
     navigate("/");
   };
 
@@ -45,18 +46,29 @@ const Header = () => {
       <div className="navbar-right">
         <ul className="member">
           {member ? (
-            <>
-              <li id="my-page">
-                <Link to="/myPage">마이페이지</Link>
-              </li>
-              <li id="logout-btn">
-                <button onClick={handleLogout}>로그아웃</button>
-              </li>
-            </>
+            member.memberAuth == 0 ? (
+              <>
+                <li id="admin-page">
+                  <Link to="/admin">관리자 페이지로 이동</Link>
+                </li>
+                <li id="logout-btn">
+                  <button onClick={handleLogout}>로그아웃</button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li id="my-page">
+                  <Link to="/myPage">마이페이지</Link>
+                </li>
+                <li id="logout-btn">
+                  <button onClick={handleLogout}>로그아웃</button>
+                </li>
+              </>
+            )
           ) : (
             <>
               <li id="signup-btn">
-                <Link to="/signup">회원가입</Link>
+                <Link to="/signUp">회원가입</Link>
               </li>
               <li id="login-btn">
                 <Link to="/login">로그인</Link>
