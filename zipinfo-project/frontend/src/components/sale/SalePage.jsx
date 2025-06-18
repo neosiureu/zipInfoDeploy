@@ -7,6 +7,7 @@ import "../../css/sale/salePage.css";
 const SalePage = () => {
   const mapRef = useRef(null);
 
+  // 카카오 지도 API
   useEffect(() => {
     if (window.kakao && window.kakao.maps) {
       const container = mapRef.current;
@@ -23,7 +24,9 @@ const SalePage = () => {
 
   return (
     <>
-      <SearchBar />
+      {/* 분양 페이지일 경우 보여주는 검색창 */}
+      <SearchBar showSearchType={false} />
+
       <div className="container">
         <aside className="sale-side-panel">
           <div className="sale-header">
@@ -43,7 +46,7 @@ const SalePage = () => {
             <div className="sale-section-line" />
             <div className="sale-section-content">
               <div className="sale-section-title">기본정보</div>
-              <table>
+              <table className="sale-table">
                 <tbody>
                   <tr>
                     <td>분양주소</td>
@@ -89,7 +92,7 @@ const SalePage = () => {
             <div className="sale-section-line" />
             <div className="sale-section-content">
               <div className="sale-section-title">평형정보</div>
-              <table>
+              <table className="sale-table">
                 <tbody>
                   <tr>
                     <td>분양가</td>
@@ -125,7 +128,7 @@ const SalePage = () => {
             <div className="sale-section-line" />
             <div className="sale-section-content">
               <div className="sale-section-title">중도금납입정보</div>
-              <table>
+              <table className="sale-table">
                 <tbody>
                   <tr>
                     <td>계약금</td>

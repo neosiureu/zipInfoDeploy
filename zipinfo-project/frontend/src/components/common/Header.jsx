@@ -14,7 +14,7 @@ const Header = () => {
         </span>
         <ul className="menu">
           <li>
-            <Link to="/realprice">실거래가</Link>
+            <Link to="/stock">실거래가</Link>
           </li>
           <li>
             <Link to="/sale">분양</Link>
@@ -34,7 +34,9 @@ const Header = () => {
         <ul className="member">
           <li id="signup-btn">회원가입</li>
           <li id="login-btn">로그인</li>
-          <li id="my-page"><Link to="/myPage">마이페이지</Link></li>
+          <li id="my-page">
+            <Link to="/myPage">마이페이지</Link>
+          </li>
         </ul>
       </div>
     </header>

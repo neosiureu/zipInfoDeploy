@@ -14,8 +14,8 @@ function App() {
         {/* 공통 레이아웃 라우트 */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Main />} />
-          <Route path="sale" element={<SalePage />} />
           <Route path="stock" element={<StockPage />} />
+          <Route path="sale" element={<SalePage />} />
           <Route path="myPage" element={<MyInfo />} />
           <Route path="myPage/updateInfo" element={<UpdateInfo />} />
         </Route>
