@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Menu(){
@@ -16,14 +16,20 @@ export default function Menu(){
       {label: "회원탈퇴", path: "/myPage/withDraw"}
     ];
 
+    useEffect(() => {
+      const currentTab = tabs.find(tab => tab.path === location.pathname);
+      if (currentTab) {
+        setActiveTab(currentTab.label);
+      }
+    }, [location.pathname]);
 
   return(
-          <div className="page-title">
+          <div className="my-page-page-title">
             <h1>마이페이지</h1>
 
             {/* Tab Navigation */}
-            <div className="tab-navigation">
-              <div className="tab-container">
+            <div className="my-page-tab-navigation">
+              <div className="my-page-tab-container">
                 {tabs.map((tab) => (
                   <button
                     key={tab.label}
@@ -31,7 +37,7 @@ export default function Menu(){
                       setActiveTab(tab.label);
                       nav(tab.path);
                     }}
-                    className={`tab-button ${
+                    className={`my-page-tab-button ${
                       activeTab === tab.label ? "active" : "inactive"
                     }`}
                   >

@@ -1,90 +1,109 @@
 import React, { useEffect, useState } from 'react';
-import '../../css/myPage/myInfo.css';
-import { useNavigate } from 'react-router-dom';
+// import '../../css/myPage/myInfo.css';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Menu from "./Menu";
+import { axiosAPI } from '../../api/axiosApi';
 
 const UpdateInfo = () => {
   const nav = useNavigate();
 
-
-  const [user, setUser] = useState([]);
-
-  async function getMemberInfo() {
-    try {
-      const resp = await axiosAPI.get("/myPage/memberInfo",{withCredentials: true});
-
-      if (resp.status === 200) {
-        setUser(resp.data);
-      }
-    } catch (error) {
-      console.log("Member Info 불러오는 중 에러 발생 : ", error);
-    }
-  }
-
-  useEffect(() => {
-    getMemberInfo();
-  }, []);
+  const location = useLocation();
+  const { user } = location.state || {}; // 안전하게 fallback 처리
 
   const memberAuth = user.memberAuth;
 
+  const [updateUser, setUpdateUser] = useState(user || {});
+
+  const handleUserInfo = (e) => {
+    const { name, value } = e.target;
+
+    setUpdateUser((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  async function updateInfo() {
+
+    try {
+      const response = await axiosAPI.post("/myPage/updateInfo", updateUser
+      );
+
+      if (response.status === 200) {
+        alert(
+          '수정이 완료되었습니다.'
+        );
+      }
+
+      nav("/myPage")
+    } catch (error) {
+      alert(error);
+      // 409, 500 일 때 응답 받은 body 내용이 반영되어 alert 출력할 수 있게 한다
+    }
+
+  }
+
+
+
+
   const frag = memberAuth == 3 ?  
 
-        <div className="profile-card">
-          <div className="profile-info">
+        <div className="my-page-profile-card">
+          <div className="my-page-profile-info">
             {/* User ID */}
-            <div className="info-field">
-              <label className="info-label">아이디</label>
-              <div className="info-value">{user.memberEmail}</div>
+            <div className="my-page-info-field">
+              <label className="my-page-info-label">아이디</label>
+              <div className="my-page-info-value">{updateUser.memberEmail}</div>
             </div>
 
             {/* Nickname */}
-            <div className="info-field">
-              <label className="info-label">이름</label>
-              <div className="info-value">{user.memberName}</div>
+            <div className="my-page-info-field">
+              <label className="my-page-info-label">이름</label>
+              <div className="my-page-info-value">{updateUser.memberName}</div>
             </div>
 
             {/* Additional Info */}
-            <div className="info-field">
-              <label className="info-label">닉네임</label>
-              <input value={user.Nickname != null ? user.Nickname:'닉네임을 설정하지 않았습니다'} className="info-value"/>
+            <div className="my-page-info-field">
+              <label className="my-page-info-label">닉네임</label>
+              <input onChange={handleUserInfo} name='memberNickname' value={updateUser.memberNickname != null ? updateUser.memberNickname:'닉네임을 설정하지 않았습니다'} className="my-page-input"/>
             </div>
 
             {/* Phone */}
-            <div className="info-field">
-              <label className="info-label">사무소 이름</label>
-              <input value={user.companyName} className="info-value"/>
+            <div className="my-page-info-field">
+              <label className="my-page-info-label">사무소 이름</label>
+              <input onChange={handleUserInfo} name='companyName' value={updateUser.companyName} className="my-page-input"/>
             </div>
 
             {/* Address */}
-            <div className="info-field">
-              <label className="info-label">사무소 주소</label>
-              <input value={user.companyLocation} className="info-value"/>
+            <div className="my-page-info-field">
+              <label className="my-page-info-label">사무소 주소</label>
+              <input onChange={handleUserInfo} name='companyLocation' value={updateUser.companyLocation} className="my-page-input"/>
             </div>
 
             {/* Description */}
-            <div className="info-field">
-              <label className="info-label">대표명</label>
-              <input value={user.presidentName} className="info-value"/>
+            <div className="my-page-info-field">
+              <label className="my-page-info-label">대표명</label>
+              <input onChange={handleUserInfo} name='presidentName' value={updateUser.presidentName} className="my-page-input"/>
             </div>
 
             {/* Interests */}
-            <div className="info-field">
-              <label className="info-label">대표 번호</label>
-              <input value={user.presidentPhone} className="info-value"/>
+            <div className="my-page-info-field">
+              <label className="my-page-info-label">대표 번호</label>
+              <input onChange={handleUserInfo} name='presidentPhone' value={updateUser.presidentPhone} className="my-page-input"/>
             </div>
 
                         {/* Interests */}
-            <div className="info-field">
-              <label className="info-label">중개등록번호</label>
-              <input value={user.brokerNo} className="info-value"/>
+            <div className="my-page-info-field">
+              <label className="my-page-info-label">중개등록번호</label>
+              <input onChange={handleUserInfo} name='brokerNo' value={updateUser.brokerNo} className="my-page-input"/>
             </div>
           </div>
 
           {/* Edit Button */}
-          <div className="edit-button-container">
+          <div className="my-page-edit-button-container">
             <button
-              onClick={() => nav("/myPage/updateInfo")}
-              className="edit-button"
+              onClick={() => updateInfo()}
+              className="my-page-edit-button"
             >
               편집하기
             </button>
@@ -92,31 +111,31 @@ const UpdateInfo = () => {
         </div>
 
     :  // ------------------------------------------------------------------------------------------여기부터 삼항 뒷 부분
-        <div className="profile-card">
-          <div className="profile-info">
+        <div className="my-page-profile-card">
+          <div className="my-page-profile-info">
             {/* User ID */}
-            <div className="info-field">
-              <label className="info-label">아이디</label>
-              <div className="info-value">{user.memberEmail}</div>
+            <div className="my-page-info-field">
+              <label className="my-page-info-label">아이디</label>
+              <div className="my-page-info-value">{updateUser.memberEmail}</div>
             </div>
 
             {/* Nickname */}
-            <div className="info-field">
-              <label className="info-label">이름</label>
-              <div className="info-value">{user.memberName}</div>
+            <div className="my-page-info-field">
+              <label className="my-page-info-label">이름</label>
+              <div className="my-page-info-value">{updateUser.memberName}</div>
             </div>
 
             {/* Additional Info */}
-            <div className="info-field">
-              <label className="info-label">닉네임</label>
-              <input value={user.Nickname != null ? user.Nickname:"닉네임을 설정하지 않았습니다"} className="info-value"/>
+            <div className="my-page-info-field">
+              <label className="my-page-info-label">닉네임</label>
+              <input onChange={handleUserInfo} name='memberNickname' value={updateUser.memberNickname != null ? updateUser.memberNickname:"닉네임을 설정하지 않았습니다"} className="my-page-input"/>
             </div>
 
                       {/* Edit Button */}
-          <div className="edit-button-container">
+          <div className="my-page-edit-button-container">
             <button
-              onClick={() => nav("/myPage/updateInfo")}
-              className="edit-button"
+              onClick={() => updateInfo()}
+              className="my-page-edit-button"
             >
               편집하기
             </button>
@@ -125,8 +144,8 @@ const UpdateInfo = () => {
         </div>
 
   return (
-    <div className="my-page">
-      <div className="my-page-container">
+    <div className="my-page-my-page">
+      <div className="my-page-my-page-container">
         <Menu/>
         {frag}
       </div>
