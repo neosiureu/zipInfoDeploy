@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from "react"; // useRef 추가
-import SearchBar from "../common/SearchBar";
-import "../../css/stock/stockPage.css";
+import { useEffect, useRef, useState } from "react"; // useRef 추가
 import { axiosAPI } from "../../api/axiosApi";
+import "../../css/stock/stockPage.css";
+import SearchBar from "../common/SearchBar";
 const StockPage = () => {
   /**********************Kakao api 세팅****************** */
   const mapRef = useRef(null); // 지도를 담을 div의 ref
+
+  const [stockList, setStockList] = useState(null); // spring 서버에서 받아오는 매물 List
 
   useEffect(() => {
     // 카카오 지도 API가 로드되었는지 확인
@@ -15,8 +17,10 @@ const StockPage = () => {
         level: 3, // 지도의 확대 레벨
       };
       const map = new window.kakao.maps.Map(container, options);
+
       //화면을 움직였을떄 서버에 itemList를 요청하는 addListener
       window.kakao.maps.event.addListener(map, "bounds_changed", async () => {
+        // "bounds_changed는 마우스를 떼지 않아도 요청이 가기떄문에, 서버에 가는 요청의 개수가 너무 많음. "idle"을 쓰면 마우스가 떼어지면 요청을 보내게 수정함.
         const bounds = map.getBounds();
         const sw = bounds.getSouthWest();
         const ne = bounds.getNorthEast();
@@ -33,6 +37,7 @@ const StockPage = () => {
           });
           if (resp.status === 200) {
             console.log(resp.data);
+            setStockList(resp.data);
           }
         } catch (error) {
           console.log("매물 items 조회 중 error 발생 : ", error);
@@ -67,56 +72,12 @@ const StockPage = () => {
   /****************** return ***************** **/
   return (
     <>
-      <SearchBar />
+      <SearchBar showSearchType={true} />{" "}
+      {/**showSearchType : 현재 페이지가 StockPage인가, SalePage인가 따지는 변수 */}
       {/**list */}
       <div className="container">
         <aside className="side-panel">
-          <div className="stock-header item-stock">
-            <img
-              src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https://blog.kakaocdn.net/dn/bQwQwA/btrb1QwQwQw/1.jpg"
-              alt="아파트"
-              className="stock-img"
-            />
-            <div className="stock-title">
-              <div>
-                <div className="item-type">매매</div>
-                <div className="item-name item-font-default">
-                  아파트명: 아크로서울포레스트아파트
-                </div>
-              </div>
-
-              <div className="item-font-default">
-                11.111㎡ | 1층/11층 | 관리비 10만원
-              </div>
-              <div className="item-font-default">
-                서울 성동구 성수동1가 685-700
-              </div>
-              <div className="item-font-broker"> ⌂뭉탱이공인중개사사무소</div>
-            </div>
-          </div>
-          <div className="stock-header item-stock">
-            <img
-              src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https://blog.kakaocdn.net/dn/bQwQwA/btrb1QwQwQw/1.jpg"
-              alt="아파트"
-              className="stock-img"
-            />
-            <div className="stock-title">
-              <div>
-                <div className="item-type">매매</div>
-                <div className="item-name item-font-default">
-                  아파트명: 아크로서울포레스트아파트
-                </div>
-              </div>
-
-              <div className="item-font-default">
-                11.111㎡ | 1층/11층 | 관리비 10만원
-              </div>
-              <div className="item-font-default">
-                서울 성동구 성수동1가 685-700
-              </div>
-              <div className="item-font-broker"> ⌂뭉탱이공인중개사사무소</div>
-            </div>
-          </div>
+          <StockList stockList={stockList} />
         </aside>
 
         {/**detail */}
@@ -220,3 +181,35 @@ const StockPage = () => {
 };
 
 export default StockPage;
+
+const StockList = ({ stockList }) => {
+  return (
+    <section className="item-list">
+      {stockList?.length === 0 ? (
+        <p>매물이 없습니다.</p>
+      ) : (
+        stockList?.map((item, index) => (
+          <div className="stock-title">
+            <div>
+              <div className="item-type">매매</div>
+              <div className="item-name item-font-default">
+                {/**매물 이름 */}
+                {item.stockName}
+              </div>
+            </div>
+
+            <div className="item-font-default">
+              {item.ExclusiveArea}㎡ | {item.currentFloor}층/
+              {item.floorTotalCount}층 | 관리비 {item.stockManageFee}원
+            </div>
+            <div className="item-font-default">
+              {/**매물 주소 */}
+              {item.stockAddress}
+            </div>
+            <div className="item-font-broker"> ⌂뭉탱이공인중개사사무소</div>
+          </div>
+        ))
+      )}
+    </section>
+  );
+};

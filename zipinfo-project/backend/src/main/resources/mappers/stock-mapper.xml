@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.zipinfo.project.stock.model.mapper.StockMapper">
+	<resultMap id="stockMap" type="com.zipinfo.project.stock.model.dto.Stock">
+  <!-- 기본키 -->
+	  <id property="stockNo" column="STOCK_NO"/>
+	
+	  <!-- 일반 컬럼 -->
+	  <result property="memberNo" column="MEMBER_NO"/>
+	  <result property="stockName" column="STOCK_NAME"/>
+	  <result property="stockSellPrice" column="STOCK_SELL_PRICE"/>
+	  <result property="stockManageFee" column="STOCK_FEE_MONTH_ADD"/>
+	  <result property="stockFeeMonth" column="STOCK_FEE_MONTH"/>
+	  <result property="stockInfo" column="STOCK_INFO"/>
+	  <result property="stockType" column="STOCK_TYPE"/>
+	  <result property="stockForm" column="STOCK_FORM"/>
+	  <result property="exclusiveArea" column="EXCLUSIVE_AREA"/>
+	  <result property="supplyArea" column="SUPPLY_AREA"/>
+	  <result property="currentFloor" column="CURRENT_FLOOR"/>
+	  <result property="floorTotalCount" column="FLOOR_TOTAL_COUNT"/>
+	  <result property="roomCount" column="ROOM_COUNT"/>
+	  <result property="bathCount" column="BATH_COUNT"/>
+	  <result property="stockDirection" column="STOCK_DIRECTION"/>
+	  <result property="ableDate" column="ABLE_DATE"/>
+	  <result property="useApprovalDate" column="USE_APPROVAL_DATE"/>
+	  <result property="registDate" column="REGIST_DATE"/>
+	  <result property="stockDetail" column="STOCK_DETAIL"/>
+	  <result property="stockAddress" column="STOCK_ADDRESS"/>
+	  <result property="regionNo" column="REGION_NO"/>
+	  <result property="sellYn" column="SELL_YN"/>
+	
+	  <!-- 좌표 (STOCK_COORD 테이블에서 가져온 값이라고 가정) -->
+	  <result property="lat" column="LAT"/>
+	  <result property="lng" column="LNG"/>
+	</resultMap>
+
+	<select id="selectStockInRange">
+		SELECT *
+			FROM (
+			    SELECT STOCK_NO AS stockNo, LAT AS lat, LNG AS lng
+			    FROM STOCK_COORD 
+			    WHERE LAT &gt; #{swLat} <!-- > escape 문자로 대체-->
+			    AND LAT &lt; #{neLat} <!-- < escape 문자로 대체-->
+			    AND LNG &gt; #{swLng} <!-- > escape 문자로 대체-->
+			    AND LNG &lt; #{neLng} <!-- < escape 문자로 대체-->
+			) c
+			INNER JOIN STOCK_INFO i ON c.stockNo = i.STOCK_NO
+	</select>
+</mapper>
