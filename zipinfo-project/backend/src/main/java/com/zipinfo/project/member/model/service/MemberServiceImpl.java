@@ -62,4 +62,10 @@ public class MemberServiceImpl implements MemberService{
 
 	}
 
+	@Override
+	public int checkBrokerNo(String brokerNo) {
+		// TODO Auto-generated method stub
+		return mapper.checkBrokerNo(brokerNo);
+	}
+ 
 }

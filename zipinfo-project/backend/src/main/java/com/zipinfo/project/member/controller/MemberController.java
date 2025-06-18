@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 	    allowedHeaders = "*",
 	    allowCredentials = "true"
 	)
-@RequestMapping("member")						// 클라이언트에 들어오는 쿠키를 허용하겠다
+@RequestMapping("/member")						// 클라이언트에 들어오는 쿠키를 허용하겠다
 @Slf4j
 @SessionAttributes({"loginMember"})
 @RequiredArgsConstructor
@@ -72,11 +72,23 @@ public class MemberController {
 	}
 	
 	
-	@GetMapping("checkNickname")
+	@GetMapping("/checkNickname")
 	public int checkNickname(@RequestParam("memberNickname") String memberNickname) {
-		 
+		log.info("일단 닉네임 체크하러 오긴 함");
+
 		return service.checkNickname(memberNickname);
 		
 	}
+	
+	
+	@GetMapping("/checkBrokerNo")
+	public int checkBrokerNo(@RequestParam("brokerNo") String brokerNo) {
+		log.info("일단 브로커번호 체크하러 오긴 함");
+ 
+		return service.checkBrokerNo(brokerNo);
+		
+	}
+	
+	
 	
 }
