@@ -1,0 +1,42 @@
+.notice-detail-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Pretendard, sans-serif;
+}
+
+.notice-title {
+  font-size: 24px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.notice-meta {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.notice-content {
+  font-size: 16px;
+  line-height: 1.6;
+  white-space: pre-line;
+  margin-bottom: 30px;
+}
+
+.notice-buttons {
+  margin-bottom: 20px;
+}
+
+.notice-buttons button,
+.back-button {
+  margin-right: 10px;
+  padding: 8px 12px;
+  background-color: blue;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}

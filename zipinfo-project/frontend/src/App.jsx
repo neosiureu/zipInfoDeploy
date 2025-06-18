@@ -23,6 +23,8 @@ import Advertisement from "./components/admin/Advertisement";
 import Inquiry from "./components/admin/Inquiry";
 import Management from "./components/admin/Management";
 
+// 공지사항
+
 function App() {
   return (
     <BrowserRouter>
@@ -46,7 +48,8 @@ function App() {
 
           {/* 관리자 전용 페이지 (별도 레이아웃을 원한다면 여기에 추가 가능) */}
           <Route path="/admin" element={<DashBoard />}>
-            <Route index element={<Chart />} /> {/* /admin 접속 시 기본 Chart */}
+            <Route index element={<Chart />} />{" "}
+            {/* /admin 접속 시 기본 Chart */}
             <Route path="dashboard" element={<Chart />} />{" "}
             {/* /admin/dashboard */}
             <Route path="chart" element={<Chart />} /> {/* /admin/chart */}
