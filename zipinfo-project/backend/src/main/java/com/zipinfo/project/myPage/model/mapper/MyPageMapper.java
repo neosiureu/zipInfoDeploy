@@ -9,4 +9,12 @@ public interface MyPageMapper {
 
 	Member getMemberInfo(Member loginMember);
 
+	int updateNormalInfo(Member member);
+
+	int updateBrokerInfo(Member member);
+
+	String getMemberPassword(Member loginMember);
+
+	int updatePassword(Member member);
+
 }

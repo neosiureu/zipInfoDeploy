@@ -1,173 +1,117 @@
-import React, { useEffect, useState } from "react";
-import "../../css/myPage/myInfo.css";
-import { useNavigate } from "react-router-dom";
-import { axiosAPI } from "../../api/axiosApi";
+import React, { useState } from 'react';
+import "../../css/myPage/updatePassword.css";
+import Menu from "./Menu";
+import { useNavigate } from 'react-router-dom';
+import { axiosAPI } from '../../api/axiosApi';
 
-const MyPage = () => {
+const PasswordChange = () => {
   const nav = useNavigate();
 
-  const [activeTab, setActiveTab] = useState("내 정보");
+  const [password, setPassword] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
 
-  const tabs = [
-    "내 정보",
-    "관심 매물",
-    "문의내역",
-    "내가 쓴 글",
-    "비밀번호 재설정",
-    "회원탈퇴",
-  ];
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setPassword(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
-  const [user, setUser] = useState([]);
 
-  async function getMemberInfo() {
+  const handleSubmit = async () => {
+
     try {
-      const resp = await axiosAPI.get("/myPage/memberInfo",{withCredentials: true});
+      if(password.newPassword !== password.confirmPassword){
+        
+        alert('새로운 비밀번호가 일치하지 않습니다.');
 
-      if (resp.status === 200) {
-        setUser(resp.data);
+        setPassword({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+        return;
       }
+
+      const response = await axiosAPI.post("/myPage/checkPassword", {memberPw : password.currentPassword}
+      );
+  
+      if (response.status === 200 && response.data == 1) {
+        const resp = await axiosAPI.post("/myPage/updatePassword", {memberPw : password.newPassword}
+        );
+        if(resp.status === 200){
+          alert('비밀번호 변경이 완료되었습니다.');
+          nav("/myPage")
+        }
+      }else{
+          alert('현재 비밀번호가 일치하지 않습니다.');
+          setPassword({
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+          });
+        }
     } catch (error) {
-      console.log("Member Info 불러오는 중 에러 발생 : ", error);
+      alert(error);
     }
-  }
 
-  useEffect(() => {
-    getMemberInfo();
-  }, []);
-
-  const memberAuth = user.memberAuth;
-
-  const frag = memberAuth == 3 ?  
-
-        <div className="profile-card">
-          <div className="profile-info">
-            {/* User ID */}
-            <div className="info-field">
-              <label className="info-label">아이디</label>
-              <div className="info-value">{user.memberEmail}</div>
-            </div>
-
-            {/* Nickname */}
-            <div className="info-field">
-              <label className="info-label">이름</label>
-              <div className="info-value">{user.memberName}</div>
-            </div>
-
-            {/* Additional Info */}
-            <div className="info-field">
-              <label className="info-label">닉네임</label>
-              <div className="info-value">{user.Nickname != null ? user.Nickname:"닉네임을 설정하지 않았습니다"}</div>
-            </div>
-
-            {/* Phone */}
-            <div className="info-field">
-              <label className="info-label">사무소 이름</label>
-              <div className="info-value">{user.companyName}</div>
-            </div>
-
-            {/* Address */}
-            <div className="info-field">
-              <label className="info-label">사무소 주소</label>
-              <div className="info-value">{user.companyLocation}</div>
-            </div>
-
-            {/* Description */}
-            <div className="info-field">
-              <label className="info-label">대표명</label>
-              <div className="info-value">{user.presidentName}</div>
-            </div>
-
-            {/* Interests */}
-            <div className="info-field">
-              <label className="info-label">대표 번호</label>
-              <div className="info-value">{user.presidentPhone}</div>
-            </div>
-
-                        {/* Interests */}
-            <div className="info-field">
-              <label className="info-label">중개등록번호</label>
-              <div className="info-value">{user.brokerNo}</div>
-            </div>
-          </div>
-
-          {/* Edit Button */}
-          <div className="edit-button-container">
-            <button
-              onClick={() => nav("/myPage/updateInfo")}
-              className="edit-button"
-            >
-              편집하기
-            </button>
-          </div>
-        </div>
-
-    :  // ------------------------------------------------------------------------------------------여기부터 삼항 뒷 부분
-        <div className="profile-card">
-          <div className="profile-info">
-            {/* User ID */}
-            <div className="info-field">
-              <label className="info-label">아이디</label>
-              <div className="info-value">{user.memberEmail}</div>
-            </div>
-
-            {/* Nickname */}
-            <div className="info-field">
-              <label className="info-label">이름</label>
-              <div className="info-value">{user.memberName}</div>
-            </div>
-
-            {/* Additional Info */}
-            <div className="info-field">
-              <label className="info-label">닉네임</label>
-              <div className="info-value">{user.Nickname != null ? user.Nickname:"닉네임을 설정하지 않았습니다"}</div>
-            </div>
-
-                      {/* Edit Button */}
-          <div className="edit-button-container">
-            <button
-              onClick={() => nav("/myPage/updateInfo")}
-              className="edit-button"
-            >
-              편집하기
-            </button>
-          </div>
-          </div>
-        </div>
-
-
-
-
+  };
 
   return (
     <div className="my-page">
-      <div className="my-page-container">
-        {/* Page Title */}
-        <div className="page-title">
-          <h1>마이페이지</h1>
+        <div className="my-page-container">
+      
+          <Menu/>
 
-          {/* Tab Navigation */}
-          <div className="tab-navigation">
-            <div className="tab-container">
-              {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    setActiveTab(tab);
-                  }}
-                  className={`tab-button ${
-                    activeTab === tab ? "active" : "inactive"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
+          {/* Password Change Form */}
+          <div className="pass-password-form">
+            <div className="pass-form-group">
+              <label className="pass-form-label">기존 비밀번호</label>
+              <input
+                type="password"
+                name="currentPassword"
+                value={password.currentPassword}
+                onChange={handleInputChange}
+                placeholder="기존 비밀번호를 입력해주세요"
+                className="pass-form-input"
+              />
             </div>
+
+            <div className="pass-form-group">
+              <label className="pass-form-label">새 비밀번호</label>
+              <input
+                type="password"
+                name="newPassword"
+                value={password.newPassword}
+                onChange={handleInputChange}
+                placeholder="새 비밀번호를 입력해주세요"
+                className="pass-form-input"
+              />
+            </div>
+
+            <div className="pass-form-group">
+              <label className="pass-form-label">새 비밀번호 확인</label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={password.confirmPassword}
+                onChange={handleInputChange}
+                placeholder="새 비밀번호를 확인해주세요"
+                className="pass-form-input"
+              />
+            </div>
+
+            <button onClick={handleSubmit} className="pass-submit-button">
+              변경하기
+            </button>
           </div>
         </div>
-        {frag}
-      </div>
     </div>
   );
 };
 
-export default MyPage;
+export default PasswordChange;

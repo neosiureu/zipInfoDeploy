@@ -13,4 +13,30 @@
 		WHERE MEMBER_NO = #{memberNo}
 	</select>
 
+	<update id="updateNormalInfo">
+		UPDATE "MEMBER" SET
+		MEMBER_NICKNAME = #{memberNickname}
+		WHERE MEMBER_NO = #{memberNo}
+	</update>
+
+	<update id="updateBrokerInfo">
+		UPDATE "BROKER_INFO" SET
+		COMPANY_NAME = #{companyName},
+		COMPANY_LOCATION = #{companyLocation},
+		PRESIDENT_NAME = #{presidentName},
+		BROKER_NO = #{brokerNo},
+		PRESIDENT_PHONE = #{presidentPhone}
+		WHERE MEMBER_NO = #{memberNo}
+	</update>
+	
+	<select id="getMemberPassword">
+		SELECT MEMBER_PW FROM "MEMBER"
+		WHERE MEMBER_NO = #{memberNo}
+	</select>
+	
+	<update id="updatePassword">
+		UPDATE "MEMBER" SET
+		MEMBER_PW = #{memberPw}
+		WHERE MEMBER_NO = #{memberNo}
+	</update>
 </mapper>

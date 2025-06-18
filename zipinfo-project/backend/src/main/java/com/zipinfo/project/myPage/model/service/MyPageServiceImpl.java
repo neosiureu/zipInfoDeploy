@@ -1,6 +1,8 @@
 package com.zipinfo.project.myPage.model.service;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,9 +20,56 @@ public class MyPageServiceImpl implements MyPageService{
 
 	private final MyPageMapper mapper;
 	
+	@Autowired
+	private BCryptPasswordEncoder bcrypt;
+	
 	@Override
 		public Member getMemberInfo(Member loginMember) {
 		
 			return mapper.getMemberInfo(loginMember);
 		}
+	
+	@Override
+	public int updateInfo(Member loginMember, Member member) {
+		
+		int result;
+		
+		member.setMemberNo(loginMember.getMemberNo());
+		
+		if(loginMember.getMemberAuth() == 3) {
+			
+			int firstResult = mapper.updateNormalInfo(member);
+			
+			int secondResult = mapper.updateBrokerInfo(member);
+			
+			result = firstResult + secondResult;
+			
+		}else {
+			result =  mapper.updateNormalInfo(member);
+		}
+		
+		return result;
+	}
+	
+	@Override
+	public int checkPassword(Member loginMember, Member member) {
+		
+		String memberPassword = mapper.getMemberPassword(loginMember);
+		
+		if(!bcrypt.matches(member.getMemberPw(), memberPassword)) {
+			return 0;
+		}
+		
+		return 1;
+	}
+	
+	@Override
+	public int updatePassword(Member loginMember, Member member) {
+		
+		String encPw = bcrypt.encode(member.getMemberPw());
+		member.setMemberPw(encPw);
+		member.setMemberNo(loginMember.getMemberNo());
+		
+		return mapper.updatePassword(member);
+	}
 }
