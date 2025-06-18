@@ -10,6 +10,9 @@
 				Java 필드명(memberId)과 DB 컬럼명(MEMBER_ID)가 서로 연결될 수 있도록 함
 		   -->
 		<setting name="mapUnderscoreToCamelCase" value="true" />
+		 
+    	<setting name="logImpl" value="STDOUT_LOGGING"/>
+  
 	</settings>
 
 </configuration>
