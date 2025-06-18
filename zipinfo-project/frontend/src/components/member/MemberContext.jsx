@@ -10,22 +10,22 @@ export const MemberContext = createContext();
 export const MemberProvider = ({ children }) => {
   // 상태값, 함수
   // 전역적으로 현재 로그인한 회원의 정보를 기억(상태)
-  const [member, setMember] = useState([]);
+  const [member, setMember] = useState(null);
 
   useEffect(() => {
-    const firstMember = async () => {
+    const isMember = async () => {
       try {
-        const resp = await axiosAPI.get("http://localhost/member/getMember");
+        const resp = await axiosAPI.get("/member/getMember");
         if (resp.status === 200 && resp.data) {
           setMember(resp.data);
-          console.log("로그인 정보가 있긴 합니다.");
+          console.log("로그인 정보가 있긴 함.");
         }
       } catch (error) {
         console.error("Member 불러오기 실패:", error);
       }
     };
 
-    firstMember();
+    isMember();
   }, []);
 
   return (

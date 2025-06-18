@@ -1,9 +1,20 @@
-// src/components/common/Header.jsx
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useContext } from "react";
 import logo from "../../assets/logo.svg";
 import "../../css/common/Header.css";
+import { MemberContext } from "../member/MemberContext";
 
 const Header = () => {
+  const { member, setMember } = useContext(MemberContext);
+  const navigate = useNavigate();
+
+  // 로그아웃 => 로컬스토리지 초기화
+  const handleLogout = () => {
+    setMember(null);
+    localStorage.removeItem("loginMember");
+    navigate("/");
+  };
+
   return (
     <header className="navbar">
       <div className="navbar-left">
@@ -30,11 +41,28 @@ const Header = () => {
           </li>
         </ul>
       </div>
+
       <div className="navbar-right">
         <ul className="member">
-          <li id="signup-btn">회원가입</li>
-          <li id="login-btn">로그인</li>
-          <li id="my-page"><Link to="/myPage">마이페이지</Link></li>
+          {member ? (
+            <>
+              <li id="my-page">
+                <Link to="/myPage">마이페이지</Link>
+              </li>
+              <li id="logout-btn">
+                <button onClick={handleLogout}>로그아웃</button>
+              </li>
+            </>
+          ) : (
+            <>
+              <li id="signup-btn">
+                <Link to="/signup">회원가입</Link>
+              </li>
+              <li id="login-btn">
+                <Link to="/login">로그인</Link>
+              </li>
+            </>
+          )}
         </ul>
       </div>
     </header>
