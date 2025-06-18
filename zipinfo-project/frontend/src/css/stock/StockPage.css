@@ -106,8 +106,8 @@
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
-  color: #333;
+  font-size: 14px;
+  color: #111;
   margin-bottom: 8px;
   table-layout: fixed;
   word-break: break-word;
@@ -115,7 +115,6 @@ table {
 
 table tr td {
   padding: 6px 4px;
-  border-bottom: 1px solid #f0f0f0;
   vertical-align: top;
   line-height: 24px;
 }
@@ -125,17 +124,11 @@ table tr:last-child td {
 }
 
 .plan-img {
-  width: 80px;
-  height: 50px;
+  width: 80%;
+  max-width: 400px;
   object-fit: cover;
-  border: 1px solid #eee;
   border-radius: 4px;
 }
-
-/* 푸터 숨김 */
-/* .footer {
-  display: none;
-} */
 
 /*여기서부터 author: 안준성*/
 

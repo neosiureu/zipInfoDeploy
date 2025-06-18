@@ -1,25 +1,22 @@
-import React, { useEffect, useRef } from "react"; // useRef 추가
+import React, { useEffect, useRef } from "react";
 import SearchBar from "../common/SearchBar";
+import saleThumbnail from "../../assets/sale-page-thumbnail.svg";
+import floor from "../../assets/floor.svg";
 import "../../css/sale/salePage.css";
 
 const SalePage = () => {
-  const mapRef = useRef(null); // 지도를 담을 div의 ref
+  const mapRef = useRef(null);
 
   useEffect(() => {
-    // 카카오 지도 API가 로드되었는지 확인
     if (window.kakao && window.kakao.maps) {
-      const container = mapRef.current; // 지도를 표시할 div
+      const container = mapRef.current;
       const options = {
-        center: new window.kakao.maps.LatLng(37.5451, 127.0425), // 아크로서울포레스트아파트 대략적인 위도, 경도
-        level: 3, // 지도의 확대 레벨
+        center: new window.kakao.maps.LatLng(37.5451, 127.0425),
+        level: 3,
       };
       const map = new window.kakao.maps.Map(container, options);
-
-      // 마커를 추가하고 싶다면 여기에 추가
       const markerPosition = new window.kakao.maps.LatLng(37.5451, 127.0425);
-      const marker = new window.kakao.maps.Marker({
-        position: markerPosition,
-      });
+      const marker = new window.kakao.maps.Marker({ position: markerPosition });
       marker.setMap(map);
     }
   }, []);
@@ -28,98 +25,127 @@ const SalePage = () => {
     <>
       <SearchBar />
       <div className="container">
-        <aside className="side-panel">
-          <div className="apt-header">
-            <img
-              src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https://blog.kakaocdn.net/dn/bQwQwA/btrb1QwQwQw/1.jpg"
-              alt="아파트"
-              className="apt-img"
-            />
-            <div className="apt-title">
-              <div className="apt-name">아파트명: 아크로서울포레스트아파트</div>
-              <div className="apt-price">평균 19억 1,000 ~ 19억 4,000</div>
-              <div className="apt-address">서울 성동구 성수동1가 685-700</div>
+        <aside className="sale-side-panel">
+          <div className="sale-header">
+            <img src={saleThumbnail} alt="썸네일 이미지" className="sale-img" />
+            <div className="sale-title">
+              <div className="sale-name">아파트 · 아크로서울포레스트아파트</div>
+              <div className="sale-price">
+                <span>분양가</span> 10억 9,000
+              </div>
+              <div className="sale-address">서울 성동구 성수동1가 685-700</div>
+              <div className="sale-status">분양상태</div>
             </div>
           </div>
-          <div className="section">
-            <div className="section-title">기본정보</div>
-            <table>
-              <tbody>
-                <tr>
-                  <td>주소</td>
-                  <td>서울 성동구 성수동1가 685-700, 아크로서울포레스트</td>
-                </tr>
-                <tr>
-                  <td>건물용도</td>
-                  <td>공동주택(아파트)</td>
-                </tr>
-                <tr>
-                  <td>입주일</td>
-                  <td>2019.09.09</td>
-                </tr>
-                <tr>
-                  <td>세대수</td>
-                  <td>280세대</td>
-                </tr>
-                <tr>
-                  <td>전화번호</td>
-                  <td>02-1234-1234</td>
-                </tr>
-                <tr>
-                  <td>평면도</td>
-                  <td>
-                    <img
-                      src="https://www.apt2you.com/images/apt/apt2you/apt2you_apt_1.png"
-                      alt="평면도"
-                      className="plan-img"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+
+          {/* 기본정보 */}
+          <div className="sale-section">
+            <div className="sale-section-line" />
+            <div className="sale-section-content">
+              <div className="sale-section-title">기본정보</div>
+              <table>
+                <tbody>
+                  <tr>
+                    <td>분양주소</td>
+                    <td>서울시 강동구 성내동 459-3</td>
+                  </tr>
+                  <tr>
+                    <td>규모</td>
+                    <td>15-16층, 1개동, 총 58세대 / 일반분양 9세대</td>
+                  </tr>
+                  <tr>
+                    <td>청약접수</td>
+                    <td>25.06.09 ~ 25.06.10</td>
+                  </tr>
+                  <tr>
+                    <td>당첨자발표</td>
+                    <td>25.06.13</td>
+                  </tr>
+                  <tr>
+                    <td>건설사</td>
+                    <td>에스테크건설(주), (주)이엔건설</td>
+                  </tr>
+                  <tr>
+                    <td>분양문의</td>
+                    <td>02-1234-1234</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div className="section">
-            <div className="section-title">평형정보</div>
-            <table>
-              <tbody>
-                <tr>
-                  <td>10평형</td>
-                  <td>39.00㎡ / 20세대</td>
-                </tr>
-                <tr>
-                  <td>20평형</td>
-                  <td>59.00㎡ / 30세대</td>
-                </tr>
-                <tr>
-                  <td>30평형</td>
-                  <td>84.00㎡ / 230세대</td>
-                </tr>
-              </tbody>
-            </table>
+
+          {/* 평면도 */}
+          <div className="sale-section">
+            <div className="sale-section-line" />
+            <div className="sale-section-content">
+              <div className="sale-plan-section">
+                <img src={floor} alt="평면도" className="plan-img" />
+              </div>
+            </div>
           </div>
-          <div className="section">
-            <div className="section-title">중도금납입정보</div>
-            <table>
-              <tbody>
-                <tr>
-                  <td>계약금</td>
-                  <td>191,000,000원 / 10%</td>
-                </tr>
-                <tr>
-                  <td>중도금</td>
-                  <td>382,000,000원 / 60%</td>
-                </tr>
-                <tr>
-                  <td>잔금</td>
-                  <td>514,000,000원 / 30%</td>
-                </tr>
-              </tbody>
-            </table>
+
+          {/* 평형정보 */}
+          <div className="sale-section">
+            <div className="sale-section-line" />
+            <div className="sale-section-content">
+              <div className="sale-section-title">평형정보</div>
+              <table>
+                <tbody>
+                  <tr>
+                    <td>분양가</td>
+                    <td>10억 9,000</td>
+                  </tr>
+                  <tr>
+                    <td>취득세</td>
+                    <td>3,597만원</td>
+                  </tr>
+                  <tr>
+                    <td>공급면적</td>
+                    <td>70.02㎡</td>
+                  </tr>
+                  <tr>
+                    <td>전용면적</td>
+                    <td>52.02㎡</td>
+                  </tr>
+                  <tr>
+                    <td>대지지분</td>
+                    <td>28.11㎡</td>
+                  </tr>
+                  <tr>
+                    <td>방/욕실수</td>
+                    <td>3개 / 2개</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* 중도금납입정보 */}
+          <div className="sale-section sale-last-section">
+            <div className="sale-section-line" />
+            <div className="sale-section-content">
+              <div className="sale-section-title">중도금납입정보</div>
+              <table>
+                <tbody>
+                  <tr>
+                    <td>계약금</td>
+                    <td>1억 1,000만원 / 10%</td>
+                  </tr>
+                  <tr>
+                    <td>중도금</td>
+                    <td>3억 2,000만원 / 60%</td>
+                  </tr>
+                  <tr>
+                    <td>잔금</td>
+                    <td>5억 6,000만원 / 30%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </aside>
-        <main className="map-area" ref={mapRef}>
-          {/* 카카오 맵이 여기에 렌더링됩니다. */}
-        </main>
+
+        <main className="map-area" ref={mapRef}></main>
       </div>
     </>
   );
