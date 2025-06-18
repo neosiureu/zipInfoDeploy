@@ -36,7 +36,6 @@ public class MemberController {
 	
 	@GetMapping("/getMember")
     public ResponseEntity<Member> getMember(HttpSession session) {
-		log.info("일단 멤버 체크하러 오긴 함");
         Member member = (Member) session.getAttribute("loginMember");
 
         if(member==null) {
