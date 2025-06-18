@@ -15,6 +15,14 @@ import MemberLogin from "./components/member/MemberLogin";
 import { MemberProvider } from "./components/member/MemberContext";
 import MemberSignup from "./components/member/MemberSignup";
 
+// 관리자
+import HousingForm from "./components/admin/HousingForm";
+import DashBoard from "./components/admin/DashBoard";
+import Chart from "./components/admin/Chart";
+import Advertisement from "./components/admin/Advertisement";
+import Inquiry from "./components/admin/Inquiry";
+import Management from "./components/admin/Management";
+
 function App() {
   return (
     <BrowserRouter>
@@ -35,6 +43,21 @@ function App() {
             <Route path="myPage/updatePassword" element={<UpdatePassword />} />
             <Route path="myPage/withDraw" element={<WithDraw />} />
           </Route>
+
+          {/* 관리자 전용 페이지 (별도 레이아웃을 원한다면 여기에 추가 가능) */}
+          <Route path="/admin" element={<DashBoard />}>
+            <Route index element={<Chart />} /> {/* /admin 접속 시 기본 Chart */}
+            <Route path="dashboard" element={<Chart />} />{" "}
+            {/* /admin/dashboard */}
+            <Route path="chart" element={<Chart />} /> {/* /admin/chart */}
+            <Route path="housingForm" element={<HousingForm />} />
+            <Route path="advertisement" element={<Advertisement />} />
+            <Route path="inquiry" element={<Inquiry />} />
+            <Route path="management" element={<Management />} />
+          </Route>
+
+          {/* 404 페이지 처리를 원한다면 추가 */}
+          {/* <Route path="*" element={<NotFound />} /> */}
         </Routes>
       </MemberProvider>
     </BrowserRouter>

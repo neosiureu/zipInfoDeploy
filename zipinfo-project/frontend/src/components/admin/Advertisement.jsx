@@ -1,6 +1,7 @@
 // 관리자 광고 등록
 
 import React, { useState } from "react";
+import "../../css/admin/Advertisement.css";
 
 const Advertisement = () => {
   const [adminName] = useState("홍길동"); // 예시 관리자 이름

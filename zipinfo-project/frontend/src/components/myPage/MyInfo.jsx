@@ -4,10 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { axiosAPI } from "../../api/axiosApi";
 import Menu from "./Menu";
 
+
 const MyPage = () => {
   const nav = useNavigate();
-
-
   const [user, setUser] = useState([]);
 
   async function getMemberInfo() {
@@ -26,14 +25,15 @@ const MyPage = () => {
     nav("/myPage/updateInfo" , {user, setUser})
   }
 
+
   useEffect(() => {
     getMemberInfo();
   }, []);
 
+
   const memberAuth = user.memberAuth;
 
   const frag = memberAuth == 3 ?  
-
         <div className="profile-card">
           <div className="profile-info">
             {/* User ID */}
