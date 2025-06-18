@@ -8,6 +8,7 @@ import MyInfo from "./components/myPage/MyInfo";
 import UpdateInfo from "./components/myPage/UpdateInfo";
 import MemberLogin from "./components/member/MemberLogin";
 import { MemberProvider } from "./components/member/MemberContext";
+import MemberSignup from "./components/member/MemberSignup";
 
 function App() {
   return (
@@ -21,6 +22,8 @@ function App() {
             <Route path="stock" element={<StockPage />} />
             <Route path="myPage" element={<MyInfo />} />
             <Route path="login" element={<MemberLogin />} />
+            <Route path="signUp" element={<MemberSignup />} />
+
             <Route path="myPage/updateInfo" element={<UpdateInfo />} />
           </Route>
         </Routes>
