@@ -377,11 +377,11 @@ const Management = () => {
   const getCurrentSearchPlaceholder = () => {
     switch (activeTab) {
       case "members":
-        return "회원번호 또는 아이디 검색";
+        return "조회하고자 하는 회원 아이디 입력";
       case "deleted":
-        return "삭제된 회원 검색";
+        return "조회하고자 하는 회원 아이디 입력";
       case "applications":
-        return "신청자 아이디 검색";
+        return "조회하고자 하는 회원 아이디 입력";
       default:
         return "검색";
     }
@@ -449,9 +449,6 @@ const Management = () => {
             {tab.label}
           </button>
         ))}
-        <button className="refresh-button" onClick={handleRefresh}>
-          <RefreshCw size={18} />
-        </button>
       </div>
 
       {/* 검색 및 필터 */}
@@ -490,6 +487,10 @@ const Management = () => {
             </select>
           </>
         )}
+
+        <button className="refresh-button" onClick={handleRefresh}>
+          <RefreshCw size={18} />
+        </button>
 
         {activeTab === "deleted" && (
           <select
@@ -594,15 +595,49 @@ const Management = () => {
 
       {/* 페이지네이션 */}
       <div className="pagination">
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i + 1}
-            className={currentPageState === i + 1 ? "active-page" : ""}
-            onClick={() => handlePageChange(i + 1)}
-          >
-            {i + 1}
-          </button>
-        ))}
+        <button
+          onClick={() =>
+            currentPageState > 1 && handlePageChange(currentPageState - 1)
+          }
+          disabled={currentPageState === 1}
+        >
+          &laquo;
+        </button>
+
+        {Array.from({ length: totalPages }, (_, i) => {
+          const pageNum = i + 1;
+
+          // 페이지가 너무 많으면 일부만 노출(예: 현재 페이지 전후 2개)
+          if (
+            pageNum === 1 ||
+            pageNum === totalPages ||
+            (pageNum >= currentPageState - 2 && pageNum <= currentPageState + 2)
+          ) {
+            return (
+              <button
+                key={pageNum}
+                className={currentPageState === pageNum ? "active-page" : ""}
+                onClick={() => handlePageChange(pageNum)}
+              >
+                {pageNum}
+              </button>
+            );
+          } else if (
+            pageNum === currentPageState - 3 ||
+            pageNum === currentPageState + 3
+          )
+            return null; // 나머지는 렌더링하지 않음
+        })}
+
+        <button
+          onClick={() =>
+            currentPageState < totalPages &&
+            handlePageChange(currentPageState + 1)
+          }
+          disabled={currentPageState === totalPages}
+        >
+          &raquo;
+        </button>
       </div>
     </div>
   );

@@ -39,11 +39,20 @@
 
 .tab-container {
   display: flex;
-  border-bottom: 1px solid #dee2e6;
+  flex-direction: row; /* 가로 나열 */
+  justify-content: center;
+  gap: 10px;
+}
+
+.tab-menu {
+  display: flex;
+  justify-content: center; /* 가로 방향 중앙 정렬 */
+  align-items: center; /* 세로 방향 중앙 정렬 */
+  gap: 10px; /* 버튼 사이 간격 */
+  flex-wrap: nowrap;
 }
 
 .tab-button {
-  flex: 1;
   padding: 15px 20px;
   border: none;
   background-color: white;
@@ -56,10 +65,14 @@
   font-size: 16px;
   font-weight: 400;
   transition: all 0.2s;
+  min-width: 120px; /* 버튼 최소 너비 지정 (필요 시 조절) */
+  justify-content: center; /* 가로 중앙 정렬 */
+  gap: 10px; /* 버튼 사이 간격 추가 (선택 사항) */
+  border-radius: 20px;
 }
 
 .tab-button.active {
-  background-color: #007bff;
+  background-color: black;
   color: white;
   font-weight: 600;
 }
@@ -85,9 +98,23 @@
   margin-bottom: 15px;
 }
 
+/* 검색 */
+.controls {
+  display: flex;
+  justify-content: center; /* 가로 중앙 정렬 */
+  align-items: center; /* 세로 중앙 정렬 */
+  gap: 12px; /* 아이템 사이 간격 */
+  flex-wrap: wrap; /* 화면 좁아지면 줄 바꿈 */
+  margin-bottom: 20px;
+}
+
+.controls .search-box {
+  min-width: 250px; /* 검색박스 최소 너비 유지 */
+}
+
 .search-box {
   position: relative;
-  min-width: 250px;
+  min-width: 500px;
 }
 
 .search-icon {
@@ -100,10 +127,10 @@
 }
 
 .search-input {
-  padding: 10px 12px 10px 40px;
+  padding: 14px 16px 14px 48px; /* 패딩 키워서 입력 공간 확대 */
+  font-size: 16px; /* 폰트도 키워서 가독성 향상 */
   border: 1px solid #dee2e6;
   border-radius: 6px;
-  font-size: 14px;
   width: 100%;
   transition: border-color 0.2s;
 }
@@ -400,37 +427,34 @@
 /* 페이지네이션 */
 .pagination {
   display: flex;
+  gap: 6px;
   justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
+  margin: 16px 0;
 }
 
-.page-btn {
-  padding: 8px 12px;
-  border: 1px solid #dee2e6;
-  background-color: white;
-  color: #007bff;
-  border-radius: 4px;
+.pagination button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background: white;
   cursor: pointer;
+  border-radius: 4px;
   font-size: 14px;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
 }
 
-.page-btn:hover {
-  background-color: #e9ecef;
+.pagination button:hover:not(:disabled) {
+  background-color: #f0f0f0;
 }
 
-.page-btn.active {
-  background-color: #007bff;
-  color: white;
-  border-color: #007bff;
-}
-
-.page-btn:disabled {
-  background-color: #f8f9fa;
-  color: #6c757d;
+.pagination button:disabled {
   cursor: not-allowed;
-  border-color: #dee2e6;
+  opacity: 0.5;
+}
+
+.pagination .active-page {
+  background-color: blue;
+  color: white;
+  border-color: blue;
 }
 
 /* 반응형 */
