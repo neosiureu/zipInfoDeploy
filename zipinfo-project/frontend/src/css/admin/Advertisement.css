@@ -181,7 +181,7 @@ button {
 
 /* 삭제 버튼 */
 .bg-red-500 {
-  background-color: #ef4444;
+  background-color: gray;
 }
 
 .bg-red-500:hover {

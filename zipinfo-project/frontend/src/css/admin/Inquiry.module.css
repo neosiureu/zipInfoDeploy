@@ -110,6 +110,22 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
+.tableHeader > div:nth-child(1) {
+  flex: 0.5;
+} /* 번호 */
+.tableHeader > div:nth-child(2) {
+  flex: 3;
+} /* 제목 */
+.tableHeader > div:nth-child(3) {
+  flex: 1;
+} /* 작성자 */
+.tableHeader > div:nth-child(4) {
+  flex: 1;
+} /* 날짜 */
+.tableHeader > div:nth-child(5) {
+  justify-content: end;
+} /* 답변 */
+
 .tableRow {
   padding: 1rem 1.5rem;
   display: grid;

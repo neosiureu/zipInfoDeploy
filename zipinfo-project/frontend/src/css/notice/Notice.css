@@ -1,0 +1,126 @@
+.notice-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px 40px;
+  font-family: "Pretendard", sans-serif;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(145, 45, 45, 0.1);
+}
+
+.notice-container h2 {
+  text-align: center;
+  color: white;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.notice-search {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 8px;
+}
+
+.notice-search input[type="text"] {
+  width: 300px;
+  padding: 8px 12px;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.notice-search input[type="text"]:focus {
+  outline: none;
+  border-color: blue;
+  box-shadow: 0 0 6px rgba(145, 45, 45, 0.4);
+}
+
+.notice-search button {
+  padding: 8px 20px;
+  background-color: blue;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.notice-search button:hover {
+  background-color: blue;
+}
+
+.notice-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.notice-table th,
+.notice-table td {
+  border: 1px solid #ddd;
+  padding: 12px 10px;
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
+
+.notice-table th {
+  background-color: blue;
+  color: white;
+  font-weight: 700;
+}
+
+.notice-title {
+  color: blue;
+  cursor: pointer;
+  text-align: left;
+  padding-left: 15px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.notice-title:hover {
+  text-decoration: underline;
+  color: blue;
+}
+
+.notice-table button {
+  background-color: blue;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  margin: 0 4px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.notice-table button:hover {
+  background-color: blue;
+}
+
+.notice-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.write-button {
+  background-color: blue;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.write-button:hover {
+  background-color: blue;
+}

@@ -1,3 +1,4 @@
+// 문의 확인
 import React, { useState, useEffect } from "react";
 import styles from "../../css/admin/Inquiry.module.css";
 
@@ -173,7 +174,6 @@ const Inquiry = () => {
           <div>제목</div>
           <div>작성자</div>
           <div>날짜</div>
-          <div>답변</div>
           <div>답변</div>
         </div>
 

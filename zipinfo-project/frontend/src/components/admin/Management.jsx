@@ -454,8 +454,9 @@ const Management = () => {
       {/* 검색 및 필터 */}
       <div className="controls">
         <div className="search-box">
-          <Search size={18} />
+          <Search size={18} className="search-icon" />
           <input
+            className="search-input" // ✅ 스타일 적용 필수!
             type="text"
             value={getCurrentSearchValue()}
             onChange={(e) => handleSearchChange(e.target.value)}
