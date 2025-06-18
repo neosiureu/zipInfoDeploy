@@ -17,7 +17,7 @@ const SearchBar = ({ showSearchType = true }) => {
       <div className="searchbar">
         {/* 검색어 입력 */}
         <div className="search-input-wrap">
-          <span className="search-icon">
+          <span className="header-search-icon">
             <img src={search} alt="검색 아이콘" />
           </span>
           <input type="text" placeholder="검색어를 입력하세요" />
@@ -79,7 +79,7 @@ const SearchBar = ({ showSearchType = true }) => {
         </div>
 
         {/* 새로고침 */}
-        <button className="refresh-btn">
+        <button className="searcbar-refresh-btn">
           <img src={refresh} alt="새로고침" />
         </button>
       </div>
