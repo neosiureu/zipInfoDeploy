@@ -34,7 +34,7 @@ const Main = () => {
             찾아드립니다.
           </p>
           <div className="search-bar">
-            <img src={search} alt="검색 아이콘" className="search-icon" />
+            <img src={search} alt="검색 아이콘" className="main-search-icon" />
             <input type="text" placeholder="검색어를 입력하세요" />
           </div>
           <div className="main-icons">

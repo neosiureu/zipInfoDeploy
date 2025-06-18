@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import SearchBar from "../common/SearchBar";
 import saleThumbnail from "../../assets/sale-page-thumbnail.svg";
 import floor from "../../assets/floor.svg";
-import "../../css/sale/salePage.css";
+import "../../css/sale/SalePage.css";
 
 const SalePage = () => {
   const mapRef = useRef(null);
