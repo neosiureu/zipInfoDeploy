@@ -42,7 +42,7 @@ export default function DashBoard() {
         </div>
 
         <div className="router-tab-box">
-          <NavLink to="/admin">통계</NavLink> {/* /admin 경로에 Chart 렌더링 */}
+          <NavLink to="/admin">통계</NavLink>
           <NavLink to="/admin/management">서비스관리 권한 발급</NavLink>
           <NavLink to="/admin/inquiry">문의 확인</NavLink>
           <NavLink to="/admin/advertisement">광고 등록</NavLink>
@@ -61,12 +61,12 @@ export default function DashBoard() {
         </div>
 
         <Routes>
-          {/* /admin 로 접속 시 자동으로 /admin/management 로 리다이렉트 -> 이 부분을 통계 페이지가 기본이 되도록 바꿀 수도 있습니다 */}
-          <Route index element={<Chart />} /> {/* 기본 경로에 Chart 렌더링 */}
+          <Route index element={<Chart />} />
+          <Route path="/admin/*" element={<DashBoard />} />
           <Route path="management" element={<Management />} />
           <Route path="inquiry" element={<Inquiry />} />
           <Route path="advertisement" element={<Advertisement />} />
-          <Route path="housingForm" element={<HousingForm />} />
+          <Route path="housingform" element={<HousingForm />} />
         </Routes>
       </div>
 

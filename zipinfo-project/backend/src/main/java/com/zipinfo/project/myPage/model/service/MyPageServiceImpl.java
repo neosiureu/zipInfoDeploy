@@ -19,7 +19,8 @@ public class MyPageServiceImpl implements MyPageService{
 	private final MyPageMapper mapper;
 	
 	@Override
-		public Member getMemberInfo() {
-			return mapper.getMemberInfo();
+		public Member getMemberInfo(Member loginMember) {
+		
+			return mapper.getMemberInfo(loginMember);
 		}
 }

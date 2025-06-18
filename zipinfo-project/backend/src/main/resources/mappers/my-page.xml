@@ -5,8 +5,12 @@
 <mapper namespace="com.zipinfo.project.myPage.model.mapper.MyPageMapper">
 
 	<select id="getMemberInfo">
-		SELECT * FROM MEMBER
-		WHERE MEMBER_NO = 2
+		SELECT MEMBER_NAME, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_AUTH <if test="memberAuth eq 3">, COMPANY_NAME, COMPANY_LOCATION, PRESIDENT_NAME, BROKER_NO, PRESIDENT_PHONE</if>
+		FROM MEMBER M
+		<if test="memberAuth eq 3">
+		JOIN BROKER_INFO B USING(MEMBER_NO)
+		</if>
+		WHERE MEMBER_NO = #{memberNo}
 	</select>
 
 </mapper>
