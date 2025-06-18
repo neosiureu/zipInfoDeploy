@@ -8,24 +8,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class Member {
-	int memberNo;
-	String memberEmail;
-	String memberPw;
-	String memberImg;
-	String enrollDate;
-	String memberDelFl;
-	String memberLogin;   
-    String memberNickname;
-    String memberName;
-    int memberAuth;
-    String accessToken;
+	protected int memberNo;
+	protected String memberEmail;
+	protected String memberPw;
+	protected String memberImg;
+	protected String enrollDate;
+	protected String memberDelFl;
+	protected String memberLogin;   
+	protected  String memberNickname;
+	protected String memberName;
+	protected int memberAuth;
+	protected String accessToken;
     
-    String companyName;
-    String companyLocation;
-    String brokerNo;
-    String presidentName;
-    String presidentPhone;
+
     
-    Member loginMember;
+    private Member loginMember;
 
 }

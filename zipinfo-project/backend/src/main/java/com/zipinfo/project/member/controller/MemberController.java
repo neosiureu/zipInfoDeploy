@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import com.zipinfo.project.member.model.dto.BrokerInfo;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.member.model.service.MemberService;
 
@@ -30,8 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @SessionAttributes({"loginMember"})
 @RequiredArgsConstructor
 public class MemberController {
-	private final MemberService service;
-	
+	private final MemberService service;	
 	
 	@GetMapping("/getMember")
     public ResponseEntity<Member> getMember(HttpSession session) {
@@ -40,11 +41,12 @@ public class MemberController {
 
         if(member==null) {
         	return null;
+        
         }
         return ResponseEntity.ok(member); 
     }
 
-	@PostMapping("login")
+	@PostMapping("/login")
 	public ResponseEntity<Object> login(@RequestBody Member inputMember, HttpSession session) {
  
 	    Member loginMember = service.login(inputMember);
@@ -54,10 +56,27 @@ public class MemberController {
 	              .status(HttpStatus.UNAUTHORIZED)
 	              .body("아이디 또는 비밀번호가 올바르지 않습니다.");
 	    }
+	   
 	    session.setAttribute("loginMember", loginMember);
 	    System.out.println("해당 멤버의 권한은"+loginMember.getMemberAuth()+"입니다.");
 	    return ResponseEntity.ok(loginMember);
 	}
 	
+	
+
+	
+	@GetMapping("/checkEmail")
+	public int checkEmail(@RequestParam("memberEmail") String memberEmail) {
+		log.info(memberEmail+"이 도착했다.");
+		return service.checkEmail(memberEmail);
+	}
+	
+	
+	@GetMapping("checkNickname")
+	public int checkNickname(@RequestParam("memberNickname") String memberNickname) {
+		
+		return service.checkNickname(memberNickname);
+		
+	}
 	
 }

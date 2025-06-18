@@ -1,13 +1,12 @@
-/* MemberSignUp.css */
-
+/* 전체 컨테이너 */
 .signup-container {
-  max-width: 480px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 40px 20px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background-color: #fff;
 }
 
+/* 제목 */
 .signup-title {
   text-align: center;
   font-size: 24px;
@@ -16,199 +15,209 @@
   margin-bottom: 30px;
 }
 
-/* Tab Navigation */
-.tab-navigation {
+/* 탭 네비게이션 */
+.signup-tab-navigation {
   display: flex;
   margin-bottom: 30px;
-  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e1e5e9;
 }
 
-.tab-button {
+.signup-tab-button {
   flex: 1;
   padding: 12px 20px;
   border: none;
+  background-color: #f8f9fa;
+  color: #6c757d;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
-  color: #333;
-  background-color: #f5f5f5;
+  transition: all 0.2s ease;
 }
 
-.tab-button:first-child {
-  border-radius: 6px 0 0 6px;
-}
-
-.tab-button:last-child {
-  border-radius: 0 6px 6px 0;
-}
-
-.tab-button.active {
-  color: white;
+.signup-tab-button.active {
   background-color: #4285f4;
+  color: white;
 }
 
-.tab-button:hover:not(.active) {
-  background-color: #e8e8e8;
+.signup-tab-button:hover:not(.active) {
+  background-color: #e9ecef;
 }
 
-/* Form Styles */
+/* 폼 */
 .signup-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.form-group {
+/* 폼 그룹 */
+.signup-form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
-.form-label {
+/* 라벨 */
+.signup-form-label {
   font-size: 14px;
   font-weight: 500;
   color: #333;
   margin-bottom: 4px;
 }
 
-.form-input {
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  transition: border-color 0.3s ease;
-  outline: none;
-  background-color: #fff;
-}
-
-.form-input:focus {
-  border-color: #4285f4;
-  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
-}
-
-.form-input::placeholder {
-  color: #999;
-  font-size: 13px;
-}
-
-/* Input Wrapper for buttons */
+/* 입력 필드 래퍼 */
 .input-wrapper {
   display: flex;
   gap: 8px;
-  align-items: stretch;
+  align-items: center;
 }
 
-.input-wrapper .form-input {
+/* 입력 필드 */
+.signup-form-input {
   flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #fff;
+  transition: border-color 0.2s ease;
 }
 
-.verify-button {
-  padding: 10px 16px;
-  background-color: #333;
+.signup-form-input:focus {
+  outline: none;
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+}
+
+.signup-form-input::placeholder {
+  color: #9ca3af;
+}
+
+.signup-form-input[readonly] {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* 주소 관련 입력 필드 */
+.signup-address-detail {
+  margin-top: 8px;
+}
+
+/* 인증받기, 인증확인 버튼 */
+.signup-verify-button {
+  padding: 12px 20px;
+  background-color: #374151;
   color: white;
   border: none;
-  border-radius: 4px;
-  font-size: 13px;
+  border-radius: 6px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease;
   white-space: nowrap;
-  min-width: 70px;
+  transition: background-color 0.2s ease;
+  width: 80px; /* 고정 너비로 버튼 크기 통일 */
 }
 
-.verify-button:hover {
-  background-color: #555;
+.signup-verify-button:hover {
+  background-color: #1f2937;
 }
 
-.address-button {
-  padding: 10px 16px;
-  background-color: #333;
+/* 주소검색 버튼 */
+.signup-address-button {
+  padding: 12px 20px;
+  background-color: #374151;
   color: white;
   border: none;
-  border-radius: 4px;
-  font-size: 13px;
+  border-radius: 6px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease;
   white-space: nowrap;
-  min-width: 80px;
+  transition: background-color 0.2s ease;
+  min-width: 80px; /* 최소 너비 설정으로 버튼 크기 통일 */
 }
 
-.address-button:hover {
-  background-color: #555;
+.signup-address-button:hover {
+  background-color: #1f2937;
 }
 
-/* Address Detail Inputs */
-.address-detail {
-  margin-top: 6px;
-}
-
-/* Message Styles */
-.input-description {
+/* 메시지 */
+.message {
   font-size: 12px;
-  color: #666;
-  margin: 2px 0 0 0;
+  margin-top: 4px;
+  padding-left: 4px;
 }
 
-.success-message {
-  font-size: 12px;
-  color: #28a745;
-  margin: 2px 0 0 0;
+.message.error {
+  color: #ef4444;
 }
 
-.error-message {
-  font-size: 12px;
-  color: #dc3545;
-  margin: 2px 0 0 0;
+.message.confirm {
+  color: #10b981;
 }
 
-/* Responsive Design */
+.message:not(.error):not(.confirm) {
+  color: #6b7280;
+}
+
+/* 오른쪽 메시지 (입력 필드 옆) */
+.message-right {
+  margin-top: 0;
+  padding-left: 8px;
+  white-space: nowrap;
+  min-width: 200px;
+}
+
+/* 제출 버튼 */
+.submit-button {
+  width: 100%;
+  padding: 16px;
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.2s ease;
+}
+
+.submit-button:hover {
+  background-color: #e5e7eb;
+}
+
+/* 폼이 유효할 때 제출 버튼 활성화 스타일 */
+.submit-button.active {
+  background-color: #4285f4;
+  color: white;
+}
+
+.submit-button.active:hover {
+  background-color: #3367d6;
+}
+
+/* 반응형 */
 @media (max-width: 768px) {
   .signup-container {
-    padding: 20px 15px;
-    max-width: 100%;
-  }
-
-  .signup-title {
-    font-size: 22px;
+    padding: 20px 16px;
   }
 
   .input-wrapper {
     flex-direction: column;
+    align-items: stretch;
   }
 
-  .verify-button,
-  .address-button {
-    width: 100%;
-    margin-top: 6px;
+  .signup-verify-button,
+  .signup-address-button {
+    margin-top: 8px;
   }
 
-  .tab-button {
-    padding: 10px 12px;
-    font-size: 13px;
+  .message-right {
+    margin-top: 8px;
+    padding-left: 4px;
+    min-width: auto;
   }
-}
-
-/* Additional Styling */
-.form-input[type="number"] {
-  -moz-appearance: textfield;
-}
-
-.form-input[type="number"]::-webkit-outer-spin-button,
-.form-input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Focus states for accessibility */
-.tab-button:focus-visible {
-  outline: 2px solid #4285f4;
-  outline-offset: 2px;
-}
-
-.verify-button:focus-visible,
-.address-button:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 2px;
 }

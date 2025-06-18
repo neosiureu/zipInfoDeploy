@@ -48,4 +48,18 @@ public class MemberServiceImpl implements MemberService{
 		return loginMember;
 	}
 
+	@Override
+	public int checkEmail(String memberEmail) {
+		// TODO Auto-generated method stub
+		return mapper.checkEmail(memberEmail);
+
+	}
+
+	@Override
+	public int checkNickname(String memberNickname) {
+
+		return mapper.checkNickname(memberNickname);
+
+	}
+
 }
