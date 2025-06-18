@@ -2,11 +2,20 @@ import React, { useEffect, useState } from "react";
 import "../../css/myPage/myInfo.css";
 import { useNavigate } from "react-router-dom";
 import { axiosAPI } from "../../api/axiosApi";
-import Menu from "./Menu";
 
 const MyPage = () => {
   const nav = useNavigate();
 
+  const [activeTab, setActiveTab] = useState("내 정보");
+
+  const tabs = [
+    "내 정보",
+    "관심 매물",
+    "문의내역",
+    "내가 쓴 글",
+    "비밀번호 재설정",
+    "회원탈퇴",
+  ];
 
   const [user, setUser] = useState([]);
 
@@ -20,10 +29,6 @@ const MyPage = () => {
     } catch (error) {
       console.log("Member Info 불러오는 중 에러 발생 : ", error);
     }
-  }
-
-  const handleNav = () => {
-    nav("/myPage/updateInfo" , {user, setUser})
   }
 
   useEffect(() => {
@@ -136,7 +141,29 @@ const MyPage = () => {
   return (
     <div className="my-page">
       <div className="my-page-container">
-        <Menu/>
+        {/* Page Title */}
+        <div className="page-title">
+          <h1>마이페이지</h1>
+
+          {/* Tab Navigation */}
+          <div className="tab-navigation">
+            <div className="tab-container">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    setActiveTab(tab);
+                  }}
+                  className={`tab-button ${
+                    activeTab === tab ? "active" : "inactive"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
         {frag}
       </div>
     </div>
