@@ -7,6 +7,6 @@ import com.zipinfo.project.member.model.dto.Member;
 @Mapper
 public interface MyPageMapper {
 
-	Member getMemberInfo();
+	Member getMemberInfo(Member loginMember);
 
 }

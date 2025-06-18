@@ -31,9 +31,11 @@ export default function MemberLogin() {
 
     try {
       const resp = await axios.post("http://localhost:8080/member/login", {
-        memberEmail: formData.email, //  DTO 필드명과 키의 값은 동일해야 함
-        memberPw: formData.password, //  DTO 필드명과 키의 값은 동일해야 함
-      });
+
+        memberEmail: formData.email, //  DTO 필드명과 동일
+        memberPw: formData.password,
+      },{withCredentials: true});
+
 
       // 200 OK
       const loginMember = resp.data; // 백엔드가 돌려준 Member
