@@ -8,6 +8,7 @@ const Header = () => {
   const { member, setMember } = useContext(MemberContext);
   const navigate = useNavigate();
 
+  // 로그아웃 => 로컬스토리지 초기화
   const handleLogout = () => {
     setMember(null);
     localStorage.removeItem("loginMember");

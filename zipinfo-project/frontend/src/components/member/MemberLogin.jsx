@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import "./MemberLogin.css";
 import { MemberContext } from "../member/MemberContext";
@@ -24,7 +24,7 @@ export default function MemberLogin() {
     }));
   };
 
-  /* 로그인 요청 ------------------------------------------- */
+  // 로그인
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -34,7 +34,7 @@ export default function MemberLogin() {
         memberPw: formData.password,
       });
 
-      // 200 OK 인 경우
+      // 200 OK
       const loginMember = resp.data; // 백엔드가 돌려준 Member
 
       // 아이디 저장 check  후 localStorage
@@ -61,13 +61,13 @@ export default function MemberLogin() {
     }
   };
 
-  // 기타
+  // 기타 앞으로 할 일
   const handleKakaoLogin = () => console.log("카카오 로그인");
   const handleFindPassword = () => console.log("비밀번호 찾기");
   const handleSignUp = () => console.log("회원가입 페이지");
 
-  // 최초 렌더링 시 저장된 ID 불러오기
-  React.useEffect(() => {
+  // 랜더링 될떄마다 저장된 ID 불러오기
+  useEffect(() => {
     const saved = localStorage.getItem("saveId");
     if (saved) setFormData((p) => ({ ...p, email: saved, saveId: true }));
   }, []);

@@ -13,19 +13,19 @@ export const MemberProvider = ({ children }) => {
   const [member, setMember] = useState(null);
 
   useEffect(() => {
-    const firstMember = async () => {
+    const isMember = async () => {
       try {
         const resp = await axiosAPI.get("/member/getMember");
         if (resp.status === 200 && resp.data) {
           setMember(resp.data);
-          console.log("로그인 정보가 있긴 합니다.");
+          console.log("로그인 정보가 있긴 함.");
         }
       } catch (error) {
         console.error("Member 불러오기 실패:", error);
       }
     };
 
-    firstMember();
+    isMember();
   }, []);
 
   return (
