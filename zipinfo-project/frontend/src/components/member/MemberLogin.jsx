@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-import axios from "axios";
+import { axiosAPI } from "../../api/axiosAPI";
 import "./MemberLogin.css";
 import { MemberContext } from "../member/MemberContext";
-import MemberSignup from "../member/MemberSignup";
 
 import { useNavigate } from "react-router-dom";
 
@@ -30,12 +29,10 @@ export default function MemberLogin() {
     e.preventDefault();
 
     try {
-      const resp = await axios.post("http://localhost:8080/member/login", {
-
+      const resp = await axiosAPI.post("http://localhost:8080/member/login", {
         memberEmail: formData.email, //  DTO 필드명과 동일
         memberPw: formData.password,
-      },{withCredentials: true});
-
+      });
 
       // 200 OK
       const loginMember = resp.data; // 백엔드가 돌려준 Member
@@ -56,7 +53,7 @@ export default function MemberLogin() {
         alert(`당신은 중개사 자격이 없는 중개자입니다. `);
       }
 
-      navigate("/signUp"); //router 사용
+      navigate("/"); //router 사용하여 메인페이지로 이동
     } catch (err) {
       if (err.response?.status === 401) {
         alert("이메일 또는 비밀번호가 다릅니다.");

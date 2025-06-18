@@ -12,7 +12,7 @@ const Footer = () => {
         <a href="#">고객센터</a>
       </div>
       <div className="footer-info">
-        <div>상호명 : 집인포 | 대표 : 김용제</div>
+        <div>상호명 : 집인포 | 대표 : 조미현</div>
         <div>사업자등록번호 : 123-45-67890</div>
         <div>
           주소 : 서울특별시 중구 남대문로 120 그레이츠 청계구 대일빌딩 2F,3F
