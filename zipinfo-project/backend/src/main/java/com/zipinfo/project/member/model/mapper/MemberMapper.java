@@ -1,4 +1,4 @@
-package com.zipinfo.project.member.model;
+package com.zipinfo.project.member.model.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 

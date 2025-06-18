@@ -19,7 +19,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@CrossOrigin(origins="http://localhost:5173" /*, allowCredentials = "true"*/) //리엑트에서의 서버와 통신할때 포트가 달라서이 오리진과도 통신하기위해서
+
+@CrossOrigin(
+	    origins        = "http://localhost:5173",
+	    allowedHeaders = "*",
+	    allowCredentials = "true"
+	)
 @RequestMapping("member")						// 클라이언트에 들어오는 쿠키를 허용하겠다
 @Slf4j
 @SessionAttributes({"loginMember"})
@@ -30,7 +35,7 @@ public class MemberController {
 	
 	@GetMapping("/getMember")
     public ResponseEntity<Member> getMember(HttpSession session) {
-		
+		log.info("일단 멤버 체크하러 오긴 함");
         Member member = (Member) session.getAttribute("loginMember");
 
         if(member==null) {
@@ -40,17 +45,19 @@ public class MemberController {
     }
 
 	@PostMapping("login")
-	public Member login(@RequestBody Member inputMember, Model model) {
-		
-		Member loginMember = service.login(inputMember);
-		
-		if(loginMember == null) {
-			return null;
-		}
-			model.addAttribute(loginMember);
-			return loginMember;
-			
-		}
+	public ResponseEntity<Object> login(@RequestBody Member inputMember, HttpSession session) {
+ 
+	    Member loginMember = service.login(inputMember);
+
+	    if (loginMember == null) {         // 이메일 불일치 또는 비번 불일치
+	        return ResponseEntity        // 401 + 메시지
+	              .status(HttpStatus.UNAUTHORIZED)
+	              .body("아이디 또는 비밀번호가 올바르지 않습니다.");
+	    }
+	    session.setAttribute("loginMember", loginMember);
+	    System.out.println("해당 멤버의 권한은"+loginMember.getMemberAuth()+"입니다.");
+	    return ResponseEntity.ok(loginMember);
+	}
 	
 	
 }

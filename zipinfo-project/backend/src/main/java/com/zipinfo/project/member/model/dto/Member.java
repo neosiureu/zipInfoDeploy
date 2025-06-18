@@ -17,8 +17,15 @@ public class Member {
 	String memberLogin;   
     String memberNickname;
     String memberName;
-    int authContext;
-    String accessTocken;
+    int memberAuth;
+    String accessToken;
     
+    String companyName;
+    String companyLocation;
+    String brokerNo;
+    String presidentName;
+    String presidentPhone;
+    
+    Member loginMember;
 
 }

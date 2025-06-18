@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react"; // useRef 추가
 import SearchBar from "../common/SearchBar";
 import "../../css/stock/stockPage.css";
-import { axiosAPI } from "../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosApi";
 const StockPage = () => {
   /**********************Kakao api 세팅****************** */
   const mapRef = useRef(null); // 지도를 담을 div의 ref
