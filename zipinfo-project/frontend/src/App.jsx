@@ -1,4 +1,5 @@
-import "./App.css";
+// src/App.jsx
+import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/common/Layout";
 import Main from "./components/Main";
@@ -12,7 +13,8 @@ import UpdatePassword from "./components/myPage/UpdatePassword";
 import WithDraw from "./components/myPage/WithDraw";
 import UpdateInfo from "./components/myPage/UpdateInfo";
 import MemberLogin from "./components/member/MemberLogin";
-import MemberSignup from "./components/member/MemberSignup"; // 여기 추가
+import MemberSignup from "./components/member/MemberSignup"; 
+
 import { MemberProvider } from "./components/member/MemberContext";
 
 // 관리자
@@ -28,18 +30,19 @@ import Notice from "./components/notice/Notice";
 import NoticeDetail from "./components/notice/NoticeDetail";
 import NoticeWrite from "./components/notice/NoticeWrite";
 
-import { AuthProvider } from "./components/admin/AuthContext"; // AuthProvider 임포트
+// 우리동네 게시판
+import NeighborhoodBoard from "./components/neighborhood/Neighborhood";
+import NeighborhoodWrite from "./components/neighborhood/NeighborhoodWrite";
+
+import { AuthProvider } from "./components/admin/AuthContext";
 
 function App() {
   return (
     <AuthProvider>
-      {" "}
-      {/* AuthProvider로 전체 감싸기 */}
       <BrowserRouter>
-        {/* 로그인, 회원 정보 관리가 필요한 라우트만 MemberProvider 감싸기 */}
         <MemberProvider>
           <Routes>
-            {/* 공통 레이아웃 라우트 */}
+            {/* 공통 사용자 레이아웃 */}
             <Route path="/" element={<Layout />}>
               <Route index element={<Main />} />
               <Route path="sale" element={<SalePage />} />
@@ -47,7 +50,7 @@ function App() {
               <Route path="login" element={<MemberLogin />} />
               <Route path="signUp" element={<MemberSignup />} />
 
-              {/* 마이페이지 관련 */}
+              {/* 마이페이지 */}
               <Route path="myPage" element={<MyInfo />} />
               <Route path="myPage/updateInfo" element={<UpdateInfo />} />
               <Route path="myPage/myStock" element={<MyStock />} />
@@ -63,9 +66,13 @@ function App() {
               <Route path="notice" element={<Notice />} />
               <Route path="notice/detail/:id" element={<NoticeDetail />} />
               <Route path="notice/write" element={<NoticeWrite />} />
+
+              {/* 🏘 우리동네 게시판 */}
+              <Route path="neighborhood" element={<NeighborhoodBoard />} />
+              <Route path="neighborhoodWrite" element={<NeighborhoodWrite />} />
             </Route>
 
-            {/* 관리자 전용 페이지 (별도 레이아웃) */}
+            {/* 관리자 전용 페이지 */}
             <Route path="/admin/*" element={<DashBoard />}>
               <Route index element={<Chart />} />
               <Route path="dashboard" element={<Chart />} />

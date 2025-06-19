@@ -4,7 +4,9 @@ import java.util.Map;
 
 import org.springframework.web.bind.annotation.RequestBody;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 /** React 측에서 SearchBar에 입력된 검색 조건 및 좌표 범위를 Controller에서 처리하기 위한 Dto
@@ -20,6 +22,8 @@ import lombok.Data;
 	 *
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class SearchRequest {
 	private Map<String, Double> coords; 
 	private String searchKeyWord ; // 검색바 param(필수아님)
