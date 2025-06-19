@@ -19,4 +19,10 @@ AND MEMBER_DEL_FL ='N' </select>
   	WHERE MEMBER_NICKNAME = #{checkNickname}
   	</select>
 
+<select id="checkBrokerNo">
+  SELECT COUNT(*)
+  FROM BROKER_INFO bi
+  WHERE bi.BROKER_NO = #{brokerNo}
+</select>
+
 </mapper>

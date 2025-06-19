@@ -59,14 +59,14 @@ export default function MemberLogin() {
         alert("이메일 또는 비밀번호가 다릅니다.");
       } else {
         console.error(err);
-        alert("로그인 중 오류가 발생했습니다.");
+        alert("로그인 중 오류가 발생했습니다!!");
       }
     }
   };
 
   //1. 회원가입
   const handleSignUp = () => {
-    console.log("회원가입 페이지 진입");
+    console.log("회원가입 페이지 진입!!");
     navigate("/signUp"); //router 사용
   };
   // 기타 앞으로 할 일

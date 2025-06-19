@@ -52,8 +52,8 @@ export default function MemberSignUp() {
 
   // 타이머 관련 상태
   const [authTimer, setAuthTimer] = useState(null);
-  const [min, setMin] = useState(2);
-  const [sec, setSec] = useState(59);
+  const [min, setMin] = useState(3);
+  const [sec, setSec] = useState(0);
   const initTime = "03:00";
 
   // 타이머 정리
@@ -180,8 +180,9 @@ export default function MemberSignUp() {
     }
 
     // 타이머 초기화
-    setMin(2);
-    setSec(59);
+    setMin(3);
+    setSec(0);
+    updateMessage("authKeyMessage", `${addZero(3)}:${addZero(0)}`, "");
 
     // 이전 타이머 클리어
     if (authTimer) {
@@ -190,7 +191,7 @@ export default function MemberSignUp() {
 
     // 인증번호 발송 요청
     axiosAPI
-      .post("/email/signup", formData.memberEmail, {
+      .post("/email/emailSignup", formData.memberEmail, {
         headers: { "Content-Type": "application/json" },
       })
       .then((response) => {
@@ -305,8 +306,10 @@ export default function MemberSignUp() {
     }
   };
 
-  // 중개사 번호 유효성 검사
   const validateBrokerNo = (inputBrokerNo) => {
+    console.log("Checking brokerNo:", inputBrokerNo);
+
+    // 1) 빈 값 처리
     if (inputBrokerNo.trim().length === 0) {
       updateMessage(
         "brokerNoMessage",
@@ -317,21 +320,51 @@ export default function MemberSignUp() {
       return;
     }
 
-    const regExp =
-      /^([가-힣]\d{3,5}-\d{2,4}-\d{1,5}|[가-힣]\d{4}-\d{4}|\d{5}-\d{4}-\d{3,5})$/;
-
+    // 2) 형식 검사
+    const regExp = /^[가-힣]\d{3,5}-\d{2,4}-\d{1,5}$/;
     if (!regExp.test(inputBrokerNo)) {
       updateMessage(
         "brokerNoMessage",
-        "중개사 번호가 유효하지 않습니다.",
+        "중개사 번호 형식이 올바르지 않습니다.",
         "error"
       );
       updateCheckObj("brokerNo", false);
       return;
     }
 
-    updateMessage("brokerNoMessage", "유효한 중개사 번호입니다..", "confirm");
-    updateCheckObj("brokerNo", true);
+    // 3) 중복 검사 (실패 로그 확인용 catch 추가)
+    axiosAPI
+      .get("/member/checkBrokerNo", { params: { brokerNo: inputBrokerNo } })
+      .then((response) => {
+        const count = response.data;
+        if (count === 1) {
+          updateMessage(
+            "brokerNoMessage",
+            "이미 사용 중인 중개사 등록번호입니다.",
+            "error"
+          );
+          updateCheckObj("brokerNo", false);
+        } else {
+          updateMessage(
+            "brokerNoMessage",
+            "사용 가능한 중개사 등록번호입니다.",
+            "confirm"
+          );
+          updateCheckObj("brokerNo", true);
+        }
+      })
+      .catch((err) => {
+        // 여기서 실제 요청 URL, 상태코드, 응답 바디를 찍어서 확인합니다.
+        console.error(
+          " checkBrokerNo 요청 실패!",
+          "url:",
+          err.config?.url,
+          "status:",
+          err.response?.status,
+          "response:",
+          err.response?.data
+        );
+      });
   };
 
   // 비밀번호 확인 유효성 검사
@@ -452,9 +485,6 @@ export default function MemberSignUp() {
       delete submitData.companyName;
       delete submitData.brokerNo;
       delete submitData.representativeNumber;
-      delete submitData.postcode;
-      delete submitData.address;
-      delete submitData.detailAddress;
     }
 
     // 서버로 전송
@@ -520,6 +550,7 @@ export default function MemberSignUp() {
               onChange={handleInputChange}
               placeholder="이메일을 입력해 주세요"
               className="signup-form-input"
+              required
             />
             <button
               type="button"
@@ -544,6 +575,7 @@ export default function MemberSignUp() {
               onChange={handleInputChange}
               placeholder="인증 번호를 입력해 주세요"
               className="signup-form-input"
+              required
             />
             <button
               type="button"
@@ -570,6 +602,7 @@ export default function MemberSignUp() {
             onChange={handleInputChange}
             placeholder="영어+숫자+특수문자를 포함한 6자리 이상"
             className="signup-form-input"
+            required
           />
           <span className={`message ${messageClasses.pwMessage || ""}`}>
             {messages.pwMessage}
@@ -587,10 +620,55 @@ export default function MemberSignUp() {
             onChange={handleInputChange}
             placeholder="비밀번호를 재입력해 주세요"
             className="signup-form-input"
+            required
           />
           <span className={`message ${messageClasses.pwMessageConfirm || ""}`}>
             {messages.pwMessageConfirm}
           </span>
+        </div>
+        {/* 공통: 주소 */}
+        <div className="signup-form-group">
+          <label className="signup-form-label">
+            {activeTab === "agent" ? "중개사 주소" : "관심지역 주소"}
+          </label>
+          <div className="input-wrapper">
+            <input
+              type="text"
+              id="postcode"
+              name="postcode"
+              value={formData.postcode}
+              readOnly
+              className="signup-form-input"
+              placeholder="우편 번호"
+              required
+            />
+            <button
+              type="button"
+              className="signup-address-button"
+              onClick={execDaumPostcode}
+            >
+              주소검색
+            </button>
+          </div>
+
+          <input
+            type="text"
+            id="address"
+            name="address"
+            value={formData.address}
+            readOnly
+            className="signup-form-input signup-address-detail"
+            placeholder="주소를 검색해 주세요"
+          />
+          <input
+            type="text"
+            id="detailAddress"
+            name="detailAddress"
+            value={formData.detailAddress}
+            onChange={handleInputChange}
+            className="signup-form-input signup-address-detail"
+            placeholder="상세 주소를 입력해 주세요"
+          />
         </div>
 
         {activeTab === "agent" && (
@@ -606,6 +684,7 @@ export default function MemberSignUp() {
                 onChange={handleInputChange}
                 placeholder="중개사명을 입력해 주세요"
                 className="signup-form-input"
+                required
               />
             </div>
 
@@ -620,6 +699,7 @@ export default function MemberSignUp() {
                 onChange={handleInputChange}
                 placeholder="중개등록번호를 입력해 주세요"
                 className="signup-form-input"
+                required
               />
               <span
                 className={`message ${messageClasses.brokerNoMessage || ""}`}
@@ -639,49 +719,7 @@ export default function MemberSignUp() {
                 onChange={handleInputChange}
                 placeholder="대표의 전화번호를 입력해 주세요(-없이 숫자만 입력)"
                 className="signup-form-input"
-              />
-            </div>
-
-            {/* 중개사만: 주소*/}
-            <div className="signup-form-group">
-              <label className="signup-form-label">중개사 주소</label>
-              <div className="input-wrapper">
-                <input
-                  type="text"
-                  id="postcode"
-                  name="postcode"
-                  value={formData.postcode}
-                  readOnly
-                  className="signup-form-input"
-                  placeholder="우편 번호"
-                />
-                <button
-                  type="button"
-                  id="searchAddress"
-                  className="signup-address-button"
-                  onClick={execDaumPostcode}
-                >
-                  주소검색
-                </button>
-              </div>
-
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                readOnly
-                className="signup-form-input signup-address-detail"
-                placeholder="주소를 검색해 주세요"
-              />
-              <input
-                type="text"
-                id="detailAddress"
-                name="detailAddress"
-                value={formData.detailAddress}
-                onChange={handleInputChange}
-                className="signup-form-input signup-address-detail"
-                placeholder="상세 주소를 입력해 주세요"
+                required
               />
             </div>
           </>
