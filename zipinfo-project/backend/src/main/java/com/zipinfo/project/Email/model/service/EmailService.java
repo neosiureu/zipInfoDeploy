@@ -1,9 +1,11 @@
-package com.zipinfo.project.Email.model.service;
+package com.zipinfo.project.email.model.service;
+
+import java.util.Map;
 
 public interface EmailService {
 
 	String sendEmail(String string, String email);
 
-	boolean verifyCode(String email, String authKey);
+	int verifyCode(Map<String, String> emailMap);
 
 }

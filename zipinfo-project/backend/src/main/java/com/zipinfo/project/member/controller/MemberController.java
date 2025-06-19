@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import com.zipinfo.project.member.model.dto.BrokerInfo;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.member.model.service.MemberService;
 
@@ -20,8 +19,15 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@RestController
 
+
+
+
+/**
+ * 이주원
+ * 회원에 대한 컨트롤러 클래스
+ */
+@RestController
 @CrossOrigin(
 	    origins        = "http://localhost:5173",
 	    allowedHeaders = "*",
@@ -34,9 +40,16 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberController {
 	private final MemberService service;	
 	
+	
+	/**
+	 * @param session
+	 * @return
+	 * 이주원
+	 * 세션 내 멤버의 존재 여부를 체크하는 로직
+	 */
 	@GetMapping("/getMember")
     public ResponseEntity<Member> getMember(HttpSession session) {
-		log.info("일단 멤버 체크하러 오긴 함");
+//		log.info("멤버 체크 로직에 진입했습니다");
         Member member = (Member) session.getAttribute("loginMember");
 
         if(member==null) {
@@ -46,6 +59,15 @@ public class MemberController {
         return ResponseEntity.ok(member); 
     }
 
+	
+	
+	/**
+	 * @param inputMember
+	 * @param session
+	 * @return
+	 * 이주원
+	 * 로그인 로직
+	 */
 	@PostMapping("/login")
 	public ResponseEntity<Object> login(@RequestBody Member inputMember, HttpSession session) {
  
@@ -65,25 +87,44 @@ public class MemberController {
 	
 
 	
+	/**
+	 * @param memberEmail
+	 * @return
+	 * 이주원
+	 * 이메일 중복 여부 체크 로직
+	 * 
+	 */
 	@GetMapping("/checkEmail")
 	public int checkEmail(@RequestParam("memberEmail") String memberEmail) {
-		log.info(memberEmail+"이 도착했다.");
+//		log.info(memberEmail+"이 컨트롤러에 도착했다.");
 		return service.checkEmail(memberEmail);
 	}
 	
 	
+	/**
+	 * @param memberNickname
+	 * @return
+	 * 이주원
+	 * 닉네임 중복 여부 체크 로직
+	 */
 	@GetMapping("/checkNickname")
 	public int checkNickname(@RequestParam("memberNickname") String memberNickname) {
-		log.info("일단 닉네임 체크하러 오긴 함");
+		log.info("닉네임 체크하기 위해 진입");
 
 		return service.checkNickname(memberNickname);
 		
 	}
 	
 	
+	/**
+	 * @param brokerNo
+	 * @return
+	 * 이주원
+	 * 브로커 번호 중복 여부 체크 로직
+	 */
 	@GetMapping("/checkBrokerNo")
 	public int checkBrokerNo(@RequestParam("brokerNo") String brokerNo) {
-		log.info("일단 브로커번호 체크하러 오긴 함");
+		log.info("브로커번호 체크하기 위해 진입");
  
 		return service.checkBrokerNo(brokerNo);
 		

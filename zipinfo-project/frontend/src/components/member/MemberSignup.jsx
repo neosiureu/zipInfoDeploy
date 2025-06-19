@@ -191,7 +191,7 @@ export default function MemberSignUp() {
 
     // 인증번호 발송 요청
     axiosAPI
-      .post("/email/signup", formData.memberEmail, {
+      .post("/email/emailSignup", formData.memberEmail, {
         headers: { "Content-Type": "application/json" },
       })
       .then((response) => {
