@@ -1,7 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import "../../css/admin/HousingForm.css";
 
 const HousingForm = () => {
+  // 상태 추가
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [layoutImageFile, setLayoutImageFile] = useState(null);
+
+  // 파일 선택 핸들러
+  const handleThumbnailChange = (e) => {
+    setThumbnailFile(e.target.files[0]);
+  };
+
+  const handleLayoutImageChange = (e) => {
+    setLayoutImageFile(e.target.files[0]);
+  };
+
   return (
     <div className="admin-form-container">
       <div className="header">
@@ -13,13 +26,6 @@ const HousingForm = () => {
         <div className="title-section">
           <h1 className="main-title">분양 등록 폼</h1>
         </div>
-
-        {/* Tabs 예시, 필요 없으면 제거 가능 */}
-        {/* <div className="tabs-container">
-          <button className="tab tab-active">기본정보</button>
-          <button className="tab">상세정보</button>
-          <button className="tab">이미지 업로드</button>
-        </div> */}
 
         <form className="form-content">
           {/* 기본정보 */}
@@ -205,7 +211,12 @@ const HousingForm = () => {
           >
             <div className="form-group">
               <label className="form-label">썸네일 업로드</label>
-              <input type="file" accept="image/*" className="form-input" />
+              <input
+                type="file"
+                accept="image/*"
+                className="form-input"
+                onChange={handleThumbnailChange}
+              />
               <p
                 style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}
               >
@@ -213,10 +224,20 @@ const HousingForm = () => {
                 <br />
                 사진은 최대 1장까지 등록이 가능합니다.
               </p>
+              {thumbnailFile && (
+                <p style={{ fontSize: "12px", color: "#374151" }}>
+                  선택된 파일: {thumbnailFile.name}
+                </p>
+              )}
             </div>
             <div className="form-group">
               <label className="form-label">평형 이미지 업로드</label>
-              <input type="file" accept="image/*" className="form-input" />
+              <input
+                type="file"
+                accept="image/*"
+                className="form-input"
+                onChange={handleLayoutImageChange}
+              />
               <p
                 style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}
               >
@@ -224,6 +245,11 @@ const HousingForm = () => {
                 <br />
                 사진은 최대 1장까지 등록이 가능합니다.
               </p>
+              {layoutImageFile && (
+                <p style={{ fontSize: "12px", color: "#374151" }}>
+                  선택된 파일: {layoutImageFile.name}
+                </p>
+              )}
             </div>
           </div>
 

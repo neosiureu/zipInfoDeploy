@@ -12,8 +12,8 @@ import UpdatePassword from "./components/myPage/UpdatePassword";
 import WithDraw from "./components/myPage/WithDraw";
 import UpdateInfo from "./components/myPage/UpdateInfo";
 import MemberLogin from "./components/member/MemberLogin";
+import MemberSignup from "./components/member/MemberSignup"; // 여기 추가
 import { MemberProvider } from "./components/member/MemberContext";
-import MemberSignup from "./components/member/MemberSignup";
 
 // 관리자
 import HousingForm from "./components/admin/HousingForm";
@@ -24,46 +24,61 @@ import Inquiry from "./components/admin/Inquiry";
 import Management from "./components/admin/Management";
 
 // 공지사항
+import Notice from "./components/notice/Notice";
+import NoticeDetail from "./components/notice/NoticeDetail";
+import NoticeWrite from "./components/notice/NoticeWrite";
+
+import { AuthProvider } from "./components/admin/AuthContext"; // AuthProvider 임포트
 
 function App() {
   return (
-    <BrowserRouter>
-      <MemberProvider>
-        <Routes>
-          {/* 공통 레이아웃 라우트 */}
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Main />} />
-            <Route path="sale" element={<SalePage />} />
-            <Route path="stock" element={<StockPage />} />
-            <Route path="login" element={<MemberLogin />} />
-            <Route path="signUp" element={<MemberSignup />} />
-            <Route path="myPage" element={<MyInfo />} />
-            <Route path="myPage/updateInfo" element={<UpdateInfo />} />
-            <Route path="myPage/myStock" element={<MyStock />} />
-            <Route path="myPage/myAnnounce" element={<MyAnnounce />} />
-            <Route path="myPage/myPost" element={<MyPost />} />
-            <Route path="myPage/updatePassword" element={<UpdatePassword />} />
-            <Route path="myPage/withDraw" element={<WithDraw />} />
-          </Route>
+    <AuthProvider>
+      {" "}
+      {/* AuthProvider로 전체 감싸기 */}
+      <BrowserRouter>
+        {/* 로그인, 회원 정보 관리가 필요한 라우트만 MemberProvider 감싸기 */}
+        <MemberProvider>
+          <Routes>
+            {/* 공통 레이아웃 라우트 */}
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Main />} />
+              <Route path="sale" element={<SalePage />} />
+              <Route path="stock" element={<StockPage />} />
+              <Route path="login" element={<MemberLogin />} />
+              <Route path="signUp" element={<MemberSignup />} />
 
-          {/* 관리자 전용 페이지 (별도 레이아웃을 원한다면 여기에 추가 가능) */}
-          <Route path="/admin" element={<DashBoard />}>
-            <Route index element={<Chart />} />{" "}
-            {/* /admin 접속 시 기본 Chart */}
-            <Route path="dashboard" element={<Chart />} />{" "}
-            {/* /admin/dashboard */}
-            <Route path="chart" element={<Chart />} /> {/* /admin/chart */}
-            <Route path="housingForm" element={<HousingForm />} />
-            <Route path="advertisement" element={<Advertisement />} />
-            <Route path="inquiry" element={<Inquiry />} />
-            <Route path="management" element={<Management />} />
-          </Route>
+              {/* 마이페이지 관련 */}
+              <Route path="myPage" element={<MyInfo />} />
+              <Route path="myPage/updateInfo" element={<UpdateInfo />} />
+              <Route path="myPage/myStock" element={<MyStock />} />
+              <Route path="myPage/myAnnounce" element={<MyAnnounce />} />
+              <Route path="myPage/myPost" element={<MyPost />} />
+              <Route
+                path="myPage/updatePassword"
+                element={<UpdatePassword />}
+              />
+              <Route path="myPage/withDraw" element={<WithDraw />} />
 
-          {/* 404 페이지 처리를 원한다면 추가 */}
-          {/* <Route path="*" element={<NotFound />} /> */}
-        </Routes>
-      </MemberProvider>
-    </BrowserRouter>
+              {/* 공지사항 */}
+              <Route path="notice" element={<Notice />} />
+              <Route path="notice/detail/:id" element={<NoticeDetail />} />
+              <Route path="notice/write" element={<NoticeWrite />} />
+            </Route>
+
+            {/* 관리자 전용 페이지 (별도 레이아웃) */}
+            <Route path="/admin/*" element={<DashBoard />}>
+              <Route index element={<Chart />} />
+              <Route path="dashboard" element={<Chart />} />
+              <Route path="chart" element={<Chart />} />
+              <Route path="housingForm" element={<HousingForm />} />
+              <Route path="advertisement" element={<Advertisement />} />
+              <Route path="inquiry" element={<Inquiry />} />
+              <Route path="management" element={<Management />} />
+            </Route>
+          </Routes>
+        </MemberProvider>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
