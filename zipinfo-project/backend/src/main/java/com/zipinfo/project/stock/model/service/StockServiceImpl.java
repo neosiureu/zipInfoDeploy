@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.zipinfo.project.stock.model.dto.SearchRequest;
 import com.zipinfo.project.stock.model.dto.Stock;
 import com.zipinfo.project.stock.model.mapper.StockMapper;
 
@@ -22,9 +23,18 @@ public class StockServiceImpl implements StockService{
 	 *
 	 */
 	@Override
-	public List<Stock> getStockListInRange(double swLat, double swLng, double neLat, double neLng) {
+	public List<Stock> getStockListInRange(SearchRequest sr) {
 		
-		return mapper.selectStockInRange(swLat,swLng,neLat,neLng);
+		return mapper.selectStockInRange(
+				sr.getCoords().get("swLat"),
+				sr.getCoords().get("swLng"),
+				sr.getCoords().get("neLat"),
+				sr.getCoords().get("neLng"),
+				sr.getSearchKeyWord(),
+				sr.getLocationCode(),
+				sr.getStockForm(),
+				sr.getStockType()
+				);
 		
 	}
 	

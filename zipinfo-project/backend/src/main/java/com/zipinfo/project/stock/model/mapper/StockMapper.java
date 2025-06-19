@@ -13,6 +13,10 @@ public interface StockMapper {
 	List<Stock> selectStockInRange( @Param("swLat") double swLat, 
 			@Param("swLng") double swLng, 
 			@Param("neLat") double neLat, 
-			@Param("neLng")double neLng);
+			@Param("neLng")double neLng,
+			@Param("searchKeyWord") String searchKeyWord,
+			@Param("locationCode") int locationCode,
+			@Param("stockForm") int stockForm,
+			@Param("stockType") int stockType);
 
 }

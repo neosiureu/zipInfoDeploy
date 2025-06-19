@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import com.zipinfo.project.member.model.dto.BrokerInfo;
+
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.member.model.service.MemberService;
 

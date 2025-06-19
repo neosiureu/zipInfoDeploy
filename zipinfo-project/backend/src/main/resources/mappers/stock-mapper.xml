@@ -47,6 +47,21 @@
 			    AND LNG &gt; #{swLng} <!-- > escape 문자로 대체-->
 			    AND LNG &lt; #{neLng} <!-- < escape 문자로 대체-->
 			) c
-			INNER JOIN STOCK_INFO i ON c.stockNo = i.STOCK_NO
+			INNER JOIN (SELECT * FROM STOCK_INFO
+			<where>
+				<if test="searchKeyWord != null and searchKeyWord != ''">
+			      AND STOCK_NAME LIKE CONCAT('%', #{searchKeyWord}, '%')
+			    </if>
+			    <if test="locationCode != -1">
+			      AND LOCATION_CODE = #{locationCode}
+			    </if>
+			    <if test="stockType != -1">
+			      AND STOCK_TYPE = #{stockType}
+			    </if>
+			    <if test="stockForm != -1">
+			      AND STOCK_FORM = #{stockForm}
+			    </if>
+			</where>)
+			 i ON c.stockNo = i.STOCK_NO
 	</select>
 </mapper>
