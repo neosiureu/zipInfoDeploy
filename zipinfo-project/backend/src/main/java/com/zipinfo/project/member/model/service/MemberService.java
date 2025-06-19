@@ -8,4 +8,6 @@ public interface MemberService {
 	int checkEmail(String memberEmail);
 
 	int checkNickname(String memberNickname);
+
+	int checkBrokerNo(String brokerNo);
 }

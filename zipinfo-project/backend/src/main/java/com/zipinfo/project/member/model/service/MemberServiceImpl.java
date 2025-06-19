@@ -10,6 +10,9 @@ import com.zipinfo.project.member.model.mapper.MemberMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 
+ */
 @Service
 @Transactional(rollbackFor = Exception.class)
 @Slf4j
@@ -22,6 +25,11 @@ public class MemberServiceImpl implements MemberService{
 	@Autowired
 	private BCryptPasswordEncoder bcrypt;
 
+	
+	/**
+	 * 이주원
+	 * 로그인 서비스
+	 */
 	@Override
 	public Member login(Member inputMember) {
     Member loginMember = mapper.login(inputMember.getMemberEmail());
@@ -48,6 +56,12 @@ public class MemberServiceImpl implements MemberService{
 		return loginMember;
 	}
 
+	
+	
+	/**
+	 * 이주원 
+	 * 이메일 중복 체크
+	 */
 	@Override
 	public int checkEmail(String memberEmail) {
 		// TODO Auto-generated method stub
@@ -55,6 +69,11 @@ public class MemberServiceImpl implements MemberService{
 
 	}
 
+	
+	/**
+	 * 이주원 
+	 * 닉네임 중복 체크
+	 */
 	@Override
 	public int checkNickname(String memberNickname) {
 
@@ -62,4 +81,15 @@ public class MemberServiceImpl implements MemberService{
 
 	}
 
+	
+	/**
+	 * 이주원 
+	 * 중개사번호 중복 체크
+	 */
+	@Override
+	public int checkBrokerNo(String brokerNo) {
+		// TODO Auto-generated method stub
+		return mapper.checkBrokerNo(brokerNo);
+	}
+ 
 }
