@@ -35,7 +35,7 @@ const Header = () => {
             <Link to="/notice">공지사항</Link>
           </li>
           <li>
-            <Link to="/help">문의하기</Link>
+            <Link to="/neighborhood">우리동네</Link>
           </li>
           <li>
             <Link to="/interest">관심목록</Link>
@@ -45,7 +45,6 @@ const Header = () => {
 
       <div className="navbar-right">
         <ul className="member">
-
           {member ? (
             member.memberAuth == 0 ? (
               <>

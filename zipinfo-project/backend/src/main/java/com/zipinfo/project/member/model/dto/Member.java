@@ -21,6 +21,7 @@ public class Member {
 	private String accessToken;
 	private String memberLocation;
 
+
 	
     private String companyName; //중개사 명
     private String companyLocation; // 중개사 주소
