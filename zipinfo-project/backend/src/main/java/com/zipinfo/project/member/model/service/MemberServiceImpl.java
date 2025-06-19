@@ -91,5 +91,21 @@ public class MemberServiceImpl implements MemberService{
 		// TODO Auto-generated method stub
 		return mapper.checkBrokerNo(brokerNo);
 	}
+
+
+
+	@Override
+	public int findMemberNoByEmail(String loginUserEmail) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+
+	@Override
+	public boolean isAdmin(int memberNo) {
+		// TODO Auto-generated method stub
+		return false;
+	}
  
 }

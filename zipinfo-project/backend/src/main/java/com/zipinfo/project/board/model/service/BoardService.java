@@ -1,7 +1,6 @@
 package com.zipinfo.project.board.model.service;
 
 import java.util.List;
-
 import com.zipinfo.project.board.model.dto.Board;
 
 public interface BoardService {
