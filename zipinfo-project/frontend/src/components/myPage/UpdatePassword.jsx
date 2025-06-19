@@ -7,21 +7,62 @@ import { axiosAPI } from '../../api/axiosApi';
 const PasswordChange = () => {
   const nav = useNavigate();
 
+  const [testPass, setTestPass] = useState("영어,숫자,특수문자(!,@,#,-,_) 6~20글자 사이로 입력해주세요.");
+
+
   const [password, setPassword] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
 
+  function validatePassword(password) {
+    // 길이: 6~20글자
+    if (password.length < 6 || password.length > 20) return false;
+    
+    // 영어 포함
+    const hasLetter = /[a-zA-Z]/.test(password);
+    // 숫자 포함
+    const hasNumber = /[0-9]/.test(password);
+    // 특수문자 포함 (지정된 것만)
+    const hasSpecial = /[!@#\-_]/.test(password);
+
+    return hasLetter && hasNumber && hasSpecial;
+  }
+
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setPassword(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const { name, value } = e.target;
+  // 다음 상태를 미리 계산!
+  const nextPassword = {
+    ...password,
+    [name]: value
   };
+  setPassword(nextPassword);
 
+  // 새 비밀번호 유효성 검사
+  if (name === "newPassword") {
+    if (value.trim().length === 0) {
+      setTestPass("영어,숫자,특수문자(!,@,#,-,_) 6~20글자 사이로 입력해주세요.");
+    } else if (validatePassword(value)) {
+      setTestPass("사용 가능한 비밀번호입니다.");
+    } else {
+      setTestPass("새 비밀번호가 옳바르지 않습니다.");
+    }
+    // 추가: 확인값이 있고, newPassword와 다르면 불일치 경고도 같이 띄워줌
+    if (nextPassword.confirmPassword.length > 0 && value !== nextPassword.confirmPassword) {
+      setTestPass("새 비밀번호가 일치하지 않습니다.");
+    }
+  }
 
+  // 새 비밀번호 확인 검사
+  if (name === "confirmPassword") {
+    if (value !== nextPassword.newPassword) {
+      setTestPass("새 비밀번호가 일치하지 않습니다.");
+    } else if (validatePassword(nextPassword.newPassword)) {
+      setTestPass("사용 가능한 비밀번호입니다.");
+    }
+  }
+};
 
   const handleSubmit = async () => {
 
@@ -30,7 +71,7 @@ const PasswordChange = () => {
     try {
       if(password.newPassword !== password.confirmPassword){
         
-        alert('새로운 비밀번호가 일치하지 않습니다.');
+        alert('새 비밀번호가 일치하지 않습니다.');
 
         setPassword({
           currentPassword: '',
@@ -92,12 +133,20 @@ const PasswordChange = () => {
                 value={password.newPassword}
                 onChange={handleInputChange}
                 placeholder="새 비밀번호를 입력해주세요"
-                className="pass-form-input"
+                className="pass-form-inputs"
               />
             </div>
-            <span class="signUp-message" id="pwMessage">
-            영어,숫자,특수문자(!,@,#,-,_) 6~20글자 사이로 입력해주세요.</span
+            <div className='pass-message-div'>
+            <span className={
+              testPass === "사용 가능한 비밀번호입니다."
+                ? "pass-valid-msg"
+                : testPass === "기존 비밀번호와 동일합니다." || testPass === "새 비밀번호가 일치하지 않습니다." || testPass === "새 비밀번호가 옳바르지 않습니다."
+                ? "pass-invalid-msg"
+                : "pass-default-msg"
+            } >
+            {testPass}</span
             >
+            </div>
 
             <div className="pass-form-group">
               <label className="pass-form-label">새 비밀번호 확인</label>
