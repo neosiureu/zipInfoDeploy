@@ -1,126 +1,264 @@
+/* Notice.css */
 .notice-container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 0 20px 40px;
-  font-family: "Pretendard", sans-serif;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(145, 45, 45, 0.1);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .notice-container h2 {
+  color: #333;
+  margin-bottom: 30px;
   text-align: center;
-  color: white;
-  font-weight: 700;
-  margin-bottom: 24px;
+  font-size: 28px;
+  font-weight: 600;
+  border-bottom: 3px solid #4a90e2;
+  padding-bottom: 10px;
 }
 
+/* 검색 영역 */
 .notice-search {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
-  gap: 8px;
+  margin-bottom: 30px;
+  gap: 10px;
 }
 
-.notice-search input[type="text"] {
+.notice-search input {
+  padding: 12px 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
   width: 300px;
-  padding: 8px 12px;
-  border: 1.5px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
   transition: border-color 0.3s ease;
 }
 
-.notice-search input[type="text"]:focus {
+.notice-search input:focus {
   outline: none;
-  border-color: blue;
-  box-shadow: 0 0 6px rgba(145, 45, 45, 0.4);
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
 .notice-search button {
-  padding: 8px 20px;
-  background-color: blue;
-  color: #fff;
+  padding: 12px 24px;
+  background-color: #4a90e2;
+  color: white;
   border: none;
-  border-radius: 6px;
-  font-weight: 600;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .notice-search button:hover {
-  background-color: blue;
+  background-color: #357abd;
 }
 
+/* 테이블 스타일 */
 .notice-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 30px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-.notice-table th,
-.notice-table td {
-  border: 1px solid #ddd;
-  padding: 12px 10px;
-  font-size: 0.95rem;
-  vertical-align: middle;
+.notice-table thead {
+  background-color: #f8f9fa;
 }
 
 .notice-table th {
-  background-color: blue;
-  color: white;
-  font-weight: 700;
+  padding: 16px 20px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+  border-bottom: 2px solid #dee2e6;
 }
 
+.notice-table th:first-child {
+  width: 80px;
+  text-align: center;
+}
+
+.notice-table th:nth-child(2) {
+  width: auto;
+}
+
+.notice-table th:nth-child(3) {
+  width: 120px;
+  text-align: center;
+}
+
+.notice-table th:nth-child(4) {
+  width: 120px;
+  text-align: center;
+}
+
+.notice-table th:last-child {
+  width: 140px;
+  text-align: center;
+}
+
+.notice-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.notice-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.notice-table tbody tr:not(:last-child) {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.notice-table td {
+  padding: 16px 20px;
+  font-size: 14px;
+  color: #495057;
+}
+
+.notice-table td:first-child {
+  text-align: center;
+  font-weight: 500;
+  color: #6c757d;
+}
+
+.notice-table td:nth-child(3),
+.notice-table td:nth-child(4) {
+  text-align: center;
+}
+
+.notice-table td:last-child {
+  text-align: center;
+}
+
+/* 제목 클릭 스타일 */
 .notice-title {
-  color: blue;
   cursor: pointer;
-  text-align: left;
-  padding-left: 15px;
-  font-weight: 600;
-  transition: color 0.3s ease;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.2s ease;
 }
 
 .notice-title:hover {
+  color: #4a90e2;
   text-decoration: underline;
-  color: blue;
 }
 
-.notice-table button {
-  background-color: blue;
-  color: white;
-  border: none;
+/* 관리 버튼들 */
+.notice-table td button {
   padding: 6px 12px;
   margin: 0 4px;
-  border-radius: 4px;
-  font-size: 0.9rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.2s ease;
 }
 
-.notice-table button:hover {
-  background-color: blue;
+.notice-table td button:first-of-type {
+  background-color: #28a745;
+  color: white;
 }
 
+.notice-table td button:first-of-type:hover {
+  background-color: #218838;
+}
+
+.notice-table td button:last-of-type {
+  background-color: #dc3545;
+  color: white;
+}
+
+.notice-table td button:last-of-type:hover {
+  background-color: #c82333;
+}
+
+/* 하단 영역 */
 .notice-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 30px;
 }
 
 .write-button {
-  background-color: blue;
+  padding: 12px 24px;
+  background-color: #28a745;
   color: white;
   border: none;
-  padding: 10px 22px;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 1rem;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .write-button:hover {
-  background-color: blue;
+  background-color: #218838;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .notice-container {
+    padding: 15px;
+  }
+
+  .notice-container h2 {
+    font-size: 24px;
+  }
+
+  .notice-search {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .notice-search input {
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 10px;
+  }
+
+  .notice-table {
+    font-size: 12px;
+  }
+
+  .notice-table th,
+  .notice-table td {
+    padding: 12px 8px;
+  }
+
+  .notice-table th:first-child,
+  .notice-table td:first-child {
+    width: 60px;
+  }
+
+  .notice-table th:nth-child(3),
+  .notice-table th:nth-child(4),
+  .notice-table td:nth-child(3),
+  .notice-table td:nth-child(4) {
+    display: none;
+  }
+
+  .notice-bottom {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .notice-table th:last-child,
+  .notice-table td:last-child {
+    display: none;
+  }
+
+  .notice-table td button {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
 }

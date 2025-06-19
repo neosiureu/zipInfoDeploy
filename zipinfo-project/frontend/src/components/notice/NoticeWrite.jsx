@@ -1,7 +1,7 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { createPostWithImage, updatePostWithImage } from "./boardApi"; // 수정 API도 import
-import { AuthContext } from "./AuthContext";
+import { AuthContext } from "../admin/AuthContext";
+import { fetchPostById, deletePost } from "./noticeApi"; // boardApi ❌ → noticeApi ✅
 import "../../css/notice/NoticeWrite.css";
 
 // 공통 헤더, 푸터 import (경로는 프로젝트 구조에 맞게 수정하세요)
@@ -77,7 +77,13 @@ const NoticeWrite = () => {
     }
   };
 
-  if (!user || user.role !== "ADMIN") {
+  console.log("AuthContext user:", user);
+
+  if (!user) {
+    return <div>로그인 정보가 없습니다.</div>;
+  }
+
+  if (user.memberRole !== "ADMIN") {
     return <div>권한이 없습니다.</div>;
   }
 

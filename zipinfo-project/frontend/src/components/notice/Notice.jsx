@@ -1,21 +1,20 @@
 import React, { useEffect, useState, useContext } from "react";
-import { fetchPosts, deletePost } from "./boardApi";
-import Pagination from "./Pagination";
+import { fetchPosts, deletePost } from "./noticeApi"; // API 함수 임포트
+import Pagination from "../common/Pagination";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "./AuthContext";
-import "../../css/notice/Notice.css"; // 스타일을 따로 분리
-
-// 공통 헤더, 푸터 import (경로는 프로젝트 구조에 맞게 수정하세요)
-import Header from "../../components/common/Header";
-import Footer from "../../components/common/Footer";
+import { AuthContext } from "../admin/AuthContext"; // Context 임포트
+import "../../css/notice/Notice.css";
 
 const Notice = () => {
   const [posts, setPosts] = useState([]);
   const [pageInfo, setPageInfo] = useState({ currentPage: 0, totalPages: 0 });
   const [keyword, setKeyword] = useState("");
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
-  const isAdmin = user?.role === "ADMIN";
+
+  // 변경 후
+  const authContext = useContext(AuthContext);
+  const user = authContext?.user || null;
+  const isAdmin = user?.memberRole?.toUpperCase() === "ADMIN";
 
   const loadPosts = async (page) => {
     try {
@@ -43,75 +42,70 @@ const Notice = () => {
   }, []);
 
   return (
-    <>
-      <Header />
+    <div className="notice-container">
+      <h2> 공지사항</h2>
 
-      <div className="notice-container">
-        <h2>📢 공지사항</h2>
+      <div className="notice-search">
+        <input
+          type="text"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          placeholder="제목 검색"
+        />
+        <button onClick={handleSearch}>검색</button>
+      </div>
 
-        <div className="notice-search">
-          <input
-            type="text"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder="제목 검색"
-          />
-          <button onClick={handleSearch}>검색</button>
-        </div>
-
-        <table className="notice-table">
-          <thead>
-            <tr>
-              <th>번호</th>
-              <th>제목</th>
-              <th>작성자</th>
-              <th>작성일</th>
-              {isAdmin && <th>관리</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {posts.map((post) => (
-              <tr key={post.id}>
-                <td>{post.id}</td>
-                <td
-                  className="notice-title"
-                  onClick={() => navigate(`/notice/${post.id}`)}
-                >
-                  {post.title}
+      <table className="notice-table">
+        <thead>
+          <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>작성일</th>
+            {isAdmin && <th>관리</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {posts.map((post) => (
+            <tr key={post.id}>
+              <td>{post.id}</td>
+              <td
+                className="notice-title"
+                onClick={() => navigate(`/notice/detail/${post.id}`)}
+              >
+                {post.title}
+              </td>
+              <td>{post.author}</td>
+              <td>{new Date(post.createdAt).toLocaleDateString()}</td>
+              {isAdmin && (
+                <td>
+                  <button onClick={() => navigate(`/notice/edit/${post.id}`)}>
+                    수정
+                  </button>
+                  <button onClick={() => handleDelete(post.id)}>삭제</button>
                 </td>
-                <td>{post.author}</td>
-                <td>{new Date(post.createdAt).toLocaleDateString()}</td>
-                {isAdmin && (
-                  <td>
-                    <button onClick={() => navigate(`/notice/edit/${post.id}`)}>
-                      수정
-                    </button>
-                    <button onClick={() => handleDelete(post.id)}>삭제</button>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-        <div className="notice-bottom">
+      <div className="notice-bottom">
+        {isAdmin && (
           <button
             className="write-button"
             onClick={() => navigate("/notice/write")}
           >
             글쓰기
           </button>
-          <Pagination
-            currentPage={pageInfo.currentPage}
-            totalPages={pageInfo.totalPages}
-            onPageChange={loadPosts}
-          />
-        </div>
+        )}
+        <Pagination
+          currentPage={pageInfo.currentPage}
+          totalPages={pageInfo.totalPages}
+          onPageChange={loadPosts}
+        />
       </div>
-
-      <Footer />
-    </>
+    </div>
   );
 };
-
-export default Notice;
+export default Notice; // ← 이 부분이 반드시 있어야 함

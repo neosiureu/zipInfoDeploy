@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zipinfo.project.board.model.mapper.BoardMapper">
+
+ <select id="selectNoticeList" resultType="com.zipinfo.project.board.model.dto.Board">
+  SELECT * FROM BOARD
+  WHERE board_type = 'NOTICE'
+  ORDER BY created_at DESC
+</select>
+
+<select id="selectNotice" resultType="com.zipinfo.project.board.model.dto.Board">
+  SELECT * FROM BOARD
+  WHERE board_no = #{boardNo}
+</select>
+
+<insert id="insertNotice" parameterType="com.zipinfo.project.board.model.dto.Board" useGeneratedKeys="true" keyProperty="boardNo">
+  INSERT INTO BOARD (title, content, author, created_at, updated_at, board_type)
+  VALUES (#{title}, #{content}, #{author}, SYSDATE, SYSDATE, 'NOTICE')
+</insert>
+
+<update id="updateNotice" parameterType="com.zipinfo.project.board.model.dto.Board">
+  UPDATE BOARD
+  SET title = #{title},
+      content = #{content},
+      updated_at = SYSDATE
+  WHERE board_no = #{boardNo}
+</update>
+
+<delete id="deleteNotice" parameterType="int">
+  DELETE FROM BOARD WHERE board_no = #{boardNo}
+</delete>
+
+
+</mapper>
