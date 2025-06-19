@@ -22,7 +22,10 @@ const PasswordChange = () => {
   };
 
 
+
   const handleSubmit = async () => {
+
+
 
     try {
       if(password.newPassword !== password.confirmPassword){
@@ -92,6 +95,9 @@ const PasswordChange = () => {
                 className="pass-form-input"
               />
             </div>
+            <span class="signUp-message" id="pwMessage">
+            영어,숫자,특수문자(!,@,#,-,_) 6~20글자 사이로 입력해주세요.</span
+            >
 
             <div className="pass-form-group">
               <label className="pass-form-label">새 비밀번호 확인</label>

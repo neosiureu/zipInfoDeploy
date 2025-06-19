@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zipinfo.project.email.model.mapper.EmailMapper">
+
+
+<!-- 전달받은 파라미터 가 Map
+	 -> key 접근
+	 -> DTO 필드명 접근할수 없기 때문에 이렇게 하는 것
+ -->
+ 
+ <!-- 인증번호 수정 -->
+    <update id="updateAuthKey">
+	UPDATE "AUTU_KEY" SET
+	AUTH_KEY = #{authKey} , 
+	CREATE_TIME = SYSDATE
+	WHERE EMAIL = #{email}
+    </update>
+
+
+    <insert id="insertAuthKey">
+	INSERT INTO "AUTU_KEY"
+VALUES (SEQ_AUTH_KEY.NEXTVAL, #{email}, #{authKey}, DEFAULT)    </insert>	
+
+   <!-- 이메일 + 인증번호 확인  -->
+	<select id="verifyCode">
+	SELECT COUNT(*)
+	FROM "AUTU_KEY"
+	WHERE EMAIL = #{email}
+	AND AUTH_KEY = #{authKey}
+	</select>
+
+
+
+</mapper>

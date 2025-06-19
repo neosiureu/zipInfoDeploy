@@ -15,6 +15,8 @@ const MyPage = () => {
 
       if (resp.status === 200) {
         setUser(resp.data);
+
+        console.log("Member Info 불러오기 성공 : ", resp.data);
       }
     } catch (error) {
       console.log("Member Info 불러오는 중 에러 발생 : ", error);
@@ -52,6 +54,11 @@ const MyPage = () => {
             <div className="my-page-info-field">
               <label className="my-page-info-label">닉네임</label>
               <div className="my-page-info-value">{user.memberNickname != null ? user.memberNickname:"닉네임을 설정하지 않았습니다"}</div>
+            </div>
+            
+            <div className="my-page-info-field">
+              <label className="my-page-info-label">선호 지역</label>
+              <div className="my-page-info-value">{user.memberLocation != null ? user.memberLocation:'선호지역을 설정하지 않았습니다.'}</div>
             </div>
 
             {/* Phone */}
@@ -91,7 +98,7 @@ const MyPage = () => {
               onClick={handleNav}
               className="my-page-edit-button"
             >
-              편집하기
+              수정
             </button>
           </div>
         </div>
@@ -117,13 +124,19 @@ const MyPage = () => {
               <div className="my-page-info-value">{user.memberNickname != null ? user.memberNickname:"닉네임을 설정하지 않았습니다"}</div>
             </div>
 
-                      {/* Edit Button */}
-          <div className="my-page-edit-button-container">
+            
+            <div className="my-page-info-field">
+              <label className="my-page-info-label">선호 지역</label>
+              <div className="my-page-info-value">{user.memberLocation != null ? user.memberLocation:'선호지역을 설정하지 않았습니다.'}</div>
+            </div>
+
+            {/* Edit Button */}
+            <div className="my-page-edit-button-container">
             <button
               onClick={handleNav}
               className="my-page-edit-button"
             >
-              편집하기
+              수정
             </button>
           </div>
           </div>

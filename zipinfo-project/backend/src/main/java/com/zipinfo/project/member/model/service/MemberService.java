@@ -11,6 +11,7 @@ public interface MemberService {
 
 	int checkNickname(String memberNickname);
 
+
 	/** 관리자 권한 부여
 	 * @param memberNo
 	 * @param newAuth
@@ -29,4 +30,7 @@ public interface MemberService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	int checkBrokerNo(String brokerNo);
+
 }

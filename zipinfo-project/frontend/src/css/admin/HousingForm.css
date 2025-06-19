@@ -1,258 +1,129 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.admin-form-container {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
-  color: #333;
-  line-height: 1.6;
-}
-
-/* Header */
-.header {
-  background-color: white;
-  border-bottom: 1px solid #e0e0e0;
-  padding: 12px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo {
-  color: #2563eb;
-  font-weight: bold;
-  font-size: 18px;
-}
-
-.header-right {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-/* Main Container */
-.main-container {
-  max-width: 1024px;
+.sale-register-form {
+  max-width: 900px;
   margin: 40px auto;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  overflow: hidden;
+  padding: 48px;
+  background: #fff;
 }
 
-/* Title Section */
-.title-section {
-  text-align: center;
-  padding: 32px 0;
-  border-bottom: 1px solid #e0e0e0;
+.sale-form-section {
+  margin-bottom: 48px;
 }
 
-.main-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #1f2937;
+.sale-section-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  margin-top: 24px;
 }
 
-/* Tabs */
-.tabs-container {
-  display: flex;
-  background-color: #f3f4f6;
-}
-
-.tab {
-  flex: 1;
-  padding: 16px 24px;
-  background-color: #e5e7eb;
-  color: #6b7280;
-  border: none;
-  border-right: 1px solid #d1d5db;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.tab:last-child {
-  border-right: none;
-}
-
-.tab:hover {
-  background-color: #d1d5db;
-}
-
-.tab-active {
-  background-color: #3b82f6 !important;
-  color: white !important;
-}
-
-/* Form Content */
-.form-content {
-  padding: 40px;
-}
-
-/* Admin Info */
-.admin-info {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.admin-status {
-  font-size: 16px;
-  margin-bottom: 8px;
-}
-
-.admin-id {
-  font-size: 16px;
-  color: #6b7280;
-}
-
-.highlight {
-  font-weight: bold;
-  color: #dc2626;
-}
-
-/* Form Fields */
-.form-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: bold;
-  color: #374151;
-  font-size: 14px;
-}
-
-.input-wrapper {
+.sale-form-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  margin-bottom: 18px;
 }
 
-.form-input {
-  flex: 1;
-  padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background-color: #f9fafb;
-  font-size: 14px;
-  color: #1f2937;
-  transition: all 0.2s ease;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  background-color: white;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-input::placeholder {
-  color: #9ca3af;
-}
-
-.input-close {
-  color: #9ca3af;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.form-textarea {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background-color: #f9fafb;
-  font-size: 14px;
-  color: #1f2937;
-  resize: vertical;
-  font-family: inherit;
-  transition: all 0.2s ease;
-}
-
-.form-textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  background-color: white;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-textarea::placeholder {
-  color: #9ca3af;
-}
-
-/* Submit Section */
-.submit-section {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 32px;
-}
-
-.submit-btn {
-  background-color: #3b82f6;
-  color: white;
+.sale-form-label {
+  width: 160px;
+  font-size: 15px;
+  color: #b0b0b0; /* 옅은 회색 */
   font-weight: 500;
-  padding: 12px 32px;
-  border: none;
+  margin-right: 10px;
+}
+
+.sale-form-label.required:before {
+  content: "* ";
+  color: #3b5bdb;
+  font-weight: bold;
+}
+
+.sale-form-input,
+.sale-form-row input[type="text"],
+.sale-form-row select {
+  flex: 1;
+  height: 44px;
+  border: 1px solid #e0e0e0;
   border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 14px;
+  padding: 0 16px;
+  font-size: 15px;
+  background: #fafbfc;
+  transition: border 0.2s;
 }
 
-.submit-btn:hover {
-  background-color: #2563eb;
-}
-
-.submit-btn:focus {
+.sale-form-input:focus {
+  border: 1.5px solid #3b5bdb;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5),
-    0 0 0 1px rgba(59, 130, 246, 0.2);
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .main-container {
-    margin: 20px;
-    border-radius: 6px;
-  }
+.sale-radio-group {
+  display: flex;
+  gap: 30px;
+}
 
-  .form-content {
-    padding: 20px;
-  }
+.sale-radio-group label {
+  color: #222;
+  font-weight: 400;
+  font-size: 15px;
+}
 
-  .tabs-container {
-    flex-direction: column;
-  }
+input[type="radio"] {
+  accent-color: #3b5bdb;
+  margin-right: 6px;
+}
 
-  .tab {
-    border-right: none;
-    border-bottom: 1px solid #d1d5db;
-  }
+.sale-file-btn {
+  background: #fff;
+  border: 1.5px solid #3b5bdb;
+  color: #3b5bdb;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-right: 20px;
+  transition: background 0.2s, color 0.2s;
+}
 
-  .tab:last-child {
-    border-bottom: none;
-  }
+.sale-file-btn:hover {
+  background: #3b5bdb;
+  color: #fff;
+}
 
-  .input-wrapper {
-    flex-direction: column;
-    align-items: stretch;
-  }
+.sale-file-desc {
+  color: #888;
+  font-size: 13px;
+  margin-top: 6px;
+  margin-left: 10px;
+  line-height: 1.5;
+}
 
-  .input-close {
-    align-self: flex-end;
-    margin-top: 8px;
+.sale-submit-row {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.sale-submit-btn {
+  background: #3b5bdb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 18px 0;
+  width: 340px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sale-submit-btn:hover {
+  background: #2541a2;
+}
+
+@media (max-width: 1000px) {
+  .sale-register-form {
+    max-width: 98vw;
+    padding: 20px 5vw;
+  }
+  .sale-form-label {
+    width: 120px;
   }
 }
