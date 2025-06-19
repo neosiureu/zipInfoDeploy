@@ -12,5 +12,7 @@ public interface MyPageService {
 
 	int updatePassword(Member loginMember, Member member);
 
+	int checkNickname(Member loginMember, Member member);
+
 
 }

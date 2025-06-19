@@ -126,6 +126,54 @@
   box-shadow: 0 0 0 2px rgba(76, 110, 245, 0.1);
 }
 
+.my-page-address-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  margin-bottom: 10px;
+}
+
+.my-page-address-input:focus {
+  outline: none;
+  border-color: #4c6ef5;
+  box-shadow: 0 0 0 2px rgba(76, 110, 245, 0.1);
+}
+
+.my-page-valid-msg {
+  font-size: 12px;
+  margin-top: -20px;
+  color: green;
+}
+
+.my-page-invalid-msg {
+  font-size: 12px;
+  margin-top: -20px;
+  color: red;
+}
+
+.my-page-default-msg {
+  font-size: 12px;
+  margin-top: -20px;
+  color: gray;
+}
+
+.my-page-address-wrap {
+  display: flex;
+}
+
+.my-page-address-btn {
+  border: 1px solid black;
+  background-color: black;
+  color: white;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100px;
+  height: 41px;
+  margin-left: 10px;
+}
 
 @media (max-width: 768px) {
   .my-page-container {
