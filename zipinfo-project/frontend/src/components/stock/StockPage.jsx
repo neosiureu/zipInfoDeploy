@@ -49,11 +49,12 @@ const StockPage = () => {
               neLat: ne.getLat(),
               neLng: ne.getLng(),
             },
-            searchKeyWord: "", //keyword ||
-            locationCode: -1, // -1 : 서버측에서 무시하는 value selectedLocation ||
-            stockType: -1, // -1 : 서버측에서 무시하는 valueselectedType ||
-            stockForm: -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
+            searchKeyWord: searchKeyWord || "", //keyword ||
+            locationCode: searchLocationCode ?? -1, // -1 : 서버측에서 무시하는 value selectedLocation ||
+            stockType: searchStockForm ?? -1, // -1 : 서버측에서 무시하는 valueselectedType ||
+            stockForm: searchStockType ?? -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
           });
+          console.log("locationCode:", searchLocationCode);
           if (resp.status === 200) {
             console.log(resp.data);
 
