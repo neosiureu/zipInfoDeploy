@@ -37,7 +37,7 @@ const StockPage = () => {
         console.log("좌하단(SW):", sw.getLat(), sw.getLng());
         console.log("우상단(NE):", ne.getLat(), ne.getLng());
         try {
-          const resp = await axiosAPI.post("/sale/selectItems", {
+          const resp = await axiosAPI.post("/sale/selectSaleMap", {
             swLat: sw.getLat(),
             swLng: sw.getLng(),
             neLat: ne.getLat(),

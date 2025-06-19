@@ -8,5 +8,5 @@ import com.zipinfo.project.stock.model.dto.Stock;
 public interface StockService {
 
 	List<Stock> getStockListInRange(SearchRequest sr);
-	
+
 }
