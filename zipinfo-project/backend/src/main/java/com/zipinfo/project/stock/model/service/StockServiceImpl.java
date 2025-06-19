@@ -37,5 +37,11 @@ public class StockServiceImpl implements StockService{
 				);
 		
 	}
+
+	@Override
+	public List<Stock> getStockListInRange(double swLat, double swLng, double neLat, double neLng) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
