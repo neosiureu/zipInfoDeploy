@@ -5,7 +5,7 @@
 <mapper namespace="com.zipinfo.project.myPage.model.mapper.MyPageMapper">
 
 	<select id="getMemberInfo">
-		SELECT MEMBER_NAME, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_AUTH <if test="memberAuth eq 3">, COMPANY_NAME, COMPANY_LOCATION, PRESIDENT_NAME, BROKER_NO, PRESIDENT_PHONE</if>
+		SELECT MEMBER_NO, MEMBER_NAME, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_AUTH, MEMBER_LOCATION <if test="memberAuth eq 3">, COMPANY_NAME, COMPANY_LOCATION, PRESIDENT_NAME, BROKER_NO, PRESIDENT_PHONE</if>
 		FROM MEMBER M
 		<if test="memberAuth eq 3">
 		JOIN BROKER_INFO B USING(MEMBER_NO)
@@ -37,6 +37,24 @@
 	<update id="updatePassword">
 		UPDATE "MEMBER" SET
 		MEMBER_PW = #{memberPw}
+		WHERE MEMBER_NO = #{memberNo}
+	</update>
+	
+	<select id="checkNickname" resultType="java.lang.Integer">
+		SELECT MEMBER_NO
+		FROM "MEMBER"
+		WHERE MEMBER_NICKNAME = #{memberNickname}
+	</select>
+	
+	<select id="compareInfo">
+		SELECT COMPANY_NAME, COMPANY_LOCATION, PRESIDENT_NAME, BROKER_NO, PRESIDENT_PHONE
+		FROM "BROKER_INFO"
+		WHERE MEMBER_NO = #{memberNo}
+	</select>
+	
+	<update id="changeAuth">
+		UPDATE "MEMBER" SET
+		MEMBER_AUTH = 2
 		WHERE MEMBER_NO = #{memberNo}
 	</update>
 </mapper>

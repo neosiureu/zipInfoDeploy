@@ -17,4 +17,10 @@ public interface MyPageMapper {
 
 	int updatePassword(Member member);
 
+	Integer checkNickname(Member member);
+
+	Member compareInfo(Member member);
+
+	int changeAuth(Member member);
+
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.bind.annotation.SessionAttributes;
@@ -39,6 +40,35 @@ public class MyPageController {
 			
 			Member member = service.getMemberInfo(loginMember);
 			
+			System.out.println(member);
+			
+			
+			if (member.getCompanyLocation() != null) {
+				String[] arr = member.getCompanyLocation().split("\\^\\^\\^");
+
+				// 초기화
+				String postcode = null;
+				String address = null;
+				String detailAddress = null;
+
+				if (arr.length > 0)
+					postcode = arr[0];
+				if (arr.length > 1)
+					address = arr[1];
+				if (arr.length > 2)
+					detailAddress = arr[2];
+				
+				String finalAddress = address +" " + detailAddress;
+
+				member.setAddress(address);
+				member.setDetailAddress(detailAddress);
+				member.setPostcode(postcode);
+				member.setCompanyLocation(finalAddress);
+
+			}
+			
+			System.out.println(member);
+			
 			return ResponseEntity.status(HttpStatus.OK) // 200
 				   .body(member); 
 			
@@ -52,20 +82,20 @@ public class MyPageController {
 	@PostMapping("updateInfo")
 	public ResponseEntity<Object> updateInfo(HttpSession session, @RequestBody Member member){
 		
-		try {
+//		try {
 			
 			Member loginMember = (Member)session.getAttribute("loginMember");
-			
+
 			int result = service.updateInfo(loginMember,member);
 			
 			return ResponseEntity.status(HttpStatus.OK) // 200
 					.body(result); 
 			
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("불러오는 중 예외 발생 : " + e.getMessage());
-			
-		}
+//		} catch (Exception e) {
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//					.body("불러오는 중 예외 발생 : " + e.getMessage());
+//			
+//		}
 	}
 	
 	@PostMapping("checkPassword")
@@ -107,5 +137,21 @@ public class MyPageController {
 //		}
 	}
 	
+	@PostMapping("checkNickname")
+	public ResponseEntity<Object> checkNickname(HttpSession session, @RequestBody Member member){
+		
+		try {
+			
+			Member loginMember = (Member)session.getAttribute("loginMember");
+			
+			int result = service.checkNickname(loginMember, member);
+		
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(result); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
 	
 }
