@@ -24,7 +24,7 @@ public class MyPageServiceImpl implements MyPageService{
 	private BCryptPasswordEncoder bcrypt;
 	
 	@Override
-		public Member getMemberInfo(Member loginMember) {
+	public Member getMemberInfo(Member loginMember) {
 		
 			return mapper.getMemberInfo(loginMember);
 		}
@@ -37,6 +37,16 @@ public class MyPageServiceImpl implements MyPageService{
 		member.setMemberNo(loginMember.getMemberNo());
 		
 		if(loginMember.getMemberAuth() == 3) {
+			
+			Member compareInfo = mapper.compareInfo(member);
+			
+			if(!compareInfo.getCompanyName().equals(member.getCompanyName()) || 
+				!compareInfo.getCompanyName().equals(member.getCompanyLocation()) ||
+				!compareInfo.getPresidentName().equals(member.getPresidentName()) ||
+				!compareInfo.getPresidentPhone().equals(member.getPresidentPhone()) ||
+				!compareInfo.getBrokerNo().equals(member.getBrokerNo())) {
+				int changeAuth = mapper.changeAuth(member);
+			}
 			
 			int firstResult = mapper.updateNormalInfo(member);
 			
@@ -71,5 +81,15 @@ public class MyPageServiceImpl implements MyPageService{
 		member.setMemberNo(loginMember.getMemberNo());
 		
 		return mapper.updatePassword(member);
+	}
+	
+	@Override
+	public int checkNickname(Member loginMember, Member member) {
+		
+		member.setMemberNo(loginMember.getMemberNo());
+		
+		Integer result = mapper.checkNickname(member);
+		
+		return result != null ? 1: 0;
 	}
 }

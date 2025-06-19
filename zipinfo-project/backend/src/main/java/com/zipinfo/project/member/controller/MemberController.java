@@ -49,7 +49,7 @@ public class MemberController {
 	 */
 	@GetMapping("/getMember")
     public ResponseEntity<Member> getMember(HttpSession session) {
-//		log.info("멤버 체크 로직에 진입했습니다");
+
         Member member = (Member) session.getAttribute("loginMember");
 
         if(member==null) {
@@ -109,7 +109,6 @@ public class MemberController {
 	 */
 	@GetMapping("/checkNickname")
 	public int checkNickname(@RequestParam("memberNickname") String memberNickname) {
-		log.info("닉네임 체크하기 위해 진입");
 
 		return service.checkNickname(memberNickname);
 		
