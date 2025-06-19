@@ -8,11 +8,17 @@ const StockPage = () => {
   const mapRef = useRef(null); // 지도를 담을 div의 ref
   const mapInstanceRef = useRef(null); //생성한 map instance를 저장 -- const map = new window.kakao.maps.Map(container, options);
   const itemMarkersRef = useRef([]); // 지도내 표시된 마커 배열 저장
-
+  /***************side-panel 관련 상태변수들******************************** */
   const [isAsideVisible, setIsAsideVisible] = useState(false); // 지정한 side-panel 숨김여부 저장 state
-
+  /***************매물(item) 로딩 관련 상태변수들******************************** */
   const [stockList, setStockList] = useState(null); // spring 서버에서 받아오는 매물 List
+
   const [clickedStockItem, setClickedStockItem] = useState(null); // 자세히 보기창에 띄울 매물
+  /*****************검색창 관련 상태변수들************************** */
+  const [searchKeyWord, setSearchKeyWord] = useState("");
+  const [searchLocationCode, setSearchLocationCode] = useState(-1);
+  const [searchStockForm, setSearchStockForm] = useState(-1);
+  const [searchStockType, setSearchStockType] = useState(-1);
 
   /*********************Kakao map 로드************** */
   useEffect(() => {
@@ -37,15 +43,23 @@ const StockPage = () => {
         console.log("우상단(NE):", ne.getLat(), ne.getLng());
         try {
           const resp = await axiosAPI.post("/stock/selectItems", {
-            swLat: sw.getLat(),
-            swLng: sw.getLng(),
-            neLat: ne.getLat(),
-            neLng: ne.getLng(),
+            coords: {
+              swLat: sw.getLat(),
+              swLng: sw.getLng(),
+              neLat: ne.getLat(),
+              neLng: ne.getLng(),
+            },
+            searchKeyWord: "", //keyword ||
+            locationCode: -1, // -1 : 서버측에서 무시하는 value selectedLocation ||
+            stockType: -1, // -1 : 서버측에서 무시하는 valueselectedType ||
+            stockForm: -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
           });
           if (resp.status === 200) {
             console.log(resp.data);
+
             setStockList(resp.data);
             updateMarker();
+
             // same code : 매물 좌표를 받아서 지도상에 마커로 매물 위치 추가
           }
         } catch (error) {
@@ -280,7 +294,17 @@ const StockPage = () => {
   /****************** return ***************** **/
   return (
     <>
-      <SearchBar showSearchType={true} />{" "}
+      <SearchBar
+        showSearchType={true}
+        searchKeyWord={searchKeyWord}
+        setSearchKeyWord={setSearchKeyWord}
+        searchLocationCode={searchLocationCode}
+        setSearchLocationCode={setSearchLocationCode}
+        searchStockForm={searchStockForm}
+        setSearchStockForm={setSearchStockForm}
+        searchStockType={searchStockType}
+        setSearchStockType={setSearchStockType}
+      />{" "}
       {/**showSearchType : 현재 페이지가 StockPage인가, SalePage인가 따지는 변수 */}
       {/**list */}
       <div className="container">

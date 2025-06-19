@@ -5,7 +5,18 @@ import search from "../../assets/search-icon.svg";
 import refresh from "../../assets/refresh.svg";
 import arrowDown from "../../assets/arrow-down.svg";
 
-const SearchBar = ({ showSearchType = true }) => {
+const SearchBar = ({
+  showSearchType = true,
+  searchKeyWord,
+  setSearchKeyWord, //useState
+  searchLocationCode,
+  setSearchLocationCode,
+  searchStockForm,
+  setSearchStockForm,
+  searchStockType,
+  setSearchStockType,
+  //todo : SalePage 내부에 선언된 매물 유형 state 매개변수 추가할것.
+}) => {
   const [dealType, setDealType] = useState(""); // 매물/분양 상태
   const [residenceType, setResidenceType] = useState(""); // 주거/매물형태
 
@@ -26,7 +37,17 @@ const SearchBar = ({ showSearchType = true }) => {
         {/* 시/도 */}
         <div className="select-wrap">
           <select>
-            <option>시/도</option>
+            <option value={-1} disabled>
+              시/도
+            </option>
+            <option>전국</option>
+            <option>서울특별시</option>
+            <option>부산광역시</option>
+            <option>인천광역시</option>
+            <option>대전광역시</option>
+            <option>대구광역시</option>
+            <option>광주광역시</option>
+            <option>울산광역시</option>
           </select>
           <img className="arrow-icon" src={arrowDown} alt="아래 아이콘" />
         </div>
@@ -34,7 +55,10 @@ const SearchBar = ({ showSearchType = true }) => {
         {/* 구/군 */}
         <div className="select-wrap">
           <select>
-            <option>구/군</option>
+            <option value={-1} disabled>
+              시/도
+            </option>
+            <option></option>
           </select>
           <img className="arrow-icon" src={arrowDown} alt="아래 아이콘" />
         </div>
@@ -44,12 +68,13 @@ const SearchBar = ({ showSearchType = true }) => {
           <select value={dealType} onChange={handleDealChange}>
             {showSearchType ? (
               <>
-                <option value="" disabled hidden>
+                <option value="-1" disabled hidden>
                   매매/전세/월세
                 </option>
-                <option value="매매">매매</option>
-                <option value="전세">전세</option>
-                <option value="월세">월세</option>
+                <option value="-1">전체</option>
+                <option value="0">매매</option>
+                <option value="1">전세</option>
+                <option value="2">월세</option>
               </>
             ) : (
               <>
@@ -68,12 +93,13 @@ const SearchBar = ({ showSearchType = true }) => {
         {/* 주거/매물형태 */}
         <div className="select-wrap">
           <select value={residenceType} onChange={handleResidenceChange}>
-            <option value="" disabled hidden>
+            <option value="-1" disabled hidden>
               주거/매물형태
             </option>
-            <option value="아파트">아파트</option>
-            <option value="주택/빌라">주택/빌라</option>
-            <option value="오피스텔">오피스텔</option>
+            <option value="-1">전체</option>
+            <option value="1">아파트</option>
+            <option value="2">주택/빌라</option>
+            <option value="3">오피스텔</option>
           </select>
           <img className="arrow-icon" src={arrowDown} alt="아래 아이콘" />
         </div>

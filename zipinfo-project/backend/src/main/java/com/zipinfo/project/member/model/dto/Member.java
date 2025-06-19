@@ -36,4 +36,3 @@ public class Member {
     private Member loginMember;
 
 }
-
