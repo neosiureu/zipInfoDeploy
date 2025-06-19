@@ -3,6 +3,7 @@ package com.zipinfo.project.email.model.service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -26,6 +27,7 @@ public class EmailServiceImpl implements EmailService {
 	private final EmailMapper mapper;
 	private final SpringTemplateEngine templateEngine;
 	private final JavaMailSender mailSender;
+    private final Executor emailExecutor;
 
 	@Override
 	public String sendEmail(String htmlName, String email) {
@@ -122,8 +124,15 @@ public class EmailServiceImpl implements EmailService {
 
 	@Override
 	public int verifyCode(Map<String, String> map) {
-		// TODO Auto-generated method stub
-		return mapper.verifyCode(map);
-	}
+	    // 1) 들어온 파라미터 확인
+	    log.info("service.verifyCode 호출됨 — 파라미터: {}", map);
 
+	    // 2) 매퍼 호출
+	    int count = mapper.verifyCode(map);
+
+	    // 3) 매퍼 결과 확인
+	    log.info("service.verifyCode 결과 — count: {}", count);
+
+	    return count;
+	}
 }
