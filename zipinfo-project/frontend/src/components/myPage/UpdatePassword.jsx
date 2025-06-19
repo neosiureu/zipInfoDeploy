@@ -22,7 +22,10 @@ const PasswordChange = () => {
   };
 
 
+
   const handleSubmit = async () => {
+
+
 
     try {
       if(password.newPassword !== password.confirmPassword){

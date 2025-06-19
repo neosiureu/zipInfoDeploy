@@ -14,4 +14,6 @@ public interface MemberMapper {
 
 	int checkNickname(String memberNickname);
 
+	int checkBrokerNo(String brokerNo);
+
 }

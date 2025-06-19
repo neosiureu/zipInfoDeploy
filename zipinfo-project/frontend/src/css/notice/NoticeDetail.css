@@ -25,16 +25,32 @@
   white-space: pre-line;
   margin-bottom: 30px;
 }
+/* NoticeDetail.css */
+.notice-buttons button {
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  margin-right: 8px;
+  border-radius: 4px;
+  color: white;
+}
 
-.notice-buttons {
-  margin-bottom: 20px;
+/* 수정 버튼 파란색 */
+.notice-buttons .btn-edit {
+  background-color: #007bff; /* 파란색 */
+}
+
+/* 삭제 버튼 검정색 */
+.notice-buttons .btn-delete {
+  background-color: #000000; /* 검정색 */
 }
 
 .notice-buttons button,
 .back-button {
   margin-right: 10px;
   padding: 8px 12px;
-  background-color: blue;
+  background-color: gray;
   color: white;
   border: none;
   border-radius: 4px;

@@ -6,7 +6,7 @@
 }
 
 .sale-side-panel {
-  width: 540px;
+  width: 480px;
   height: 100%;
   background: #fff;
   overflow-y: auto;
@@ -49,7 +49,7 @@
 }
 
 .sale-name {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: #767676;
   line-height: 24px;
@@ -156,4 +156,8 @@
 /* 마지막 하단 여백 */
 .sale-last-section {
   margin-bottom: 240px;
+}
+
+.hidden {
+  display: none !important;
 }
