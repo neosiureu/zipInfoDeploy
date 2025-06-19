@@ -12,4 +12,8 @@ public class Board {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String boardType; // "NOTICE" 등으로 구분
+	public int getMemberNo() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
