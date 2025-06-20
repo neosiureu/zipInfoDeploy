@@ -75,8 +75,12 @@
         
         /* 약관 동의 */
         .with-draw-agreement-section {
+          display: flex;
+          align-items: center;
+          justify-content: center;
             background-color: white;
-            padding: 30px;
+            height: 50px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 30px;
@@ -85,22 +89,49 @@
         .with-draw-agreement-item {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
         }
-        
+      
+
+        /* 기본 체크박스 숨기기 */
         .with-draw-agreement-checkbox {
-            margin-right: 8px;
+          display: none;
         }
-        
-        .with-draw-agreement-text {
-            color: #666;
-            font-size: 14px;
+
+        /* 라벨로 만든 원형 체크박스 */
+        .with-draw-agreement-label {
+          width: 30px;
+          height: 30px;
+          display: inline-block;
+          border: 2px solid #333;
+          border-radius: 50%; /* 동그랗게 */
+          position: relative;
+          cursor: pointer;
+          transition: background 0.3s;
+          margin-right: 10px;
+        }
+
+        /* 체크되었을 때 스타일 */
+        .with-draw-agreement-checkbox:checked + .with-draw-agreement-label {
+          background-color: #000;
+        }
+
+        /* 체크 아이콘 표시 (예: 가운데 흰색 체크 표시) */
+        .with-draw-agreement-checkbox:checked + .with-draw-agreement-label::after {
+          content: "";
+          position: absolute;
+          top: 5px;
+          left: 9px;
+          width: 6px;
+          height: 10px;
+          border: solid white;
+          border-width: 0 2px 2px 0;
+          transform: rotate(45deg);
         }
         
         /* 탈퇴 버튼 */
         .withdrawal-btn {
             width: 100%;
-            max-width: 300px;
+            max-width: 542px;
             padding: 15px;
             background-color: #4f46e5;
             color: white;
@@ -116,3 +147,4 @@
         .withdrawal-btn:hover {
             background-color: #4338ca;
         }
+

@@ -36,6 +36,10 @@ const SearchBar = ({
   };
 
   useEffect(() => {
+  console.log("변경된 코드:", searchLocationCode);
+  }, [searchLocationCode]);
+
+  useEffect(() => {
     console.log(
       "sidoSelected:",
       sidoSelected,
@@ -46,8 +50,8 @@ const SearchBar = ({
       // 시/도 가 선택된 상태에서 시/군/구가 선택이 안되있거나 전체로 선택되어있을떄
       console.log("조건문 1");
 
-      //setSearchLocationCode(sidoSelected); // 시도(lower than < 100)를 SearchLocationCode로 끌어올림
-      setSearchLocationCode(1000000000000);
+      setSearchLocationCode(sidoSelected); // 시도(lower than < 100)를 SearchLocationCode로 끌어올림
+      console.log(searchLocationCode);
     } else if (sigunguSelected !== -1 && sidoSelected !== -1) {
       // 시/도 가 선택된 상태에서 시/군/구도 선택되었을떄
       console.log("조건문 2");
@@ -64,6 +68,7 @@ const SearchBar = ({
       );
     }
   }, [sidoSelected, sigunguSelected]);
+
   return (
     <div className="searchbar-wrap">
       <div className="searchbar">

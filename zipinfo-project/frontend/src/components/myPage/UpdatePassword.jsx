@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import "../../css/myPage/updatePassword.css";
+import "../../css/myPage/menu.css";
 import Menu from "./Menu";
 import { useNavigate } from 'react-router-dom';
 import { axiosAPI } from '../../api/axiosApi';
