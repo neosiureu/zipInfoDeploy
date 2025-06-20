@@ -54,7 +54,7 @@ public interface MemberService {
 
 	
 
-	ResponseEntity<Object> signup(Member member);
+	int signup(Member member);
     
     
 }

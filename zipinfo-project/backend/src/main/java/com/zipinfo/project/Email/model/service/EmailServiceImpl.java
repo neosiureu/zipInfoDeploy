@@ -59,7 +59,7 @@ public class EmailServiceImpl implements EmailService {
 
 			// 메일 기존 정보설정
 			helper.setTo(email); // 받는 사람 (수신자)
-			helper.setSubject("[boardProject] 회원 가입 인증번호입니다."); // 제목
+			helper.setSubject(" 🏠🏠🏠 [집에 대한 모든 정보] ZIP INFO를 위한 회원가입 인증번호입니다. 🏠🏠🏠" ); // 제목
 			helper.setText(loadHtml(authKey, htmlName), true); // 내용 (본문)
 			// 이메일의 본문으로 html 내용을 보냄
 

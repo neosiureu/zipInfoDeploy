@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { axiosAPI } from "../../api/axiosAPI";
 import "../../css/member/MemberSignup.css";
+import { useNavigate } from "react-router-dom";
+
+//   const initTime = "01:01";
+// setMin(1);
+// const [sec, setSec] = useState(0);
+//let currentSec = 0;
 
 export default function MemberSignUp() {
+  const navigate = useNavigate();
+
   // 초기 폼 데이터
   const INITIAL_FORM = {
     // Member테이블
@@ -57,9 +65,9 @@ export default function MemberSignUp() {
 
   // 타이머 관련 상태
   const [authTimer, setAuthTimer] = useState(null);
-  const [min, setMin] = useState(3);
-  const [sec, setSec] = useState(0);
-  const initTime = "03:00";
+  const [min, setMin] = useState(1);
+  const [sec, setSec] = useState(1);
+  const initTime = "01:01";
 
   // 타이머 정리
   useEffect(() => {
@@ -188,8 +196,8 @@ export default function MemberSignUp() {
     }
 
     // 타이머 초기화
-    setMin(3);
-    setSec(0);
+    setMin(1);
+    setSec(1);
     updateMessage("authKeyMessage", `${addZero(3)}:${addZero(0)}`, "");
 
     // 이전 타이머 클리어
@@ -216,27 +224,38 @@ export default function MemberSignUp() {
     updateMessage("authKeyMessage", initTime, "");
     alert("인증번호가 발송되었습니다.");
 
+    let currentMin = 1;
+    let currentSec = 1;
+
     const timer = setInterval(() => {
-      setSec((prevSec) => {
-        setMin((prevMin) => {
-          const newSec = prevSec === 0 ? 59 : prevSec - 1;
-          const newMin = prevSec === 0 ? prevMin - 1 : prevMin;
-
-          const timeDisplay = `${addZero(newMin)}:${addZero(newSec)}`;
-          updateMessage("authKeyMessage", timeDisplay, "");
-
+      // 직접 계산
+      if (currentSec > 0) {
+        currentSec--;
+      } else {
+        if (currentMin > 0) {
+          currentSec = 59;
+          currentMin--;
+        } else {
           // 시간 종료
-          if (newMin === 0 && newSec === 0) {
-            updateCheckObj("authKey", false);
-            clearInterval(timer);
-            setAuthTimer(null);
-            updateMessage("authKeyMessage", "시간이 만료되었습니다.", "error");
-          }
+          updateCheckObj("authKey", false);
+          clearInterval(timer);
+          setAuthTimer(null);
+          updateMessage(
+            "authKeyMessage",
+            "시간이 만료되었습니다. 다시 이메일을 보내주세요!",
+            "error"
+          );
+          return;
+        }
+      }
 
-          return newMin;
-        });
-        return prevSec === 0 ? 59 : prevSec - 1;
-      });
+      // 상태 업데이트
+      setMin(currentMin);
+      setSec(currentSec);
+
+      // UI 업데이트
+      const timeDisplay = `${addZero(currentMin)}:${addZero(currentSec)}`;
+      updateMessage("authKeyMessage", timeDisplay, "");
     }, 1000);
 
     setAuthTimer(timer);
@@ -383,7 +402,7 @@ export default function MemberSignUp() {
     if (!regExp.test(inputPhone)) {
       updateMessage(
         "presidentPhoneMessage",
-        "전화번호는 숫자만 10-11자리로 입력해주세요",
+        "전화번호는 숫자만  입력해주세요",
         "error"
       );
       updateCheckObj("presidentPhone", false);
@@ -584,6 +603,7 @@ export default function MemberSignUp() {
         if (result === "1" || result === "success") {
           alert("회원가입이 완료되었습니다!");
           // 성공 시 리다이렉트 또는 다른 처리
+          navigate("/login");
         } else {
           alert("회원가입에 실패했습니다. 다시 시도해주세요.");
         }

@@ -17,9 +17,9 @@ public interface MemberMapper {
 
 	int checkBrokerNo(String brokerNo);
 
-	ResponseEntity<Object> signupBroker();
+	int signupBroker(Member member);
 
-	ResponseEntity<Object> signupGeneral();
+	int signupGeneral(Member member);
 	
 	
 	

@@ -110,9 +110,9 @@ public class MemberServiceImpl implements MemberService{
 
 
 	@Override
-	public ResponseEntity<Object> signup(Member member) {
+	public int signup(Member member) {
     	
-		member.setMemberEmail("E");
+		member.setMemberLogin("E"); // 이 로직에서 회원가입하는건 공통적으로 이메일 회원가입이니까 
     
     	// 멤버 또는 중개사의 location 필드를 채워 넣어 DB에 들어가기 좋게 만든다.
     	
@@ -124,12 +124,25 @@ public class MemberServiceImpl implements MemberService{
         	
         	member.setCompanyLocation(member.getCompanyPostcode()+"^^^"+member.getCompanyAddress() + "^^^"+ member.getCompanyDetailAddress());
     		
-        	// log.info("중개사 권한"+member);
 
-        	ResponseEntity<Object>  signupBroker = mapper.signupBroker();
+        	member.setMemberAuth(2);
+        	
+        	String encPw = bcrypt.encode(member.getMemberPw());
+    		
+    		member.setMemberPw(encPw);
+    		
+    		
+    		int signupGeneral = mapper.signupGeneral(member);
+    		
+        	log.info("일반인 매퍼 들어간 후 결과"+signupGeneral);
+
+    		
+        	int signupBroker = mapper.signupBroker(member);
+
+    		
+        	log.info("중개사 매퍼 들어간 후 결과"+signupBroker);
         	
         	
-        	log.info("중개사 권한"+signupBroker);
         	
     		return signupBroker;
 
@@ -138,13 +151,21 @@ public class MemberServiceImpl implements MemberService{
     	else {
     		
     		member.setMemberLocation(member.getPostcode()+"^^^"+member.getAddress() +"^^^"+ member.getDetailAddress());
-
-    		//log.info("일반인 권한"+member);
-
-
-    		ResponseEntity<Object> signupGeneral = mapper.signupGeneral();
     		
-        	log.info("중개사 권한"+signupGeneral);
+        	member.setMemberAuth(1);
+
+
+    		String encPw = bcrypt.encode(member.getMemberPw());
+    		
+    		member.setMemberPw(encPw);
+    		
+    		log.info("매퍼 들어가기 전의 일반인 권한"+member);
+
+    		
+    		int signupGeneral = mapper.signupGeneral(member);
+
+
+        	log.info("매퍼와 DB 후의 일반인 권한"+signupGeneral);
 
     		return signupGeneral;
 

@@ -28,14 +28,14 @@ AND MEMBER_DEL_FL ='N' </select>
 
 <insert id="signupGeneral" >
   	 INSERT INTO "MEMBER"
-     VALUES(SEQ_MEMBER_NEXTVAL, 
+     VALUES(SEQ_MEMBER.NEXTVAL, 
 			 #{memberEmail},
 			 #{memberPw},
 			 DEFAULT,
 			 DEFAULT,
 			 DEFAULT,
-			 #{memberLogin}
-			 #{memberNickName},
+			 #{memberLogin},
+			 #{memberNickname},
 			 #{memberName},
 			 1,
 			 DEFAULT,
@@ -43,5 +43,17 @@ AND MEMBER_DEL_FL ='N' </select>
                     )
   	</insert>
 
+
+<insert id="signupBroker" >
+  	 INSERT INTO "BROKER_INFO"
+     VALUES(SEQ_MEMBER.CURRVAL, 
+			 #{companyLocation},
+			 #{companyName},
+			 #{presidentName},
+			 #{brokerNo},
+			 #{presidentPhone}			 
+			 			 
+                    )
+  	</insert>
 
 </mapper>

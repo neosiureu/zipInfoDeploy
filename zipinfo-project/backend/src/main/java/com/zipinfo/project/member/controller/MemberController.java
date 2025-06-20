@@ -142,8 +142,8 @@ public class MemberController {
 	public ResponseEntity<Object> signup(@RequestBody Member member) {
 	    
 	    try {
-	    	log.info(member.getCompanyPostcode());
 	        Object result = service.signup(member);
+	        log.info("컨트롤러에서 본 삽입 결과"+result);
 	        return ResponseEntity.status(HttpStatus.OK).body(result);
 	        
 	    } catch (Exception e) {
