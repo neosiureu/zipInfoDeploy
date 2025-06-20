@@ -1,6 +1,7 @@
 package com.zipinfo.project.member.model.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +27,7 @@ public class MemberServiceImpl implements MemberService{
 	private BCryptPasswordEncoder bcrypt;
 
 	
-	/**
-	 * 이주원
+	/** 이주원
 	 * 로그인 서비스
 	 */
 	@Override
@@ -58,8 +58,7 @@ public class MemberServiceImpl implements MemberService{
 
 	
 	
-	/**
-	 * 이주원 
+	/** 이주원 
 	 * 이메일 중복 체크
 	 */
 	@Override
@@ -70,8 +69,7 @@ public class MemberServiceImpl implements MemberService{
 	}
 
 	
-	/**
-	 * 이주원 
+	/** 이주원 
 	 * 닉네임 중복 체크
 	 */
 	@Override
@@ -82,8 +80,7 @@ public class MemberServiceImpl implements MemberService{
 	}
 
 	
-	/**
-	 * 이주원 
+	/** 이주원 
 	 * 중개사번호 중복 체크
 	 */
 	@Override
@@ -102,10 +99,82 @@ public class MemberServiceImpl implements MemberService{
 
 
 
+	
+	
 	@Override
 	public boolean isAdmin(int memberNo) {
 		// TODO Auto-generated method stub
 		return false;
 	}
- 
+
+
+
+	@Override
+	public int signup(Member member) {
+    	
+		member.setMemberLogin("E"); // 이 로직에서 회원가입하는건 공통적으로 이메일 회원가입이니까 
+    
+    	// 멤버 또는 중개사의 location 필드를 채워 넣어 DB에 들어가기 좋게 만든다.
+    	
+    	if(member.getBrokerNo()!=null) {
+    		
+    		member.setPresidentName(member.getMemberName());
+
+    		member.setMemberLocation(member.getPostcode()+"^^^"+member.getAddress() + "^^^"+ member.getDetailAddress());
+        	
+        	member.setCompanyLocation(member.getCompanyPostcode()+"^^^"+member.getCompanyAddress() + "^^^"+ member.getCompanyDetailAddress());
+    		
+
+        	member.setMemberAuth(2);
+        	
+        	String encPw = bcrypt.encode(member.getMemberPw());
+    		
+    		member.setMemberPw(encPw);
+    		
+    		
+    		int signupGeneral = mapper.signupGeneral(member);
+    		
+        	log.info("일반인 매퍼 들어간 후 결과"+signupGeneral);
+
+    		
+        	int signupBroker = mapper.signupBroker(member);
+
+    		
+        	log.info("중개사 매퍼 들어간 후 결과"+signupBroker);
+        	
+        	
+        	
+    		return signupBroker;
+
+    	}
+    	
+    	else {
+    		
+    		member.setMemberLocation(member.getPostcode()+"^^^"+member.getAddress() +"^^^"+ member.getDetailAddress());
+    		
+        	member.setMemberAuth(1);
+
+
+    		String encPw = bcrypt.encode(member.getMemberPw());
+    		
+    		member.setMemberPw(encPw);
+    		
+    		log.info("매퍼 들어가기 전의 일반인 권한"+member);
+
+    		
+    		int signupGeneral = mapper.signupGeneral(member);
+
+
+        	log.info("매퍼와 DB 후의 일반인 권한"+signupGeneral);
+
+    		return signupGeneral;
+
+    	}
+	}
+
+
+	
+	
+
+	
 }
