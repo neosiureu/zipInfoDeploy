@@ -54,17 +54,15 @@ export default function MyPage() {
 
             <div className="my-page-stock-form-group">
               <div className="my-page-stock-input-row">
-                <label className="my-page-stock-input-label">가격</label>
-                <input 
-                  type="select"
-                  placeholder="가격을 입력해주세요"
-                  className="my-page-stock-input-field"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                />
+                <label className="my-page-stock-input-label">매물유형</label>
+                <select className="my-page-stock-input-field">
+                  <option value="1">아파트</option>
+                  <option value="2">빌라</option>
+                  <option value="3">오피스텔</option>
+                </select>
               </div>
 
-                            <div className="my-page-stock-input-row">
+              <div className="my-page-stock-input-row">
                 <label className="my-page-stock-input-label">가격</label>
                 <input 
                   type="text"
