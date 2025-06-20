@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Menu(){
 
     const nav = useNavigate();
 
-    const [activeTab, setActiveTab] = useState("내 정보");
-  
+    const location = useLocation();
+
     const tabs = [
       {label: "내 정보", path: "/myPage"},
       {label: "관심 매물", path: "/myPage/myStock"},
@@ -15,6 +15,14 @@ export default function Menu(){
       {label: "비밀번호 재설정", path: "/myPage/updatePassword"},
       {label: "회원탈퇴", path: "/myPage/withDraw"}
     ];
+    
+    const getInitialTab = () => {
+      const currentTab = tabs.find(tab => tab.path === location.pathname);
+      return currentTab ? currentTab.label : "내 정보";
+    };
+
+    const [activeTab, setActiveTab] = useState(getInitialTab);
+  
 
     useEffect(() => {
       const currentTab = tabs.find(tab => tab.path === location.pathname);

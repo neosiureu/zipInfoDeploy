@@ -21,6 +21,42 @@ const StockPage = () => {
   const [searchStockType, setSearchStockType] = useState(-1);
 
   /*********************Kakao map 로드************** */
+    useEffect(() => {
+  if (!mapInstanceRef.current) return;
+
+  const bounds = mapInstanceRef.current.getBounds();
+  const sw = bounds.getSouthWest();
+  const ne = bounds.getNorthEast();
+
+  const fetchData = async () => {
+    try {
+
+      console.log("API 요청 전 locationCode:", searchLocationCode);
+      const resp = await axiosAPI.post("/stock/selectItems", {
+        coords: {
+          swLat: sw.getLat(),
+          swLng: sw.getLng(),
+          neLat: ne.getLat(),
+          neLng: ne.getLng(),
+        },
+        searchKeyWord: searchKeyWord || "",
+        locationCode: searchLocationCode ?? -1,
+        stockType: searchStockForm ?? -1,
+        stockForm: searchStockType ?? -1,
+      });
+
+      if (resp.status === 200) {
+        setStockList(resp.data);
+      }
+    } catch (error) {
+      console.error("검색 조건 변경에 따른 요청 중 오류:", error);
+    }
+  };
+
+  fetchData();
+}, [searchKeyWord, searchLocationCode, searchStockForm, searchStockType]);
+
+
   useEffect(() => {
     // 카카오 지도 API가 로드되었는지 확인
     if (window.kakao && window.kakao.maps) {
@@ -54,7 +90,7 @@ const StockPage = () => {
             stockType: searchStockForm ?? -1, // -1 : 서버측에서 무시하는 valueselectedType ||
             stockForm: searchStockType ?? -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
           });
-          console.log("locationCode:", searchLocationCode);
+          
           if (resp.status === 200) {
             console.log(resp.data);
 
@@ -77,6 +113,9 @@ const StockPage = () => {
       marker.setMap(map);
     }
   }, []);
+
+
+
   useEffect(() => {
     updateMarker();
   }, [stockList]); // chatgpt가 지시한 사항 : updateMarker를 수행하는 useeffect를 분리

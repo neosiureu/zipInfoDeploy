@@ -14,5 +14,7 @@ public interface MyPageService {
 
 	int checkNickname(Member loginMember, Member member);
 
+	int withDraw(Member loginMember);
+
 
 }

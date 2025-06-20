@@ -1,173 +1,249 @@
-import React, { useEffect, useState } from "react";
-import "../../css/myPage/myInfo.css";
-import { useNavigate } from "react-router-dom";
-import { axiosAPI } from "../../api/axiosApi";
+import { useState } from 'react';
+import { Plus } from 'lucide-react';
+import "../../css/myPage/menu.css";
+import "../../css/myPage/myStock.css";
+import Menu from "./Menu";
 
-const MyPage = () => {
-  const nav = useNavigate();
+export default function MyPage() {
+  const [formData, setFormData] = useState({
+    name: '',
+    title: '',
+    responsibility: '',
+    mainPhone: '',
+    mobilePhone: '',
+    email: '',
+    address: '',
+    businessName: '',
+    businessAddress: '',
+    businessRep: '',
+    businessLicense: '',
+    businessPhone: ''
+  });
 
-  const [activeTab, setActiveTab] = useState("내 정보");
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
-  const tabs = [
-    "내 정보",
-    "관심 매물",
-    "문의내역",
-    "내가 쓴 글",
-    "비밀번호 재설정",
-    "회원탈퇴",
-  ];
-
-  const [user, setUser] = useState([]);
-
-  async function getMemberInfo() {
-    try {
-      const resp = await axiosAPI.get("/myPage/memberInfo",{withCredentials: true});
-
-      if (resp.status === 200) {
-        setUser(resp.data);
-      }
-    } catch (error) {
-      console.log("Member Info 불러오는 중 에러 발생 : ", error);
-    }
-  }
-
-  useEffect(() => {
-    getMemberInfo();
-  }, []);
-
-  const memberAuth = user.memberAuth;
-
-  const frag = memberAuth == 3 ?  
-
-        <div className="profile-card">
-          <div className="profile-info">
-            {/* User ID */}
-            <div className="info-field">
-              <label className="info-label">아이디</label>
-              <div className="info-value">{user.memberEmail}</div>
-            </div>
-
-            {/* Nickname */}
-            <div className="info-field">
-              <label className="info-label">이름</label>
-              <div className="info-value">{user.memberName}</div>
-            </div>
-
-            {/* Additional Info */}
-            <div className="info-field">
-              <label className="info-label">닉네임</label>
-              <div className="info-value">{user.Nickname != null ? user.Nickname:"닉네임을 설정하지 않았습니다"}</div>
-            </div>
-
-            {/* Phone */}
-            <div className="info-field">
-              <label className="info-label">사무소 이름</label>
-              <div className="info-value">{user.companyName}</div>
-            </div>
-
-            {/* Address */}
-            <div className="info-field">
-              <label className="info-label">사무소 주소</label>
-              <div className="info-value">{user.companyLocation}</div>
-            </div>
-
-            {/* Description */}
-            <div className="info-field">
-              <label className="info-label">대표명</label>
-              <div className="info-value">{user.presidentName}</div>
-            </div>
-
-            {/* Interests */}
-            <div className="info-field">
-              <label className="info-label">대표 번호</label>
-              <div className="info-value">{user.presidentPhone}</div>
-            </div>
-
-                        {/* Interests */}
-            <div className="info-field">
-              <label className="info-label">중개등록번호</label>
-              <div className="info-value">{user.brokerNo}</div>
-            </div>
-          </div>
-
-          {/* Edit Button */}
-          <div className="edit-button-container">
-            <button
-              onClick={() => nav("/myPage/updateInfo")}
-              className="edit-button"
-            >
-              편집하기
-            </button>
-          </div>
-        </div>
-
-    :  // ------------------------------------------------------------------------------------------여기부터 삼항 뒷 부분
-        <div className="profile-card">
-          <div className="profile-info">
-            {/* User ID */}
-            <div className="info-field">
-              <label className="info-label">아이디</label>
-              <div className="info-value">{user.memberEmail}</div>
-            </div>
-
-            {/* Nickname */}
-            <div className="info-field">
-              <label className="info-label">이름</label>
-              <div className="info-value">{user.memberName}</div>
-            </div>
-
-            {/* Additional Info */}
-            <div className="info-field">
-              <label className="info-label">닉네임</label>
-              <div className="info-value">{user.Nickname != null ? user.Nickname:"닉네임을 설정하지 않았습니다"}</div>
-            </div>
-
-                      {/* Edit Button */}
-          <div className="edit-button-container">
-            <button
-              onClick={() => nav("/myPage/updateInfo")}
-              className="edit-button"
-            >
-              편집하기
-            </button>
-          </div>
-          </div>
-        </div>
-
-
-
-
+  const handleSubmit = () => {
+    console.log('저장된 데이터:', formData);
+    alert('저장되었습니다.');
+  };
 
   return (
+
     <div className="my-page">
       <div className="my-page-container">
-        {/* Page Title */}
-        <div className="page-title">
-          <h1>마이페이지</h1>
-
-          {/* Tab Navigation */}
-          <div className="tab-navigation">
-            <div className="tab-container">
-              {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    setActiveTab(tab);
-                  }}
-                  className={`tab-button ${
-                    activeTab === tab ? "active" : "inactive"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
+          
+        <Menu/>
+        <div className="my-page-stock-sub-tab-container">
+          <div className="my-page-stock-sub-tab-nav">
+            <button className="my-page-stock-sub-tab-btn">등록한 매물</button>
+            <button className="my-page-stock-sub-tab-btn active">매물 등록</button>
+            <button className="my-page-stock-sub-tab-btn">최근 본 매물</button>
+            <button className="my-page-stock-sub-tab-btn">찜한 매물</button>
           </div>
         </div>
-        {frag}
-      </div>
-    </div>
-  );
-};
 
-export default MyPage;
+        <div className="my-page-stock-content-card">
+          {/* 기본정보 섹션 */}
+          <div className="my-page-stock-section">
+            <h2 className="my-page-stock-section-title">기본정보</h2>
+
+            <div className="my-page-stock-form-group">
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">가격</label>
+                <input 
+                  type="select"
+                  placeholder="가격을 입력해주세요"
+                  className="my-page-stock-input-field"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                />
+              </div>
+
+                            <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">가격</label>
+                <input 
+                  type="text"
+                  placeholder="가격을 입력해주세요"
+                  className="my-page-stock-input-field"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                />
+              </div>
+              
+            <div className="my-page-stock-input-row">
+              <label className="my-page-stock-input-label">매물명</label>
+              <input 
+                type="text"
+                placeholder="매물명을 입력해주세요"
+                className="my-page-stock-input-field"
+                value={formData.responsibility}
+                onChange={(e) => handleInputChange('responsibility', e.target.value)}
+              />
+            </div>
+
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">요약정보</label>
+                <input 
+                  type="text"
+                  placeholder="요약정보를 입력해주세요"
+                  className="my-page-stock-input-field"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 상세정보 섹션 */}
+          <div className="my-page-stock-section">
+            <h2 className="my-page-stock-section-title">상세정보</h2>
+            <div className="my-page-stock-form-group">
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">매물형태</label>
+                <input 
+                  type="text"
+                  placeholder="매물형태를 입력해주세요"
+                  className="my-page-stock-input-field"
+                  value={formData.mainPhone}
+                  onChange={(e) => handleInputChange('mainPhone', e.target.value)}
+                />
+              </div>
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">전용/공급면적</label>
+                <input 
+                  type="text"
+                  placeholder="전용/공급면적을 입력하세요"
+                  className="my-page-stock-input-field"
+                  value={formData.mobilePhone}
+                  onChange={(e) => handleInputChange('mobilePhone', e.target.value)}
+                />
+              </div>
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">해당층/건물층</label>
+                <input 
+                  type="text"
+                  placeholder="해당층/건물층을 입력하세요"
+                  className="my-page-stock-input-field"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                />
+              </div>
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">방/욕실 수</label>
+                <input 
+                  type="text"
+                  placeholder="방/욕실 수 를 입력하세요"
+                  className="my-page-stock-input-field"
+                />
+              </div>
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">방향</label>
+                <input 
+                  type="text"
+                  placeholder="방향을 입력해주세요"
+                  className="my-page-stock-input-field"
+                />
+              </div>
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">관리비</label>
+                <input 
+                  type="text"
+                  placeholder="관리비를 입력해주세요"
+                  className="my-page-stock-input-field"
+                />
+              </div>
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">입주가능일</label>
+                <input 
+                  type="text"
+                  placeholder="입주가능일을 입력해주세요"
+                  className="my-page-stock-input-field"
+                />
+              </div>
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">사용승인</label>
+                <input 
+                  type="text"
+                  placeholder="사용승인일을 입력해주세요"
+                  className="my-page-stock-input-field"
+                />
+              </div>
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">최초등록일</label>
+                <input 
+                  type="text"
+                  placeholder="최초등록일을 입력해주세요"
+                  className="my-page-stock-input-field"
+                />
+              </div>
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">상세설명</label>
+                <textarea 
+                  type="text"
+                  placeholder="상세설명을 입력해주세요"
+                  className="my-page-stock-textarea"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 서체정보 섹션 */}
+          <div className="my-page-stock-section">
+            <h2 className="my-page-stock-section-title">서체정보</h2>
+            <div className="my-page-stock-form-group">
+              <div className="my-page-stock-image-upload-section">
+                <div className="my-page-stock-image-upload-header">
+                  <span className="my-page-stock-image-upload-title">올릴 이미지</span>
+                  <button className="my-page-stock-image-add-btn">
+                    <Plus size={16} className="plus-icon" />
+                    이미지추가
+                  </button>
+                </div>
+                <p className="my-page-stock-image-upload-desc">이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는 다음과 같습니다.</p>
+                <p className="my-page-stock-image-upload-desc">공유할 이미지는 최대로 첨부할 수 있습니다</p>
+              </div>
+              
+              <div className="my-page-stock-image-upload-section">
+                <div className="my-page-stock-image-upload-header">
+                  <span className="my-page-stock-image-upload-title">서면</span>
+                  <button className="my-page-stock-image-add-btn">
+                    <Plus size={16} className="plus-icon" />
+                    이미지추가
+                  </button>
+                </div>
+                <p className="my-page-stock-image-upload-desc">이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는 다음과 같습니다.</p>
+                <p className="my-page-stock-image-upload-desc">공유할 이미지는 최대로 첨부할 수 있습니다</p>
+              </div>
+              
+              <div className="my-page-stock-image-upload-section">
+                <div className="my-page-stock-image-upload-header">
+                  <span className="my-page-stock-image-upload-title">혜택 이미지</span>
+                  <button className="my-page-stock-image-add-btn">
+                    <Plus size={16} className="plus-icon" />
+                    이미지추가
+                  </button>
+                </div>
+                <p className="my-page-stock-image-upload-desc">이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는 다음과 같습니다.</p>
+                <p className="my-page-stock-image-upload-desc">공유할 이미지는 최대로 첨부할 수 있습니다</p>
+              </div>
+            </div>
+          </div>
+          {/* 저장 버튼 */}
+          <div className="my-page-stock-save-button-container">
+            <button 
+              onClick={handleSubmit}
+              className="my-page-stock-save-button"
+            >
+              저장하기
+            </button>
+          </div>
+        </div>
+    </div>
+  </div>
+  );
+}
