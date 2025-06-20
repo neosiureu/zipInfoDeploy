@@ -65,9 +65,9 @@ export default function MemberSignUp() {
 
   // 타이머 관련 상태
   const [authTimer, setAuthTimer] = useState(null);
-  const [min, setMin] = useState(1);
-  const [sec, setSec] = useState(1);
-  const initTime = "01:01";
+  const [min, setMin] = useState(5);
+  const [sec, setSec] = useState(0);
+  const initTime = "05:00";
 
   // 타이머 정리
   useEffect(() => {
@@ -196,9 +196,8 @@ export default function MemberSignUp() {
     }
 
     // 타이머 초기화
-    setMin(1);
-    setSec(1);
-    updateMessage("authKeyMessage", `${addZero(3)}:${addZero(0)}`, "");
+    setMin(5);
+    setSec(0);
 
     // 이전 타이머 클리어
     if (authTimer) {
@@ -224,8 +223,8 @@ export default function MemberSignUp() {
     updateMessage("authKeyMessage", initTime, "");
     alert("인증번호가 발송되었습니다.");
 
-    let currentMin = 1;
-    let currentSec = 1;
+    let currentMin = 5;
+    let currentSec = 0;
 
     const timer = setInterval(() => {
       // 직접 계산

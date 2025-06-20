@@ -8,23 +8,21 @@ import "../../css/neighborhood/Neighborhood.css";
 // API 함수들 (컴포넌트 밖에서 정의)
 const fetchPosts = async (page, size, keyword, filters) => {
   const response = await fetch(
-    `/api/neighborhood/posts?page=${page}&size=${size}&keyword=${keyword}&city=${filters.city}&district=${filters.district}&category=${filters.category}`
+    `/neighborhood/posts?page=${page}&size=${size}&keyword=${keyword}&city=${filters.city}&district=${filters.district}&category=${filters.category}`
   );
   return await response.json();
 };
 
 const deletePost = async (id) => {
-  const response = await fetch(`/api/neighborhood/posts/${id}`, {
+  const response = await fetch(`/neighborhood/posts/${id}`, {
     method: "DELETE",
   });
   return response.ok;
 };
 
 const Neighborhood = () => {
-  //  컴포넌트 이름 수정
-  //  모든 상태를 컴포넌트 안에서 정의
+  // 모든 상태를 컴포넌트 안에서 정의
   const [currentMode, setCurrentMode] = useState("list");
-  const [editingPost, setEditingPost] = useState(null);
   const [posts, setPosts] = useState([]);
   const [pageInfo, setPageInfo] = useState({ currentPage: 0, totalPages: 0 });
   const [keyword, setKeyword] = useState("");
@@ -41,22 +39,14 @@ const Neighborhood = () => {
   const user = authContext?.user || null;
   const isAdmin = user?.memberRole?.toUpperCase() === "ADMIN";
 
-  //  모든 함수를 컴포넌트 안에서 정의
   const showAddForm = () => {
     setCurrentMode("add");
   };
 
-  const showEditForm = (post) => {
-    setCurrentMode("edit");
-    setEditingPost(post);
-  };
-
   const showList = () => {
     setCurrentMode("list");
-    setEditingPost(null);
   };
 
-  // 지역 데이터
   const regions = {
     "": [],
     서울: ["강남구", "서초구", "송파구", "강동구", "마포구", "종로구"],
@@ -104,25 +94,6 @@ const Neighborhood = () => {
     setFilters(newFilters);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("정말 삭제하시겠습니까?")) {
-      try {
-        setLoading(true);
-        const success = await deletePost(id);
-        if (success) {
-          loadPosts(pageInfo.currentPage);
-        } else {
-          alert("삭제에 실패했습니다.");
-        }
-      } catch (error) {
-        console.error("삭제 실패", error);
-        alert("삭제 중 오류가 발생했습니다.");
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
   const resetFilters = () => {
     setFilters({
       city: "",
@@ -139,35 +110,31 @@ const Neighborhood = () => {
     }
   }, [loadPosts, currentMode]);
 
-  // ✅ 조건부 렌더링 추가
   if (currentMode === "add") {
     return (
       <div className="notice-container">
         <div className="mode-header">
-          <h2>🏘 글쓰기</h2>
+          <h2>글쓰기</h2>
           <button onClick={showList} className="cancel-button">
             취소
           </button>
         </div>
-        {/* <AddNeighborhood onSuccess={showList} onCancel={showList} /> */}
-      </div>
-    );
-  }
-
-  if (currentMode === "edit") {
-    return (
-      <div className="notice-container">
-        <div className="mode-header">
-          <h2>글 수정</h2>
-          <button onClick={showList} className="cancel-button">
-            취소
-          </button>
+        {/* NeighborhoodAdd 컴포넌트 자리 */}
+        <div
+          style={{
+            textAlign: "center",
+            padding: "50px",
+            backgroundColor: "#f8f9fa",
+            borderRadius: "4px",
+            border: "2px dashed #007bff",
+          }}
+        >
+          <p> 글쓰기 폼의 대략적인 위치</p>
+          <p style={{ color: "#6c757d", fontSize: "14px" }}>
+            NeighborhoodAdd 컴포넌트를 import하고 활성화하거나 상태로 관리하는
+            편이 url을 숨기는데 유리하지 않을까?
+          </p>
         </div>
-        {/* <updateNeighborhood
-          post={editingPost}
-          onSuccess={showList}
-          onCancel={showList}
-        /> */}
       </div>
     );
   }
@@ -176,7 +143,9 @@ const Neighborhood = () => {
   return (
     <div className="notice-container">
       <h2> 우리동네 게시판</h2>
-
+      <button onClick={resetFilters} disabled={loading}>
+        필터 초기화
+      </button>
       <div className="neighborhood-filter">
         <select
           value={filters.city}
@@ -214,10 +183,6 @@ const Neighborhood = () => {
           <option value="review">리뷰</option>
           <option value="etc">기타</option>
         </select>
-
-        <button onClick={resetFilters} disabled={loading}>
-          필터 초기화
-        </button>
       </div>
 
       {error && (
@@ -284,24 +249,6 @@ const Neighborhood = () => {
                     <td>{post.author}</td>
                     <td>{new Date(post.createdAt).toLocaleDateString()}</td>
                     <td>{post.viewCount || 0}</td>
-                    {isAdmin && (
-                      <td>
-                        <button
-                          onClick={() => handleDelete(post.id)}
-                          disabled={loading}
-                          style={{
-                            backgroundColor: "#ff4757",
-                            color: "white",
-                            border: "none",
-                            padding: "4px 8px",
-                            borderRadius: "4px",
-                            cursor: loading ? "not-allowed" : "pointer",
-                          }}
-                        >
-                          삭제
-                        </button>
-                      </td>
-                    )}
                   </tr>
                 ))
               )}
@@ -311,7 +258,7 @@ const Neighborhood = () => {
           <div className="neighborhood-bottom">
             <button
               className="write-button"
-              onClick={showAddForm} //  이제 정상 작동!
+              onClick={showAddForm}
               disabled={loading}
             >
               글쓰기
