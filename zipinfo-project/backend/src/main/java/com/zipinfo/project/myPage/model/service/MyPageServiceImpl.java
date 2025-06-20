@@ -92,4 +92,9 @@ public class MyPageServiceImpl implements MyPageService{
 		
 		return result != null ? 1: 0;
 	}
+	
+	@Override
+	public int withDraw(Member loginMember) {
+		return mapper.withDraw(loginMember);
+	}
 }

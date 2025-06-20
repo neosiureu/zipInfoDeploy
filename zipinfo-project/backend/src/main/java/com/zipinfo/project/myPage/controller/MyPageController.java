@@ -82,7 +82,7 @@ public class MyPageController {
 	@PostMapping("updateInfo")
 	public ResponseEntity<Object> updateInfo(HttpSession session, @RequestBody Member member){
 		
-//		try {
+		try {
 			
 			Member loginMember = (Member)session.getAttribute("loginMember");
 
@@ -91,17 +91,17 @@ public class MyPageController {
 			return ResponseEntity.status(HttpStatus.OK) // 200
 					.body(result); 
 			
-//		} catch (Exception e) {
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//					.body("불러오는 중 예외 발생 : " + e.getMessage());
-//			
-//		}
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+			
+		}
 	}
 	
 	@PostMapping("checkPassword")
 	public ResponseEntity<Object> checkPassword(HttpSession session, @RequestBody Member member){
 		
-//		try {
+		try {
 			
 			Member loginMember = (Member)session.getAttribute("loginMember");
 			
@@ -110,18 +110,18 @@ public class MyPageController {
 			return ResponseEntity.status(HttpStatus.OK) // 200
 					.body(result); 
 			
-//		} catch (Exception e) {
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//					.body("불러오는 중 예외 발생 : " + e.getMessage());
-//			
-//		}
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+			
+		}
 	}
 	
 	
 	@PostMapping("updatePassword")
 	public ResponseEntity<Object> updatePassword(HttpSession session, @RequestBody Member member){
 		
-//		try {
+		try {
 			
 			Member loginMember = (Member)session.getAttribute("loginMember");
 			
@@ -130,11 +130,11 @@ public class MyPageController {
 			return ResponseEntity.status(HttpStatus.OK) // 200
 					.body(result); 
 			
-//		} catch (Exception e) {
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//					.body("불러오는 중 예외 발생 : " + e.getMessage());
-//			
-//		}
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+			
+		}
 	}
 	
 	@PostMapping("checkNickname")
@@ -152,6 +152,24 @@ public class MyPageController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("불러오는 중 예외 발생 : " + e.getMessage());
 		}
+	}
+	
+	@GetMapping("withDraw")
+	public ResponseEntity<Object> withDraw(HttpSession session){
+		
+		try {
+			
+			Member loginMember = (Member)session.getAttribute("loginMember");
+			
+			int result = service.withDraw(loginMember);
+		
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(result); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+		
 	}
 	
 }

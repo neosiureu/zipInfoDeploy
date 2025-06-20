@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zipinfo.project.board.model.mapper.EditAnnounceMapper">
+
+    <insert id="insertBoard" useGeneratedKeys="true" keyProperty="boardNo">
+        INSERT INTO ANNOUNCE (
+            ANNOUNCE_TITLE,
+            ANNOUNCE,
+            ANNOUNCE_WRITE_DATE,
+            ANNOUNCE_READ_COUNT,
+            ANNOUNCE_DEL_FL,
+            MEMBER_NO
+        )
+        VALUES (
+            #{title},
+            #{content},
+            SYSDATE,
+            0,
+            'N',
+            #{memberNo}
+        )
+    </insert>
+
+    <update id="updateBoard">
+        UPDATE ANNOUNCE
+        SET
+            ANNOUNCE_TITLE = #{title},
+            ANNOUNCE = #{content}
+        WHERE ANNOUNCE_NO = #{boardNo}
+          AND MEMBER_NO = #{memberNo}
+          AND ANNOUNCE_DEL_FL = 'N'
+    </update>
+
+    <update id="deleteBoard">
+        UPDATE ANNOUNCE
+        SET ANNOUNCE_DEL_FL = 'Y'
+        WHERE ANNOUNCE_NO = #{params.boardNo}
+          AND MEMBER_NO = #{params.memberNo}
+          AND ANNOUNCE_DEL_FL = 'N'
+    </update>
+
+    <select id="selectBoard" resultType="com.zipinfo.project.board.model.dto.Board">
+        SELECT
+            ANNOUNCE_NO AS boardNo,
+            ANNOUNCE_TITLE AS title,
+            ANNOUNCE AS content,
+            ANNOUNCE_WRITE_DATE AS writeDate,
+            ANNOUNCE_READ_COUNT AS readCount,
+            ANNOUNCE_DEL_FL AS delFl,
+            MEMBER_NO AS memberNo
+        FROM ANNOUNCE
+        WHERE ANNOUNCE_NO = #{boardNo}
+          AND ANNOUNCE_DEL_FL = 'N'
+    </select>
+
+</mapper>

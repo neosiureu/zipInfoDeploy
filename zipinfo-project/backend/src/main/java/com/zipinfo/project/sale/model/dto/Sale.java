@@ -32,4 +32,8 @@ public class Sale {
 	private int middlePayment;      			// 중도금
 	private int balancePayment;     			// 잔금
 	private int regionNo;						// 법정동 코드
+	
+	// SALE_COORD에서 추가
+	private double lat;
+    private double lng;
 }

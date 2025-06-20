@@ -34,7 +34,7 @@ public class SaleServiceImpl implements SaleService {
 				result.getCoords().get("neLng"),
 				result.getSearchKeyWord(),
 				result.getLocationCode(),
-				result.getSaleSatus(),
+				result.getSaleStatus(),
 				result.getSaleType()
 				);
 		

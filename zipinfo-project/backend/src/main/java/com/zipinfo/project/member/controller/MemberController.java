@@ -131,4 +131,24 @@ public class MemberController {
 	
 	
 	
+	
+	
+	/** 이주원
+	 * 회원가입 로직
+	 * @param member
+	 * @return
+	 */
+	@PostMapping("/signup")
+	public ResponseEntity<Object> signup(@RequestBody Member member) {
+	    
+	    try {
+	        Object result = service.signup(member);
+	        log.info("컨트롤러에서 본 삽입 결과"+result);
+	        return ResponseEntity.status(HttpStatus.OK).body(result);
+	        
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	    }
+	}
+	
 }

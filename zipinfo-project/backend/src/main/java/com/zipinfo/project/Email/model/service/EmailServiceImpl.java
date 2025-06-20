@@ -59,7 +59,7 @@ public class EmailServiceImpl implements EmailService {
 
 			// 메일 기존 정보설정
 			helper.setTo(email); // 받는 사람 (수신자)
-			helper.setSubject("[boardProject] 회원 가입 인증번호입니다."); // 제목
+			helper.setSubject(" 🏠🏠🏠 [집에 대한 모든 정보] ZIP INFO를 위한 회원가입 인증번호입니다. 🏠🏠🏠" ); // 제목
 			helper.setText(loadHtml(authKey, htmlName), true); // 내용 (본문)
 			// 이메일의 본문으로 html 내용을 보냄
 
@@ -124,13 +124,13 @@ public class EmailServiceImpl implements EmailService {
 
 	@Override
 	public int verifyCode(Map<String, String> map) {
-	    // 1) 들어온 파라미터 확인
-	    log.info("service.verifyCode 호출됨 — 파라미터: {}", map);
+	    // 1) 들어온 파라미터 맵 확인
+	    log.info("service.verifyCode 호출됨 — 파라미터: " + map);
 
 	    // 2) 매퍼 호출
 	    int count = mapper.verifyCode(map);
 
-	    // 3) 매퍼 결과 확인
+	    // 매퍼 결과 확인 로그
 	    log.info("service.verifyCode 결과 — count: {}", count);
 
 	    return count;
