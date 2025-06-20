@@ -42,6 +42,42 @@ const StockPage = () => {
     searchStockTypeRef.current = searchStockType;
   }, [searchKeyWord, searchLocationCode, searchStockForm, searchStockType]); // 페이지 처음 로딩시 state변수의 ref 현재값(current) 초기화
   /*********************Kakao map 로드************** */
+    useEffect(() => {
+  if (!mapInstanceRef.current) return;
+
+  const bounds = mapInstanceRef.current.getBounds();
+  const sw = bounds.getSouthWest();
+  const ne = bounds.getNorthEast();
+
+  const fetchData = async () => {
+    try {
+
+      console.log("API 요청 전 locationCode:", searchLocationCode);
+      const resp = await axiosAPI.post("/stock/selectItems", {
+        coords: {
+          swLat: sw.getLat(),
+          swLng: sw.getLng(),
+          neLat: ne.getLat(),
+          neLng: ne.getLng(),
+        },
+        searchKeyWord: searchKeyWord || "",
+        locationCode: searchLocationCode ?? -1,
+        stockType: searchStockForm ?? -1,
+        stockForm: searchStockType ?? -1,
+      });
+
+      if (resp.status === 200) {
+        setStockList(resp.data);
+      }
+    } catch (error) {
+      console.error("검색 조건 변경에 따른 요청 중 오류:", error);
+    }
+  };
+
+  fetchData();
+}, [searchKeyWord, searchLocationCode, searchStockForm, searchStockType]);
+
+
   useEffect(() => {
     // 카카오 지도 API가 로드되었는지 확인
     if (window.kakao && window.kakao.maps) {
@@ -76,6 +112,7 @@ const StockPage = () => {
             stockForm: searchStockTypeRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
           });
           console.log("locationCode:", locationCodeRef.current);
+
           if (resp.status === 200) {
             console.log(resp.data);
 
@@ -98,6 +135,9 @@ const StockPage = () => {
       marker.setMap(map);
     }
   }, []);
+
+
+
   useEffect(() => {
     updateMarker();
   }, [stockList]); // stockList(맨 왼쪽에 있는 매물 Item들을 저장하는 state변수), searchLocationCode(검색창SearchBox에서 선택한 지역을 저장하는 state변수)
