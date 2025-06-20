@@ -13,7 +13,7 @@ import UpdatePassword from "./components/myPage/UpdatePassword";
 import WithDraw from "./components/myPage/WithDraw";
 import UpdateInfo from "./components/myPage/UpdateInfo";
 import MemberLogin from "./components/member/MemberLogin";
-import MemberSignup from "./components/member/MemberSignup"; 
+import MemberSignup from "./components/member/MemberSignup";
 
 import { MemberProvider } from "./components/member/MemberContext";
 
@@ -31,8 +31,8 @@ import NoticeDetail from "./components/notice/NoticeDetail";
 import NoticeWrite from "./components/notice/NoticeWrite";
 
 // 우리동네 게시판
-import NeighborhoodBoard from "./components/neighborhood/Neighborhood";
-import NeighborhoodWrite from "./components/neighborhood/NeighborhoodWrite";
+import Neighborhood from "./components/neighborhood/Neighborhood";
+import NeighborhoodDetail from "./components/neighborhood/NeighborhoodDetail";
 
 import { AuthProvider } from "./components/admin/AuthContext";
 
@@ -67,9 +67,12 @@ function App() {
               <Route path="notice/detail/:id" element={<NoticeDetail />} />
               <Route path="notice/write" element={<NoticeWrite />} />
 
-              {/* 🏘 우리동네 게시판 */}
-              <Route path="neighborhood" element={<NeighborhoodBoard />} />
-              <Route path="neighborhoodWrite" element={<NeighborhoodWrite />} />
+              {/*  우리동네 게시판 */}
+              <Route path="neighborhood" element={<Neighborhood />} />
+              <Route
+                path="neighborhood/detail/:id"
+                element={<NeighborhoodDetail />}
+              />
             </Route>
 
             {/* 관리자 전용 페이지 */}
