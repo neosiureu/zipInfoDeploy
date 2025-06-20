@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodWrite.css";
+// api
+import { createPostWithFile } from "../../api/neighborhoodApi";
 
 const NeighborhoodWrite = () => {
   const navigate = useNavigate();
@@ -12,8 +14,8 @@ const NeighborhoodWrite = () => {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [file, setFile] = useState(null); // 첨부파일 상태
 
-  // 구/군은 시/도에 따라 동적으로 바뀔 수 있으니 데이터 예시
   const districtsByCity = {
     서울: ["강남구", "서초구", "마포구"],
     경기: ["수원시", "성남시", "용인시"],
@@ -22,26 +24,30 @@ const NeighborhoodWrite = () => {
 
   const categories = ["정보", "질문", "거래"];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!city || !district || !category) {
       alert("시/도, 구/군, 주제 분류를 모두 선택해주세요.");
       return;
     }
 
-    console.log("게시글 작성:", { city, district, category, title, content });
-    // TODO: 서버 저장 로직
+    try {
+      const formData = new FormData();
+      formData.append("city", city);
+      formData.append("district", district);
+      formData.append("category", category);
+      formData.append("title", title);
+      formData.append("content", content);
+      if (file) formData.append("file", file);
 
-    // 작성 후 게시판 목록으로 이동
-    navigate("/neighborhood");
-  };
+      await createPostWithFile(formData);
 
-  const handleCancel = () => {
-    setCity("");
-    setDistrict("");
-    setCategory("");
-    setTitle("");
-    setContent("");
+      alert("게시글이 성공적으로 등록되었습니다.");
+      navigate("/neighborhood");
+    } catch (error) {
+      console.error("게시글 등록 실패:", error);
+      alert("게시글 등록 중 오류가 발생했습니다.");
+    }
   };
 
   return (
@@ -50,9 +56,7 @@ const NeighborhoodWrite = () => {
         <h2 className="neighborhood-title">동네 게시판에 글을 작성해보세요</h2>
 
         <form onSubmit={handleSubmit}>
-          {/* 드롭다운 3개 한 줄로 감싸는 컨테이너 */}
           <div className="dropdown-row">
-            {/* 시/도 선택 */}
             <div className="input-group">
               <label htmlFor="city">시/도</label>
               <select
@@ -60,7 +64,7 @@ const NeighborhoodWrite = () => {
                 value={city}
                 onChange={(e) => {
                   setCity(e.target.value);
-                  setDistrict(""); // 시/도가 바뀌면 구/군 초기화
+                  setDistrict(""); // 시/도 변경 시 구/군 초기화
                 }}
                 required
               >
@@ -73,7 +77,6 @@ const NeighborhoodWrite = () => {
               </select>
             </div>
 
-            {/* 구/군 선택 (시/도 선택에 따라 옵션 변경) */}
             <div className="input-group">
               <label htmlFor="district">구/군</label>
               <select
@@ -81,7 +84,7 @@ const NeighborhoodWrite = () => {
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
                 required
-                disabled={!city} // 시/도가 선택되어야 활성화
+                disabled={!city}
               >
                 <option value="">구/군</option>
                 {city &&
@@ -93,7 +96,6 @@ const NeighborhoodWrite = () => {
               </select>
             </div>
 
-            {/* 주제 분류 선택 */}
             <div className="input-group">
               <label htmlFor="category">주제 분류</label>
               <select
@@ -112,7 +114,6 @@ const NeighborhoodWrite = () => {
             </div>
           </div>
 
-          {/* 제목 입력 */}
           <div className="input-group">
             <label htmlFor="title">제목</label>
             <input
@@ -125,7 +126,6 @@ const NeighborhoodWrite = () => {
             />
           </div>
 
-          {/* 내용 입력 */}
           <div className="input-group">
             <label htmlFor="content">내용</label>
             <textarea
@@ -143,7 +143,6 @@ const NeighborhoodWrite = () => {
           </p>
 
           <div className="button-group">
-            {/* 사진 첨부 버튼 */}
             <label
               htmlFor="file-upload"
               className="btn btn-secondary"
@@ -155,14 +154,10 @@ const NeighborhoodWrite = () => {
               id="file-upload"
               type="file"
               style={{ display: "none" }}
-              onChange={(e) => {
-                const file = e.target.files[0];
-                console.log("선택된 파일:", file);
-                // 파일 처리 로직 추가 가능
-              }}
+              accept="image/*"
+              onChange={(e) => setFile(e.target.files[0])}
             />
 
-            {/* 등록하기 버튼 */}
             <button type="submit" className="btn btn-primary">
               등록하기
             </button>

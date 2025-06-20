@@ -34,5 +34,6 @@ public class Member {
     private String detailAddress;
     
     private Member loginMember;
+    
 
 }

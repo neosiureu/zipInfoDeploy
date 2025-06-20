@@ -13,7 +13,7 @@ import UpdatePassword from "./components/myPage/UpdatePassword";
 import WithDraw from "./components/myPage/WithDraw";
 import UpdateInfo from "./components/myPage/UpdateInfo";
 import MemberLogin from "./components/member/MemberLogin";
-import MemberSignup from "./components/member/MemberSignup"; 
+import MemberSignup from "./components/member/MemberSignup";
 
 import { MemberProvider } from "./components/member/MemberContext";
 
@@ -25,14 +25,14 @@ import Advertisement from "./components/admin/Advertisement";
 import Inquiry from "./components/admin/Inquiry";
 import Management from "./components/admin/Management";
 
-// 공지사항
-import Notice from "./components/notice/Notice";
-import NoticeDetail from "./components/notice/NoticeDetail";
-import NoticeWrite from "./components/notice/NoticeWrite";
+// 📢 공지사항 → Announce로 변경
+import Announce from "./components/announce/Announce";
+import AnnounceDetail from "./components/announce/AnnounceDetail";
+import AnnounceWrite from "./components/announce/AnnounceWrite";
 
-// 우리동네 게시판
+// 🏘 우리동네 게시판
 import NeighborhoodBoard from "./components/neighborhood/Neighborhood";
-import NeighborhoodWrite from "./components/neighborhood/NeighborhoodWrite";
+import NeighborhoodWrite from "./components/neighborhood/NeighborhoodWrite.jsx";
 
 import { AuthProvider } from "./components/admin/AuthContext";
 
@@ -62,10 +62,11 @@ function App() {
               />
               <Route path="myPage/withDraw" element={<WithDraw />} />
 
-              {/* 공지사항 */}
-              <Route path="notice" element={<Notice />} />
-              <Route path="notice/detail/:id" element={<NoticeDetail />} />
-              <Route path="notice/write" element={<NoticeWrite />} />
+              {/* 📢 공지사항 (Announce) */}
+              <Route path="announce" element={<Announce />} />
+              <Route path="announce/detail/:id" element={<AnnounceDetail />} />
+              <Route path="announce/write" element={<AnnounceWrite />} />
+              <Route path="announce/edit/:id" element={<AnnounceWrite />} />
 
               {/* 🏘 우리동네 게시판 */}
               <Route path="neighborhood" element={<NeighborhoodBoard />} />

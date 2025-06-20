@@ -1,31 +1,33 @@
+// AnnounceWrite.jsx
 import React, { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../admin/AuthContext";
-import { fetchPostById, deletePost } from "./noticeApi"; // boardApi ❌ → noticeApi ✅
-import "../../css/notice/NoticeWrite.css";
+import {
+  fetchPostById,
+  updatePostWithImage,
+  createPostWithImage,
+} from "./AnnounceApi"; // API 함수 임포트
+import "../../css/announce/AnnounceWrite.css"; // CSS 경로 변경
 
-// 공통 헤더, 푸터 import (경로는 프로젝트 구조에 맞게 수정하세요)
-import Header from "../../components/common/Header";
-import Footer from "../../components/common/Footer";
+import Header from "../common/Header";
+import Footer from "../common/Footer";
 
-const NoticeWrite = () => {
+const AnnounceWrite = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  // 수정 모드인지 판단 (location.state로 id가 넘어오면 수정)
   const isEdit = location.state?.id !== undefined;
 
-  // 수정할 기존 데이터가 있으면 초기값으로 세팅
   const [id, setId] = useState(location.state?.id || null);
   const [title, setTitle] = useState(location.state?.title || "");
   const [content, setContent] = useState(location.state?.content || "");
-  const [images, setImages] = useState([]); // 새로 추가할 이미지들 (파일 객체)
+  const [images, setImages] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
 
   const fileInputRef = useRef(null);
+  const isAdmin = user && (user.memberAuth === 0 || user.memberAuth === "0");
 
-  // 수정 시 기존 이미지 URL (서버에 저장된 이미지 주소들) 있으면 미리보기로 보여주기
   useEffect(() => {
     if (isEdit && location.state?.images?.length) {
       setPreviewUrls(location.state.images);
@@ -34,11 +36,7 @@ const NoticeWrite = () => {
 
   const handleImageSelect = (e) => {
     const files = Array.from(e.target.files);
-
-    // 새로 선택한 파일을 images 상태에 추가
     setImages((prev) => [...prev, ...files]);
-
-    // 파일을 Blob URL로 변환해 미리보기 추가
     const newPreviews = files.map((file) => URL.createObjectURL(file));
     setPreviewUrls((prev) => [...prev, ...newPreviews]);
   };
@@ -56,20 +54,17 @@ const NoticeWrite = () => {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("content", content);
-
-    images.forEach((img) => formData.append("images", img)); // 새로 첨부한 이미지만 보내기
+    images.forEach((img) => formData.append("images", img));
 
     try {
       if (isEdit) {
-        // 수정 API 호출 (id 포함)
         await updatePostWithImage(id, formData);
         alert("공지사항이 수정되었습니다.");
-        navigate(`/notice/${id}`);
+        navigate(`/announce/detail/${id}`);
       } else {
-        // 새 글쓰기 API 호출
         const newPost = await createPostWithImage(formData);
         alert("공지사항이 등록되었습니다.");
-        navigate(`/notice/${newPost.id}`);
+        navigate(`/announce/detail/${newPost.id}`);
       }
     } catch (error) {
       console.error("등록/수정 실패", error);
@@ -77,13 +72,9 @@ const NoticeWrite = () => {
     }
   };
 
-  console.log("AuthContext user:", user);
+  if (!user) return <div>로그인 정보가 없습니다.</div>;
 
-  if (!user) {
-    return <div>로그인 정보가 없습니다.</div>;
-  }
-
-  if (user.memberRole !== "ADMIN") {
+  if (!isAdmin) {
     return <div>권한이 없습니다.</div>;
   }
 
@@ -91,25 +82,24 @@ const NoticeWrite = () => {
     <>
       <Header />
 
-      <div className="notice-write-container">
+      <div className="announce-write-container">
         <h2>{isEdit ? "공지사항 수정" : "공지사항 작성"}</h2>
 
         <input
           type="text"
-          className="notice-title-input"
+          className="announce-title-input"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="제목을 입력하세요"
         />
 
         <textarea
-          className="notice-content-input"
+          className="announce-content-input"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="내용을 입력하세요"
         />
 
-        {/* 파일 입력 숨김 */}
         <input
           type="file"
           accept="image/*"
@@ -119,7 +109,7 @@ const NoticeWrite = () => {
           onChange={handleImageSelect}
         />
 
-        <div className="notice-write-buttons">
+        <div className="announce-write-buttons">
           <button type="button" onClick={handleAttachClick}>
             📎 사진 첨부
           </button>
@@ -145,4 +135,4 @@ const NoticeWrite = () => {
   );
 };
 
-export default NoticeWrite;
+export default AnnounceWrite;
