@@ -15,11 +15,32 @@ const StockPage = () => {
 
   const [clickedStockItem, setClickedStockItem] = useState(null); // 자세히 보기창에 띄울 매물
   /*****************검색창 관련 상태변수들************************** */
-  const [searchKeyWord, setSearchKeyWord] = useState("");
+  /* searchKeyWord : 
+   검색창SearchBar내부 매물 이름을 검색하기 위한 키워드를 저장하는 상태변수 - 기본값 ""(빈 문자열) */
+  const [searchKeyWord, setSearchKeyWord] = useState(""); //
+  const searchKeyWordRef = useRef(searchKeyWord); //  **중요**꼭 상태 변수를 따로 useRef로 마련해주고(일종의 state변수의 pointer역할), 그걸 addEventListener에 넣어야 변수의 값이 아니라 변수 그 자체를 참조한다.
+  /* searchLoactionCode : 
+  검색창SearchBar내부 REGION_NO 검색조건을 저장하는 상태변수 - 기본값 -1(전체 매물 표시), 
+  00 - 두자릿수(ex. 11(서울특별시), 26(부산광역시))일경우는 해당 도의 전체 매물 조회.
+  00000 - 다섯자리수(ex.11110(서울특별시 종로구), 11260(서울특별시 중랑구))일 경우에는 해당 구 한정 매물 조회.*/
   const [searchLocationCode, setSearchLocationCode] = useState(-1);
-  const [searchStockForm, setSearchStockForm] = useState(-1);
+  const locationCodeRef = useRef(searchLocationCode); //  **중요**
+  /*searchStockType : 
+  검색창 내 매물 판매 유형(매매:0, 전세:1, 월세:2)을 저장하는 상태변수 - 기본값 -1(전체 매물 선택)*/
   const [searchStockType, setSearchStockType] = useState(-1);
+  const searchStockTypeRef = useRef(searchStockType); //  **중요**
+  /*searchStockForm : 
+  검색창 내 부동산 유형(아파트:1, 빌라:2, 오피스텔:3)을 저장하는 상태변수 - 기본값 -1(전체 매물 선택)*/
+  const [searchStockForm, setSearchStockForm] = useState(-1);
+  const searchStockFormRef = useRef(searchStockForm); //  **중요**
 
+  useEffect(() => {
+    // addEventListener만을 위한 코드. addEventListener 내부에서 state변수는 ref를 얻어오거나, 아니면 초기화해줘야 한다.
+    searchKeyWordRef.current = searchKeyWord;
+    locationCodeRef.current = searchLocationCode;
+    searchStockFormRef.current = searchStockForm;
+    searchStockTypeRef.current = searchStockType;
+  }, [searchKeyWord, searchLocationCode, searchStockForm, searchStockType]); // 페이지 처음 로딩시 state변수의 ref 현재값(current) 초기화
   /*********************Kakao map 로드************** */
   useEffect(() => {
     // 카카오 지도 API가 로드되었는지 확인
@@ -49,12 +70,12 @@ const StockPage = () => {
               neLat: ne.getLat(),
               neLng: ne.getLng(),
             },
-            searchKeyWord: searchKeyWord || "", //keyword ||
-            locationCode: searchLocationCode ?? -1, // -1 : 서버측에서 무시하는 value selectedLocation ||
-            stockType: searchStockForm ?? -1, // -1 : 서버측에서 무시하는 valueselectedType ||
-            stockForm: searchStockType ?? -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
+            searchKeyWord: searchKeyWordRef.current || "", //keyword ||
+            locationCode: locationCodeRef.current ?? -1, // -1 : 서버측에서 무시하는 value selectedLocation ||
+            stockType: searchStockFormRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedType ||
+            stockForm: searchStockTypeRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
           });
-          console.log("locationCode:", searchLocationCode);
+          console.log("locationCode:", locationCodeRef.current);
           if (resp.status === 200) {
             console.log(resp.data);
 
@@ -79,8 +100,8 @@ const StockPage = () => {
   }, []);
   useEffect(() => {
     updateMarker();
-  }, [stockList]); // chatgpt가 지시한 사항 : updateMarker를 수행하는 useeffect를 분리
-  // 요청을 보낼때마다 지도에 표시되는 마커들을 새로 세팅하는 함수
+  }, [stockList]); // stockList(맨 왼쪽에 있는 매물 Item들을 저장하는 state변수), searchLocationCode(검색창SearchBox에서 선택한 지역을 저장하는 state변수)
+  // updateMarker : 요청을 보낼때마다 지도에 표시되는 마커들을 새로 세팅하는 함수
   const updateMarker = () => {
     const map = mapInstanceRef.current;
     itemMarkersRef.current.forEach((marker) => marker.setMap(null)); // 이전에 itemMarkersRef에 저장해둔 markers 하나하나 취소
@@ -97,6 +118,47 @@ const StockPage = () => {
       itemMarkersRef.current.push(itemMarker); // 새 마커 저장
     });
   };
+
+  useEffect(() => {
+    // kakao map이 로딩된 후에 SearchBar 관련 검색 매개변수들이 바뀔때마다 서버에 post요청으로 매물정보를 다시 받아오는 함수. -> setStockList(), updateMarker() 다시 실행함!
+    const fetchData = async () => {
+      //SearchBar의 조건이 바뀔때마다 다시요청.
+      const bounds = mapInstanceRef.current.getBounds(); // 현재 맵 인스턴스에서 getBounds() 실행
+      const sw = bounds.getSouthWest();
+      const ne = bounds.getNorthEast();
+
+      console.log("현재 화면 범위:");
+      console.log("좌하단(SW):", sw.getLat(), sw.getLng());
+      console.log("우상단(NE):", ne.getLat(), ne.getLng());
+      try {
+        const resp = await axiosAPI.post("/stock/selectItems", {
+          coords: {
+            swLat: sw.getLat(),
+            swLng: sw.getLng(),
+            neLat: ne.getLat(),
+            neLng: ne.getLng(),
+          },
+          searchKeyWord: searchKeyWordRef.current || "", //keyword ||
+          locationCode: locationCodeRef.current ?? -1, // -1 : 서버측에서 무시하는 value selectedLocation ||
+          stockType: searchStockFormRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedType ||
+          stockForm: searchStockTypeRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
+        });
+        console.log("locationCode:", locationCodeRef.current);
+        if (resp.status === 200) {
+          console.log(resp.data);
+
+          setStockList(resp.data);
+          updateMarker();
+
+          // same code : 매물 좌표를 받아서 지도상에 마커로 매물 위치 추가
+        }
+      } catch (error) {
+        console.log("매물 items 조회 중 error 발생 : ", error);
+      }
+    };
+    fetchData();
+  }, [searchKeyWord, searchLocationCode, searchStockType, searchStockForm]);
+
   // 매물 item을 클릭했을떄 수행되는 핸들러 함수
   const handleItemClick = (item, index) => {
     setIsAsideVisible(true); //클릭시 상세창 표시=true 함.
@@ -137,6 +199,16 @@ const StockPage = () => {
 
       return (
         <>
+          <div>
+            {/** detail 창닫기 버튼 */}
+            <button
+              style={{ float: "right" }}
+              onClick={() => setIsAsideVisible(false)}
+            >
+              X
+            </button>
+          </div>
+          <div></div>
           <div className="stock-header">
             <img
               src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https://blog.kakaocdn.net/dn/bQwQwA/btrb1QwQwQw/1.jpg"
@@ -145,10 +217,9 @@ const StockPage = () => {
             />
             <div className="stock-title">
               <div className="stock-name">
-                아파트명: 아크로서울포레스트아파트
+                {item.stockName},{item.stockType}
               </div>
-              <div className="stock-price">평균 19억 1,000 ~ 19억 4,000</div>
-              <div className="stock-address">서울 성동구 성수동1가 685-700</div>
+              <div className="stock-address">{item?.stockAddress}</div>
             </div>
           </div>
           <div
@@ -252,7 +323,31 @@ const StockPage = () => {
               onClick={() => handleItemClick(item, index)}
             >
               <div>
-                <div className="item-type">매매</div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <div className="item-type">
+                    {item.stockType === 0
+                      ? "매매 "
+                      : item.stockType === 1
+                      ? "전세 "
+                      : item.stockType === 2
+                      ? "월세 "
+                      : "기타 "}
+                  </div>
+                  <div className="item-price">
+                    {item.stockType === 0
+                      ? priceConvertToString(item.stockSellPrice)
+                      : item.stockType === 1
+                      ? priceConvertToString(item.stockSellPrice)
+                      : item.stockType === 2
+                      ? " " +
+                        priceConvertToString(item.stockSellPrice) +
+                        " / " +
+                        priceConvertToString(item.stockFeeMonth) +
+                        " "
+                      : "기타"}
+                  </div>
+                </div>
+
                 <div className="item-name item-font-default">
                   {/**매물 이름 */}
                   {item.stockName}
@@ -328,3 +423,37 @@ const StockPage = () => {
 };
 
 export default StockPage;
+
+/* priceConvertToString()
+  int형인 price를 한글 String으로 보기좋게 바꿈 (억 만 천 단위로 )
+  ex. 4,0000,0000 -> 4억
+  ex. 750,000,000 -> 7억 5천
+*/
+const priceConvertToString = (price) => {
+  let resultString = "";
+
+  if (Number.isInteger(price) && price > 0) {
+    const eok = Math.floor(price / 100000000);
+    if (eok > 0) {
+      resultString += `${eok}억 `;
+      price %= 100000000;
+    }
+
+    const man = Math.floor(price / 10000);
+    if (man > 0) {
+      resultString += man;
+      price %= 10000;
+    }
+    const baek = Math.floor(price / 1000000);
+
+    if (price / 10000 > 0) {
+      resultString += "만";
+      price %= 10000;
+    }
+
+    if (price % 10000 > 0) {
+      resultString += price;
+    }
+  }
+  return resultString.trim();
+};

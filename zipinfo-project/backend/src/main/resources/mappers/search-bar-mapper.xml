@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.zipinfo.project.common.searchbar.model.mapper.SearchBarMapper">
+	
+
+	<select id="selectSigungu">
+		SELECT TOWN_NO,TOWN_NAME,CITY_NO FROM BOARD_TOWN
+		WHERE TOWN_NO LIKE #{sido} || '___'
+	</select>
+			
+</mapper>
