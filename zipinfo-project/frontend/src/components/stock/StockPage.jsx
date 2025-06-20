@@ -355,7 +355,7 @@ const StockPage = () => {
               </div>
 
               <div className="item-font-default">
-                {item.ExclusiveArea}㎡ | {item.currentFloor}층/
+                {item.exclusiveArea}㎡ | {item.currentFloor}층/
                 {item.floorTotalCount}층 | 관리비 {item.stockManageFee}원
               </div>
               <div className="item-font-default">
