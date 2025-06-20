@@ -91,7 +91,7 @@
 
 /* 테이블 헤더 */
 .bg-gray-200 {
-  background-color: #e5e7eb;
+  background-color: #f3f4f6;
 }
 
 .p-3 {
@@ -297,12 +297,6 @@ td:nth-child(4) {
 
 tbody tr {
   animation: fadeIn 0.3s ease-out;
-}
-
-/* 버튼 포커스 스타일 */
-button:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
 }
 
 /* 테이블 스크롤바 스타일 */

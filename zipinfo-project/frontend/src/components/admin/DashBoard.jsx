@@ -15,7 +15,9 @@ import Chart from "./Chart";
 import Management from "./Management";
 import Inquiry from "./Inquiry";
 import Advertisement from "./Advertisement";
-import HousingForm from "./HousingForm";
+import ListSale from "./saleForm/ListSale";
+import AddSale from "./saleForm/AddSale";
+
 import "../../css/admin/DashBoard.css";
 
 // 공통 헤더, 푸터 import (경로는 프로젝트 구조에 맞게 수정하세요)
@@ -45,8 +47,8 @@ export default function DashBoard() {
           <NavLink to="/admin">통계</NavLink>
           <NavLink to="/admin/management">서비스관리 권한 발급</NavLink>
           <NavLink to="/admin/inquiry">문의 확인</NavLink>
-          <NavLink to="/admin/advertisement">광고 등록</NavLink>
-          <NavLink to="/admin/housingForm">분양등록</NavLink>
+          <NavLink to="/admin/advertisement">광고 관리</NavLink>
+          <NavLink to="/admin/list-sale">분양 관리</NavLink>
         </div>
 
         <div className="admin-info">
@@ -66,7 +68,8 @@ export default function DashBoard() {
           <Route path="management" element={<Management />} />
           <Route path="inquiry" element={<Inquiry />} />
           <Route path="advertisement" element={<Advertisement />} />
-          <Route path="housingform" element={<HousingForm />} />
+          <Route path="list-sale" element={<ListSale />} />
+          <Route path="add-sale" element={<AddSale />} />
         </Routes>
       </div>
 

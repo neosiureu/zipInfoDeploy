@@ -2,5 +2,54 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zipinfo.project.sale.model.mapper.SaleMapper">
+
+	<resultMap id="saleMap" type="com.zipinfo.project.sale.model.dto.Sale">
+	  <!-- SALE_COORD 테이블 -->
+	  <id property="saleStockNo" column="SALE_STOCK_NO"/>
+	
+	  <!-- SALE_INFO 테이블 -->
+	  <result property="memberNo" column="MEMBER_NO"/>
+	  <result property="saleStockForm" column="SALE_STOCK_FORM"/>
+	  <result property="saleStockName" column="SALE_STOCK_NAME"/>
+	  <result property="salePrice" column="SALE_PRICE"/>
+	  <result property="saleStatus" column="SALE_STATUS"/>
+	  <result property="saleAddress" column="SALE_ADDRESS"/>
+	  <result property="scale" column="SCALE"/>
+	  <result property="applicationStartDate" column="APPLICATION_START_DATE"/>
+	  <result property="applicationEndDate" column="APPLICATION_END_DATE"/>
+	  <result property="announcementDate" column="ANNOUNCEMENT_DATE"/>
+	  <result property="company" column="COMPANY"/>
+	  <result property="contactInfo" column="CONTACT_INFO"/>
+	  <result property="acquisitionTax" column="ACQUISITION_TAX"/>
+	  <result property="saleSupplyArea" column="SALE_SUPPLY_AREA"/>
+	  <result property="saleExclusiveArea" column="SALE_EXCLUSIVE_AREA"/>
+	  <result property="saleRoomCount" column="SALE_ROOM_COUNT"/>
+	  <result property="saleBathroomCount" column="SALE_BATHROOM_COUNT"/>
+	  <result property="deposit" column="DEPOSIT"/>
+	  <result property="middlePayment" column="MIDDLE_PAYMENT"/>
+	  <result property="balancePayment" column="BALANCE_PAYMENT"/>
+	  <result property="regionNo" column="REGION_NO"/>
+	  
+	  <!-- 좌표 (SALE_COORD 테이블에서 가져온 값이라고 가정) -->
+	  <result property="lat" column="LAT"/>
+	  <result property="lng" column="LNG"/>
+	</resultMap>
+	
+	<select id="selectSaleInRange" resultMap="saleMap">
+	  SELECT coord.*, info.*
+	  FROM (
+	    SELECT SALE_STOCK_NO, LAT, LNG
+	    FROM SALE_COORD
+	    WHERE LAT &gt; #{swLat}
+	      AND LAT &lt; #{neLat}
+	      AND LNG &gt; #{swLng}
+	      AND LNG &lt; #{neLng}
+	  ) coord
+	  INNER JOIN SALE_INFO info ON coord.SALE_STOCK_NO = info.SALE_STOCK_NO
+	  WHERE (#{searchKeyWord} IS NULL OR info.SALE_STOCK_NAME LIKE '%' || #{searchKeyWord} || '%')
+	    AND (#{locationCode} = -1 OR info.REGION_NO = #{locationCode})
+	    AND (#{saleStatus} = -1 OR info.SALE_STATUS = #{saleStatus})
+	    AND (#{saleType} = -1 OR info.SALE_STOCK_FORM = #{saleType})
+	</select>
 	
 </mapper>
