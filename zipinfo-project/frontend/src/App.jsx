@@ -36,14 +36,18 @@ import Inquiry from "./components/admin/Inquiry";
 import Management from "./components/admin/Management";
 import { AuthProvider } from "./components/admin/AuthContext";
 
-// 공지사항
-import Notice from "./components/notice/Notice";
-import NoticeDetail from "./components/notice/NoticeDetail";
-import NoticeWrite from "./components/notice/NoticeWrite";
+// 📢 공지사항 → Announce로 변경
+import Announce from "./components/announce/Announce";
+import AnnounceDetail from "./components/announce/AnnounceDetail";
+import AnnounceWrite from "./components/announce/AnnounceWrite";
+
+
+import { AuthProvider } from "./components/admin/AuthContext";
 
 // 우리동네 게시판
 import Neighborhood from "./components/neighborhood/Neighborhood";
 import NeighborhoodDetail from "./components/neighborhood/NeighborhoodDetail";
+
 
 function App() {
   return (
@@ -71,10 +75,11 @@ function App() {
               />
               <Route path="myPage/withDraw" element={<WithDraw />} />
 
-              {/* 공지사항 */}
-              <Route path="notice" element={<Notice />} />
-              <Route path="notice/detail/:id" element={<NoticeDetail />} />
-              <Route path="notice/write" element={<NoticeWrite />} />
+              {/* 📢 공지사항 (Announce) */}
+              <Route path="announce" element={<Announce />} />
+              <Route path="announce/detail/:id" element={<AnnounceDetail />} />
+              <Route path="announce/write" element={<AnnounceWrite />} />
+              <Route path="announce/edit/:id" element={<AnnounceWrite />} />
 
               {/*  우리동네 게시판 */}
               <Route path="neighborhood" element={<Neighborhood />} />

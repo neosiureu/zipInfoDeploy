@@ -32,7 +32,7 @@ const Header = () => {
             <Link to="/sale">분양</Link>
           </li>
           <li>
-            <Link to="/notice">공지사항</Link>
+            <Link to="/announce">공지사항</Link>
           </li>
           <li>
             <Link to="/neighborhood">우리동네</Link>

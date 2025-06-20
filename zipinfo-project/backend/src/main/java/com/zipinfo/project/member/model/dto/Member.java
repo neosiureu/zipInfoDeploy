@@ -39,5 +39,6 @@ public class Member {
     private String companyDetailAddress;
     
     private Member loginMember;
+    
 
 }
