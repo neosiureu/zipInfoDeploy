@@ -23,4 +23,6 @@ public interface MyPageMapper {
 
 	int changeAuth(Member member);
 
+	int withDraw(Member loginMember);
+
 }

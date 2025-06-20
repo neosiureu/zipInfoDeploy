@@ -50,10 +50,20 @@
 			INNER JOIN (SELECT * FROM STOCK_INFO
 			<where>
 				<if test="searchKeyWord != null and searchKeyWord != ''">
-			      AND STOCK_NAME LIKE CONCAT('%', #{searchKeyWord}, '%')
+			      AND (STOCK_NAME LIKE  '%' || #{searchKeyWord} || '%'
+			      OR STOCK_NAME LIKE CONCAT(#{searchKeyWord}, '%')
+			      OR STOCK_NAME LIKE CONCAT('%', #{searchKeyWord})
+			      OR STOCK_NAME = #{searchKeyWord})
 			    </if>
 			    <if test="locationCode != -1">
-			      AND LOCATION_CODE = #{locationCode}
+			    	<if test="locationCode &lt; 100"> <!--들어온 locationCode 가 두자리수일떄-->
+			    		AND REGION_NO LIKE CONCAT(#{locationCode}, '%') <!-- 시도 코드 두자리만 들어왔을떄 주소 코드가 앞 두자리가 일치하는 것 모두를 SELECT-->
+			    	</if>
+			    	<if test="locationCode &gt; 100"> <!--들어온 locationCode 가 다섯자리 수 일떄-->
+			    		AND REGION_NO = #{locationCode} <!-- 주소 코드 다섯자리가 정확히 일치하는 것만 SELECT-->
+			    	</if>
+			      
+			      
 			    </if>
 			    <if test="stockType != -1">
 			      AND STOCK_TYPE = #{stockType}

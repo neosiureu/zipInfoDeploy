@@ -8,6 +8,6 @@ import com.zipinfo.project.stock.model.dto.Stock;
 public interface StockService {
 
 	List<Stock> getStockListInRange(SearchRequest sr);
-	List<Stock> getStockListInRange(double swLat, double swLng, double neLat, double neLng);
+	
 	
 }
