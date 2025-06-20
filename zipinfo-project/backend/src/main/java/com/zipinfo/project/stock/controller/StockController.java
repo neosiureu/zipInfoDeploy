@@ -53,7 +53,7 @@ public class StockController {
 	    System.out.println("=============================");
 	    System.out.println("SW: " + swLat + ", " + swLng);
 	    System.out.println("NE: " + neLat + ", " + neLng);
-	    
+	    System.out.println("locationCode : " + sr.getLocationCode());
 	    //요청 좌표 안쪽 범위 내부에 있는 모든 매물들을 불러오는 service동작
 	    
 	    
