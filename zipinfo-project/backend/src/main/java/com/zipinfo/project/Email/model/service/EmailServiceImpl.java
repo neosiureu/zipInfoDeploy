@@ -124,13 +124,13 @@ public class EmailServiceImpl implements EmailService {
 
 	@Override
 	public int verifyCode(Map<String, String> map) {
-	    // 1) 들어온 파라미터 확인
-	    log.info("service.verifyCode 호출됨 — 파라미터: {}", map);
+	    // 1) 들어온 파라미터 맵 확인
+	    log.info("service.verifyCode 호출됨 — 파라미터: " + map);
 
 	    // 2) 매퍼 호출
 	    int count = mapper.verifyCode(map);
 
-	    // 3) 매퍼 결과 확인
+	    // 매퍼 결과 확인 로그
 	    log.info("service.verifyCode 결과 — count: {}", count);
 
 	    return count;

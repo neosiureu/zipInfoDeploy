@@ -52,13 +52,14 @@ public class EmailController {
      // 2) 이메일로 보낸 인증번호가 사용자의 입력과 일치하는지 확인
     @PostMapping("/checkAuthKey")
     public ResponseEntity<Integer> checkAuthKey(@RequestBody Map<String,String> body) {
-    	log.info("체크어스키 확인 컨트롤러 진입 : {}") ;
+    	log.info("체크어스키 확인 컨트롤러 진입 :"+body) ;
 
         String email   = body.get("email");
         String authKey = body.get("authKey");
 
         log.info("인증코드 검증 : email={}, authKey={}", email, authKey);
-        
+        emailMap.put("email", email);
+        emailMap.put("authKey", authKey);
         
 
         int matched = emailService.verifyCode(emailMap); // 일치 여부

@@ -1,6 +1,7 @@
 package com.zipinfo.project.member.model.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +27,7 @@ public class MemberServiceImpl implements MemberService{
 	private BCryptPasswordEncoder bcrypt;
 
 	
-	/**
-	 * 이주원
+	/** 이주원
 	 * 로그인 서비스
 	 */
 	@Override
@@ -58,8 +58,7 @@ public class MemberServiceImpl implements MemberService{
 
 	
 	
-	/**
-	 * 이주원 
+	/** 이주원 
 	 * 이메일 중복 체크
 	 */
 	@Override
@@ -70,8 +69,7 @@ public class MemberServiceImpl implements MemberService{
 	}
 
 	
-	/**
-	 * 이주원 
+	/** 이주원 
 	 * 닉네임 중복 체크
 	 */
 	@Override
@@ -82,8 +80,7 @@ public class MemberServiceImpl implements MemberService{
 	}
 
 	
-	/**
-	 * 이주원 
+	/** 이주원 
 	 * 중개사번호 중복 체크
 	 */
 	@Override
@@ -102,10 +99,61 @@ public class MemberServiceImpl implements MemberService{
 
 
 
+	
+	
 	@Override
 	public boolean isAdmin(int memberNo) {
 		// TODO Auto-generated method stub
 		return false;
 	}
- 
+
+
+
+	@Override
+	public ResponseEntity<Object> signup(Member member) {
+    	
+		member.setMemberEmail("E");
+    
+    	// 멤버 또는 중개사의 location 필드를 채워 넣어 DB에 들어가기 좋게 만든다.
+    	
+    	if(member.getBrokerNo()!=null) {
+    		
+    		member.setPresidentName(member.getMemberName());
+
+    		member.setMemberLocation(member.getPostcode()+"^^^"+member.getAddress() + "^^^"+ member.getDetailAddress());
+        	
+        	member.setCompanyLocation(member.getCompanyPostcode()+"^^^"+member.getCompanyAddress() + "^^^"+ member.getCompanyDetailAddress());
+    		
+        	// log.info("중개사 권한"+member);
+
+        	ResponseEntity<Object>  signupBroker = mapper.signupBroker();
+        	
+        	
+        	log.info("중개사 권한"+signupBroker);
+        	
+    		return signupBroker;
+
+    	}
+    	
+    	else {
+    		
+    		member.setMemberLocation(member.getPostcode()+"^^^"+member.getAddress() +"^^^"+ member.getDetailAddress());
+
+    		//log.info("일반인 권한"+member);
+
+
+    		ResponseEntity<Object> signupGeneral = mapper.signupGeneral();
+    		
+        	log.info("중개사 권한"+signupGeneral);
+
+    		return signupGeneral;
+
+    	}
+	}
+
+
+	
+	
+
+	
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { axiosAPI } from "../../api/axiosAPI";
-import "./MemberSignUp.css";
+import "../../css/member/MemberSignup.css";
 
 export default function MemberSignUp() {
   // 초기 폼 데이터
@@ -12,16 +12,19 @@ export default function MemberSignUp() {
     memberPwConfirm: "",
     memberName: "",
     memberNickname: "",
-    memberTel: "", // 전화번호 추가
-    postcode: "", // 우편번호
-    address: "", // 주소
-    detailAddress: "", // 상세주소
-    // 중개사 전용 테이블 자료
+    postcode: "", // 우편번호 (관심지역)
+    address: "", // 주소 (관심지역)
+    detailAddress: "", // 상세주소 (관심지역)
+    //////////////////////////////////////////////////////////////
+
+    // 중개사 전용 테이블
     companyName: "", // 중개사의 이름
     brokerNo: "", // 중개사 고유 번호
-    // ^([가-힣]\d{3,5}-\d{2,4}-\d{1,5}|\d{5}-\d{4}-\d{3,5})$ 와 같은 정규식으로 regExp를 표현하면 된다.
+    presidentPhone: "", // 대표 전화번호
 
-    representativeNumber: "",
+    companyPostcode: "", // 중개사 우편번호
+    companyAddress: "", // 중개사 주소
+    companyDetailAddress: "", // 중개사 상세주소
   };
 
   // 유효성 검사 상태
@@ -32,6 +35,7 @@ export default function MemberSignUp() {
     memberPwConfirm: false,
     memberNickname: false,
     brokerNo: false,
+    presidentPhone: false, // 대표 전화번호 검사 추가
   };
 
   // 메시지 상태
@@ -42,6 +46,7 @@ export default function MemberSignUp() {
     pwMessageConfirm: "비밀번호를 다시 한번 입력해주세요.",
     nickMessage: "한글,영어,숫자로만 2~10글자",
     brokerNoMessage: "등록번호는 최소 9자리에서 최대 20자리 내로 입력해주세요",
+    presidentPhoneMessage: "전화번호는 10-11자리 숫자로 입력해주세요", // 전화번호 메시지 추가
   };
 
   const [activeTab, setActiveTab] = useState("general"); // 일반 vs 중개자
@@ -86,6 +91,9 @@ export default function MemberSignUp() {
         break;
       case "brokerNo":
         validateBrokerNo(value);
+        break;
+      case "presidentPhone": // 대표 전화번호 검사 추가
+        validatePresidentPhone(value);
         break;
       default:
         break;
@@ -192,7 +200,7 @@ export default function MemberSignUp() {
     // 인증번호 발송 요청
     axiosAPI
       .post("/email/emailSignup", formData.memberEmail, {
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain" },
       })
       .then((response) => {
         const result = response.data;
@@ -352,19 +360,51 @@ export default function MemberSignUp() {
           );
           updateCheckObj("brokerNo", true);
         }
-      })
-      .catch((err) => {
-        // 여기서 실제 요청 URL, 상태코드, 응답 바디를 찍어서 확인합니다.
-        console.error(
-          " checkBrokerNo 요청 실패!",
-          "url:",
-          err.config?.url,
-          "status:",
-          err.response?.status,
-          "response:",
-          err.response?.data
-        );
       });
+  };
+
+  // 대표 전화번호 유효성 검사
+  const validatePresidentPhone = (inputPhone) => {
+    console.log("Checking presidentPhone:", inputPhone);
+
+    // 1) 빈 값 처리
+    if (inputPhone.trim().length === 0) {
+      updateMessage(
+        "presidentPhoneMessage",
+        "전화번호는 10-11자리 숫자로 입력해주세요",
+        ""
+      );
+      updateCheckObj("presidentPhone", false);
+      return;
+    }
+
+    // 2) 숫자만 입력 확인 및 길이 검사 (10-11자리)
+    const regExp = /^[0-9]{10,11}$/;
+    if (!regExp.test(inputPhone)) {
+      updateMessage(
+        "presidentPhoneMessage",
+        "전화번호는 숫자만 10-11자리로 입력해주세요",
+        "error"
+      );
+      updateCheckObj("presidentPhone", false);
+      return;
+    }
+
+    // 3) 전화번호 형식 검사 (010, 02, 031 등으로 시작)
+    const phoneFormatRegExp =
+      /^(010|02|031|032|033|041|042|043|044|051|052|053|054|055|061|062|063|064|070)[0-9]{7,8}$/;
+    if (!phoneFormatRegExp.test(inputPhone)) {
+      updateMessage(
+        "presidentPhoneMessage",
+        "올바른 전화번호 형식이 아닙니다",
+        "error"
+      );
+      updateCheckObj("presidentPhone", false);
+      return;
+    }
+
+    updateMessage("presidentPhoneMessage", "유효한 전화번호입니다.", "confirm");
+    updateCheckObj("presidentPhone", true);
   };
 
   // 비밀번호 확인 유효성 검사
@@ -425,7 +465,7 @@ export default function MemberSignUp() {
       .catch((err) => console.log(err));
   };
 
-  // 다음 주소 API 호출
+  // 관심지역 주소 API 호출
   const execDaumPostcode = () => {
     new window.daum.Postcode({
       oncomplete: (data) => {
@@ -441,12 +481,48 @@ export default function MemberSignUp() {
     }).open();
   };
 
+  // 중개사 주소 API 호출
+  const execDaumPostcodeCompany = () => {
+    new window.daum.Postcode({
+      oncomplete: (data) => {
+        const addr =
+          data.userSelectedType === "R" ? data.roadAddress : data.jibunAddress;
+        setFormData((prev) => ({
+          ...prev,
+          companyPostcode: data.zonecode,
+          companyAddress: addr,
+        }));
+        document.getElementsByName("companyDetailAddress")[0].focus();
+      },
+    }).open();
+  };
+
   // 폼 제출
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // 전체 유효성 검사
-    for (let key in checkObj) {
+    // 탭에 따라 검증할 필드 결정
+    const requiredFields =
+      activeTab === "general"
+        ? [
+            "memberEmail",
+            "authKey",
+            "memberPw",
+            "memberPwConfirm",
+            "memberNickname",
+          ]
+        : [
+            "memberEmail",
+            "authKey",
+            "memberPw",
+            "memberPwConfirm",
+            "memberNickname",
+            "brokerNo",
+            "presidentPhone", // 중개사는 대표전화번호 필수
+          ];
+
+    // 필수 필드 유효성 검사
+    for (let key of requiredFields) {
       if (!checkObj[key]) {
         let str;
         switch (key) {
@@ -468,6 +544,9 @@ export default function MemberSignUp() {
           case "brokerNo":
             str = "중개사 번호가 유효하지 않습니다.";
             break;
+          case "presidentPhone":
+            str = "대표 전화번호가 유효하지 않습니다.";
+            break;
           default:
             str = "입력값을 확인해주세요.";
         }
@@ -484,12 +563,14 @@ export default function MemberSignUp() {
     if (activeTab === "general") {
       delete submitData.companyName;
       delete submitData.brokerNo;
-      delete submitData.representativeNumber;
+      delete submitData.presidentPhone; // 일반회원은 대표전화번호 제거
+      delete submitData.companyPostcode;
+      delete submitData.companyAddress;
+      delete submitData.companyDetailAddress;
     }
 
     // 서버로 전송
-    const endpoint =
-      activeTab === "general" ? "/member/signup" : "/agent/signup";
+    const endpoint = "/member/signup";
 
     fetch(`http://localhost:8080${endpoint}`, {
       method: "POST",
@@ -506,10 +587,6 @@ export default function MemberSignUp() {
         } else {
           alert("회원가입에 실패했습니다. 다시 시도해주세요.");
         }
-      })
-      .catch((err) => {
-        console.error("회원가입 오류:", err);
-        alert("서버 오류가 발생했습니다.");
       });
   };
 
@@ -626,11 +703,10 @@ export default function MemberSignUp() {
             {messages.pwMessageConfirm}
           </span>
         </div>
-        {/* 공통: 주소 */}
+
+        {/* 공통: 관심지역 주소 */}
         <div className="signup-form-group">
-          <label className="signup-form-label">
-            {activeTab === "agent" ? "중개사 주소" : "관심지역 주소"}
-          </label>
+          <label className="signup-form-label">관심지역 주소</label>
           <div className="input-wrapper">
             <input
               type="text"
@@ -639,7 +715,7 @@ export default function MemberSignUp() {
               value={formData.postcode}
               readOnly
               className="signup-form-input"
-              placeholder="우편 번호"
+              placeholder="관심지역 우편 번호"
               required
             />
             <button
@@ -658,7 +734,7 @@ export default function MemberSignUp() {
             value={formData.address}
             readOnly
             className="signup-form-input signup-address-detail"
-            placeholder="주소를 검색해 주세요"
+            placeholder="관심지역 주소를 검색해 주세요"
           />
           <input
             type="text"
@@ -667,10 +743,42 @@ export default function MemberSignUp() {
             value={formData.detailAddress}
             onChange={handleInputChange}
             className="signup-form-input signup-address-detail"
-            placeholder="상세 주소를 입력해 주세요"
+            placeholder="관심지역 상세 주소를 입력해 주세요"
           />
         </div>
 
+        {/* 공통: 이름 */}
+        <div className="signup-form-group">
+          <label className="signup-form-label">이름</label>
+          <input
+            type="text"
+            id="memberName"
+            name="memberName"
+            value={formData.memberName}
+            onChange={handleInputChange}
+            placeholder="이름을 입력해 주세요"
+            className="signup-form-input"
+          />
+        </div>
+
+        {/* 공통: 닉네임 */}
+        <div className="signup-form-group">
+          <label className="signup-form-label">닉네임</label>
+          <input
+            type="text"
+            id="memberNickname"
+            name="memberNickname"
+            value={formData.memberNickname}
+            onChange={handleInputChange}
+            placeholder="닉네임을 입력해 주세요"
+            className="signup-form-input"
+          />
+          <span className={`message ${messageClasses.nickMessage || ""}`}>
+            {messages.nickMessage}
+          </span>
+        </div>
+
+        {/* 중개사 전용 필드들 */}
         {activeTab === "agent" && (
           <>
             {/* 중개사만: 중개사 회사 이름 */}
@@ -713,48 +821,67 @@ export default function MemberSignUp() {
               <label className="signup-form-label">대표번호</label>
               <input
                 type="tel"
-                id="representativeNumber"
-                name="representativeNumber"
-                value={formData.representativeNumber}
+                id="presidentPhone"
+                name="presidentPhone"
+                value={formData.presidentPhone}
                 onChange={handleInputChange}
                 placeholder="대표의 전화번호를 입력해 주세요(-없이 숫자만 입력)"
                 className="signup-form-input"
                 required
               />
+              <span
+                className={`message ${
+                  messageClasses.presidentPhoneMessage || ""
+                }`}
+              >
+                {messages.presidentPhoneMessage}
+              </span>
+            </div>
+
+            {/* 중개사만: 중개사 주소 */}
+            <div className="signup-form-group">
+              <label className="signup-form-label">중개사 주소</label>
+              <div className="input-wrapper">
+                <input
+                  type="text"
+                  id="companyPostcode"
+                  name="companyPostcode"
+                  value={formData.companyPostcode}
+                  readOnly
+                  className="signup-form-input"
+                  placeholder="우편 번호"
+                  required
+                />
+                <button
+                  type="button"
+                  className="signup-address-button"
+                  onClick={execDaumPostcodeCompany}
+                >
+                  주소검색
+                </button>
+              </div>
+
+              <input
+                type="text"
+                id="companyAddress"
+                name="companyAddress"
+                value={formData.companyAddress}
+                readOnly
+                className="signup-form-input signup-address-detail"
+                placeholder="주소를 검색해 주세요"
+              />
+              <input
+                type="text"
+                id="companyDetailAddress"
+                name="companyDetailAddress"
+                value={formData.companyDetailAddress}
+                onChange={handleInputChange}
+                className="signup-form-input signup-address-detail"
+                placeholder="상세 주소를 입력해 주세요"
+              />
             </div>
           </>
         )}
-
-        {/* 공통: 이름 */}
-        <div className="signup-form-group">
-          <label className="signup-form-label">이름</label>
-          <input
-            type="text"
-            id="memberName"
-            name="memberName"
-            value={formData.memberName}
-            onChange={handleInputChange}
-            placeholder="이름을 입력해 주세요"
-            className="signup-form-input"
-          />
-        </div>
-
-        {/* 공통: 닉네임 */}
-        <div className="signup-form-group">
-          <label className="signup-form-label">닉네임</label>
-          <input
-            type="text"
-            id="memberNickname"
-            name="memberNickname"
-            value={formData.memberNickname}
-            onChange={handleInputChange}
-            placeholder="닉네임을 입력해 주세요"
-            className="signup-form-input"
-          />
-          <span className={`message ${messageClasses.nickMessage || ""}`}>
-            {messages.nickMessage}
-          </span>
-        </div>
 
         <button type="submit" className="submit-button">
           가입하기

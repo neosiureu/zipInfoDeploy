@@ -25,4 +25,23 @@ AND MEMBER_DEL_FL ='N' </select>
   WHERE bi.BROKER_NO = #{brokerNo}
 </select>
 
+
+<insert id="signupGeneral" >
+  	 INSERT INTO "MEMBER"
+     VALUES(SEQ_MEMBER_NEXTVAL, 
+			 #{memberEmail},
+			 #{memberPw},
+			 DEFAULT,
+			 DEFAULT,
+			 DEFAULT,
+			 #{memberLogin}
+			 #{memberNickName},
+			 #{memberName},
+			 1,
+			 DEFAULT,
+			 #{memberLocation}			 
+                    )
+  	</insert>
+
+
 </mapper>
