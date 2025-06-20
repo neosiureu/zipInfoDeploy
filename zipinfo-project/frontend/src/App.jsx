@@ -19,9 +19,6 @@ import UpdatePassword from "./components/myPage/UpdatePassword";
 import WithDraw from "./components/myPage/WithDraw";
 import UpdateInfo from "./components/myPage/UpdateInfo";
 
-import MemberLogin from "./components/member/MemberLogin";
-import MemberSignup from "./components/member/MemberSignup";
-
 // 회원
 import MemberLogin from "./components/member/MemberLogin";
 import MemberSignup from "./components/member/MemberSignup";
@@ -36,13 +33,9 @@ import Inquiry from "./components/admin/Inquiry";
 import Management from "./components/admin/Management";
 import { AuthProvider } from "./components/admin/AuthContext";
 
-// 📢 공지사항 → Announce로 변경
 import Announce from "./components/announce/Announce";
 import AnnounceDetail from "./components/announce/AnnounceDetail";
 import AnnounceWrite from "./components/announce/AnnounceWrite";
-
-
-import { AuthProvider } from "./components/admin/AuthContext";
 
 // 우리동네 게시판
 import Neighborhood from "./components/neighborhood/Neighborhood";
