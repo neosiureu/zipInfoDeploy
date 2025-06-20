@@ -42,41 +42,39 @@ const StockPage = () => {
     searchStockTypeRef.current = searchStockType;
   }, [searchKeyWord, searchLocationCode, searchStockForm, searchStockType]); // 페이지 처음 로딩시 state변수의 ref 현재값(current) 초기화
   /*********************Kakao map 로드************** */
-    useEffect(() => {
-  if (!mapInstanceRef.current) return;
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
 
-  const bounds = mapInstanceRef.current.getBounds();
-  const sw = bounds.getSouthWest();
-  const ne = bounds.getNorthEast();
+    const bounds = mapInstanceRef.current.getBounds();
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
 
-  const fetchData = async () => {
-    try {
+    const fetchData = async () => {
+      try {
+        console.log("API 요청 전 locationCode:", searchLocationCode);
+        const resp = await axiosAPI.post("/stock/selectItems", {
+          coords: {
+            swLat: sw.getLat(),
+            swLng: sw.getLng(),
+            neLat: ne.getLat(),
+            neLng: ne.getLng(),
+          },
+          searchKeyWord: searchKeyWord || "",
+          locationCode: searchLocationCode ?? -1,
+          stockType: searchStockForm ?? -1,
+          stockForm: searchStockType ?? -1,
+        });
 
-      console.log("API 요청 전 locationCode:", searchLocationCode);
-      const resp = await axiosAPI.post("/stock/selectItems", {
-        coords: {
-          swLat: sw.getLat(),
-          swLng: sw.getLng(),
-          neLat: ne.getLat(),
-          neLng: ne.getLng(),
-        },
-        searchKeyWord: searchKeyWord || "",
-        locationCode: searchLocationCode ?? -1,
-        stockType: searchStockForm ?? -1,
-        stockForm: searchStockType ?? -1,
-      });
-
-      if (resp.status === 200) {
-        setStockList(resp.data);
+        if (resp.status === 200) {
+          setStockList(resp.data);
+        }
+      } catch (error) {
+        console.error("검색 조건 변경에 따른 요청 중 오류:", error);
       }
-    } catch (error) {
-      console.error("검색 조건 변경에 따른 요청 중 오류:", error);
-    }
-  };
+    };
 
-  fetchData();
-}, [searchKeyWord, searchLocationCode, searchStockForm, searchStockType]);
-
+    fetchData();
+  }, [searchKeyWord, searchLocationCode, searchStockForm, searchStockType]);
 
   useEffect(() => {
     // 카카오 지도 API가 로드되었는지 확인
@@ -135,8 +133,6 @@ const StockPage = () => {
       marker.setMap(map);
     }
   }, []);
-
-
 
   useEffect(() => {
     updateMarker();
@@ -395,7 +391,8 @@ const StockPage = () => {
               </div>
 
               <div className="item-font-default">
-                {item.ExclusiveArea}㎡ | {item.currentFloor}층/
+                {item.exclusiveArea}㎡ | {item.currentFloor}층/{" "}
+                {/**여기 한글자 오타났었어요... */}
                 {item.floorTotalCount}층 | 관리비 {item.stockManageFee}원
               </div>
               <div className="item-font-default">
