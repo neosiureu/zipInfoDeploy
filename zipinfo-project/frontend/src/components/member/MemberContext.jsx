@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { axiosAPI } from "../../api/axiosAPI";
-
+import { useLocation } from "react-router-dom";
 export const MemberContext = createContext();
 // Context는 React에서 컴포넌트 계층 구조(트리)를 통해 데이터를 효율적으로
 // 전달하기 위한 메커니즘.
@@ -11,8 +11,13 @@ export const MemberProvider = ({ children }) => {
   // 상태값, 함수
   // 전역적으로 현재 로그인한 회원의 정보를 기억(상태)
   const [member, setMember] = useState(null);
+  const location = useLocation();
+  const skipFetch =
+    location.pathname.startsWith("/login") ||
+    location.pathname.startsWith("/oauth2/kakao");
 
   useEffect(() => {
+    if (skipFetch || member) return;
     const isMember = async () => {
       try {
         const resp = await axiosAPI.get("/member/getMember");
@@ -26,7 +31,7 @@ export const MemberProvider = ({ children }) => {
     };
 
     isMember();
-  }, []);
+  }, [skipFetch]);
 
   return (
     <MemberContext.Provider value={{ member, setMember }}>

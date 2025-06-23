@@ -6,12 +6,16 @@ import { MemberContext } from "../member/MemberContext";
 import { useNavigate } from "react-router-dom";
 
 export default function MemberLogin() {
+  useEffect(() => {
+    localStorage.removeItem("loginMember");
+  }, []);
+  const { VITE_KAKAO_REST_API_KEY, VITE_KAKAO_REDIRECT_URI } = import.meta.env;
   const navigate = useNavigate();
   const { setMember } = useContext(MemberContext);
 
   const [formData, setFormData] = useState({
-    email: "", // 화면용
-    password: "", // 화면용
+    email: "", // 초기화용
+    password: "", // 초기화용
     saveId: false,
   });
 
@@ -24,7 +28,7 @@ export default function MemberLogin() {
     }));
   };
 
-  // 로그인
+  // 그냥 로그인
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -64,16 +68,50 @@ export default function MemberLogin() {
     }
   };
 
-  //1. 회원가입
+  const KAKAO_AUTH_URL =
+    `https://kauth.kakao.com/oauth/authorize` +
+    `?response_type=code` +
+    `&client_id=${VITE_KAKAO_REST_API_KEY}` +
+    `&redirect_uri=${encodeURIComponent(VITE_KAKAO_REDIRECT_URI)}`;
+
+  // 회원가입
   const handleSignUp = () => {
     console.log("회원가입 페이지 진입!!");
     navigate("/signUp"); //router 사용
   };
+
+  // 카카오 로그인
+  const handleKakaoLogin = () => {
+    localStorage.removeItem("loginMember");
+    setMember(null);
+
+    window.Kakao.Auth.loginForm({
+      scope: "profile_nickname,account_email",
+      success: async (authObj) => {
+        try {
+          const { data: member } = await axiosAPI.post("/oauth/kakao", {
+            code: authObj.access_token,
+          });
+
+          localStorage.setItem("loginMember", JSON.stringify(member));
+          setMember(member); // 컨텍스트 갱신
+          alert(`${member.memberNickname}님, 환영합니다!`);
+          navigate("/");
+          // loginForm 은 close 메서드가 없습니다 ― 지우세요
+        } catch (err) {
+          console.error("카카오 로그인 처리 중 에러", err);
+          alert("로그인 중 오류가 발생했습니다.");
+        }
+      },
+      fail: (err) => {
+        console.error("카카오 로그인 실패", err);
+        alert("로그인에 실패했습니다.");
+      },
+    });
+  };
+
   // 기타 앞으로 할 일
 
-  const handleKakaoLogin = () => {
-    console.log("카카오 로그인 진입");
-  };
   const handleFindPassword = () => console.log("비밀번호 찾기 진입");
 
   // 랜더링 될떄마다 저장된 ID 불러오기. 화면을 새로고침했을 때마다 새로운게 나오면 안되잖아.
