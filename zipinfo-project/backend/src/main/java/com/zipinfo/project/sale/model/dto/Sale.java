@@ -15,11 +15,11 @@ public class Sale {
 	private int saleStockForm;      			// 매물형태
 	private String saleStockName;      			// 매물명
 	private int salePrice;          			// 분양가
-	private String saleStatus;         			// 분양상태
+	private int saleStatus;         			// 분양상태
 	private String saleAddress;        			// 분양 매물주소
-	private int scale;              			// 규모
+	private String scale;						// 규모
 	private String applicationStartDate;		// 청약 접수 시작일
-	private String applicationEndDate; 			// 청약 접수 종료일
+	private String applicationEndDate;			// 청약 접수 종료일
 	private String announcementDate;   			// 당첨자 발표
 	private String company;            			// 건설사
 	private String contactInfo;        			// 분양문의
@@ -35,5 +35,5 @@ public class Sale {
 	
 	// SALE_COORD에서 추가
 	private double lat;
-    private double lng;
+	private double lng;
 }

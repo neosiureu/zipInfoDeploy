@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zipinfo.project.sale.model.dto.Sale;
@@ -27,8 +29,8 @@ public class SaleController {
 	@Autowired
 	private SaleService service;
 	
-	/**
-	 * @param coords : 전송받는 좌표. 좌표 범위 안에 있는 
+	/** 좌표와 함께 분양 매물 조회
+	 * @param coords : 전송받는 좌표값
 	 * sw : 현재 요청한 map의 남서쪽 끝의 좌표
 	 * ne : 현재 요청한 map의 북동쪽 끝의 좌표
 	 * Lat : 위도
@@ -51,9 +53,7 @@ public class SaleController {
 	    System.out.println("SW: " + swLat + ", " + swLng);
 	    System.out.println("NE: " + neLat + ", " + neLng);
 	    
-	    // 요청 좌표 안쪽 범위 내부에 있는 모든 매물들을 불러오는 service 동작
-	    
-	    // return 
+	    // 요청 좌표 안쪽 범위 내부에 있는 모든 매물들을 불러오는 service 동작 
 	    try {
 	    	List<Sale> stockList = service.getSaleListInRange(Result);
 			return ResponseEntity.status(HttpStatus.OK).body(stockList);
@@ -66,4 +66,22 @@ public class SaleController {
 	    
 	}
 	
+//	/** 단일 분양 매물 조회하기
+//	 * @param saleStockNo
+//	 * @return
+//	 */
+//	@GetMapping("/detail")
+//	public ResponseEntity<Sale> selectSaleDetail(@RequestParam("saleStockNo") int saleStockNo) {
+//	    try {
+//	        Sale saleDetail = service.selectSaleDetail(saleStockNo);
+//	        if (saleDetail != null) {
+//	            return ResponseEntity.ok(saleDetail);
+//	        } else {
+//	            return ResponseEntity.notFound().build();
+//	        }
+//	    } catch (Exception e) {
+//	        e.printStackTrace();
+//	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//	    }
+//	}
 }

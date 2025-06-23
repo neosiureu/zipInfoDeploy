@@ -41,7 +41,6 @@ import AnnounceWrite from "./components/announce/AnnounceWrite";
 import Neighborhood from "./components/neighborhood/Neighborhood";
 import NeighborhoodDetail from "./components/neighborhood/NeighborhoodDetail";
 
-
 function App() {
   return (
     <AuthProvider>
@@ -67,6 +66,9 @@ function App() {
                 element={<UpdatePassword />}
               />
               <Route path="myPage/withDraw" element={<WithDraw />} />
+
+              {/* 분양페이지 */}
+              <Route path="/sale/:saleStockNo" element={<SalePage />} />
 
               {/* 📢 공지사항 (Announce) */}
               <Route path="announce" element={<Announce />} />
