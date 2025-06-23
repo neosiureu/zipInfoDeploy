@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react"; // useRef 추가
 import { axiosAPI } from "../../api/axiosApi";
 import "../../css/stock/stockPage.css";
 import SearchBar from "../common/SearchBar";
-
+import warning from "../../assets/circle_warning.svg"; // 미검색 결과 아이콘
+import saleThumbnail from "../../assets/sale-page-thumbnail.svg"; // 썸네일 이미지 추가
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 const StockPage = () => {
   /**********************Kakao api 세팅****************** */
   const mapRef = useRef(null); // 지도를 담을 div의 ref
@@ -33,6 +35,49 @@ const StockPage = () => {
   검색창 내 부동산 유형(아파트:1, 빌라:2, 오피스텔:3)을 저장하는 상태변수 - 기본값 -1(전체 매물 선택)*/
   const [searchStockForm, setSearchStockForm] = useState(-1);
   const searchStockFormRef = useRef(searchStockForm); //  **중요**
+  /*******************마커 겹침 처리기능 관련 변수***************** */
+  // ⚙️ 격자 셀의 크기를 설정 (화면 픽셀 기준)
+  // 마커가 겹친다고 판단할 최소 거리보다 약간 큰 값이 좋습니다.
+  const gridSize = 50;
+
+  // 📦 각 셀에 어떤 마커들이 들어있는지를 저장하는 해시맵
+  // 키: "셀X,셀Y", 값: 그 셀에 속한 마커들의 정보 배열
+  const cellMap = {};
+
+  /*******************마커 겹침 처리기능 관련 함수***************** */
+  // 📌 현재 마커의 화면 좌표가 속한 셀의 고유 키를 생성하는 함수
+  function getCellKey(point) {
+    const x = Math.floor(point.x / gridSize); // 셀 X좌표
+    const y = Math.floor(point.y / gridSize); // 셀 Y좌표
+    return `${x},${y}`; // 예: "3,5"
+  }
+
+  // 🔍 현재 셀 + 주변 8개 셀까지 포함한 총 9개 셀의 키를 반환
+  // 이렇게 해야 셀 경계에 걸친 마커들도 겹침 여부를 정확히 판단할 수 있습니다.
+  function getAdjacentCellKeys(point) {
+    const cx = Math.floor(point.x / gridSize);
+    const cy = Math.floor(point.y / gridSize);
+    const keys = [];
+
+    // 상하좌우 + 대각선 방향까지 포함
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        keys.push(`${cx + dx},${cy + dy}`);
+      }
+    }
+
+    return keys; // 총 9개의 셀 키
+  }
+
+  /****************QueryString 기능 구현을 위한 변수******************************************** */
+  const [searchParams] = useSearchParams();
+  /****************QueryString 기능 구현을 위한 검색바 초기화 함수 (구현중)******************************************** */
+  useEffect(() => {
+    const stockType = searchParams.get("type") || -1;
+    const stockForm = searchParams.get("form") || -1;
+    setSearchStockType(stockType);
+    setSearchStockForm(stockForm);
+  }, [searchParams]);
 
   useEffect(() => {
     // addEventListener만을 위한 코드. addEventListener 내부에서 state변수는 ref를 얻어오거나, 아니면 초기화해줘야 한다.
@@ -147,11 +192,145 @@ const StockPage = () => {
         item.lat,
         item.lng
       );
-      const itemMarker = new window.kakao.maps.Marker({
+      // /********************todo : 여기부터 겹치는 마커 처리로직 입력할것.*************************
+      //  * ******해시격자 로직******
+      //  * 지금 보는 kakao Map을 일정 간격을 가진 격자로 분해하여
+      //  * 매물이 소속된 격자와 인접 격자내부에 지금까지 불러운 모든 매물들을 불러와 겹치는지 확인
+      //  *
+      //  * □□□
+      //  * □■□
+      //  * □□□
+      //  */
+      // //screenPoint : 현재 item의 lat/lng를 screen상의 좌표를 저장함
+      // const screenPoint = map
+      //   .getProjection()
+      //   .containerPointFromCoords(itemMarkerPosition); // 📍지도 좌표 → 화면 좌표(px) 변환
+      // //🔎 주변 셀 9개 키 가져오기
+      // const nearbyKeys = getAdjacentCellKeys(screenPoint); // 🔎 주변 셀 9개 키 가져오기
+      // let isOverlapping = false; // 겹침 여부 초기화
+      // let overlappingTarget = null; // 혹시 이미 불러온 item들중 겹치는 것이 있다면 여기다가 저장.
+      // // 🧩 불러온 주변 셀들을 순회하며 겹치는 오버레이가 있는지 검사
+      // for (const key of nearbyKeys) {
+      //   const cell = cellMap[key];
+      //   if (!cell) continue;
+
+      //   for (const other of cell) {
+      //     const dx = screenPoint.x - other.point.x;
+      //     const dy = screenPoint.y - other.point.y;
+      //     const dist = Math.sqrt(dx * dx + dy * dy);
+
+      //     if (dist < 40) {
+      //       // 만약 두 매물간의 거리가 40 이하라면
+      //       // 🔴 실제 겹침 판단 거리 기준 (px)
+      //       isOverlapping = true;
+      //       break;
+      //     }
+      //   }
+      //   if (isOverlapping) break;
+      // }
+
+      // if (!isOverlapping) {
+      //   //***************************** */ ✅ 겹치지 않는 경우 → 셀에 마커 정보 저장
+      //   const cellKey = getCellKey(screenPoint);
+      //   if (!cellMap[cellKey]) cellMap[cellKey] = [];
+
+      //   // 좌표와 매물 정보를 셀에 등록
+      //   cellMap[cellKey].push({ point: screenPoint, item: item });
+
+      //   // 🟢 여기에 커스텀 오버레이 생성 로직 추가
+      //   const content = `
+      //   <div class="custom-overlay" >
+      //     <div class="area">${item.exclusiveArea}㎡</div>
+      //     ${
+      //       item.stockType === 0
+      //         ? `<div class="label">
+      //           매매 <strong>${priceConvertToString(
+      //             item.stockSellPrice
+      //           )}</strong>
+      //           </div>`
+      //         : item.stockType === 1
+      //         ? `<div class="label">
+      //           전세 <strong>${priceConvertToString(
+      //             item.stockSellPrice
+      //           )}</strong>
+      //           </div>`
+      //         : item.stockType === 2
+      //         ? `<div class="label">
+      //           월세 <strong>${priceConvertToString(
+      //             item.stockSellPrice
+      //           )}/${priceConvertToString(item.stockFeeMonth)}</strong>
+      //           </div>`
+      //         : "기타 "
+      //     }
+      //   </div>
+      // `; // 커스텀 마커 저장
+      //   //클릭 이벤트 리스너 바인딩을 위한 코드
+      //   const customOverlay = document.createElement("div");
+      //   customOverlay.innerHTML = content;
+
+      //   // ㄴ 여기서 직접 이벤트 바인딩
+      //   customOverlay
+      //     .querySelector(".custom-overlay")
+      //     .addEventListener("click", (item, index) => {
+      //       console.log(`${item.index} clicked`);
+      //       handleItemClick(item, index);
+      //     });
+
+      //   const itemMarker = new window.kakao.maps.CustomOverlay({
+      //     position: itemMarkerPosition,
+      //     content: customOverlay,
+      //     yAnchor: 1,
+      //   }); // 카카오 map에 커스텀오버레이 등록
+      //   itemMarker.setMap(map);
+      //   itemMarkersRef.current.push(itemMarker);
+      // } else {
+      //   //********************************* */ ❌ 겹치는 경우 → 생략하거나, 클러스터 오버레이를 만들 수도 있음
+      //   console.log(`❗ 겹치는 마커 발생: ${item.id}`);
+      // }
+
+      // /********************end of 겹침처리****************************************************************** */
+
+      const content = `
+      <div class="custom-overlay" >
+        <div class="area">${item.exclusiveArea}㎡</div>
+        ${
+          item.stockType === 0
+            ? `<div class="label">
+              매매 <strong>${priceConvertToString(item.stockSellPrice)}</strong>
+              </div>`
+            : item.stockType === 1
+            ? `<div class="label">
+              전세 <strong>${priceConvertToString(item.stockSellPrice)}</strong>
+              </div>`
+            : item.stockType === 2
+            ? `<div class="label">
+              월세 <strong>${priceConvertToString(
+                item.stockSellPrice
+              )}/${priceConvertToString(item.stockFeeMonth)}</strong>
+              </div>`
+            : "기타 "
+        }
+      </div>
+    `; // 커스텀 마커 저장
+      //클릭 이벤트 리스너 바인딩을 위한 코드
+      const customOverlay = document.createElement("div");
+      customOverlay.innerHTML = content;
+
+      // ㄴ 여기서 직접 이벤트 바인딩
+      customOverlay
+        .querySelector(".custom-overlay")
+        .addEventListener("click", (item, index) => {
+          console.log(`${item.index} clicked`);
+          handleItemClick(item, index);
+        });
+
+      const itemMarker = new window.kakao.maps.CustomOverlay({
         position: itemMarkerPosition,
-      });
+        content: customOverlay,
+        yAnchor: 1,
+      }); // 카카오 map에 커스텀오버레이 등록
       itemMarker.setMap(map);
-      itemMarkersRef.current.push(itemMarker); // 새 마커 저장
+      itemMarkersRef.current.push(itemMarker); // 새 마커 저장*/
     });
   };
 
@@ -351,15 +530,35 @@ const StockPage = () => {
     return (
       <section className="item-list">
         {stockList?.length === 0 ? (
-          <p>매물이 없습니다.</p>
+          <div className="no-result">
+            <img src={warning} alt="경고 이미지" />
+            <p>
+              조건에 맞는 매물이 없습니다.
+              <br />
+              위치 및 맞춤 필터를 조정해 보세요.
+            </p>
+          </div>
         ) : (
           stockList?.map((item, index) => (
             <div
               className="stock-title"
               onClick={() => handleItemClick(item, index)}
             >
-              <div>
-                <div style={{ display: "flex", gap: "10px" }}>
+              <img src={saleThumbnail} alt="썸네일" className="stock-img" />
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: "10px",
+                  }}
+                >
                   <div className="item-type">
                     {item.stockType === 0
                       ? "매매 "
@@ -388,18 +587,18 @@ const StockPage = () => {
                   {/**매물 이름 */}
                   {item.stockName}
                 </div>
-              </div>
 
-              <div className="item-font-default">
-                {item.exclusiveArea}㎡ | {item.currentFloor}층/{" "}
-                {/**여기 한글자 오타났었어요... */}
-                {item.floorTotalCount}층 | 관리비 {item.stockManageFee}원
+                <div className="item-font-default">
+                  {item.exclusiveArea}㎡ | {item.currentFloor}층/{" "}
+                  {/**여기 한글자 오타났었어요... */}
+                  {item.floorTotalCount}층 | 관리비 {item.stockManageFee}원
+                </div>
+                <div className="item-font-default">
+                  {/**매물 주소 */}
+                  {item.stockAddress}
+                </div>
+                <div className="item-font-broker"> ⌂뭉탱이공인중개사사무소</div>
               </div>
-              <div className="item-font-default">
-                {/**매물 주소 */}
-                {item.stockAddress}
-              </div>
-              <div className="item-font-broker"> ⌂뭉탱이공인중개사사무소</div>
             </div>
           ))
         )}
