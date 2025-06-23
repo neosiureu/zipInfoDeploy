@@ -27,7 +27,6 @@ public class EmailServiceImpl implements EmailService {
 	private final EmailMapper mapper;
 	private final SpringTemplateEngine templateEngine;
 	private final JavaMailSender mailSender;
-    private final Executor emailExecutor;
 
 	@Override
 	public String sendEmail(String htmlName, String email) {

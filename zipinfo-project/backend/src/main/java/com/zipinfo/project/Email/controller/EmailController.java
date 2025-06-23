@@ -2,7 +2,6 @@ package com.zipinfo.project.email.controller;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -26,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 public class EmailController {
 
     private final EmailService emailService;               // 메일 로직 담당 서비스
-    private final Executor emailExecutor;
     Map<String,String> emailMap = new HashMap<>();
     
      //1) 인증번호 발송 (React : axios.post("/email/emailSignup", email) )   
@@ -72,7 +70,12 @@ public class EmailController {
 
         log.info("최종검증"+matched);
 
-        return ResponseEntity.ok().body(1);                 // true:일치 / false:불일치
+        return ResponseEntity.ok().body(1);                 // true = 일치 / false = 불일치
     }
+    
+    
+    
+    
+    
     
 }

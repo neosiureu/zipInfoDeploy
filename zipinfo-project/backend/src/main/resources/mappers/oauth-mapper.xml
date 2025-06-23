@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.zipinfo.project.oauth.model.mapper.OauthMapper">
+	
+	
+
+<select id="selectByEmail">
+SELECT * FROM MEMBER WHERE MEMBER_EMAIL  = #{memberEmail} AND MEMBER_LOGIN ='K'
+</select>
+
+<insert id="insertKakaoMember">
+INSERT INTO MEMBER (
+    MEMBER_NO,
+    MEMBER_EMAIL,
+    MEMBER_LOGIN,
+    MEMBER_NICKNAME,
+    MEMBER_NAME,
+    MEMBER_AUTH,
+    ACCESS_TOKEN,
+    MEMBER_LOCATION
+  ) VALUES (
+    SEQ_MEMBER.NEXTVAL,
+    #{memberEmail},
+    #{memberLogin},
+    #{memberNickname},
+    #{memberName},
+    #{memberAuth},
+    #{accessToken},      <!--  서비스에서 발급한 JWT-->
+    #{memberLocation}    
+  )
+      </insert>
+
+<update id="updateAccessToken">
+  UPDATE MEMBER
+    SET ACCESS_TOKEN = #{accessToken}
+  WHERE MEMBER_EMAIL = #{memberEmail}
+</update>
+</mapper>

@@ -596,7 +596,7 @@ export default function MemberSignUp() {
       .then((result) => {
         if (result === "1" || result === "success") {
           alert("회원가입이 완료되었습니다!");
-          // 성공 시 리다이렉트 또는 다른 처리
+          // 성공 시 네비게이트 처리
           navigate("/login");
         } else {
           alert("회원가입에 실패했습니다. 다시 시도해주세요.");
@@ -606,7 +606,11 @@ export default function MemberSignUp() {
 
   return (
     <div className="signup-container">
-      <h1 className="signup-title">회원가입</h1>
+      {activeTab === "general" ? (
+        <h1 className="signup-title">회원가입</h1>
+      ) : (
+        <h1 className="signup-title">중개사 회원가입</h1>
+      )}
 
       {/* Tab Navigation */}
       <div className="signup-tab-navigation">

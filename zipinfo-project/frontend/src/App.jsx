@@ -1,8 +1,8 @@
 // src/App.jsx
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 
 import Layout from "./components/common/Layout";
+import React, { useEffect, useContext } from "react";
 
 import Main from "./components/Main";
 import SalePage from "./components/sale/SalePage";
@@ -18,7 +18,11 @@ import UpdateInfo from "./components/myPage/UpdateInfo";
 
 import MemberLogin from "./components/member/MemberLogin";
 import MemberSignup from "./components/member/MemberSignup";
-import { MemberProvider } from "./components/member/MemberContext";
+import {
+  MemberProvider,
+  MemberContext,
+} from "./components/member/MemberContext";
+import LoginHandler from "./components/member/MemberLogin";
 
 import AddSale from "./components/admin/saleForm/AddSale";
 import DashBoard from "./components/admin/DashBoard";
@@ -34,12 +38,40 @@ import AnnounceWrite from "./components/announce/AnnounceWrite";
 
 import Neighborhood from "./components/neighborhood/Neighborhood";
 import NeighborhoodDetail from "./components/neighborhood/NeighborhoodDetail";
+function MessageListener() {
+  const { setMember } = useContext(MemberContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const onMessage = (e) => {
+      if (e.origin !== window.location.origin) return;
+      if (e.data?.type === "KAKAO_LOGIN_SUCCESS") {
+        const member = e.data.member;
+        localStorage.setItem("loginMember", JSON.stringify(member));
+        setMember(member);
+        navigate("/");
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [setMember, navigate]);
+
+  return null;
+}
 
 function App() {
+  useEffect(() => {
+    if (window.Kakao && !window.Kakao.isInitialized()) {
+      window.Kakao.init(import.meta.env.VITE_KAKAO_JS_KEY);
+      console.log("Kakao SDK 초기화", window.Kakao.isInitialized());
+    }
+  }, []);
   return (
     <AuthProvider>
       <BrowserRouter>
         <MemberProvider>
+          <MessageListener />
+
           <Routes>
             {/* 공통 사용자 레이아웃 */}
             <Route path="/" element={<Layout />}>
@@ -48,6 +80,7 @@ function App() {
               <Route path="stock" element={<StockPage />} />
               <Route path="login" element={<MemberLogin />} />
               <Route path="signUp" element={<MemberSignup />} />
+              <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />
 
               {/* 마이페이지 */}
               <Route path="myPage" element={<MyInfo />} />

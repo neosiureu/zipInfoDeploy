@@ -151,4 +151,10 @@ public class MemberController {
 	    }
 	}
 	
+	@PostMapping("/logout")
+	public ResponseEntity<Void> logout(HttpSession session) {
+	    session.invalidate();
+	    return ResponseEntity.ok().build();
+	}
+	
 }
