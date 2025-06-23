@@ -71,7 +71,9 @@ export default function MemberLogin() {
   };
   // 기타 앞으로 할 일
 
-  const handleKakaoLogin = () => console.log("카카오 로그인 진입");
+  const handleKakaoLogin = () => {
+    console.log("카카오 로그인 진입");
+  };
   const handleFindPassword = () => console.log("비밀번호 찾기 진입");
 
   // 랜더링 될떄마다 저장된 ID 불러오기. 화면을 새로고침했을 때마다 새로운게 나오면 안되잖아.

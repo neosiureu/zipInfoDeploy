@@ -3,11 +3,6 @@ import { axiosAPI } from "../../api/axiosAPI";
 import "../../css/member/MemberSignup.css";
 import { useNavigate } from "react-router-dom";
 
-//   const initTime = "01:01";
-// setMin(1);
-// const [sec, setSec] = useState(0);
-//let currentSec = 0;
-
 export default function MemberSignUp() {
   const navigate = useNavigate();
 
