@@ -20,6 +20,8 @@ export default function MyPage() {
     businessPhone: ''
   });
 
+  const [stockType, setStockType] = useState("1");
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -31,6 +33,12 @@ export default function MyPage() {
     console.log('저장된 데이터:', formData);
     alert('저장되었습니다.');
   };
+
+  const handleStockType = (e) => {
+    const {value} = e.target;
+
+    setStockType(value);
+  }
 
   return (
 
@@ -53,36 +61,39 @@ export default function MyPage() {
             <h2 className="my-page-stock-section-title">기본정보</h2>
 
             <div className="my-page-stock-form-group">
+
               <div className="my-page-stock-input-row">
                 <label className="my-page-stock-input-label">매물유형</label>
-                <select className="my-page-stock-input-field">
-                  <option value="1">아파트</option>
-                  <option value="2">빌라</option>
-                  <option value="3">오피스텔</option>
+                <select onChange={handleStockType} className="my-page-stock-input-field">
+                  <option value="0">매매</option>
+                  <option value="1">전세</option>
+                  <option value="2">월세</option>
                 </select>
               </div>
 
-              <div className="my-page-stock-input-row">
-                <label className="my-page-stock-input-label">가격</label>
+              {stockType === "0" && (
+                <>
+                <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">매매가</label>
                 <input 
                   type="text"
-                  placeholder="가격을 입력해주세요"
+                  placeholder="매매가를 입력해주세요"
                   className="my-page-stock-input-field"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
                 />
               </div>
               
-            <div className="my-page-stock-input-row">
-              <label className="my-page-stock-input-label">매물명</label>
-              <input 
-                type="text"
-                placeholder="매물명을 입력해주세요"
-                className="my-page-stock-input-field"
-                value={formData.responsibility}
-                onChange={(e) => handleInputChange('responsibility', e.target.value)}
-              />
-            </div>
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">매물명</label>
+                <input
+                  type="text"
+                  placeholder="매물명을 입력해주세요"
+                  className="my-page-stock-input-field"
+                  value={formData.responsibility}
+                  onChange={(e) => handleInputChange('responsibility', e.target.value)}
+                />
+              </div>
 
               <div className="my-page-stock-input-row">
                 <label className="my-page-stock-input-label">요약정보</label>
@@ -94,6 +105,95 @@ export default function MyPage() {
                   onChange={(e) => handleInputChange('title', e.target.value)}
                 />
               </div>
+                </>
+              )}
+              
+              {stockType === "1" && (
+                <>
+                <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">전세가</label>
+                <input 
+                  type="text"
+                  placeholder="전세가를 입력해주세요"
+                  className="my-page-stock-input-field"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                />
+              </div>
+              
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">매물명</label>
+                <input
+                  type="text"
+                  placeholder="매물명을 입력해주세요"
+                  className="my-page-stock-input-field"
+                  value={formData.responsibility}
+                  onChange={(e) => handleInputChange('responsibility', e.target.value)}
+                />
+              </div>
+
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">요약정보</label>
+                <input 
+                  type="text"
+                  placeholder="요약정보를 입력해주세요"
+                  className="my-page-stock-input-field"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                />
+              </div>
+                </>
+              )}
+              
+              {stockType === "2" && (
+                <>
+                <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">보증금</label>
+                <input 
+                  type="text"
+                  placeholder="보증금을 입력해주세요"
+                  className="my-page-stock-input-field"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                />
+              </div>
+
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">월세가</label>
+                <input 
+                  type="text"
+                  placeholder="월세가를 입력해주세요"
+                  className="my-page-stock-input-field"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                />
+              </div>
+              
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">매물명</label>
+                <input
+                  type="text"
+                  placeholder="매물명을 입력해주세요"
+                  className="my-page-stock-input-field"
+                  value={formData.responsibility}
+                  onChange={(e) => handleInputChange('responsibility', e.target.value)}
+                />
+              </div>
+
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label">요약정보</label>
+                <input 
+                  type="text"
+                  placeholder="요약정보를 입력해주세요"
+                  className="my-page-stock-input-field"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                />
+              </div>
+                </>
+              )}
+
+
             </div>
           </div>
 
