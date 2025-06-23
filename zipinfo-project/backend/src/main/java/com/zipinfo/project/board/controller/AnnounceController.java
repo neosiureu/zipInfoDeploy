@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/board")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "http://localhost:5173")  // Vite 개발서버 주소(프론트 주소)
 public class AnnounceController {
 
     private final AnnounceService service;

@@ -309,3 +309,62 @@ tbody tr {
 .overflow-x-auto::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+.advertisement-button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem; /* 위쪽 여백 */
+}
+
+.uploaded-files-container {
+  background-color: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+}
+
+.uploaded-file-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.uploaded-file-item:last-child {
+  border-bottom: none;
+}
+
+.file-name {
+  flex-grow: 1;
+  font-weight: 500;
+  color: #374151;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  margin-left: 0.75rem;
+  transition: color 0.2s ease-in-out;
+}
+
+.icon-button.save {
+  color: #10b981; /* 초록색 */
+}
+
+.icon-button.save:hover {
+  color: #059669;
+}
+
+.icon-button.delete {
+  color: #dc2626; /* 빨간색 */
+}
+
+.icon-button.delete:hover {
+  color: #b91c1c;
+}
+
+.no-files-text {
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
+}

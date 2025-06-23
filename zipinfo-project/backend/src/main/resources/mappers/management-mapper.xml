@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zipinfo.project.admin.model.mapper.ManagementMapper">
+
+  <!-- 전체 회원 조회 (삭제되지 않은 회원) -->
+  <select id="selectAllMembers" resultType="com.zipinfo.project.member.model.dto.Member">
+  SELECT MEMBER_NO,
+         MEMBER_EMAIL,
+         MEMBER_NICKNAME,
+         MEMBER_NAME,
+         MEMBER_AUTH,
+         ENROLL_DATE,
+         MEMBER_DEL_FL
+  FROM MEMBER
+  WHERE MEMBER_DEL_FL = 'N'
+  ORDER BY MEMBER_NO DESC
+</select>
+
+  <!-- 삭제된 회원 조회 -->
+  <select id="selectDeletedMembers" resultType="com.zipinfo.project.member.model.dto.Member">
+    SELECT * FROM MEMBER WHERE MEMBER_DEL_FL = 'Y'
+  </select>
+
+  <!-- 중개인 권한 신청자 조회 (예: member_auth 컬럼이 특정 값) -->
+  <select id="selectBrokerApplications" resultType="com.zipinfo.project.admin.model.dto.BrokerApplicationDTO">
+  SELECT 
+    member_no, member_email, member_nickname, member_auth,
+    apply_status, apply_date
+  FROM MEMBER
+  WHERE member_auth = 2
+</select>
+
+  <!-- 중개인 신청 상태 변경 -->
+  <update id="updateBrokerApplicationStatus">
+    UPDATE MEMBER
+    SET apply_status = #{status}
+    WHERE member_no = #{memberNo}
+  </update>
+
+  <!-- 회원 권한 변경 -->
+  <update id="updateMemberAuth">
+    UPDATE MEMBER
+    SET member_auth = #{authId}
+    WHERE member_no = #{memberNo}
+  </update>
+
+  <!-- 회원 차단/차단해제 -->
+  <update id="toggleBlockMember">
+    UPDATE MEMBER
+    SET is_blocked = #{block}
+    WHERE member_no = #{memberNo}
+  </update>
+
+  <!-- 회원 삭제 (soft delete) -->
+  <update id="deleteMember">
+    UPDATE MEMBER
+    SET member_del_fl = 'Y'
+    WHERE member_no = #{memberNo}
+  </update>
+
+  <!-- 회원 복원 -->
+  <update id="restoreMember">
+    UPDATE MEMBER
+    SET member_del_fl = 'N'
+    WHERE member_no = #{memberNo}
+  </update>
+
+</mapper>

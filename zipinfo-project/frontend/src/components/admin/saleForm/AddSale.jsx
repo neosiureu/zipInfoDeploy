@@ -40,15 +40,39 @@ const AddSale = () => {
 
   useEffect(() => {
     const contract = parseInt(form.contractRate) || 0;
-    const interim = parseInt(form.interimRate) || 0;
+
     if (contract > 0) {
       const interimOptions = [];
       for (let i = 10; i <= 100 - contract; i += 10) {
         interimOptions.push(i);
       }
       setAvailableInterimRates(interimOptions);
+
+      // 현재 interimRate가 허용 가능한 값이 아니면 초기화
+      const currentInterim = parseInt(form.interimRate) || 0;
+      if (!interimOptions.includes(currentInterim)) {
+        setForm((prev) => ({
+          ...prev,
+          interimRate: "",
+          interimAmount: "",
+        }));
+      }
     } else {
       setAvailableInterimRates([]);
+      setForm((prev) => ({
+        ...prev,
+        interimRate: "",
+        interimAmount: "",
+      }));
+    }
+
+    // 계약금이 100%면 중도금도 자동 제거
+    if (contract === 100) {
+      setForm((prev) => ({
+        ...prev,
+        interimRate: "",
+        interimAmount: "",
+      }));
     }
   }, [form.contractRate]);
 
@@ -174,7 +198,7 @@ const AddSale = () => {
     }
 
     try {
-      const response = await fetch("/admin/add", {
+      const response = await fetch("/admin/addSale", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

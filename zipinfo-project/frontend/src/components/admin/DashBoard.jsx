@@ -1,26 +1,10 @@
-import {
-  NavLink,
-  Route,
-  Routes,
-  useNavigate,
-  Navigate,
-} from "react-router-dom";
+// src/components/admin/DashBoard.jsx
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "./AuthContext";
 
-// ... 이하 생략
-
-// 각 컴포넌트 import
-import Chart from "./Chart";
-import Management from "./Management";
-import Inquiry from "./Inquiry";
-import Advertisement from "./Advertisement";
-import ListSale from "./saleForm/ListSale";
-import AddSale from "./saleForm/AddSale";
-
 import "../../css/admin/DashBoard.css";
 
-// 공통 헤더, 푸터 import (경로는 프로젝트 구조에 맞게 수정하세요)
 import Header from "../common/Header";
 import Footer from "../common/Footer";
 
@@ -29,7 +13,7 @@ export default function DashBoard() {
   const navigate = useNavigate();
 
   const goDashBoardMain = () => {
-    navigate("/"); // SPA 방식으로 이동
+    navigate("/admin"); // 관리자 메인 페이지로 이동
   };
 
   return (
@@ -44,11 +28,37 @@ export default function DashBoard() {
         </div>
 
         <div className="router-tab-box">
-          <NavLink to="/admin">통계</NavLink>
-          <NavLink to="/admin/management">서비스관리 권한 발급</NavLink>
-          <NavLink to="/admin/inquiry">문의 확인</NavLink>
-          <NavLink to="/admin/advertisement">광고 관리</NavLink>
-          <NavLink to="/admin/list-sale">분양 관리</NavLink>
+          <NavLink
+            to="/admin"
+            end
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            통계
+          </NavLink>
+          <NavLink
+            to="/admin/management"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            서비스관리 권한 발급
+          </NavLink>
+          <NavLink
+            to="/admin/inquiry"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            문의 확인
+          </NavLink>
+          <NavLink
+            to="/admin/advertisement"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            광고 관리
+          </NavLink>
+          <NavLink
+            to="/admin/list-sale"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            분양 관리
+          </NavLink>
         </div>
 
         <div className="admin-info">
@@ -62,15 +72,8 @@ export default function DashBoard() {
           )}
         </div>
 
-        <Routes>
-          <Route index element={<Chart />} />
-          <Route path="/admin/*" element={<DashBoard />} />
-          <Route path="management" element={<Management />} />
-          <Route path="inquiry" element={<Inquiry />} />
-          <Route path="advertisement" element={<Advertisement />} />
-          <Route path="list-sale" element={<ListSale />} />
-          <Route path="add-sale" element={<AddSale />} />
-        </Routes>
+        {/* 중첩 라우트 컴포넌트 렌더링 자리 */}
+        <Outlet />
       </div>
 
       <Footer />

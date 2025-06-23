@@ -6,8 +6,8 @@ import {
   fetchPostById,
   updatePostWithImage,
   createPostWithImage,
-} from "./AnnounceApi"; // API 함수 임포트
-import "../../css/announce/AnnounceWrite.css"; // CSS 경로 변경
+} from "./AnnounceApi";
+import "../../css/announce/AnnounceWrite.css";
 
 import Header from "../common/Header";
 import Footer from "../common/Footer";
@@ -19,14 +19,30 @@ const AnnounceWrite = () => {
 
   const isEdit = location.state?.id !== undefined;
 
-  const [id, setId] = useState(location.state?.id || null);
   const [title, setTitle] = useState(location.state?.title || "");
   const [content, setContent] = useState(location.state?.content || "");
   const [images, setImages] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
 
   const fileInputRef = useRef(null);
-  const isAdmin = user && (user.memberAuth === 0 || user.memberAuth === "0");
+
+  // 디버깅용 콘솔 출력
+  console.log("로그인 사용자 정보:", user);
+
+  // 권한 체크 함수
+  const checkAdmin = (user) => {
+    if (!user) return false;
+
+    return (
+      user.memberAuth === 0 ||
+      user.memberAuth === "0" ||
+      user.role === "ADMIN" ||
+      user.authority === "ADMIN" ||
+      user.roles?.includes("ROLE_ADMIN")
+    );
+  };
+
+  const isAdmin = checkAdmin(user);
 
   useEffect(() => {
     if (isEdit && location.state?.images?.length) {
@@ -58,9 +74,9 @@ const AnnounceWrite = () => {
 
     try {
       if (isEdit) {
-        await updatePostWithImage(id, formData);
+        await updatePostWithImage(location.state.id, formData);
         alert("공지사항이 수정되었습니다.");
-        navigate(`/announce/detail/${id}`);
+        navigate(`/announce/detail/${location.state.id}`);
       } else {
         const newPost = await createPostWithImage(formData);
         alert("공지사항이 등록되었습니다.");
