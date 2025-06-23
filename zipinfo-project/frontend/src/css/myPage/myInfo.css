@@ -119,24 +119,24 @@
   .my-page-container {
     padding: 1rem 0.5rem;
   }
-  
+
   .my-page-tab-container {
     flex-wrap: wrap;
     gap: 0.25rem;
   }
-  
+
   .my-page-tab-button {
     flex: 1;
     min-width: auto;
     padding: 0.5rem 0.75rem;
     font-size: 0.75rem;
   }
-  
+
   .my-page-profile-card {
     margin: 0 0.5rem;
     padding: 1.5rem;
   }
-  
+
   .my-page-page-title h1 {
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
@@ -148,12 +148,12 @@
     padding: 0.5rem;
     font-size: 0.7rem;
   }
-  
+
   .my-page-profile-card {
     padding: 1rem;
   }
-  
+
   .my-page-profile-info {
     gap: 1rem;
   }
-} 
+}

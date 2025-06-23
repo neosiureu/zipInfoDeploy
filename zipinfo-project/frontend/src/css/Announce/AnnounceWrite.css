@@ -6,7 +6,6 @@
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   min-height: calc(100vh - 300px); /* 조금 더 줄임 */
   box-sizing: border-box; /* 패딩 포함 계산 */
 }

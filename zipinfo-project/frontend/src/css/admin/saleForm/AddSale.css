@@ -30,8 +30,8 @@
   margin-right: 10px;
 }
 
-.sale-form-label.required:before {
-  content: "* ";
+.sale-form-label.required:after {
+  content: " *";
   color: #ff0000;
   font-weight: bold;
 }
