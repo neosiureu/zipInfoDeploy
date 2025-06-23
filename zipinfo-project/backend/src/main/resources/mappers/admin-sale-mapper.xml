@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zipinfo.project.admin.model.mapper.AdminSaleMapper">
+	
+	<!-- 분양 매물 조회 서비스 -->
+	<select id="selectSaleList">
+	SELECT
+	  SALE_STOCK_NO,
+	  MEMBER_NO,
+	  SALE_STOCK_FORM,
+	  SALE_STOCK_NAME,
+	  SALE_PRICE,
+	  SALE_STATUS,
+	  SALE_ADDRESS,
+	  SCALE,
+	  TO_CHAR(APPLICATION_START_DATE, 'YYYY-MM-DD') AS APPLICATION_START_DATE,
+	  TO_CHAR(APPLICATION_END_DATE, 'YYYY-MM-DD') AS APPLICATION_END_DATE,
+	  TO_CHAR(ANNOUNCEMENT_DATE, 'YYYY-MM-DD') AS ANNOUNCEMENT_DATE,
+	  COMPANY,
+	  CONTACT_INFO,
+	  ACQUISITION_TAX,
+	  SALE_SUPPLY_AREA,
+	  SALE_EXCLUSIVE_AREA,
+	  SALE_ROOM_COUNT,
+	  SALE_BATHROOM_COUNT,
+	  DEPOSIT,
+	  MIDDLE_PAYMENT,
+	  BALANCE_PAYMENT,
+	  REGION_NO
+	FROM SALE_INFO
+	</select>
+	
+</mapper>

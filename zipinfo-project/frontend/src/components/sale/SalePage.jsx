@@ -6,7 +6,12 @@ import saleThumbnail from "../../assets/sale-page-thumbnail.svg"; // 썸네일 �
 import floor from "../../assets/floor.svg"; // 평면도 이미지 추가
 import warning from "../../assets/circle_warning.svg"; // 미검색 결과 아이콘
 
+import { useNavigate, useParams } from "react-router-dom";
+
 const SalePage = () => {
+  // URL에서 매물 번호 받기
+  const { saleStockNo } = useParams();
+
   // 카카오 API 세팅
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null); //생성한 map instance를 저장 -- const map = new window.kakao.maps.Map(container, options);
@@ -25,6 +30,9 @@ const SalePage = () => {
   const [searchSaleStatus, setSaleStatus] = useState(-1);
   const [searchSaleType, setSearchSaleType] = useState(-1);
 
+  // 상세 디테일 페이지를 URL로 연결할 변수
+  const navigate = useNavigate();
+
   // 분양가 표기 함수
   const formatPrice = (price) => {
     if (!price || isNaN(price)) return "";
@@ -39,11 +47,25 @@ const SalePage = () => {
     return num.toLocaleString();
   };
 
+  // 날짜 데이터 변환 함수
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toISOString().slice(0, 10); // 'YYYY-MM-DD'
+  };
+
   // 매물 형태 매핑
   const stockFormMap = {
     1: "아파트",
-    2: "주택/빌라",
+    2: "빌라",
     3: "오피스텔",
+  };
+
+  // 분양 상태 매핑
+  const status = {
+    1: "분양예정",
+    2: "분양중",
+    3: "분양완료",
   };
 
   useEffect(() => {
@@ -90,6 +112,19 @@ const SalePage = () => {
     }
   }, []);
 
+  // useEffect : URL에 매물 번호가 있을 경우 자동 상세 정보 열기
+  useEffect(() => {
+    if (saleStockNo && stockList.length > 0) {
+      const selected = stockList.find(
+        (item) => item.saleStockNo === Number(saleStockNo)
+      );
+      if (selected) {
+        setIsAsideVisible(true);
+        setClickedStockItem(selected);
+      }
+    }
+  }, [saleStockNo, stockList]);
+
   useEffect(() => {
     updateMarker();
   }, [stockList]); // stockList(맨 왼쪽에 있는 매물 Item들을 저장하는 state변수), searchLocationCode(검색창SearchBox에서 선택한 지역을 저장하는 state변수)
@@ -124,9 +159,25 @@ const SalePage = () => {
         )}</strong></div>
       </div>
     `;
+
+      const overlayDiv = document.createElement("div");
+      overlayDiv.innerHTML = `
+        <div class="custom-overlay">
+          <div class="area">${item.saleSupplyArea}㎡</div>
+          <div class="label">분양가 <strong>${formatPrice(
+            item.salePrice
+          )}</strong></div>
+        </div>
+      `;
+
+      overlayDiv.addEventListener("click", () => {
+        setIsAsideVisible(true);
+        setClickedStockItem(item);
+      });
+
       const customOverlay = new window.kakao.maps.CustomOverlay({
         position,
-        content,
+        content: overlayDiv,
         yAnchor: 1,
       });
       customOverlay.setMap(map);
@@ -137,6 +188,7 @@ const SalePage = () => {
   const handleItemClick = (item) => {
     setIsAsideVisible(true);
     setClickedStockItem(item);
+    navigate(`/sale/${item.saleStockNo}`);
   };
 
   const closeStockDetail = () => {
@@ -151,12 +203,14 @@ const SalePage = () => {
       <>
         <div className="sale-header">
           <div className="sale-title">
-            <div className="sale-detail-type">아파트</div>
-            <div className="sale-detail-name">아크로서울포레스트아파트</div>
-            <div className="sale-price">
-              <span>분양가</span> 10억 9,000
+            <div className="sale-detail-type">
+              {stockFormMap[item.saleStockForm]}
             </div>
-            <div className="sale-detail-status">분양상태</div>
+            <div className="sale-detail-name">{item.saleStockName}</div>
+            <div className="sale-price">
+              <span>분양가</span> {formatPrice(item.salePrice)}
+            </div>
+            <div className="sale-detail-status">{status[item.saleStatus]}</div>
           </div>
         </div>
 
@@ -169,27 +223,30 @@ const SalePage = () => {
               <tbody>
                 <tr>
                   <td>분양주소</td>
-                  <td>서울시 강동구 성내동 459-3</td>
+                  <td>{item.saleAddress}</td>
                 </tr>
                 <tr>
                   <td>규모</td>
-                  <td>15-16층, 1개동, 총 58세대 / 일반분양 9세대</td>
+                  <td>{item.scale}</td>
                 </tr>
                 <tr>
                   <td>청약접수</td>
-                  <td>25.06.09 ~ 25.06.10</td>
+                  <td>
+                    {formatDate(item.applicationStartDate)} ~{" "}
+                    {formatDate(item.applicationEndDate)}
+                  </td>
                 </tr>
                 <tr>
                   <td>당첨자발표</td>
-                  <td>25.06.13</td>
+                  <td>{formatDate(item.announcementDate)}</td>
                 </tr>
                 <tr>
                   <td>건설사</td>
-                  <td>에스테크건설(주), (주)이엔건설</td>
+                  <td>{item.company}</td>
                 </tr>
                 <tr>
                   <td>분양문의</td>
-                  <td>02-1234-1234</td>
+                  <td>{item.contactInfo}</td>
                 </tr>
               </tbody>
             </table>
@@ -215,27 +272,26 @@ const SalePage = () => {
               <tbody>
                 <tr>
                   <td>분양가</td>
-                  <td>10억 9,000</td>
+                  <td>{formatPrice(item.salePrice)}만원</td>
                 </tr>
                 <tr>
                   <td>취득세</td>
-                  <td>3,597만원</td>
+                  <td>{formatPrice(item.acquisitionTax)}만원</td>
                 </tr>
                 <tr>
                   <td>공급면적</td>
-                  <td>70.02㎡</td>
+                  <td>{item.saleSupplyArea}㎡</td>
                 </tr>
                 <tr>
                   <td>전용면적</td>
-                  <td>52.02㎡</td>
+                  <td>{item.saleExclusiveArea}㎡</td>
                 </tr>
-                <tr>
-                  <td>대지지분</td>
-                  <td>28.11㎡</td>
-                </tr>
+
                 <tr>
                   <td>방/욕실수</td>
-                  <td>3개 / 2개</td>
+                  <td>
+                    {item.saleRoomCount} / {item.saleBathroomCount}개
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -300,7 +356,7 @@ const SalePage = () => {
                   <div className="sale-address">
                     {item.saleSupplyArea}㎡ | {item.saleAddress}
                   </div>
-                  <div className="sale-status">분양상태</div>
+                  <div className="sale-status">{status[item.saleStatus]}</div>
                 </div>
               </div>
               <div className="sale-divider" />

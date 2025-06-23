@@ -1,41 +1,47 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../../css/admin/saleForm/ListSale.css";
+import { axiosAPI } from "../../../api/axiosApi";
 
-const Advertisement = () => {
+import { Link } from "react-router-dom";
+
+const ListSale = () => {
   const navigate = useNavigate();
   const [adminName] = useState("홍길동");
   const [adminId] = useState("admin01");
-  const [ads, setAds] = useState([
-    {
-      id: 1,
-      name: "썸머힐 아파트",
-      type: "아파트",
-      author: "관리자1",
-      date: "2025-06-16",
-    },
-    {
-      id: 2,
-      name: "그린빌 주택",
-      type: "주택/빌라",
-      author: "관리자2",
-      date: "2025-06-15",
-    },
-    {
-      id: 3,
-      name: "럭셔리 오피스텔",
-      type: "오피스텔",
-      author: "관리자1",
-      date: "2025-06-14",
-    },
-  ]);
+
+  const [saleList, setSaleList] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axiosAPI.get("/admin/selectSaleList");
+        setSaleList(response.data); // DB에서 불러온 매물 목록
+      } catch (error) {
+        console.error("분양 매물 목록 불러오기 실패:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleDelete = (id) => {
-    setAds((prev) => prev.filter((ad) => ad.id !== id));
+    setSaleList((prev) => prev.filter((sale) => sale.saleStockNo !== id));
   };
 
   const handleUpdate = () => {
     navigate("/admin/add-sale");
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    return dateString.split("T")[0]; // yyyy-MM-dd 형식으로 자르기
+  };
+
+  const saleTypeMap = {
+    1: "아파트",
+    2: "주택/빌라",
+    3: "오피스텔",
   };
 
   return (
@@ -56,36 +62,55 @@ const Advertisement = () => {
         <table className="w-full text-sm text-left table-auto">
           <thead className="bg-gray-200">
             <tr>
-              <th className="p-3">매물번호</th>
-              <th className="p-3">매물유형</th>
-              <th className="p-3">매물명</th>
-              <th className="p-3">작성자</th>
-              <th className="p-3">날짜</th>
-              <th className="p-3">삭제</th>
+              <th className="p-3 text-center">매물번호</th>
+              <th className="p-3 text-center">매물유형</th>
+              <th className="p-3 text-center">매물명</th>
+              <th className="p-3 text-center">작성자</th>
+              <th className="p-3 text-center">작성일</th>
+              <th className="p-3 text-center">삭제</th>
             </tr>
           </thead>
           <tbody>
-            {ads.map((ad) => (
-              <tr key={ad.id} className="border-t">
-                <td className="p-3 text-center">{ad.id}</td>
-                <td className="p-3 text-center type-name-cell">{ad.type}</td>
-                <td className="p-3 text-center sale-name-cell">{ad.name}</td>
-                <td className="p-3 text-center">{ad.author}</td>
-                <td className="p-3 text-center">{ad.date}</td>
-                <td className="p-3 text-center">
-                  <button
-                    className="px-3 py-1 bg-red-500 text-white rounded"
-                    onClick={() => handleDelete(ad.id)}
-                  >
-                    삭제
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {ads.length === 0 && (
+            {saleList.length > 0 ? (
+              saleList.map((sale) => (
+                <tr key={sale.saleStockNo} className="border-t">
+                  <td className="p-3 text-center">
+                    <Link
+                      to={`/sale/${sale.saleStockNo}`}
+                      className="text-blue-600 underline hover:text-blue-800"
+                    >
+                      {sale.saleStockNo}
+                    </Link>
+                  </td>
+                  <td className="p-3 text-center">
+                    {saleTypeMap[sale.saleStockForm] || "기타"}
+                  </td>
+                  <td className="p-3 text-center">
+                    <Link
+                      to={`/sale/${sale.saleStockNo}`}
+                      className="text-blue-600 underline hover:text-blue-800"
+                    >
+                      {sale.saleStockName}
+                    </Link>
+                  </td>
+                  <td className="p-3 text-center">{sale.company}</td>
+                  <td className="p-3 text-center">
+                    {formatDate(sale.announcementDate)}
+                  </td>
+                  <td className="p-3 text-center">
+                    <button
+                      className="px-3 py-1 bg-red-500 text-white rounded"
+                      onClick={() => handleDelete(sale.saleStockNo)}
+                    >
+                      삭제
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
               <tr>
                 <td colSpan="6" className="text-center p-4 text-gray-500">
-                  등록된 광고가 없습니다.
+                  등록된 매물이 없습니다.
                 </td>
               </tr>
             )}
@@ -105,4 +130,4 @@ const Advertisement = () => {
   );
 };
 
-export default Advertisement;
+export default ListSale;

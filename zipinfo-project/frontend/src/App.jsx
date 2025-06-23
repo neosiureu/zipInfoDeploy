@@ -61,7 +61,11 @@ function App() {
               />
               <Route path="myPage/withDraw" element={<WithDraw />} />
 
-              {/* 공지사항 */}
+              {/* 분양페이지 */}
+              <Route path="/sale/:saleStockNo" element={<SalePage />} />
+
+              {/* 📢 공지사항 (Announce) */}
+
               <Route path="announce" element={<Announce />} />
               <Route path="announce/detail/:id" element={<AnnounceDetail />} />
               <Route path="announce/write" element={<AnnounceWrite />} />
