@@ -3,7 +3,6 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  font-family: Pretendard, sans-serif;
   min-height: calc(100vh - 300px); /* 조금 더 줄임 */
   box-sizing: border-box; /* 패딩 포함 계산 */
 }

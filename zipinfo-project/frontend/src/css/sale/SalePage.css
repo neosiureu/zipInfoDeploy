@@ -3,15 +3,32 @@
   height: calc(100vh - 60px);
   width: 100%;
   overflow: hidden;
+  position: relative; /* close-button 포지셔닝 기준 */
 }
 
+/* 리스트/상세 공통 패널 */
 .sale-side-panel {
-  width: 480px;
+  width: 448px;
   height: 100%;
   background: #fff;
   overflow-y: auto;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03);
+  z-index: 10;
 }
 
+.sale-list-item {
+  border-bottom: 1px solid #dbdbdb; /* 리스트 구분선 */
+  margin-bottom: 16px; /* 항목 간 간격 */
+}
+
+/* 상세 패널 구분을 위한 클래스 (z-index만 강조용) */
+.detail-panel {
+  position: relative;
+  z-index: 10;
+  border-left: 1px solid #dbdbdb; /* ← 좌측 구분선 추가 */
+}
+
+/* 지도 영역 */
 .map-area {
   flex: 1;
   width: 100%;
@@ -26,12 +43,36 @@
   overflow: hidden;
 }
 
+/* 닫기 버튼 */
+.close-button {
+  position: absolute;
+  top: 12px;
+  left: calc(448px * 2 + 12px); /* 패널 2개 너비 + 여백 */
+  z-index: 20;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* 반응형 처리 필요 시 (예시) */
+@media (max-width: 1400px) {
+  .close-button {
+    left: calc(100vw - 36px - 12px);
+  }
+}
+
 /* 상단 분양 정보 */
 .sale-header {
   display: flex;
   gap: 12px;
   align-items: center;
-  margin: 18px 48px;
+  margin: 16px 48px;
+  cursor: pointer;
 }
 
 .sale-img {
@@ -52,6 +93,20 @@
   font-size: 14px;
   font-weight: 600;
   color: #767676;
+  line-height: 24px;
+}
+
+.sale-detail-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: #111;
+  line-height: 24px;
+}
+
+.sale-detail-type {
+  font-size: 16px;
+  color: #111;
+  font-weight: 500;
   line-height: 24px;
 }
 
@@ -81,6 +136,13 @@
   line-height: 24px;
 }
 
+.sale-detail-status {
+  font-size: 14px;
+  color: #767676;
+  margin-top: 8px;
+  line-height: 24px;
+}
+
 /* 섹션 공통 */
 .sale-section {
   display: flex;
@@ -107,7 +169,7 @@
   line-height: 24px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 /* 표 스타일 - SalePage 전용 */
@@ -158,6 +220,73 @@
   margin-bottom: 240px;
 }
 
+/* 숨김처리용 클래스 */
 .hidden {
   display: none !important;
+}
+
+.no-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 80px;
+  text-align: center;
+  color: #111;
+  font-size: 16px;
+  gap: 12px; /* 이미지와 텍스트 간격 */
+}
+
+.no-result img {
+  width: 48px;
+  height: 48px;
+}
+
+/* 커스텀 오버레이 마커 스타일 */
+.custom-overlay {
+  background: white;
+  border: 2px solid #495cf8;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+  position: relative;
+  display: inline-block;
+}
+
+.custom-overlay::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 10px 6px 0;
+  border-style: solid;
+  border-color: #495cf8 transparent transparent transparent;
+}
+
+.custom-overlay .area {
+  background: #495cf8;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px 6px 0 0;
+  font-weight: 400;
+}
+
+.custom-overlay .label {
+  color: #495cf8;
+  padding: 4px 8px;
+  display: flex;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  gap: 4px;
+}
+
+.custom-overlay .label strong {
+  color: #111;
+  font-weight: 700;
 }

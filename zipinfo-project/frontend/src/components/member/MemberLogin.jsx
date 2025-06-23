@@ -94,7 +94,7 @@ export default function MemberLogin() {
               id="email"
               name="email"
               type="email"
-              placeholder="회원아이디@"
+              placeholder="이메일을 입력해주세요"
               className="form-input"
               value={formData.email}
               onChange={handleChange}
@@ -109,7 +109,7 @@ export default function MemberLogin() {
               id="password"
               name="password"
               type="password"
-              placeholder="비밀번호 입력"
+              placeholder="비밀번호를 입력해주세요"
               className="form-input"
               value={formData.password}
               onChange={handleChange}

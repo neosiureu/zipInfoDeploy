@@ -41,11 +41,11 @@ a {
   font-weight: 600;
   margin-right: 24px;
   cursor: pointer;
-  color: #505050;
+  color: #111;
 }
 
-.menu li:first-child {
-  color: #111111;
+.menu li:hover {
+  color: #495cf8;
 }
 
 .menu li:last-child {
