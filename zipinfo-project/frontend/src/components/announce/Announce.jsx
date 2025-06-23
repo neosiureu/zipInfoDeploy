@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { fetchPosts, deletePost } from "./AnnounceApi"; // API 함수 임포트
+import { fetchPosts } from "./AnnounceApi";
 import Pagination from "../common/Pagination";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../admin/AuthContext";
@@ -7,43 +7,49 @@ import "../../css/announce/Announce.css";
 
 const Announce = () => {
   const [posts, setPosts] = useState([]);
-  const [pageInfo, setPageInfo] = useState({ currentPage: 0, totalPages: 0 });
+  const [pageInfo, setPageInfo] = useState({ currentPage: 0, totalPages: 1 });
   const [keyword, setKeyword] = useState("");
+
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
-  const authContext = useContext(AuthContext);
-  const user = authContext?.user || null;
-  console.log("user 전체:", user); // 여기에 memberAuth가 제대로 들어있는지
-  const isAdmin = user && (user.memberAuth === 0 || user.authority === 0);
+  // 권한 체크 함수 (memberAuth, role, roles 필드가 다양하게 올 수 있으니 안전하게 처리)
+  const checkAdmin = (user) => {
+    if (!user) return false;
+    const memberAuth = user.memberAuth ?? user.member_auth ?? null;
+    const role = user.role ?? null;
+    const roles = user.roles ?? [];
+    return (
+      memberAuth === 0 ||
+      memberAuth === "0" ||
+      role === "ADMIN" ||
+      roles.includes("ROLE_ADMIN")
+    );
+  };
 
-  console.log("Auth user:", user);
-  console.log("isAdmin?", isAdmin);
+  const isAdmin = checkAdmin(user);
 
-  const loadPosts = async (page) => {
+  // 디버깅용: user와 isAdmin 값 출력
+  useEffect(() => {
+    console.log("현재 user:", user);
+    console.log("isAdmin:", isAdmin);
+  }, [user, isAdmin]);
+
+  // 공지사항 목록 로딩
+  const loadPosts = async (page = 0) => {
     try {
       const data = await fetchPosts(page, 10, keyword);
-      setPosts(data.content || []);
-      setPageInfo({
-        currentPage: data.number ?? 0,
-        totalPages: data.totalPages ?? 0,
-      });
+      console.log("fetchPosts 결과:", data);
+      setPosts(data || []);
+      setPageInfo({ currentPage: page, totalPages: 1 }); // TODO: API가 totalPages 응답 시 반영
     } catch (error) {
       console.error("공지사항 불러오기 실패", error);
       setPosts([]);
-      setPageInfo({ currentPage: 0, totalPages: 0 });
     }
   };
 
   const handleSearch = () => {
     loadPosts(0);
-  };
-
-  // 삭제 함수 유지 가능 (수정/삭제 버튼 UI가 없으면 호출 안 됨)
-  const handleDelete = async (id) => {
-    if (window.confirm("정말 삭제하시겠습니까?")) {
-      await deletePost(id);
-      loadPosts(pageInfo.currentPage);
-    }
   };
 
   useEffect(() => {
@@ -71,37 +77,41 @@ const Announce = () => {
             <th>제목</th>
             <th>작성자</th>
             <th>작성일</th>
-            {/* 수정/삭제 버튼 관련 th 제거 */}
+            {/* 관리(삭제) 컬럼 제거 */}
           </tr>
         </thead>
         <tbody>
           {Array.isArray(posts) && posts.length > 0 ? (
-            posts.map((post) => (
-              <tr key={post.id ?? post.boardNo}>
-                <td>{post.id ?? post.boardNo ?? "N/A"}</td>
-                <td
-                  className="announce-title"
-                  onClick={() =>
-                    navigate(`/announce/detail/${post.id ?? post.boardNo}`)
-                  }
-                  style={{ cursor: "pointer" }}
-                >
-                  {post.title ?? "제목 없음"}
-                </td>
-                <td>{post.author ?? post.writer ?? "작성자 없음"}</td>
-                <td>
-                  {post.createdAt
-                    ? new Date(post.createdAt).toLocaleDateString()
-                    : post.createDate
-                    ? new Date(post.createDate).toLocaleDateString()
-                    : "날짜 없음"}
-                </td>
-                {/* 수정/삭제 버튼 관련 td 제거 */}
-              </tr>
-            ))
+            posts.map((post) => {
+              const id = post.id ?? post.boardNo;
+              const title = post.title ?? "제목 없음";
+              const author = post.author ?? post.writer ?? "작성자 없음";
+              const date =
+                post.createdAt || post.createDate
+                  ? new Date(
+                      post.createdAt || post.createDate
+                    ).toLocaleDateString()
+                  : "날짜 없음";
+
+              return (
+                <tr key={id}>
+                  <td>{id}</td>
+                  <td
+                    className="announce-title"
+                    onClick={() => navigate(`/announce/detail/${id}`)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {title}
+                  </td>
+                  <td>{author}</td>
+                  <td>{date}</td>
+                  {/* 삭제 버튼 제거 */}
+                </tr>
+              );
+            })
           ) : (
             <tr>
-              <td colSpan="4" style={{ textAlign: "center" }}>
+              <td colSpan={4} style={{ textAlign: "center" }}>
                 게시글이 없습니다.
               </td>
             </tr>

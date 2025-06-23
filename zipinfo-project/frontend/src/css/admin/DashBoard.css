@@ -120,10 +120,16 @@
   transition: all 0.3s;
 }
 
-/* Link 태그는 html상 a태그 */
+.router-tab-box a:hover {
+  background-color: #0158b5; /* hover 시 파란색 */
+  color: #fff;
+  cursor: pointer;
+}
+
 .router-tab-box a.active {
   color: #fff;
-  background-color: #007bff;
+  background-color: #007bff; /* 활성화 상태 */
+  font-weight: bold;
 }
 
 .statistics-section {

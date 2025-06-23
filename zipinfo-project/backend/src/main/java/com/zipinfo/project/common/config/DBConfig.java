@@ -94,7 +94,7 @@ public class DBConfig {
 	
 	// 별칭을 지정해야하는 DTO가 모여있는 패키지 지정
 	// -> 해당 패키지에 있는 모든 클래스가 클래스명으로 별칭이 지정됨
-	sessionFactoryBean.setTypeAliasesPackage("kr.co.semi");
+	sessionFactoryBean.setTypeAliasesPackage("com.zipinfo.project.member.model.dto");
 	// -> edu.kh.todo 세팅 시 패키지 하위에 있는 모든 클래스가
 	// 	  클래스명으로 별칭이 지정됨.
 	// -> ex) edu.kh.todo.model.dto.Todo -> Todo (별칭 등록)
