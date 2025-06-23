@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.myPage.model.mapper.MyPageMapper;
+import com.zipinfo.project.stock.model.dto.Stock;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -96,5 +97,10 @@ public class MyPageServiceImpl implements MyPageService{
 	@Override
 	public int withDraw(Member loginMember) {
 		return mapper.withDraw(loginMember);
+	}
+	
+	@Override
+	public int addStock(Stock stock) {
+		return mapper.addStock(stock);
 	}
 }

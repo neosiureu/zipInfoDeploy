@@ -1,6 +1,7 @@
 package com.zipinfo.project.myPage.model.service;
 
 import com.zipinfo.project.member.model.dto.Member;
+import com.zipinfo.project.stock.model.dto.Stock;
 
 public interface MyPageService {
 
@@ -15,6 +16,8 @@ public interface MyPageService {
 	int checkNickname(Member loginMember, Member member);
 
 	int withDraw(Member loginMember);
+
+	int addStock(Stock stock);
 
 
 }

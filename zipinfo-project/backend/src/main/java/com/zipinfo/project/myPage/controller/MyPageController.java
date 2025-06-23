@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.myPage.model.service.MyPageService;
+import com.zipinfo.project.stock.model.dto.Stock;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -172,4 +173,23 @@ public class MyPageController {
 		
 	}
 	
+	@PostMapping("addStock")
+	public ResponseEntity<Object> addStock(HttpSession session, @RequestBody Stock stock){
+		
+		try {
+			
+			Member loginMember = (Member)session.getAttribute("loginMember");
+			
+			stock.setMemberNo(loginMember.getMemberNo());
+			
+			int result = service.addStock(stock);
+		
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(result); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+		
+	}
 }
