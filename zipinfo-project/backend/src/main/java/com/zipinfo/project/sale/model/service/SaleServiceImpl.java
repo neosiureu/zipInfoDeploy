@@ -21,8 +21,8 @@ public class SaleServiceImpl implements SaleService {
 	@Autowired
 	private SaleMapper mapper;
 	
-	/** 좌표 내부에 있는 매물들을 반환하는 함수.
-	 *
+	/**
+	 * 좌표와 함께 분양 매물 조회 서비스
 	 */
 	@Override
 	public List<Sale> getSaleListInRange(SaleSearchRequest result) {
@@ -40,4 +40,11 @@ public class SaleServiceImpl implements SaleService {
 		
 	}
 	
+//	/**
+//	 * 단일 분양 매물 조회 서비스
+//	 */
+//	@Override
+//	public Sale selectSaleDetail(int saleStockNo) {
+//		return mapper.selectSaleDetail(saleStockNo);
+//	}
 }

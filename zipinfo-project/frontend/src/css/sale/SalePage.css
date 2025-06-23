@@ -290,3 +290,9 @@
   color: #111;
   font-weight: 700;
 }
+
+.custom-overlay:hover {
+  cursor: pointer;
+  transform: scale(1.05);
+  transition: 0.2s;
+}

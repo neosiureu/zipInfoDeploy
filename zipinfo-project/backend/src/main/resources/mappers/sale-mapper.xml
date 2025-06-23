@@ -35,6 +35,7 @@
 	  <result property="lng" column="LNG"/>
 	</resultMap>
 	
+	<!-- 좌표와 함께 분양 매물 조회 -->
 	<select id="selectSaleInRange" resultMap="saleMap">
 	  SELECT coord.*, info.*
 	  FROM (
