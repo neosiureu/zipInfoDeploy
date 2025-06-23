@@ -60,7 +60,7 @@
 
 .my-page-stock-input-label {
   width: 100px;
-  font-size: 0.875rem;
+  font-size: 13px;
   color: #374151;
 }
 
@@ -83,7 +83,7 @@
   padding: 0.5rem 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.25rem;
-  font-size: 0.875rem;
+  font-size: 13px;
   height: 250px;
   resize: none;
 }

@@ -3,6 +3,7 @@ package com.zipinfo.project.myPage.model.mapper;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.zipinfo.project.member.model.dto.Member;
+import com.zipinfo.project.stock.model.dto.Stock;
 
 @Mapper
 public interface MyPageMapper {
@@ -24,5 +25,7 @@ public interface MyPageMapper {
 	int changeAuth(Member member);
 
 	int withDraw(Member loginMember);
+
+	int addStock(Stock stock);
 
 }
