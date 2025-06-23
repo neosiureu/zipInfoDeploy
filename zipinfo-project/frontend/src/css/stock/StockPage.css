@@ -22,11 +22,11 @@
 
 /* 왼쪽 정보패널 */
 .side-panel {
-  width: 410px;
+  width: 450px;
   height: 100%;
   background: #fff;
   border-right: 1px solid #e0e0e0;
-  padding: 18px 48px 0 48px; /* 좌우 여백 48px */
+  padding: 18px 16px 0 16px; /* 좌우 여백 48px */
   overflow-y: auto;
   /*slide 애니메이션*/
   transition: transform 0.7s ease-in-out;
@@ -68,22 +68,24 @@
 
 .stock-title {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  gap: 12px;
   /*margin-top: 10px;*/
+
+  align-items: center;
+  margin: 16px 2px;
+  cursor: pointer;
 
   padding: 10px 4px;
   border-bottom: 1px solid #f0f0f0;
   vertical-align: top;
   line-height: 24px;
 }
-.stock-title:hover {
-  background-color: #2d7be5;
-  border-radius: 2px;
-}
-.stock-title:hover * {
-  /* stock-title hover시 stock-title 내부 모든 자식들의 글자를 흰색으로 바꿈*/
-  color: #ffffff;
+.stock-img {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 .stock-name {
   font-size: 15px;
@@ -168,4 +170,53 @@ table tr:last-child td {
 .side-panel.hidden {
   transform: translateX(-200%);
   display: none;
+}
+
+/* 커스텀 오버레이 마커 스타일 */
+.custom-overlay {
+  background: white;
+  border: 2px solid #495cf8;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+  position: relative;
+  display: inline-block;
+}
+
+.custom-overlay::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 10px 6px 0;
+  border-style: solid;
+  border-color: #495cf8 transparent transparent transparent;
+}
+
+.custom-overlay .area {
+  background: #495cf8;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px 6px 0 0;
+  font-weight: 400;
+}
+
+.custom-overlay .label {
+  color: #495cf8;
+  padding: 4px 8px;
+  display: flex;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  gap: 4px;
+}
+
+.custom-overlay .label strong {
+  color: #111;
+  font-weight: 700;
 }

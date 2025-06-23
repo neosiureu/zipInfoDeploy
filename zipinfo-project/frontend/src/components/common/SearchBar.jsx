@@ -106,7 +106,17 @@ const SearchBar = ({
 
     fetchSigunguList();
   }, [sidoSelected]);
-
+  // 새로고침시 모든 조건을 전체로 초기화하는 handle함수
+  const handleRefresh = () => {
+    setSidoSelected(-1);
+    setSigunguSelected(-1);
+    setDealType(-1);
+    setResidenceType(-1);
+    //상태 끌어올리기
+    setSearchKeyWord("");
+    setSearchStockForm(-1);
+    setSearchStockType(-1);
+  };
   return (
     <div className="searchbar-wrap">
       <div className="searchbar">
@@ -125,9 +135,6 @@ const SearchBar = ({
         {/* 시/도 */}
         <div className="select-wrap">
           <select value={sidoSelected} onChange={handleSidoChange}>
-            <option value={-1} disabled>
-              시/도
-            </option>
             <option value={-1}>전국</option>
             <option value={11}>서울특별시</option>
             <option value={26}>부산광역시</option>
@@ -155,10 +162,6 @@ const SearchBar = ({
         {/* 구/군 */}
         <div className="select-wrap">
           <select value={sigunguSelected} onChange={handleSigunguChange}>
-            <option value={-1} disabled>
-              시/도
-            </option>
-
             {sigunguList?.length === 0 ? (
               <option value={-1} disabled>
                 시/도를 선택하세요
@@ -217,7 +220,7 @@ const SearchBar = ({
         </div>
 
         {/* 새로고침 */}
-        <button className="searcbar-refresh-btn">
+        <button className="searcbar-refresh-btn" onClick={handleRefresh}>
           <img src={refresh} alt="새로고침" />
         </button>
       </div>
