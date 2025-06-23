@@ -11,4 +11,4 @@ public interface AdminService {
 	boolean restoreWithdrawnMember(Long memberNo);
 
 	Member login(Member inputMember);
-}
+} 

@@ -1,11 +1,10 @@
-// 관리자 광고 등록
-
 import React, { useState } from "react";
+import axios from "axios";
 import "../../css/admin/Advertisement.css";
 
 const Advertisement = () => {
-  const [adminName] = useState("홍길동"); // 예시 관리자 이름
-  const [adminId] = useState("admin01"); // 예시 관리자 ID
+  const [adminName] = useState("홍길동");
+  const [adminId] = useState("admin01");
   const [ads, setAds] = useState([
     {
       id: 1,
@@ -23,18 +22,63 @@ const Advertisement = () => {
     },
   ]);
 
+  // 선택한 파일 상태
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  // 파일 선택 시 처리
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setSelectedFile(file);
+  };
+
+  // 메인 등록 토글 (기존 로직 유지)
   const handleToggleMain = (id) => {
     setAds((prev) =>
       prev.map((ad) => (ad.id === id ? { ...ad, isMain: !ad.isMain } : ad))
     );
   };
 
+  // 광고 삭제 (기존 로직 유지)
   const handleDelete = (id) => {
     setAds((prev) => prev.filter((ad) => ad.id !== id));
   };
 
-  const handleAdUpload = () => {
-    alert("광고 등록 페이지로 이동합니다.");
+  // 광고 등록 서버 요청
+  const handleAdUpload = async () => {
+    if (!selectedFile) {
+      alert("업로드할 파일을 선택해주세요.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("author", adminName);
+      formData.append("date", new Date().toISOString().slice(0, 10));
+
+      const response = await axios.post(
+        "http://localhost:8080/api/advertisements",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      // 서버가 반환한 새 광고 데이터 추가
+      const newAd = response.data;
+      setAds((prev) => [...prev, newAd]);
+
+      // 파일 초기화
+      setSelectedFile(null);
+
+      alert("광고가 성공적으로 등록되었습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("광고 등록에 실패했습니다.");
+    }
   };
 
   return (
@@ -64,6 +108,14 @@ const Advertisement = () => {
             </tr>
           </thead>
           <tbody>
+            {ads.length === 0 && (
+              <tr>
+                <td colSpan="6" className="text-center p-4 text-gray-500">
+                  등록된 광고가 없습니다.
+                </td>
+              </tr>
+            )}
+
             {ads.map((ad, index) => (
               <tr key={ad.id} className="border-t">
                 <td className="p-3">{index + 1}</td>
@@ -90,18 +142,15 @@ const Advertisement = () => {
                 </td>
               </tr>
             ))}
-            {ads.length === 0 && (
-              <tr>
-                <td colSpan="6" className="text-center p-4 text-gray-500">
-                  등록된 광고가 없습니다.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
 
-      <div className="flex justify-end">
+      <div className="mb-6">
+        <input type="file" onChange={handleFileChange} />
+      </div>
+
+      <div className="advertisement-button-wrapper">
         <button
           className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 py-2 rounded"
           onClick={handleAdUpload}
