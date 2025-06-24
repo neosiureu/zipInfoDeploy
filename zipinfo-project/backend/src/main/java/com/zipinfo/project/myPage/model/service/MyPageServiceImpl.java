@@ -113,11 +113,13 @@ public class MyPageServiceImpl implements MyPageService{
 	
 	@Override
 	public int addStock(Stock stock) {
-		return mapper.addStock(stock);
+		int result = mapper.addStock(stock);
+	    System.out.println("insert result = " + result);
+	    return result;
 	}
 	
 	@Override
-	public int addStockImg(List<MultipartFile> stockImg) {
+	public int addStockImg(List<MultipartFile> stockImg, int memberNo) {
 
 		try {
 			
@@ -129,6 +131,8 @@ public class MyPageServiceImpl implements MyPageService{
 			// 성공했는지 확인용 변수
 			int result = 0;
 			int totalResult;
+			
+			int stockNo = mapper.searchStockNo(memberNo);
 			
 			for(int i = 0; i<stockImg.size(); i++) {
 				
@@ -146,7 +150,7 @@ public class MyPageServiceImpl implements MyPageService{
 				finalPath = stockWebPath + rename;
 				file.transferTo(saveFile);
 				
-				totalResult = mapper.addStockImg(originalName, rename, i, finalPath);
+				totalResult = mapper.addStockImg(originalName, rename, i, finalPath, stockNo);
 				
 				if(totalResult == 1) result++;
 			}
