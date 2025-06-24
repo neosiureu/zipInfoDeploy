@@ -65,26 +65,12 @@ function MessageListener() {
 }
 
 function App() {
-  const initNaver = () => {
-    if (window.naver && !window.naver._loginInitialized) {
-      const login = new window.naver.LoginWithNaverId({
-        clientId: import.meta.env.VITE_NAVER_CLIENT_ID,
-        callbackUrl: import.meta.env.VITE_NAVER_CALLBACK_URI,
-        isPopup: true,
-        loginButton: { type: 3, height: "48" },
-        authType: "reauthenticate",
-      });
-      login.init();
-      window.naverLoginInstance = login;
-      window.naver._loginInitialized = true;
-    }
-  };
   useEffect(() => {
     if (window.Kakao && !window.Kakao.isInitialized()) {
       window.Kakao.init(import.meta.env.VITE_KAKAO_JS_KEY);
       console.log("Kakao SDK 초기화", window.Kakao.isInitialized());
     }
-    initNaver();
+    // initNaver();
   }, []);
 
   return (

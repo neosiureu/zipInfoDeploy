@@ -53,7 +53,7 @@ public class OauthServiceImpl implements OauthService {
 	        }
 
 	        // 3단계: 회원 조회/등록
-	        Member member = mapper.selectByEmail(email);
+	        Member member = mapper.selectByKakaoEmail(email);
 	        log.info("DB 조회 member={}", member);
 	        if (member == null) {
 	            log.info("신규 회원 등록");
@@ -64,7 +64,7 @@ public class OauthServiceImpl implements OauthService {
 	            member.setMemberAuth(1);
 	            member.setMemberName(nickname);
 	            mapper.insertKakaoMember(member);
-	            member = mapper.selectByEmail(email);
+	            member = mapper.selectByKakaoEmail(email);
 	            log.info("등록 후 member={}", member);
 	        }
 
@@ -105,29 +105,30 @@ public class OauthServiceImpl implements OauthService {
 		            log.error("프로필이 null 입니다.");
 		            throw new IllegalStateException("네이버 프로필 조회 실패");
 		        }
-		        Map<String,Object> kakaoAccount = (Map)root.get("kakao_account");
-		        Map<String,Object> kakaoProps   = (Map)root.get("properties");
-		        String email    = kakaoAccount   != null ? kakaoAccount.get("email").toString() : null;
-		        String nickname = kakaoProps     != null ? kakaoProps.get("nickname").toString() : null;
-		        log.info("파싱된 네이버 이메일={}, 닉네임={}", email, nickname);
+		        Map<String,Object> naverResponse = (Map)root.get("response");
+		        log.info("naverResp = {}", naverResponse);
+
+		        String email    = naverResponse   != null ? naverResponse.get("email").toString() : null;
+		        String name = naverResponse    != null ? naverResponse.get("name").toString() : null;
+		        log.info("파싱된 네이버 이메일={}, 닉네임={}", email, name);
 		        if (email == null) {
 		            log.error("이메일이 null 입니다.");
 		            throw new IllegalStateException("네이버 이메일 정보 없음");
 		        }
 
 		        // 3단계: 회원 조회/등록
-		        Member member = mapper.selectByEmail(email);
+		        Member member = mapper.selectByNaverEmail(email);
 		        log.info("DB 조회 member={}", member);
 		        if (member == null) {
 		            log.info("신규 회원 등록");
 		            member = new Member();
 		            member.setMemberEmail(email);
 		            member.setMemberLogin("N");
-		            member.setMemberNickname(nickname);
+		            member.setMemberNickname(name);
 		            member.setMemberAuth(1);
-		            member.setMemberName(nickname);
+		            member.setMemberName(name);
 		            mapper.insertNaverMember(member);
-		            member = mapper.selectByEmail(email);
+		            member = mapper.selectByNaverEmail(email);
 		            log.info("회원 등록 후 member={}", member);
 		        }
 

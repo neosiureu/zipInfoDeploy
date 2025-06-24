@@ -36,11 +36,11 @@ const NeighborhoodBoard = () => {
               <option value={36}>세종특별자치시</option>
               <option value={41}>경기도</option>
               <option value={51}>강원도</option>
-              {/**행정구역 개편으로 시/도 코드 51로 변경됨. */}
+              {/*행정구역 개편으로 시/도 코드 51로 변경됨. */}
               <option value={43}>충청북도</option>
               <option value={44}>충청남도</option>
               <option value={52}>전북특별자치도</option>
-              {/**행정구역 개편으로 시/도 코드 52로 변경됨. */}
+              {/*행정구역 개편으로 시/도 코드 52로 변경됨. */}
               <option value={46}>전라남도</option>
               <option value={47}>경상북도</option>
               <option value={48}>경상남도</option>

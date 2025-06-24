@@ -8,11 +8,14 @@ import com.zipinfo.project.member.model.dto.Member;
 @Mapper
 public interface OauthMapper {
 
-	Member selectByEmail(@Param("memberEmail") String email);
+	Member selectByKakaoEmail(@Param("memberEmail") String email);
 
 	void insertKakaoMember(Member member);
 
 	void updateAccessToken( @Param("memberEmail") String memberEmail, @Param("accessToken")  String accessToken);
 
 	void insertNaverMember(Member member);
+
+	Member selectByNaverEmail(@Param("memberEmail") String email);
+	
 }

@@ -5,9 +5,21 @@ import { MemberContext } from "../member/MemberContext";
 import NaverCallback from "../auth/NaverCallback";
 import { data, useNavigate } from "react-router-dom";
 
+function openNaverPopup() {
+  const url = new URL("https://nid.naver.com/oauth2.0/authorize");
+  url.searchParams.set("response_type", "token"); //  백엔드가 accessToken을 받던 그대로
+  url.searchParams.set("client_id", import.meta.env.VITE_NAVER_CLIENT_ID);
+  url.searchParams.set("redirect_uri", import.meta.env.VITE_NAVER_CALLBACK_URI);
+  url.searchParams.set("state", crypto.randomUUID());
+  url.searchParams.set("auth_type", "reauthenticate"); // 자동로그인 차단
+  return window.open(url.toString(), "naverLogin", "width=500,height=640");
+}
+
 export default function MemberLogin() {
   useEffect(() => {
     localStorage.removeItem("loginMember");
+    localStorage.removeItem("com.naver.nid.access_token");
+    localStorage.removeItem("com.naver.nid.oauth.state_token");
   }, []);
   const { VITE_KAKAO_REST_API_KEY, VITE_KAKAO_REDIRECT_URI } = import.meta.env;
   const navigate = useNavigate();
@@ -115,34 +127,35 @@ export default function MemberLogin() {
     localStorage.removeItem("loginMember");
     setMember(null);
 
-    // 당장 토큰을 받아서 백엔드로 수신하는 post 메서드
+    // 1) 메시지 리스너
     const listener = (e) => {
       if (e.data?.type !== "NAVER_TOKEN") return;
-
-      const { accessToken, code } = e.data;
+      const { accessToken } = e.data; // token 방식
       axiosAPI
-        .post("/oauth/naver", { accessToken, code })
+        .post("/oauth/naver", { accessToken })
         .then(({ data: member }) => {
           localStorage.setItem("loginMember", JSON.stringify(member));
           setMember(member);
           navigate("/");
-          alert(`member.memberNickname님, 환영합니다!`);
-        })
-        .catch((err) => {
-          console.error("네이버 로그인 중 오류", err);
-          alert("네이버 로그인 중 오류가 발생했습니다.");
-        })
-        .finally(() => window.removeEventListener("message", listener));
+          alert(`${member.memberNickname}님, 환영합니다!`);
+        });
     };
-
     window.addEventListener("message", listener, { once: true });
-    const btn = document.getElementById("naverIdLogin_loginButton");
-    if (btn) {
-      btn.click();
-    } else {
-      alert("네이버 SDK가 아직 초기화되지 않음");
+
+    // 2) 팝업 열기
+    const popup = openNaverPopup();
+    if (!popup) {
       window.removeEventListener("message", listener);
+      return;
     }
+
+    // 3) 사용자 임의 닫기 → 조용히 취소
+    const poll = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(poll);
+        window.removeEventListener("message", listener);
+      }
+    }, 600);
   };
 
   // 기타 앞으로 할 일

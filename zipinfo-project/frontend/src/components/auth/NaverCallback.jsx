@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { axiosAPI } from "../../api/axiosAPI";
 
 export default function NaverCallback() {
   useEffect(() => {
