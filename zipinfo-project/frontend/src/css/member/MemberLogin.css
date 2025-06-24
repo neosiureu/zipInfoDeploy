@@ -128,8 +128,53 @@
   margin-bottom: 24px;
 }
 
-.kakao-icon {
-  color: #3c1e1e;
+/* 정교한 카카오톡 아이콘 */
+.kakao-detailed-icon {
+  color: #3e2723;
+  margin-top: 1px; /* 미세 조정 */
+  flex-shrink: 0; /* 아이콘 크기 고정 */
+}
+
+/* 네이버 로그인 버튼 */
+.naver-login-btn {
+  width: 100%;
+  height: 52px;
+  background: #ffeb3b;
+  color: #3e2723;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.naver-login-btn.brand-color {
+  background: #03c75a;
+  color: white;
+}
+
+.naver-login-btn.brand-color:hover {
+  background: #02b351;
+}
+
+/* 정교한 네이버 아이콘 */
+.naver-simple-n {
+  width: 20px;
+  height: 20px;
+  background: white;
+  color: #03c75a;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+  font-family: Arial, sans-serif;
 }
 
 /* 회원가입 링크 */
@@ -184,7 +229,7 @@
   outline-offset: 2px;
 }
 
-/* 체크박스 커스텀 스타일 (선택사항) */
+/* 체크박스 커스텀 스타일 */
 .checkbox-input:focus {
   outline: 2px solid #8b5cf6;
   outline-offset: 2px;
