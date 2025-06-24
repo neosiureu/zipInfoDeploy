@@ -23,7 +23,7 @@ public interface MyPageService {
 
 	int addStock(Stock stock);
 
-	int addStockImg(List<MultipartFile> stockImg);
+	int addStockImg(List<MultipartFile> stockImg, int memberNo);
 
 
 }

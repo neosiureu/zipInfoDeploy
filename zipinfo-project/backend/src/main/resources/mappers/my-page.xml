@@ -66,9 +66,25 @@
 	
 	<insert id="addStock">
 		INSERT INTO "STOCK_INFO"
-		VALUES(SEQ_STOCK.NEXTVAL, #{memberNo}, #{stockName}, #{stockSellPrice}, #{stockManageFee}
+		VALUES(SEQ_STOCK_INFO.NEXTVAL, #{memberNo}, #{stockName}, #{stockSellPrice}, #{stockManageFee}
 		, #{stockFeeMonth}, #{stockInfo}, #{stockType}, #{stockForm}, #{exclusiveArea}, #{supplyArea}
 		, #{currentFloor}, #{floorTotalCount}, #{roomCount}, #{bathCount}, #{stockDirection}, #{ableDate}
 		, #{useApprovalDate}, #{registDate}, #{stockDetail}, #{stockAddress}, #{regionNo}, 'N')
 	</insert>
+	
+	<insert id="addStockImg">
+		INSERT INTO "STOCK_IMG"
+		VALUES(SEQ_STOCK_IMG.NEXTVAL, #{stockNo}, #{i}, #{finalPath}, #{originalName}, #{rename})
+	</insert>
+	
+	<select id="searchStockNo">
+		SELECT STOCK_NO
+		FROM (
+ 		   SELECT STOCK_NO
+		    FROM STOCK_INFO
+		    WHERE MEMBER_NO = #{memberNo}
+		    ORDER BY STOCK_NO DESC
+		)
+		WHERE ROWNUM = 1
+	</select>
 </mapper>

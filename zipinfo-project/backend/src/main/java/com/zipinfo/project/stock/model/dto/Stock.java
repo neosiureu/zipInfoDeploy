@@ -17,8 +17,8 @@ public class Stock {
     private String stockInfo;             // STOCK_INFO
     private int stockType;            // STOCK_TYPE
     private int stockForm;            // STOCK_FORM
-    private double exclusiveArea;         // EXCLUSIVE_AREA
-    private double supplyArea;            // SUPPLY_AREA
+    private int exclusiveArea;         // EXCLUSIVE_AREA
+    private int supplyArea;            // SUPPLY_AREA
     private int currentFloor;         // CURRENT_FLOOR
     private int floorTotalCount;      // FLOOR_TOTAL_COUNT
     private int roomCount;            // ROOM_COUNT
