@@ -1,11 +1,17 @@
 package com.zipinfo.project.myPage.model.service;
 
 
+import java.io.File;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.zipinfo.project.common.utility.Utility;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.myPage.model.mapper.MyPageMapper;
 import com.zipinfo.project.stock.model.dto.Stock;
@@ -23,6 +29,12 @@ public class MyPageServiceImpl implements MyPageService{
 	
 	@Autowired
 	private BCryptPasswordEncoder bcrypt;
+	
+	@Value("${my.stock.web-path}")
+	private String stockWebPath;
+	
+	@Value("${my.stock.folder-path}")
+	private String stockFolderPath;
 	
 	@Override
 	public Member getMemberInfo(Member loginMember) {
@@ -102,5 +114,46 @@ public class MyPageServiceImpl implements MyPageService{
 	@Override
 	public int addStock(Stock stock) {
 		return mapper.addStock(stock);
+	}
+	
+	@Override
+	public int addStockImg(List<MultipartFile> stockImg) {
+
+		try {
+			
+			String finalPath = null;
+			
+			String originalName = null;
+			String rename = null;
+			
+			// 성공했는지 확인용 변수
+			int result = 0;
+			int totalResult;
+			
+			for(int i = 0; i<stockImg.size(); i++) {
+				
+				MultipartFile file = stockImg.get(i);
+				
+				originalName = file.getOriginalFilename();
+				rename = Utility.fileRename(originalName);
+				
+				File saveFile = new File(stockFolderPath, rename);
+				
+				// 디렉토리가 없으면 생성
+				saveFile.getParentFile().mkdirs();
+				
+				// /myPage/stock/변경된 파일명
+				finalPath = stockWebPath + rename;
+				file.transferTo(saveFile);
+				
+				totalResult = mapper.addStockImg(originalName, rename, i, finalPath);
+				
+				if(totalResult == 1) result++;
+			}
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
 	}
 }

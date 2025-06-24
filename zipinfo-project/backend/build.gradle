@@ -45,7 +45,7 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-aop
 	implementation 'org.springframework.boot:spring-boot-starter-aop:3.3.5'
 	
-	// Jsoup 입니다
+	// Jsoup
 	// https://jsoup.org/download
     implementation 'org.jsoup:jsoup:1.20.1'
 	
