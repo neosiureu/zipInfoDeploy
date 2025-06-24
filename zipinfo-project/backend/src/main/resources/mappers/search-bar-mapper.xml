@@ -10,5 +10,6 @@
 		SELECT TOWN_NO,TOWN_NAME,CITY_NO FROM BOARD_TOWN
 		WHERE TOWN_NO LIKE #{sido} || '___'
 	</select>
+	
 			
 </mapper>

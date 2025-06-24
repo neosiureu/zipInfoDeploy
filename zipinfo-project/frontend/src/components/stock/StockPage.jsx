@@ -72,12 +72,12 @@ const StockPage = () => {
   /****************QueryString 기능 구현을 위한 변수******************************************** */
   const [searchParams] = useSearchParams();
   /****************QueryString 기능 구현을 위한 검색바 초기화 함수 (구현중)******************************************** */
-  useEffect(() => {
-    const stockType = searchParams.get("type") || -1;
-    const stockForm = searchParams.get("form") || -1;
+  /*useEffect(() => {
+    const stockType = Number(searchParams.get("type")) || -1;
+    const stockForm = Number(searchParams.get("form")) || -1;
     setSearchStockType(stockType);
     setSearchStockForm(stockForm);
-  }, [searchParams]);
+  }, [searchParams]);*/
 
   useEffect(() => {
     // addEventListener만을 위한 코드. addEventListener 내부에서 state변수는 ref를 얻어오거나, 아니면 초기화해줘야 한다.
@@ -86,7 +86,34 @@ const StockPage = () => {
     searchStockFormRef.current = searchStockForm;
     searchStockTypeRef.current = searchStockType;
   }, [searchKeyWord, searchLocationCode, searchStockForm, searchStockType]); // 페이지 처음 로딩시 state변수의 ref 현재값(current) 초기화
-  /*********************Kakao map 로드************** */
+
+  useEffect(() => {
+    const setCoord = async () => {
+      // SearchBar에 검색 Location이 변경될때 해당 지역을 보여주기 위한 useEffect()
+      let fullName = null; // 요청으로 얻어온 시군구 이름을 여기다 저장
+      //1. 지역 코드를 매개변수로 Spring 서버에 시군구 이름을 요청한다. ( ex. req : 11110 -> resp : "종로구")
+      if (searchParams.get("sigungu")) {
+        // queryString에 sigungu가 존재한다면
+
+        try {
+          const resp = await axiosAPI.post(
+            "/stock/getSigunguFullName",
+            searchParams.get("sigungu")
+          );
+          fullName = resp.data;
+        } catch (error) {
+          console.log("error:", error);
+          return;
+        }
+      }
+
+      //2. 이렇게 얻은 지역코드를 카카오 api로 요청하여 반환되는 좌표를 받는다. (ex. 서울시 종로구 -> lat, lng)
+      if (fullName) {
+      }
+      //3. 지금 보고있는 Map의 위치를 이동시킨다.
+    };
+  }, [searchParams]);
+  /*********************Kakao map 로드 Kakao Map에 spring서버로 매물 리스트 요청하는 eventListener 추가************** */
   useEffect(() => {
     if (!mapInstanceRef.current) return;
 
@@ -120,7 +147,7 @@ const StockPage = () => {
 
     fetchData();
   }, [searchKeyWord, searchLocationCode, searchStockForm, searchStockType]);
-
+  /*********************Kakao map 로드 & 초기화***************************/
   useEffect(() => {
     // 카카오 지도 API가 로드되었는지 확인
     if (window.kakao && window.kakao.maps) {
