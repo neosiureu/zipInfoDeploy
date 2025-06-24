@@ -316,7 +316,7 @@ const StockPage = () => {
       const customOverlay = document.createElement("div");
       customOverlay.innerHTML = content;
 
-      // ㄴ 여기서 직접 이벤트 바인딩
+      // 여기서 직접 이벤트 바인딩
       customOverlay
         .querySelector(".custom-overlay")
         .addEventListener("click", (item, index) => {

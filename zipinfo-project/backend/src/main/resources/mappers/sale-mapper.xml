@@ -53,4 +53,12 @@
 	    AND (#{saleType} = -1 OR info.SALE_STOCK_FORM = #{saleType})
 	</select>
 	
+	<!-- 단일 매물 조회 -->
+	<select id="selectSaleDetail" resultMap="saleMap">
+	  SELECT COORD.*, INFO.*
+	  FROM SALE_INFO INFO
+	  LEFT JOIN SALE_COORD COORD ON INFO.SALE_STOCK_NO = COORD.SALE_STOCK_NO
+	  WHERE INFO.SALE_STOCK_NO = #{saleStockNo}
+	</select>
+	
 </mapper>

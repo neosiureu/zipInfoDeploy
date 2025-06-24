@@ -40,11 +40,11 @@ public class SaleServiceImpl implements SaleService {
 		
 	}
 	
-//	/**
-//	 * 단일 분양 매물 조회 서비스
-//	 */
-//	@Override
-//	public Sale selectSaleDetail(int saleStockNo) {
-//		return mapper.selectSaleDetail(saleStockNo);
-//	}
+	/**
+	 * 단일 분양 매물 조회 서비스
+	 */
+	@Override
+	public Sale selectSaleDetail(int saleStockNo) {
+		return mapper.selectSaleDetail(saleStockNo);
+	}
 }

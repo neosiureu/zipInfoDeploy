@@ -50,7 +50,7 @@ const Header = () => {
             <Link to="/announce">공지사항</Link>
           </li>
           <li>
-            <Link to="/neighborhood">우리동네</Link>
+            <Link to="/neighborhoodBoard">우리동네</Link>
           </li>
           <li>
             <Link to="/interest">관심목록</Link>
