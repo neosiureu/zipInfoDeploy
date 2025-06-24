@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import "../../css/neighborhood/NeighborhoodBoard.css";
 import arrowDown from "../../assets/arrow-down.svg";
+import { CITY, TOWN } from "../../components/common/Gonggong";
 
 const NeighborhoodBoard = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCity, setSelectedCity] = useState(-1); // 선택된 시도
+  const [selectedTown, setSelectedTown] = useState(-1); // 선택된 시군구
+  const [selectedSubject, setSelectedSubject] = useState(-1); // 선택된 주제
 
   const boardData = Array(9).fill({
     number: 1,
@@ -16,6 +20,28 @@ const NeighborhoodBoard = () => {
 
   const pages = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
+  // 선택된 시도에 해당하는 시군구만 필터링
+  const filteredTowns =
+    selectedCity !== -1
+      ? TOWN.filter((town) => town.code === parseInt(selectedCity))
+      : [];
+
+  // 시도 선택 핸들러
+  const handleCityChange = (e) => {
+    setSelectedCity(e.target.value);
+    setSelectedTown(-1); // 시도 변경시 시군구 초기화
+  };
+
+  // 시군구 선택 핸들러
+  const handleTownChange = (e) => {
+    setSelectedTown(e.target.value);
+  };
+
+  // 주제 선택 핸들러
+  const handleSubjectChange = (e) => {
+    setSelectedSubject(e.target.value);
+  };
+
   return (
     <div className="nb-container">
       <div className="nb-board-wrapper">
@@ -23,45 +49,48 @@ const NeighborhoodBoard = () => {
 
         <div className="nb-filters">
           <div className="select-wrap">
-            <select className="nb-select">
-              <option value="-1">시/도</option>
-              <option value={-1}>전국</option>
-              <option value={11}>서울특별시</option>
-              <option value={26}>부산광역시</option>
-              <option value={28}>인천광역시</option>
-              <option value={30}>대전광역시</option>
-              <option value={27}>대구광역시</option>
-              <option value={29}>광주광역시</option>
-              <option value={31}>울산광역시</option>
-              <option value={36}>세종특별자치시</option>
-              <option value={41}>경기도</option>
-              <option value={51}>강원도</option>
-              {/*행정구역 개편으로 시/도 코드 51로 변경됨. */}
-              <option value={43}>충청북도</option>
-              <option value={44}>충청남도</option>
-              <option value={52}>전북특별자치도</option>
-              {/*행정구역 개편으로 시/도 코드 52로 변경됨. */}
-              <option value={46}>전라남도</option>
-              <option value={47}>경상북도</option>
-              <option value={48}>경상남도</option>
-              <option value={50}>제주특별자치도</option>
+            <select
+              className="nb-select"
+              value={selectedCity}
+              onChange={handleCityChange}
+            >
+              <option value={-1}>시/도</option>
+              {CITY.map((city) => (
+                <option key={city.code} value={city.code}>
+                  {city.name}
+                </option>
+              ))}
             </select>
             <img className="arrow-icon" src={arrowDown} alt="아래 아이콘" />
           </div>
 
           <div className="select-wrap">
-            <select className="nb-select">
-              <option value="-1">시/구/군</option>
+            <select
+              className="nb-select"
+              value={selectedTown}
+              onChange={handleTownChange}
+              disabled={selectedCity === -1}
+            >
+              <option value={-1}>군/구/시</option>
+              {filteredTowns.map((town) => (
+                <option key={town.fullcode} value={town.fullcode}>
+                  {town.name}
+                </option>
+              ))}
             </select>
             <img className="arrow-icon" src={arrowDown} alt="아래 아이콘" />
           </div>
 
           <div className="select-wrap">
-            <select className="nb-select nb-select-wide">
-              <option value="-1">주제 분류</option>
-              <option value="1">자유</option>
-              <option value="2">질문</option>
-              <option value="3">유머</option>
+            <select
+              className="nb-select nb-select-wide"
+              value={selectedSubject}
+              onChange={handleSubjectChange}
+            >
+              <option value={-1}>주제 분류</option>
+              <option value="Q">질문</option>
+              <option value="R">리뷰</option>
+              <option value="E">기타</option>
             </select>
             <img className="arrow-icon" src={arrowDown} alt="아래 아이콘" />
           </div>
