@@ -50,11 +50,26 @@ const AnnounceWrite = () => {
     }
   }, [isEdit, location.state]);
 
+  // 이미지 선택 시 처리 (최대 5장 제한)
   const handleImageSelect = (e) => {
     const files = Array.from(e.target.files);
+
+    // 5장 제한 체크
+    if (images.length + files.length > 5) {
+      alert("이미지는 최대 5장까지만 첨부할 수 있습니다.");
+      return;
+    }
+
     setImages((prev) => [...prev, ...files]);
+
     const newPreviews = files.map((file) => URL.createObjectURL(file));
     setPreviewUrls((prev) => [...prev, ...newPreviews]);
+  };
+
+  // 이미지 삭제 처리
+  const handleImageRemove = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleAttachClick = () => {
@@ -137,9 +152,50 @@ const AnnounceWrite = () => {
         {previewUrls.length > 0 && (
           <div className="attached-images">
             <h4>첨부된 사진:</h4>
-            <div className="image-preview-grid">
+            <div
+              className="image-preview-grid"
+              style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}
+            >
               {previewUrls.map((url, idx) => (
-                <img key={idx} src={url} alt={`미리보기${idx}`} />
+                <div
+                  key={idx}
+                  className="image-wrapper"
+                  style={{ position: "relative", display: "inline-block" }}
+                >
+                  <img
+                    src={url}
+                    alt={`미리보기${idx}`}
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      objectFit: "cover",
+                      borderRadius: "4px",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleImageRemove(idx)}
+                    className="remove-image-btn"
+                    style={{
+                      position: "absolute",
+                      top: "2px",
+                      right: "2px",
+                      background: "rgba(0,0,0,0.6)",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: "22px",
+                      height: "22px",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      lineHeight: "22px",
+                      textAlign: "center",
+                      padding: 0,
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
               ))}
             </div>
           </div>

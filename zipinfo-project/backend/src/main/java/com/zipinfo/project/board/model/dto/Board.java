@@ -16,4 +16,8 @@ public class Board {
     private int memberNo;              // MEMBER_NO
     private int townNo;                // TOWN_NO
     private String boardSubject;       // BOARD_SUBJECT ('Q' or 'R' 등)
+
+    // 추가 필드: 회원 닉네임과 권한
+    private String memberNickname;    // MEMBER_NICKNAME
+    private int memberAuth;           // MEMBER_AUTH
 }

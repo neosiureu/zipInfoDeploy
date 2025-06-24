@@ -13,48 +13,39 @@ const Announce = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  // 권한 체크 함수 (memberAuth, role, roles 필드가 다양하게 올 수 있으니 안전하게 처리)
+  // 관리자 권한 체크: memberAuth가 숫자 0일 때만 true 반환
   const checkAdmin = (user) => {
     if (!user) return false;
-    const memberAuth = user.memberAuth ?? user.member_auth ?? null;
-    const role = user.role ?? null;
-    const roles = user.roles ?? [];
-    return (
-      memberAuth === 0 ||
-      memberAuth === "0" ||
-      role === "ADMIN" ||
-      roles.includes("ROLE_ADMIN")
-    );
+    const memberAuth = user.memberAuth ?? null;
+    return memberAuth === 0 || memberAuth === "0";
   };
 
   const isAdmin = checkAdmin(user);
 
-  // 디버깅용: user와 isAdmin 값 출력
   useEffect(() => {
-    console.log("현재 user:", user);
-    console.log("isAdmin:", isAdmin);
-  }, [user, isAdmin]);
+    loadPosts(0);
+  }, []);
 
-  // 공지사항 목록 로딩
   const loadPosts = async (page = 0) => {
     try {
       const data = await fetchPosts(page, 10, keyword);
-      console.log("fetchPosts 결과:", data);
-      setPosts(data || []);
-      setPageInfo({ currentPage: page, totalPages: 1 }); // TODO: API가 totalPages 응답 시 반영
+
+      // fetchPosts 응답 예: { posts: [], totalPages: number }
+      setPosts(data.posts || []);
+      setPageInfo({
+        currentPage: page,
+        totalPages: data.totalPages || 1,
+      });
     } catch (error) {
       console.error("공지사항 불러오기 실패", error);
       setPosts([]);
+      setPageInfo({ currentPage: 0, totalPages: 1 });
     }
   };
 
   const handleSearch = () => {
-    loadPosts(0);
+    loadPosts(0); // 검색 시 첫 페이지로
   };
-
-  useEffect(() => {
-    loadPosts(0);
-  }, []);
 
   return (
     <div className="announce-container">
@@ -77,21 +68,17 @@ const Announce = () => {
             <th>제목</th>
             <th>작성자</th>
             <th>작성일</th>
-            {/* 관리(삭제) 컬럼 제거 */}
           </tr>
         </thead>
         <tbody>
           {Array.isArray(posts) && posts.length > 0 ? (
             posts.map((post) => {
-              const id = post.id ?? post.boardNo;
-              const title = post.title ?? "제목 없음";
-              const author = post.author ?? post.writer ?? "작성자 없음";
-              const date =
-                post.createdAt || post.createDate
-                  ? new Date(
-                      post.createdAt || post.createDate
-                    ).toLocaleDateString()
-                  : "날짜 없음";
+              const id = post.boardNo;
+              const title = post.boardTitle ?? "제목 없음";
+              const author = post.memberNickname ?? "작성자 없음";
+              const date = post.boardWriteDate
+                ? new Date(post.boardWriteDate).toLocaleDateString()
+                : "날짜 없음";
 
               return (
                 <tr key={id}>
@@ -105,7 +92,6 @@ const Announce = () => {
                   </td>
                   <td>{author}</td>
                   <td>{date}</td>
-                  {/* 삭제 버튼 제거 */}
                 </tr>
               );
             })
