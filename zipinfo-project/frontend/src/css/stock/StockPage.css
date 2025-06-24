@@ -1,39 +1,30 @@
-/* 전체 페이지 고정, 스크롤 없이 꽉 찬 레이아웃 */
-.sale-page-wrapper {
-  position: fixed;
-  inset: 0;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  box-sizing: border-box;
-}
-
-/* 본문 레이아웃: 지도 + 정보패널 */
+/* 전체 레이아웃 */
 .container {
   display: flex;
-  height: calc(100vh - 60px); /* 헤더 제외 */
+  height: calc(100vh - 60px);
   width: 100%;
   overflow: hidden;
-  box-sizing: border-box;
+  position: relative;
 }
 
-/* 왼쪽 정보패널 */
+/* 사이드 패널 공통 */
 .side-panel {
-  width: 450px;
+  width: 448px;
   height: 100%;
   background: #fff;
-  border-right: 1px solid #e0e0e0;
-  padding: 18px 16px 0 16px; /* 좌우 여백 48px */
   overflow-y: auto;
-  /*slide 애니메이션*/
-  transition: transform 0.7s ease-in-out;
-  transform: translateX(0%);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03);
+  z-index: 10;
 }
 
-/* 오른쪽 지도 영역 */
+/* 오른쪽 상세 패널 */
+.side-panel.detail-panel {
+  position: relative;
+  z-index: 11;
+  border-left: 1px solid #dbdbdb;
+}
+
+/* 지도 영역 */
 .map-area {
   flex: 1;
   width: 100%;
@@ -42,83 +33,82 @@
   position: relative;
 }
 
-/* 지도 내부 div가 크기 초과하지 않도록 보정 */
 .map-area > div {
   max-width: 100%;
   max-height: 100%;
   overflow: hidden;
-  box-sizing: border-box;
 }
 
-/* 아파트 상단 정보 */
-.stock-header {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  margin-bottom: 18px;
-}
-
-.stock-img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid #eee;
-}
-
+/* 매물 리스트 항목 */
 .stock-title {
   display: flex;
-  flex-direction: row;
   gap: 12px;
-  /*margin-top: 10px;*/
-
   align-items: center;
-  margin: 16px 2px;
+  margin: 16px 48px;
   cursor: pointer;
-
-  padding: 10px 4px;
-  border-bottom: 1px solid #f0f0f0;
-  vertical-align: top;
-  line-height: 24px;
 }
+
 .stock-img {
   width: 140px;
   height: 140px;
   object-fit: cover;
   border-radius: 8px;
 }
-.stock-name {
-  font-size: 15px;
+
+/* 매물 리스트 텍스트 */
+.item-type {
+  font-size: 18px;
   font-weight: 700;
-  color: #222;
-  line-height: 24px;
-}
-
-.stock-price {
-  font-size: 14px;
   color: #2d7be5;
-  font-weight: 500;
   line-height: 24px;
 }
 
-.stock-address {
-  font-size: 12px;
+.item-font-default {
+  font-size: 15px;
   color: #888;
   line-height: 24px;
 }
 
-/* 표 및 섹션 공통 스타일 */
+.item-font-broker {
+  font-size: 12px;
+  color: #222;
+  line-height: 24px;
+}
+
+/* 상세 정보 헤더 */
+.stock-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 16px 48px;
+}
+
+.stock-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: #111;
+  line-height: 24px;
+}
+
+.stock-address {
+  font-size: 14px;
+  color: #767676;
+  line-height: 24px;
+  margin-top: 8px;
+}
+
+/* 섹션 스타일 */
 .section {
-  margin-bottom: 18px;
-  border-bottom: #888;
+  display: flex;
+  flex-direction: column;
 }
 
 .section-title {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 600;
-  color: #222;
-  margin-bottom: 6px;
-  line-height: normal;
+  color: #111;
+  line-height: 24px;
+  padding: 24px 48px 0 48px;
 }
 
 table {
@@ -132,91 +122,62 @@ table {
 }
 
 table tr td {
-  padding: 6px 4px;
+  padding: 6px 48px;
   vertical-align: top;
   line-height: 24px;
 }
 
-table tr:last-child td {
-  border-bottom: none;
+table tr td:first-child {
+  width: 35%;
+  white-space: nowrap;
+  color: #111;
+  font-weight: 600;
 }
 
+table tr td:last-child {
+  color: #111;
+}
+
+/* 평면도 */
 .plan-img {
   width: 80%;
   max-width: 400px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 4px;
+  margin: 0 auto;
+  display: block;
 }
 
-/*************************************************************/
-
-.item-type {
-  font-size: 18px;
-  font-weight: 700;
-  color: #2d7be5;
-  line-height: 24px;
-}
-.item-font-default {
-  font-size: 15px;
-  color: #888;
-  line-height: 24px;
-}
-
-.item-font-broker {
-  font-size: 12px;
-  color: #222;
-  line-height: 24px;
-}
-.side-panel.hidden {
-  transform: translateX(-200%);
-  display: none;
-}
-
-/* 커스텀 오버레이 마커 스타일 */
-.custom-overlay {
-  background: white;
-  border: 2px solid #495cf8;
-  border-radius: 8px;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
-  font-size: 13px;
-  line-height: 1.4;
-  text-align: center;
-  white-space: nowrap;
-  position: relative;
-  display: inline-block;
-}
-
-.custom-overlay::after {
-  content: "";
+/* 상세창 닫기 버튼 */
+.close-button {
   position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 10px 6px 0;
-  border-style: solid;
-  border-color: #495cf8 transparent transparent transparent;
+  top: 12px;
+  left: calc(448px * 2 + 12px);
+  z-index: 20;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  font-size: 20px;
+  cursor: pointer;
 }
 
-.custom-overlay .area {
-  background: #495cf8;
-  color: white;
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 6px 6px 0 0;
-  font-weight: 400;
-}
-
-.custom-overlay .label {
-  color: #495cf8;
-  padding: 4px 8px;
+/* 검색 결과 없음 */
+.no-result {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 14px;
-  gap: 4px;
+  margin-top: 80px;
+  text-align: center;
+  color: #111;
+  font-size: 16px;
+  gap: 12px;
 }
 
-.custom-overlay .label strong {
-  color: #111;
-  font-weight: 700;
+.no-result img {
+  width: 48px;
+  height: 48px;
 }

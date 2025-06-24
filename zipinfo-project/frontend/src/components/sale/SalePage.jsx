@@ -133,6 +133,8 @@ const SalePage = () => {
               data.lng - offsetLng
             );
             map.panTo(movedLatLng);
+
+            updateMarker([data]);
           }
         }
       } catch (error) {

@@ -15,10 +15,6 @@ const Announce = () => {
 
   const isAdmin = user && (user.memberAuth === 0 || user.memberAuth === "0");
 
-  console.log("🔍 현재 user:", user);
-  console.log("🔐 현재 memberAuth:", user?.memberAuth);
-  console.log("🧑‍💻 관리자 여부:", isAdmin);
-
   useEffect(() => {
     loadPosts(0);
   }, []);

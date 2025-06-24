@@ -171,6 +171,25 @@ const AddSale = () => {
     }));
   };
 
+  const handleAddressSearch = () => {
+    new window.daum.Postcode({
+      oncomplete: function (data) {
+        // 전체 주소 변수
+        let fullAddr = data.address;
+        // 추가 주소 (법정동 등)
+        if (data.addressType === "R") {
+          if (data.bname !== "") fullAddr += " " + data.bname;
+          if (data.buildingName !== "") fullAddr += " " + data.buildingName;
+        }
+
+        setForm((prev) => ({
+          ...prev,
+          address: fullAddr,
+        }));
+      },
+    }).open();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitStatus("");
@@ -273,14 +292,23 @@ const AddSale = () => {
         <h2 className="sale-section-title">상세정보</h2>
         <div className="sale-form-row">
           <label className="sale-form-label required">분양주소</label>
-          <input
-            type="text"
-            name="address"
-            placeholder="분양 주소를 입력해주세요 (20글자)"
-            className="sale-form-input"
-            value={form.address}
-            onChange={handleChange}
-          />
+          <div style={{ display: "flex", gap: "10px", flex: 1 }}>
+            <input
+              type="text"
+              name="address"
+              className="sale-form-input"
+              placeholder="주소를 검색해주세요"
+              value={form.address}
+              readOnly
+            />
+            <button
+              type="button"
+              className="sale-adress-btn"
+              onClick={handleAddressSearch}
+            >
+              주소 찾기
+            </button>
+          </div>
         </div>
         <div className="sale-form-row">
           <label className="sale-form-label">규모</label>

@@ -75,10 +75,21 @@ input[type="radio"] {
   margin-right: 6px;
 }
 
+.sale-adress-btn {
+  background: #111;
+  color: #fff;
+  border-radius: 4px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
 .sale-file-btn {
   background: #f7f7f7;
   color: #111;
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 10px 24px;
   font-size: 14px;
   font-weight: 400;
@@ -101,7 +112,7 @@ input[type="radio"] {
 }
 
 .sale-submit-btn {
-  background: #3b5bdb;
+  background: #495cf8;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -137,7 +148,7 @@ input[type="radio"] {
 
 .sale-cancel-btn {
   background: #f1f1f7;
-  color: #3b5bdb;
+  color: #495cf8;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 500;

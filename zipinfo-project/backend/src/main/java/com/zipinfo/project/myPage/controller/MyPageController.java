@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,15 +13,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.myPage.model.service.MyPageService;
 import com.zipinfo.project.stock.model.dto.Stock;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -176,20 +180,48 @@ public class MyPageController {
 	}
 	
 	@PostMapping("addStock")
-	public ResponseEntity<Object> addStock(HttpSession session, @ModelAttribute Stock stock){
+	public ResponseEntity<Object> addStock(HttpSession session,  @RequestBody Stock stock){
 		
 		try {
 			
 			Member loginMember = (Member)session.getAttribute("loginMember");
 			
+	        if (loginMember == null) {
+	            System.out.println("세션에 로그인 정보 없음");
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	                    .body("로그인 정보 없음 (세션 만료 혹은 미로그인)");
+	        }
+			
 			stock.setMemberNo(loginMember.getMemberNo());
 			
 			int result = service.addStock(stock);
 			
-			int imgResult = service.addStockImg(stock.getStockImg());
+			
 		
 			return ResponseEntity.status(HttpStatus.OK) // 200
 					.body(result); 
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+		
+	}
+	
+	@PostMapping(value = "addStockImg", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<Object> addStockImg(HttpSession session, @RequestPart("stockImg") List<MultipartFile> stockImg){
+		
+		System.out.println(stockImg);
+		try {
+			
+			Member loginMember = (Member)session.getAttribute("loginMember");
+			
+			int memberNo = loginMember.getMemberNo();
+			
+			int imgResult = service.addStockImg(stockImg, memberNo);
+		
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(imgResult); 
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("불러오는 중 예외 발생 : " + e.getMessage());
