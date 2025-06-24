@@ -14,7 +14,9 @@
     <result property="readCount" column="READ_COUNT"/>
     <result property="memberNo" column="MEMBER_NO"/>
     <result property="boardWriteDate" column="BOARD_WRITE_DATE"/>
-    <result property="boardUpdateDate" column="BOARD_UPDATE_DATE"/>
+    <!-- BOARD_UPDATE_DATE 제거 -->
+    <result property="memberNickname" column="MEMBER_NICKNAME"/>
+    <result property="memberAuth" column="MEMBER_AUTH"/>
   </resultMap>
 
   <!-- 게시글 등록 -->
@@ -75,13 +77,21 @@
   <select id="selectBoardList" resultMap="BoardResultMap" parameterType="map">
     <![CDATA[
       SELECT
-        BOARD_NO, BOARD_TITLE, BOARD_CONTENT, BOARD_SUBJECT, READ_COUNT,
-        MEMBER_NO,
-        TO_CHAR(BOARD_WRITE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS BOARD_WRITE_DATE
-      FROM "BOARD"
-      WHERE BOARD_DEL_FL = 'N'
-        AND BOARD_SUBJECT = #{boardSubject}
-      ORDER BY BOARD_NO DESC
+        b.BOARD_NO,
+        b.BOARD_TITLE,
+        b.BOARD_CONTENT,
+        b.BOARD_SUBJECT,
+        b.READ_COUNT,
+        b.MEMBER_NO,
+        TO_CHAR(b.BOARD_WRITE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS BOARD_WRITE_DATE,
+        -- BOARD_UPDATE_DATE 제거
+        m.MEMBER_NICKNAME,
+        m.MEMBER_AUTH
+      FROM BOARD b
+      LEFT JOIN MEMBER m ON b.MEMBER_NO = m.MEMBER_NO
+      WHERE b.BOARD_DEL_FL = 'N'
+        AND b.BOARD_SUBJECT = #{boardSubject}
+      ORDER BY b.BOARD_NO DESC
       OFFSET (#{cp} - 1) * 10 ROWS FETCH NEXT 10 ROWS ONLY
     ]]>
   </select>
@@ -90,32 +100,35 @@
   <select id="searchList" resultMap="BoardResultMap" parameterType="map">
     <![CDATA[
       SELECT
-        BOARD_NO, BOARD_TITLE, BOARD_CONTENT, BOARD_SUBJECT, READ_COUNT,
-        MEMBER_NO,
-        TO_CHAR(BOARD_WRITE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS BOARD_WRITE_DATE,
-        TO_CHAR(BOARD_UPDATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS BOARD_UPDATE_DATE
-      FROM "BOARD"
-      WHERE BOARD_DEL_FL = 'N'
-        AND BOARD_SUBJECT = #{boardSubject}
+        b.BOARD_NO, b.BOARD_TITLE, b.BOARD_CONTENT, b.BOARD_SUBJECT, b.READ_COUNT,
+        b.MEMBER_NO,
+        TO_CHAR(b.BOARD_WRITE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS BOARD_WRITE_DATE,
+        -- BOARD_UPDATE_DATE 제거
+        m.MEMBER_NICKNAME,
+        m.MEMBER_AUTH
+      FROM "BOARD" b
+      LEFT JOIN "MEMBER" m ON b.MEMBER_NO = m.MEMBER_NO
+      WHERE b.BOARD_DEL_FL = 'N'
+        AND b.BOARD_SUBJECT = #{boardSubject}
         <choose>
           <when test="key == 't'">
-            AND BOARD_TITLE LIKE '%' || #{query} || '%'
+            AND b.BOARD_TITLE LIKE '%' || #{query} || '%'
           </when>
           <when test="key == 'c'">
-            AND BOARD_CONTENT LIKE '%' || #{query} || '%'
+            AND b.BOARD_CONTENT LIKE '%' || #{query} || '%'
           </when>
           <when test="key == 'tc'">
-            AND (BOARD_TITLE LIKE '%' || #{query} || '%'
-              OR BOARD_CONTENT LIKE '%' || #{query} || '%')
+            AND (b.BOARD_TITLE LIKE '%' || #{query} || '%'
+              OR b.BOARD_CONTENT LIKE '%' || #{query} || '%')
           </when>
           <otherwise>
-            AND MEMBER_NO IN (
+            AND b.MEMBER_NO IN (
               SELECT MEMBER_NO FROM "MEMBER"
               WHERE MEMBER_NICKNAME LIKE '%' || #{query} || '%'
             )
           </otherwise>
         </choose>
-      ORDER BY BOARD_NO DESC
+      ORDER BY b.BOARD_NO DESC
       OFFSET (#{cp} - 1) * 10 ROWS FETCH NEXT 10 ROWS ONLY
     ]]>
   </select>

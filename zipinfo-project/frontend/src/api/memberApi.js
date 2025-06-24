@@ -1,14 +1,13 @@
-import axios from "axios";
+import { defineConfig } from "vite";
 
-export const fetchMembers = async () => {
-  try {
-    const response = await axios.get(
-      "http://localhost:8080/admin/management/members",
-      { withCredentials: true }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("회원 목록 가져오기 실패:", error);
-    throw error;
-  }
-};
+export default defineConfig({
+  server: {
+    proxy: {
+      "/admin": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+});

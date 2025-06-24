@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Search, RefreshCw } from "lucide-react";
 
 const roleOptions = ["일반회원", "중개인", "관리자"];
@@ -32,10 +33,25 @@ const DeletedMembers = ({ initialDeletedMembers }) => {
     setCurrentPage(1);
   }, [searchTerm, roleFilter, deletedMembers]);
 
-  const handleRestoreMember = (memberNumber) => {
-    setDeletedMembers((prev) =>
-      prev.filter((m) => m.memberNumber !== memberNumber)
-    );
+  // 계정 복구 API 호출 및 상태 업데이트
+  const handleRestoreMember = async (memberNumber) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/api/admin/members/restore/${memberNumber}`
+      );
+
+      if (response.status === 200) {
+        setDeletedMembers((prev) =>
+          prev.filter((m) => m.memberNumber !== memberNumber)
+        );
+        alert("계정이 성공적으로 복구되었습니다.");
+      } else {
+        alert("복구에 실패했습니다. 다시 시도해주세요.");
+      }
+    } catch (error) {
+      console.error("계정 복구 중 오류:", error);
+      alert("복구 중 오류가 발생했습니다.");
+    }
   };
 
   const handleRoleChange = (index, newRole) => {
@@ -177,7 +193,7 @@ const DeletedMembers = ({ initialDeletedMembers }) => {
             <button
               key={page}
               className={`page-button ${page === currentPage ? "active" : ""}`}
-              onClick={() => setCurrentPage(page)}
+              onClick={() => handlePageChange(page)}
             >
               {page}
             </button>
