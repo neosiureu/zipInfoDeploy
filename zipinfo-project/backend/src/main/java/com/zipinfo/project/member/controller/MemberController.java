@@ -1,5 +1,8 @@
 package com.zipinfo.project.member.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -15,6 +18,8 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.member.model.service.MemberService;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -152,9 +157,36 @@ public class MemberController {
 	}
 	
 	@PostMapping("/logout")
-	public ResponseEntity<Void> logout(HttpSession session) {
+	public ResponseEntity<Map<String, String>> logout(HttpSession session, HttpServletResponse response) {
+	    
+	    // 1. 네이버 관련 세션 정보 명시적 삭제
+	    session.removeAttribute("naverAccessToken");
+	    session.removeAttribute("naverRefreshToken");
+	    session.removeAttribute("naverUserInfo");
+	    session.removeAttribute("naverState");
+	    
+	    // 2. 카카오 관련 세션 정보도 함께 삭제
+	    session.removeAttribute("kakaoAccessToken");
+	    session.removeAttribute("kakaoRefreshToken");
+	    session.removeAttribute("kakaoUserInfo");
+	    
+	    // 3. 기본 로그인 정보 삭제
+	    session.removeAttribute("loginMember");
+	    
+	    // 4. 세션 무효화
 	    session.invalidate();
-	    return ResponseEntity.ok().build();
+	    
+	    // 5. 서버의 JSESSIONID 쿠키만이라도 삭제
+	    Cookie jsessionCookie = new Cookie("JSESSIONID", null);
+	    jsessionCookie.setPath("/");
+	    jsessionCookie.setMaxAge(0);
+	    response.addCookie(jsessionCookie);
+	    
+	    // 6. 클라이언트에게 네이버 로그아웃 필요하다고 알려주기
+	    Map<String, String> result = new HashMap<>();
+	    result.put("message", "서버 로그아웃 완료");
+	    result.put("naverLogoutRequired", "true"); // 클라이언트에서 네이버 로그아웃 필요
+	    
+	    return ResponseEntity.ok(result);
 	}
-	
 }

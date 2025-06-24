@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useContext } from "react";
 import { fetchPosts } from "./AnnounceApi";
+import Pagination from "../common/Pagination";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../admin/AuthContext";
 import "../../css/announce/Announce.css";
 
 const Announce = () => {
   const [posts, setPosts] = useState([]);
+  const [pageInfo, setPageInfo] = useState({ currentPage: 0, totalPages: 1 });
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [keyword, setKeyword] = useState("");
@@ -13,15 +15,37 @@ const Announce = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  const isAdmin = user && (user.memberAuth === 0 || user.memberAuth === "0");
 
+  // 권한 체크 함수 (memberAuth, role, roles 필드가 다양하게 올 수 있으니 안전하게 처리)
+  const checkAdmin = (user) => {
+    if (!user) return false;
+    const memberAuth = user.memberAuth ?? user.member_auth ?? null;
+    const role = user.role ?? null;
+    const roles = user.roles ?? [];
+    return (
+      memberAuth === 0 ||
+      memberAuth === "0" ||
+      role === "ADMIN" ||
+      roles.includes("ROLE_ADMIN")
+    );
+  };
+
+  const isAdmin = checkAdmin(user);
+
+  //const isAdmin = user && (user.memberAuth === 0 || user.memberAuth === "0");
+
+
+  // 디버깅용: user와 isAdmin 값 출력
   useEffect(() => {
-    loadPosts(0);
-  }, []);
+    console.log("현재 user:", user);
+    console.log("isAdmin:", isAdmin);
+  }, [user, isAdmin]);
 
+  // 공지사항 목록 로딩
   const loadPosts = async (page = 0) => {
     try {
       const data = await fetchPosts(page, 10, keyword);
+
       setPosts(data.posts || []);
       setCurrentPage(page);
       setTotalPages(data.totalPages || 1);
@@ -36,6 +60,7 @@ const Announce = () => {
   const handleSearch = () => {
     loadPosts(0);
   };
+
 
   const renderPagination = () => {
     const pageButtons = [];

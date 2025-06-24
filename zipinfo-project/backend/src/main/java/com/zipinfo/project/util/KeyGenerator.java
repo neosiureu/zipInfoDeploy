@@ -13,5 +13,3 @@ public class KeyGenerator {
         System.out.println("jwt.secret=" + base64Key);
     }
 }
-
-// 업데이트용 주석

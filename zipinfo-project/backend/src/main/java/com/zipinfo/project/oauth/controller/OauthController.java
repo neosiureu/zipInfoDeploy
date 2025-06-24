@@ -46,7 +46,7 @@ public class OauthController {
 	        }
 	    }
 	    
-	    
+	     
 	    @PostMapping("/naver")
 	    public ResponseEntity<Member> naverLogin(@RequestBody Map<String,String> body , HttpSession session) {
 	    	String token = body.get("accessToken"); // implicit
