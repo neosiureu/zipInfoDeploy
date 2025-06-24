@@ -66,22 +66,26 @@ public class SaleController {
 	    
 	}
 	
-//	/** 단일 분양 매물 조회하기
-//	 * @param saleStockNo
-//	 * @return
-//	 */
-//	@GetMapping("/detail")
-//	public ResponseEntity<Sale> selectSaleDetail(@RequestParam("saleStockNo") int saleStockNo) {
-//	    try {
-//	        Sale saleDetail = service.selectSaleDetail(saleStockNo);
-//	        if (saleDetail != null) {
-//	            return ResponseEntity.ok(saleDetail);
-//	        } else {
-//	            return ResponseEntity.notFound().build();
-//	        }
-//	    } catch (Exception e) {
-//	        e.printStackTrace();
-//	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//	    }
-//	}
+	/** 단일 분양 매물 조회하기
+	 * @param saleStockNo
+	 * @return
+	 */
+	@GetMapping("/detail")
+	public ResponseEntity<Sale> selectSaleDetail(@RequestParam("saleStockNo") int saleStockNo) {
+	    try {
+	    	
+	        Sale saleDetail = service.selectSaleDetail(saleStockNo);
+	        
+	        if (saleDetail != null) {
+	            return ResponseEntity.ok(saleDetail);
+	            
+	        } else {
+	            return ResponseEntity.notFound().build();
+	        }
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	    }
+	}
 }

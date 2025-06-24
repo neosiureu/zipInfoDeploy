@@ -54,7 +54,7 @@ export default function DashBoard() {
             광고 관리
           </NavLink>
           <NavLink
-            to="/admin/list-sale"
+            to="/admin/list_sale"
             className={({ isActive }) => (isActive ? "active" : "")}
           >
             분양 관리

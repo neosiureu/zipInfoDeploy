@@ -29,8 +29,8 @@ const ListSale = () => {
     setSaleList((prev) => prev.filter((sale) => sale.saleStockNo !== id));
   };
 
-  const handleUpdate = () => {
-    navigate("/admin/add-sale");
+  const handleAdd = () => {
+    navigate("/admin/add_sale");
   };
 
   const formatDate = (dateString) => {
@@ -121,7 +121,7 @@ const ListSale = () => {
       <div className="flex justify-end">
         <button
           className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 py-2 rounded"
-          onClick={handleUpdate}
+          onClick={handleAdd}
         >
           매물 등록
         </button>

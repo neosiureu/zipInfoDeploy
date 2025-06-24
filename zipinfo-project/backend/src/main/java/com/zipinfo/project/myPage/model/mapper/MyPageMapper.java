@@ -28,4 +28,6 @@ public interface MyPageMapper {
 
 	int addStock(Stock stock);
 
+	int addStockImg(String originalName, String rename, int i, String finalPath);
+
 }

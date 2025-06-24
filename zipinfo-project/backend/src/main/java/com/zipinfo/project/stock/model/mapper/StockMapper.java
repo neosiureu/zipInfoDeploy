@@ -19,4 +19,6 @@ public interface StockMapper {
 			@Param("stockForm") int stockForm,
 			@Param("stockType") int stockType);
 
+	String selectSigunguFullName(@Param("code") int code);
+
 }

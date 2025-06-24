@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { memo, useContext, useEffect, useState } from "react";
 import { axiosAPI } from "../../api/axiosAPI";
 import "../../css/member/MemberLogin.css";
 import { MemberContext } from "../member/MemberContext";
-
-import { useNavigate } from "react-router-dom";
+import NaverCallback from "../auth/NaverCallback";
+import { data, useNavigate } from "react-router-dom";
 
 export default function MemberLogin() {
   useEffect(() => {
@@ -11,6 +11,7 @@ export default function MemberLogin() {
   }, []);
   const { VITE_KAKAO_REST_API_KEY, VITE_KAKAO_REDIRECT_URI } = import.meta.env;
   const navigate = useNavigate();
+
   const { setMember } = useContext(MemberContext);
 
   const [formData, setFormData] = useState({
@@ -92,12 +93,11 @@ export default function MemberLogin() {
           const { data: member } = await axiosAPI.post("/oauth/kakao", {
             code: authObj.access_token,
           });
+          alert(`${member.memberNickname}님, 환영합니다!`);
 
           localStorage.setItem("loginMember", JSON.stringify(member));
-          setMember(member); // 컨텍스트 갱신
-          alert(`${member.memberNickname}님, 환영합니다!`);
+          setMember(member);
           navigate("/");
-          // loginForm 은 close 메서드가 없습니다 ― 지우세요
         } catch (err) {
           console.error("카카오 로그인 처리 중 에러", err);
           alert("로그인 중 오류가 발생했습니다.");
@@ -108,6 +108,41 @@ export default function MemberLogin() {
         alert("로그인에 실패했습니다.");
       },
     });
+  };
+
+  // 네이버 로그인
+  const handleNaverLogin = () => {
+    localStorage.removeItem("loginMember");
+    setMember(null);
+
+    // 당장 토큰을 받아서 백엔드로 수신하는 post 메서드
+    const listener = (e) => {
+      if (e.data?.type !== "NAVER_TOKEN") return;
+
+      const { accessToken, code } = e.data;
+      axiosAPI
+        .post("/oauth/naver", { accessToken, code })
+        .then(({ data: member }) => {
+          localStorage.setItem("loginMember", JSON.stringify(member));
+          setMember(member);
+          navigate("/");
+          alert(`member.memberNickname님, 환영합니다!`);
+        })
+        .catch((err) => {
+          console.error("네이버 로그인 중 오류", err);
+          alert("네이버 로그인 중 오류가 발생했습니다.");
+        })
+        .finally(() => window.removeEventListener("message", listener));
+    };
+
+    window.addEventListener("message", listener, { once: true });
+    const btn = document.getElementById("naverIdLogin_loginButton");
+    if (btn) {
+      btn.click();
+    } else {
+      alert("네이버 SDK가 아직 초기화되지 않음");
+      window.removeEventListener("message", listener);
+    }
   };
 
   // 기타 앞으로 할 일
@@ -185,8 +220,28 @@ export default function MemberLogin() {
         </form>
 
         {/* 카카오 간편 로그인 */}
-        <button onClick={handleKakaoLogin} className="kakao-login-btn">
-          {/* (아이콘 생략) */}카카오로 간편 로그인
+        <button onClick={handleKakaoLogin} className="kakao-login-btn option5">
+          <svg
+            className="kakao-detailed-icon"
+            width="20"
+            height="18"
+            viewBox="0 0 20 18"
+            fill="none"
+          >
+            <path
+              d="M10 0C4.48 0 0 3.28 0 7.32c0 2.6 1.74 4.89 4.38 6.17l-.79 2.91c-.08.29.2.52.45.38l3.29-2.17c.55.08.95.08 1.67.08 5.52 0 10-3.28 10-7.32S15.52 0 10 0z"
+              fill="currentColor"
+            />
+          </svg>
+          카카오로 간편 로그인
+        </button>
+
+        {/* 네이버 간편 로그인 */}
+        <button
+          onClick={handleNaverLogin}
+          className="naver-login-btn brand-color"
+        >
+          <span className="naver-simple-n">N</span>네이버로 간편 로그인
         </button>
 
         {/* 회원가입 */}

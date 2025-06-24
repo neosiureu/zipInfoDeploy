@@ -4,7 +4,7 @@ import { axiosAPI } from "../../api/axiosApi";
 import arrowDown from "../../assets/arrow-down.svg";
 import refresh from "../../assets/refresh.svg";
 import search from "../../assets/search-icon.svg";
-
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 const SearchBar = ({
   showSearchType = true,
   searchKeyWord,
@@ -32,7 +32,31 @@ const SearchBar = ({
     setResidenceType(e.target.value);
     setSearchStockType(e.target.value);
   };
-
+  /***************************queryString이 존재할때 상태변수 초기화 */
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const stockSido = searchParams.get("sido") // ?sido = int
+      ? Number(searchParams.get("sido"))
+      : -1;
+    const stockSigungu =
+      searchParams.get("sido") & searchParams.get("sigungu") // ?sigungu = int
+        ? Number(searchParams.get("sigungu"))
+        : -1;
+    const stockType = searchParams.get("type") // ?type=int
+      ? Number(searchParams.get("type"))
+      : -1;
+    const stockForm = searchParams.get("form") // ?form=int
+      ? Number(searchParams.get("form"))
+      : -1;
+    console.log(stockType);
+    console.log(stockForm);
+    setSearchStockType(stockType);
+    setDealType(stockForm);
+    setSearchStockForm(stockForm);
+    setResidenceType(stockType);
+    setSidoSelected(stockSido);
+    setSigunguSelected(stockSigungu);
+  }, [searchParams]);
   /****************************검색어 기능 */
   const handleSearchKeyWordChange = (e) => {
     setSearchKeyWord(e.target.value);

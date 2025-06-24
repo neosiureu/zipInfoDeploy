@@ -387,7 +387,7 @@ const AddSale = () => {
           />
         </div>
         <div className="sale-form-row">
-          <label className="sale-form-label">방수</label>
+          <label className="sale-form-label">방 개수</label>
           <input
             type="text"
             name="rooms"

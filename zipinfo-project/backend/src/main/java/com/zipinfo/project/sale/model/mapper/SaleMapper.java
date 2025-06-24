@@ -31,10 +31,10 @@ public interface SaleMapper {
 			@Param("saleStatus") int saleStatus,
 			@Param("saleType") int saleType);
 
-//	/** 단일 분양 매물 조회
-//	 * @param saleStockNo
-//	 * @return
-//	 */
-//	Sale selectSaleDetail(int saleStockNo);
-//	
+	/** 단일 분양 매물 조회
+	 * @param saleStockNo
+	 * @return
+	 */
+	Sale selectSaleDetail(int saleStockNo);
+	
 }

@@ -10,21 +10,21 @@ const Header = () => {
 
   // 로그아웃 => 로컬스토리지 초기화
   const handleLogout = async () => {
-    // 0) 백엔드 세션(JSESSIONID) 무효화
+    // 1) 백엔드 세션 = 제이세션 아이디 무효화
     try {
       // Spring 컨트롤러에 만든 로그아웃 엔드포인트 (예: /member/logout)
       await axiosAPI.post("/member/logout"); //  경로는 프로젝트에 맞춰 조정
     } catch (_) {
-      /* 세션이 이미 없으면 401/404가 올 수 있으니 무시 */
+      /* 세션이 이미 없으면 무시 */
     }
-    // 1) 카카오 SDK 로그아웃
+    // 2) 카카오 SDK 로그아웃
     if (window.Kakao && window.Kakao.Auth) {
       window.Kakao.Auth.logout(() => {
         console.log("Kakao SDK 로그아웃 완료");
       });
     }
 
-    // 2) 앱 내부 상태·스토리지 초기화
+    // 3) 스토리지 초기화
     setMember(null);
     localStorage.removeItem("loginMember");
     alert("로그아웃 되었습니다");
@@ -50,11 +50,12 @@ const Header = () => {
             <Link to="/announce">공지사항</Link>
           </li>
           <li>
-            <Link to="/neighborhood">우리동네</Link>
+            <Link to="/neighborhoodBoard">우리동네</Link>
           </li>
           <li>
             <Link to="/interest">관심목록</Link>
           </li>
+          <li>{/* <Link to="/gonggong">공공데이터 샘플 삽입</Link> */}</li>
         </ul>
       </div>
 

@@ -45,6 +45,25 @@ public class OauthController {
 	          return ResponseEntity.status(500).build();
 	        }
 	    }
+	    
+	    
+	    @PostMapping("/naver")
+	    public ResponseEntity<Member> naverLogin(@RequestBody Map<String,String> body , HttpSession session) {
+	    	String token = body.get("accessToken"); // implicit
+	    	String code  = body.get("code");        // authorization_cod
+
+	        try {
+	          Member member = oauthService.loginNaver(token);
+	          session.setAttribute("loginMember", member); 
+	          log.info("네이버 로그인으로 프론트로 보낼 member={}", member);
+	          return ResponseEntity.ok(member);
+
+	        } catch (Exception ex) {
+	         
+	          log.error("naverLogin 에러 발생", ex);
+	          return ResponseEntity.status(500).build();
+	        }
+	    }
 	  
 	  
 

@@ -1,5 +1,9 @@
 package com.zipinfo.project.myPage.model.service;
 
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.stock.model.dto.Stock;
 
@@ -18,6 +22,8 @@ public interface MyPageService {
 	int withDraw(Member loginMember);
 
 	int addStock(Stock stock);
+
+	int addStockImg(List<MultipartFile> stockImg);
 
 
 }

@@ -12,7 +12,12 @@ const AnnounceDetail = () => {
   const { user } = useContext(AuthContext);
 
   const isAdmin =
+
     user?.authority === 0 || user?.memberAuth === 0 || user?.role === "ADMIN";
+    user?.role === "ADMIN" ||
+    user?.roles?.includes("ROLE_ADMIN") ||
+    user?.memberAuth === 0 ||
+    user?.member_auth === 0;
 
   useEffect(() => {
     const loadPost = async () => {
@@ -39,35 +44,38 @@ const AnnounceDetail = () => {
     }
   };
 
-  if (!post) return <div>로딩 중...</div>;
+  if (!post) return <div className="an-detail-loading">로딩 중...</div>;
 
   return (
-    <div className="announce-detail-container">
-      <h2 className="announce-title">{post.title}</h2>
 
-      <div className="announce-meta">
+    <div className="an-detail-container">
+      <h2 className="an-detail-title">{post.title}</h2>
+      <div className="an-detail-meta">
         <span>작성자: {post.author}</span>
         <span>작성일: {new Date(post.createdAt).toLocaleDateString()}</span>
         <span>조회수: {post.viewCount ?? 0}</span>
       </div>
 
-      <div className="announce-content">{post.content}</div>
+      <div className="an-detail-content">{post.content}</div>
 
       {isAdmin && (
-        <div className="announce-buttons">
+        <div className="an-detail-buttons">
           <button
-            className="btn-edit"
+            className="an-detail-btn-edit"
             onClick={() => navigate(`/announce/edit/${id}`)}
           >
             수정
           </button>
-          <button className="btn-delete" onClick={handleDelete}>
+          <button className="an-detail-btn-delete" onClick={handleDelete}>
             삭제
           </button>
         </div>
       )}
 
-      <button className="back-button" onClick={() => navigate("/announce")}>
+      <button
+        className="an-detail-btn-back"
+        onClick={() => navigate("/announce")}
+      >
         목록으로
       </button>
     </div>
