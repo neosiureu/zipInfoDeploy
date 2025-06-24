@@ -2,7 +2,6 @@
 .management-container {
   padding: 2rem;
   background-color: #f8fafc;
-  font-family: "Noto Sans KR", sans-serif;
 }
 
 .management-header {
@@ -101,13 +100,13 @@ table {
   border-spacing: 0;
 }
 
-th,
-td {
+.member-list th,
+.member-list td {
   border: none;
-  border-bottom: 1px solid #e5e7eb;
   padding: 10px;
   text-align: center;
   font-size: 14px;
+  border-bottom: 1px solid #dbdbdb;
 }
 
 thead {
@@ -152,10 +151,6 @@ button {
   background-color: transparent;
   border: none;
   font-size: 14px;
-}
-
-button:hover {
-  opacity: 0.8;
 }
 
 /* 페이지네이션 */

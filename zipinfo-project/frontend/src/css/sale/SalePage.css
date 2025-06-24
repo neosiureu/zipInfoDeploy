@@ -59,13 +59,6 @@
   cursor: pointer;
 }
 
-/* 반응형 처리 필요 시 (예시) */
-@media (max-width: 1400px) {
-  .close-button {
-    left: calc(100vw - 36px - 12px);
-  }
-}
-
 /* 상단 분양 정보 */
 .sale-header {
   display: flex;
@@ -73,6 +66,13 @@
   align-items: center;
   margin: 16px 48px;
   cursor: pointer;
+}
+
+.sale-detail-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 16px 48px;
 }
 
 .sale-img {

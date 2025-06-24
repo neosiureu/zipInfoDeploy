@@ -1,19 +1,20 @@
 import React, { useEffect, useState, useContext } from "react";
 import { fetchPosts } from "./AnnounceApi";
-import Pagination from "../common/Pagination";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../admin/AuthContext";
 import "../../css/announce/Announce.css";
+import arrowDown from "../../assets/arrow-down.svg";
 
 const Announce = () => {
   const [posts, setPosts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [pageInfo, setPageInfo] = useState({ currentPage: 0, totalPages: 1 });
   const [keyword, setKeyword] = useState("");
 
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  // 권한 체크 함수 (memberAuth, role, roles 필드가 다양하게 올 수 있으니 안전하게 처리)
+  // 권한 체크 함수
   const checkAdmin = (user) => {
     if (!user) return false;
     const memberAuth = user.memberAuth ?? user.member_auth ?? null;
@@ -56,31 +57,23 @@ const Announce = () => {
     loadPosts(0);
   }, []);
 
+  // 페이지네이션용 페이지 배열
+  const pages = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
   return (
-    <div className="announce-container">
-      <h2>공지사항</h2>
+    <div className="an-container">
+      <div className="an-board-wrapper">
+        <h1 className="an-title">공지사항</h1>
 
-      <div className="announce-search">
-        <input
-          type="text"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          placeholder="제목 검색"
-        />
-        <button onClick={handleSearch}>검색</button>
-      </div>
+        <div className="an-board-table">
+          <div className="an-header">
+            <div className="an-header-cell an-header-number">번호</div>
+            <div className="an-header-cell an-header-title">제목</div>
+            <div className="an-header-cell an-header-author">작성자</div>
+            <div className="an-header-cell an-header-date">날짜</div>
+            <div className="an-header-cell an-header-views">조회</div>
+          </div>
 
-      <table className="announce-table">
-        <thead>
-          <tr>
-            <th>번호</th>
-            <th>제목</th>
-            <th>작성자</th>
-            <th>작성일</th>
-            {/* 관리(삭제) 컬럼 제거 */}
-          </tr>
-        </thead>
-        <tbody>
           {Array.isArray(posts) && posts.length > 0 ? (
             posts.map((post) => {
               const id = post.id ?? post.boardNo;
@@ -94,46 +87,62 @@ const Announce = () => {
                   : "날짜 없음";
 
               return (
-                <tr key={id}>
-                  <td>{id}</td>
-                  <td
-                    className="announce-title"
+                <div key={id} className="an-row">
+                  <div className="an-cell an-cell-number">{id}</div>
+                  <div
+                    className="an-cell an-cell-title"
                     onClick={() => navigate(`/announce/detail/${id}`)}
-                    style={{ cursor: "pointer" }}
                   >
                     {title}
-                  </td>
-                  <td>{author}</td>
-                  <td>{date}</td>
-                  {/* 삭제 버튼 제거 */}
-                </tr>
+                  </div>
+                  <div className="an-cell an-cell-author">{author}</div>
+                  <div className="an-cell an-cell-date">{date}</div>
+                  <div className="an-cell an-cell-views">0</div>
+                </div>
               );
             })
           ) : (
-            <tr>
-              <td colSpan={4} style={{ textAlign: "center" }}>
+            <div className="an-row">
+              <div
+                className="an-cell"
+                style={{
+                  gridColumn: "1 / -1",
+                  textAlign: "center",
+                  justifyContent: "center",
+                }}
+              >
                 게시글이 없습니다.
-              </td>
-            </tr>
+              </div>
+            </div>
           )}
-        </tbody>
-      </table>
+        </div>
 
-      <div className="announce-bottom">
-        {isAdmin && (
+        <div className="an-pagination-container">
+          <div className="an-pagination">
+            <button className="an-page-btn an-page-prev">‹</button>
+            <button className="an-page-btn an-page-prev">‹‹</button>
+
+            {pages.map((page) => (
+              <button
+                key={page}
+                className={`an-page-btn ${page === 1 ? "an-page-active" : ""}`}
+                onClick={() => setCurrentPage(page)}
+              >
+                {page.toString().padStart(2, "0")}
+              </button>
+            ))}
+
+            <button className="an-page-btn an-page-next">›</button>
+            <button className="an-page-btn an-page-next">››</button>
+          </div>
+
           <button
-            className="write-button"
+            className="an-write-btn"
             onClick={() => navigate("/announce/write")}
           >
             글쓰기
           </button>
-        )}
-
-        <Pagination
-          currentPage={pageInfo.currentPage}
-          totalPages={pageInfo.totalPages}
-          onPageChange={loadPosts}
-        />
+        </div>
       </div>
     </div>
   );

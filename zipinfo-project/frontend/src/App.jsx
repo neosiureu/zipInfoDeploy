@@ -25,6 +25,7 @@ import {
 import LoginHandler from "./components/member/MemberLogin";
 
 import AddSale from "./components/admin/saleForm/AddSale";
+import ListSale from "./components/admin/saleForm/ListSale";
 import DashBoard from "./components/admin/DashBoard";
 import Chart from "./components/admin/Chart";
 import Advertisement from "./components/admin/Advertisement";
@@ -36,8 +37,9 @@ import Announce from "./components/announce/Announce";
 import AnnounceDetail from "./components/announce/AnnounceDetail";
 import AnnounceWrite from "./components/announce/AnnounceWrite";
 
-import Neighborhood from "./components/neighborhood/Neighborhood";
+import NeighborhoodBoard from "./components/neighborhood/NeighborhoodBorad";
 import NeighborhoodDetail from "./components/neighborhood/NeighborhoodDetail";
+
 import Gonggong from "./components/common/gonggong";
 import NaverCallback from "./components/auth/NaverCallback";
 
@@ -115,15 +117,14 @@ function App() {
               {/* 분양페이지 */}
               <Route path="/sale/:saleStockNo" element={<SalePage />} />
 
-              {/*  공지사항 (Announce) */}
-
+              {/* 공지사항 (Announce) */}
               <Route path="announce" element={<Announce />} />
               <Route path="announce/detail/:id" element={<AnnounceDetail />} />
               <Route path="announce/write" element={<AnnounceWrite />} />
               <Route path="announce/edit/:id" element={<AnnounceWrite />} />
 
               {/* 우리동네 게시판 */}
-              <Route path="neighborhood" element={<Neighborhood />} />
+              <Route path="neighborhoodBoard" element={<NeighborhoodBoard />} />
               <Route
                 path="neighborhood/detail/:id"
                 element={<NeighborhoodDetail />}
@@ -135,12 +136,11 @@ function App() {
               <Route index element={<Chart />} />
               <Route path="dashboard" element={<Chart />} />
               <Route path="chart" element={<Chart />} />
-              <Route path="housingForm" element={<AddSale />} />
               <Route path="advertisement" element={<Advertisement />} />
               <Route path="inquiry" element={<Inquiry />} />
               <Route path="management" element={<Management />} />
-              <Route path="list-sale" element={<AddSale />} />
-              <Route path="add-sale" element={<AddSale />} />
+              <Route path="list_sale" element={<ListSale />} />
+              <Route path="add_sale" element={<AddSale />} />
             </Route>
 
             <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />

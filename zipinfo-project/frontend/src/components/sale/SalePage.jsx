@@ -114,16 +114,36 @@ const SalePage = () => {
 
   // useEffect : URL에 매물 번호가 있을 경우 자동 상세 정보 열기
   useEffect(() => {
-    if (saleStockNo && stockList.length > 0) {
-      const selected = stockList.find(
-        (item) => item.saleStockNo === Number(saleStockNo)
-      );
-      if (selected) {
-        setIsAsideVisible(true);
-        setClickedStockItem(selected);
+    const fetchDetail = async () => {
+      try {
+        const res = await axiosAPI.get("/sale/detail", {
+          params: { saleStockNo },
+        });
+        if (res.status === 200) {
+          const data = res.data; // ← 변수 선언
+          setClickedStockItem(data);
+          setIsAsideVisible(true);
+
+          // 지도 중심 이동
+          const map = mapInstanceRef.current;
+          if (map && data.lat && data.lng) {
+            const offsetLng = -0.07; // ← 이동할 정도 (조절 가능)
+            const movedLatLng = new window.kakao.maps.LatLng(
+              data.lat,
+              data.lng - offsetLng
+            );
+            map.panTo(movedLatLng);
+          }
+        }
+      } catch (error) {
+        console.error("상세 매물 조회 실패:", error);
       }
+    };
+
+    if (saleStockNo) {
+      fetchDetail(); // URL에 매물번호 있으면 API 호출로 불러옴
     }
-  }, [saleStockNo, stockList]);
+  }, [saleStockNo]);
 
   useEffect(() => {
     updateMarker();
@@ -173,6 +193,7 @@ const SalePage = () => {
       overlayDiv.addEventListener("click", () => {
         setIsAsideVisible(true);
         setClickedStockItem(item);
+        navigate(`/sale/${item.saleStockNo}`); // ← 추가
       });
 
       const customOverlay = new window.kakao.maps.CustomOverlay({
@@ -194,6 +215,7 @@ const SalePage = () => {
   const closeStockDetail = () => {
     setIsAsideVisible(false);
     setClickedStockItem(null);
+    navigate("/sale", { replace: true });
   };
 
   const StockItemDetail = ({ item }) => {
@@ -201,7 +223,7 @@ const SalePage = () => {
 
     return item ? (
       <>
-        <div className="sale-header">
+        <div className="sale-detail-header">
           <div className="sale-title">
             <div className="sale-detail-type">
               {stockFormMap[item.saleStockForm]}
