@@ -12,24 +12,22 @@ import com.zipinfo.project.board.model.dto.Board;
 public interface AnnounceService {
 
     /**
-     * 게시글 목록 조회 (페이징 및 필터링 지원)
+     * 게시글 목록 조회 (페이징 지원)
      * 
-     * @param boardSubject 게시판 주제 (ex: '공지사항')
      * @param cp 현재 페이지 번호
      * @return 게시글 목록
      */
-    List<Board> selectBoardList(String boardSubject, int cp);
+    List<Board> selectBoardList(int cp);
 
     /**
      * 게시글 검색 목록 조회 (페이징 및 필터링 포함)
      * 
-     * @param boardSubject 게시판 주제
      * @param key 검색키 (t: 제목, c: 내용, tc: 제목+내용, 그외: 작성자 닉네임)
      * @param query 검색어
      * @param cp 현재 페이지 번호
      * @return 검색된 게시글 목록
      */
-    List<Board> searchList(String boardSubject, String key, String query, int cp);
+    List<Board> searchList(String key, String query, int cp);
 
     /**
      * 게시글 상세 조회 (여러 조건을 Map으로 받음)

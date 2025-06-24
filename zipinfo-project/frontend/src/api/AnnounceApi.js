@@ -1,12 +1,18 @@
-// AnnounceApi.js
+// AnnounceApi.js (또는 비슷한 이름의 파일)
 import axios from "axios";
 
 const BASE_URL = "http://localhost:8080";
 
-export const fetchPosts = async (page, size, keyword) => {
-  const url = encodeURI(`${BASE_URL}/api/board/공지사항`);
-  const response = await axios.get(url, {
-    params: { cp: page + 1, key: "title", query: keyword },
-  });
-  return response.data;
+export const createPost = async (postData) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/api/board/announce`, // <-- 여기를 반드시 맞춰야 합니다.
+      postData,
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("공지사항 등록 실패", error);
+    throw new Error("공지사항 등록 실패");
+  }
 };
