@@ -1,6 +1,7 @@
 package com.zipinfo.project.myPage.model.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.stock.model.dto.Stock;
@@ -28,6 +29,12 @@ public interface MyPageMapper {
 
 	int addStock(Stock stock);
 
-	int addStockImg(String originalName, String rename, int i, String finalPath);
+	int addStockImg(@Param("originalName") String originalName,
+            @Param("rename") String rename,
+            @Param("i") int i,
+            @Param("finalPath") String finalPath,
+            @Param("stockNo") int stockNo);
+	
+	int searchStockNo(int memberNo);
 
 }

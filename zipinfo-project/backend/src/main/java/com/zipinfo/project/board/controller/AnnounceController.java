@@ -21,42 +21,41 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/api/board")
+@RequestMapping("/api/board/announce")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "http://localhost:5173")  // Vite 개발서버 주소(프론트 주소)
+@CrossOrigin(origins = "http://localhost:5173")
 public class AnnounceController {
 
     private final AnnounceService service;
 
     /**
-     * 게시글 목록 조회 (검색 포함)
+     * 공지사항 목록 조회 (검색 포함)
      */
-    @GetMapping("/{boardSubject}")
+    @GetMapping("")
     public ResponseEntity<List<Board>> selectBoardList(
-            @PathVariable("boardSubject") String boardSubject,
             @RequestParam(value = "cp", defaultValue = "1") int cp,
             @RequestParam(value = "key", required = false) String key,
             @RequestParam(value = "query", required = false) String query) {
 
         List<Board> resultList;
 
-        if (key == null || key.isBlank()) {
-            resultList = service.selectBoardList(boardSubject, cp);
+        if (key == null || key.trim().isEmpty()) {
+            resultList = service.selectBoardList(cp);
         } else {
-            resultList = service.searchList(boardSubject, key, query, cp);
+            resultList = service.searchList(key, query, cp);
         }
+
 
         return ResponseEntity.ok(resultList);
     }
 
     /**
-     * 게시글 상세 조회 + 조회수 증가 (쿠키 기반 중복 방지)
+     * 공지사항 상세 조회 + 조회수 증가 (쿠키 중복 방지)
      */
-    @GetMapping("/{boardSubject}/{boardNo}")
+    @GetMapping("/{boardNo}")
     public ResponseEntity<?> selectAnnounceDetail(
-            @PathVariable("boardSubject") String boardSubject,
-            @PathVariable("boardNo") int boardNo,
+            @PathVariable int boardNo,
             @SessionAttribute(value = "loginMember", required = false) Member loginMember,
             HttpServletRequest request,
             HttpServletResponse response) {
@@ -86,7 +85,6 @@ public class AnnounceController {
 
             if (shouldIncrease) {
                 int result = service.increaseViewCount(boardNo);
-
                 if (result > 0) {
                     LocalDateTime now = LocalDateTime.now();
                     LocalDateTime midnight = now.plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
@@ -112,61 +110,63 @@ public class AnnounceController {
     }
 
     /**
-     * 게시글 등록 (관리자만 가능)
+     * 공지사항 등록 (관리자만 가능)
      */
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/{boardSubject}")
+    @PostMapping("")
     public ResponseEntity<?> createBoard(
-            @PathVariable String boardSubject,
-            @RequestBody Board board) {
+            @RequestBody Board board,
+            @SessionAttribute(value = "loginMember", required = false) Member loginMember) {
 
-        board.setBoardSubject(boardSubject);
+        if (loginMember == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+
+        board.setMemberNo(loginMember.getMemberNo());  // 작성자 설정
+
         int result = service.insertBoard(board);
 
         if (result > 0) {
-            return ResponseEntity.ok(Map.of("message", "게시글 등록 성공", "boardNo", board.getBoardNo()));
+            return ResponseEntity.ok(Map.of("message", "공지사항 등록 성공", "boardNo", board.getBoardNo()));
         }
 
-        return ResponseEntity.status(500).body("게시글 등록 실패");
+        return ResponseEntity.status(500).body("공지사항 등록 실패");
     }
 
+
     /**
-     * 게시글 수정 (관리자만 가능)
+     * 공지사항 수정 (관리자만 가능)
      */
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{boardSubject}/{boardNo}")
+    @PutMapping("/{boardNo}")
     public ResponseEntity<?> updateBoard(
-            @PathVariable String boardSubject,
             @PathVariable int boardNo,
             @RequestBody Board board) {
 
-        board.setBoardSubject(boardSubject);
         board.setBoardNo(boardNo);
+
         int result = service.updateBoard(board);
 
         if (result > 0) {
-            return ResponseEntity.ok("게시글 수정 성공");
+            return ResponseEntity.ok("공지사항 수정 성공");
         }
 
-        return ResponseEntity.status(500).body("게시글 수정 실패");
+        return ResponseEntity.status(500).body("공지사항 수정 실패");
     }
 
     /**
-     * 게시글 삭제 (관리자만 가능)
+     * 공지사항 삭제 (관리자만 가능)
      */
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{boardSubject}/{boardNo}")
-    public ResponseEntity<?> deleteBoard(
-            @PathVariable String boardSubject,
-            @PathVariable int boardNo) {
+    @DeleteMapping("/{boardNo}")
+    public ResponseEntity<?> deleteBoard(@PathVariable int boardNo) {
 
-        Map<String, Object> param = Map.of("boardSubject", boardSubject, "boardNo", boardNo);
-        int result = service.deleteBoard(param);
+        int result = service.deleteBoard(Map.of("boardNo", boardNo));
 
         if (result > 0) {
-            return ResponseEntity.ok("게시글 삭제 성공");
+            return ResponseEntity.ok("공지사항 삭제 성공");
         }
 
-        return ResponseEntity.status(500).body("게시글 삭제 실패");
+        return ResponseEntity.status(500).body("공지사항 삭제 실패");
     }
 }

@@ -8,10 +8,13 @@ import "../../css/announce/Announce.css";
 const Announce = () => {
   const [posts, setPosts] = useState([]);
   const [pageInfo, setPageInfo] = useState({ currentPage: 0, totalPages: 1 });
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [keyword, setKeyword] = useState("");
 
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+
 
   // 권한 체크 함수 (memberAuth, role, roles 필드가 다양하게 올 수 있으니 안전하게 처리)
   const checkAdmin = (user) => {
@@ -29,6 +32,9 @@ const Announce = () => {
 
   const isAdmin = checkAdmin(user);
 
+  //const isAdmin = user && (user.memberAuth === 0 || user.memberAuth === "0");
+
+
   // 디버깅용: user와 isAdmin 값 출력
   useEffect(() => {
     console.log("현재 user:", user);
@@ -39,12 +45,15 @@ const Announce = () => {
   const loadPosts = async (page = 0) => {
     try {
       const data = await fetchPosts(page, 10, keyword);
-      console.log("fetchPosts 결과:", data);
-      setPosts(data || []);
-      setPageInfo({ currentPage: page, totalPages: 1 }); // TODO: API가 totalPages 응답 시 반영
+
+      setPosts(data.posts || []);
+      setCurrentPage(page);
+      setTotalPages(data.totalPages || 1);
     } catch (error) {
       console.error("공지사항 불러오기 실패", error);
       setPosts([]);
+      setCurrentPage(0);
+      setTotalPages(1);
     }
   };
 
@@ -52,88 +61,103 @@ const Announce = () => {
     loadPosts(0);
   };
 
-  useEffect(() => {
-    loadPosts(0);
-  }, []);
+
+  const renderPagination = () => {
+    const pageButtons = [];
+    for (let i = 0; i < totalPages; i++) {
+      pageButtons.push(
+        <button
+          key={i}
+          className={`an-page-btn ${i === currentPage ? "an-page-active" : ""}`}
+          onClick={() => loadPosts(i)}
+        >
+          {(i + 1).toString().padStart(2, "0")}
+        </button>
+      );
+    }
+    return pageButtons;
+  };
 
   return (
-    <div className="announce-container">
-      <h2>공지사항</h2>
+    <div className="an-container">
+      <div className="an-board-wrapper">
+        <h1 className="an-title">공지사항</h1>
 
-      <div className="announce-search">
-        <input
-          type="text"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          placeholder="제목 검색"
-        />
-        <button onClick={handleSearch}>검색</button>
-      </div>
+        <div className="an-board-table">
+          <div className="an-header">
+            <div className="an-header-cell an-header-number">번호</div>
+            <div className="an-header-cell an-header-title">제목</div>
+            <div className="an-header-cell an-header-author">작성자</div>
+            <div className="an-header-cell an-header-date">날짜</div>
+            <div className="an-header-cell an-header-views">조회</div>
+          </div>
 
-      <table className="announce-table">
-        <thead>
-          <tr>
-            <th>번호</th>
-            <th>제목</th>
-            <th>작성자</th>
-            <th>작성일</th>
-            {/* 관리(삭제) 컬럼 제거 */}
-          </tr>
-        </thead>
-        <tbody>
-          {Array.isArray(posts) && posts.length > 0 ? (
-            posts.map((post) => {
-              const id = post.id ?? post.boardNo;
-              const title = post.title ?? "제목 없음";
-              const author = post.author ?? post.writer ?? "작성자 없음";
-              const date =
-                post.createdAt || post.createDate
-                  ? new Date(
-                      post.createdAt || post.createDate
-                    ).toLocaleDateString()
-                  : "날짜 없음";
+          <div className="an-body">
+            {posts.length > 0 ? (
+              posts.map((post) => {
+                const id = post.boardNo;
+                return (
+                  <div key={id} className="an-row">
+                    <div className="an-cell an-cell-number">{id}</div>
+                    <div
+                      className="an-cell an-cell-title"
+                      onClick={() => navigate(`/announce/detail/${id}`)}
+                    >
+                      {post.boardTitle ?? "제목 없음"}
+                    </div>
+                    <div className="an-cell an-cell-author">
+                      {post.memberNickname ?? "작성자 없음"}
+                    </div>
+                    <div className="an-cell an-cell-date">
+                      {post.boardWriteDate
+                        ? new Date(post.boardWriteDate).toLocaleDateString()
+                        : "날짜 없음"}
+                    </div>
+                    <div className="an-cell an-cell-views">0</div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="an-row">
+                <div
+                  className="an-cell"
+                  style={{ gridColumn: "1 / -1", textAlign: "center" }}
+                >
+                  게시글이 없습니다.
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
-              return (
-                <tr key={id}>
-                  <td>{id}</td>
-                  <td
-                    className="announce-title"
-                    onClick={() => navigate(`/announce/detail/${id}`)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {title}
-                  </td>
-                  <td>{author}</td>
-                  <td>{date}</td>
-                  {/* 삭제 버튼 제거 */}
-                </tr>
-              );
-            })
-          ) : (
-            <tr>
-              <td colSpan={4} style={{ textAlign: "center" }}>
-                게시글이 없습니다.
-              </td>
-            </tr>
+        <div className="an-pagination-container">
+          <div className="an-pagination">
+            <button
+              className="an-page-btn"
+              onClick={() => loadPosts(Math.max(0, currentPage - 1))}
+            >
+              ‹
+            </button>
+            {renderPagination()}
+            <button
+              className="an-page-btn"
+              onClick={() =>
+                loadPosts(Math.min(totalPages - 1, currentPage + 1))
+              }
+            >
+              ›
+            </button>
+          </div>
+
+          {isAdmin && (
+            <button
+              className="an-write-btn"
+              onClick={() => navigate("/announce/write")}
+            >
+              글쓰기
+            </button>
           )}
-        </tbody>
-      </table>
-
-      <div className="announce-bottom">
-        {isAdmin && (
-          <button
-            className="write-button"
-            onClick={() => navigate("/announce/write")}
-          >
-            글쓰기
-          </button>
-        )}
-
-        <Pagination
-          currentPage={pageInfo.currentPage}
-          totalPages={pageInfo.totalPages}
-          onPageChange={loadPosts}
-        />
+        </div>
       </div>
     </div>
   );

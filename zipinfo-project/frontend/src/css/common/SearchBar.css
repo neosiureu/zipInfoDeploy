@@ -62,19 +62,19 @@
   outline: none;
 }
 
-.select-wrap {
+.search-select-wrap {
   position: relative;
   display: inline-block;
 }
 
-.select-wrap select {
+.search-select-wrap select {
   appearance: none; /* 브라우저 기본 화살표 제거 */
   -webkit-appearance: none;
   -moz-appearance: none;
-  padding-right: 30px; /* 오른쪽 공간 확보 */
+  padding-right: 40px;
 }
 
-.select-wrap .arrow-icon {
+.search-select-wrap .arrow-icon {
   position: absolute;
   right: 10px;
   top: 50%;

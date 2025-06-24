@@ -3,14 +3,14 @@ import { Plus } from 'lucide-react';
 import "../../css/myPage/menu.css";
 import "../../css/myPage/myStock.css";
 import Menu from "./Menu";
-import { axiosAPI } from '../../api/axiosApi';
+import { axiosAPI} from '../../api/axiosApi';
 import axios from 'axios';
 
 export default function MyPage() {
   const [formData, setFormData] = useState({
     stockType: '0',
     stockSellPrice: '',
-    stockFeeMonth: '',
+    stockFeeMonth: '0',
     stockName: '',
     stockManageFee: '',
     stockInfo: '',
@@ -28,8 +28,6 @@ export default function MyPage() {
     registDate: '',
     stockDetail: '',
     regionNo: '',
-    fulladdr: '',
-    stockImg: []
   });
 
   const keyToLabel = {
@@ -89,8 +87,8 @@ export default function MyPage() {
   
   // 각각의 버튼 클릭 핸들러
   const handleThumbClick = () => thumbInputRef.current.click();
-  const handleClick = () => inputRef.current.click();
   const handleBenefitClick = () => balanceInputRef.current.click();
+  const handleClick = () => inputRef.current.click();
 
   // 파일 선택되면 상태에 추가
   const handleTubmChange = (e) => {
@@ -125,9 +123,10 @@ export default function MyPage() {
   window[callbackName] = (data) => {
     if (data.results && data.results.juso && data.results.juso.length > 0) {
       const { admCd } = data.results.juso[0];
+      const admCdNo = parseInt(admCd.substring(0, 5));
       setFormData(prev => ({
         ...prev,
-        regionNo: admCd,
+        regionNo: admCdNo,
       }));
     } else {
       alert("검색 결과 없음");
@@ -196,7 +195,7 @@ export default function MyPage() {
       ...prev,
       stockAddress: [postcode, address, detailAddress].join("^^^")
     }))
-      formData.stockAddress.length >2 && formData.stockAddress.length < 1000?
+    formData.stockAddress.length >2 && formData.stockAddress.length < 1000?
       setCheckData((prev) => ({
         ...prev,
         stockAddress: true
@@ -383,8 +382,6 @@ export default function MyPage() {
     
 const handleSubmit = async () => {
   try {
-    console.log(checkData);
-    console.log(formData);
     
     for (const [key, value] of Object.entries(checkData)) {
       if (!value) {
@@ -394,40 +391,50 @@ const handleSubmit = async () => {
       }
     }
 
-    if (stockTubmImg == null || balanceImg == null || stockImg.length == 0) {
+    if (combinedImages.length == 0) {
       alert('이미지 파일을 모두 넣어주세요.');
       return;
     }
 
-    // 1. formData에 stockImg를 수동으로 조합한 객체 생성
-    const finalData = {
+    const convertedData = {
       ...formData,
-      stockImg: combinedImages,
+      stockType: parseInt(formData.stockType),
+      stockForm: parseInt(formData.stockForm),
+      stockSellPrice: parseInt(formData.stockSellPrice),
+      stockFeeMonth: parseInt(formData.stockFeeMonth),
+      stockManageFee: parseInt(formData.stockManageFee),
+      exclusiveArea: parseInt(formData.exclusiveArea),
+      supplyArea: parseInt(formData.supplyArea),
+      currentFloor: parseInt(formData.currentFloor),
+      floorTotalCount: parseInt(formData.floorTotalCount),
+      roomCount: parseInt(formData.roomCount),
+      bathCount: parseInt(formData.bathCount),
+      regionNo: parseInt(formData.regionNo),
     };
 
-    // 2. FormData로 변환
-    const stockData = new FormData();
-    Object.entries(finalData).forEach(([key, value]) => {
-      if (key === "stockImg") {
-        value.forEach(file => stockData.append("stockImg", file)); // 배열이라면 각각 추가
-      } else {
-        stockData.append(key, value);
+      console.log(convertedData);
+
+      const response = await axios.post("http://localhost:8080/myPage/addStock", convertedData,{withCredentials: true});
+
+      if (response.status === 200) {
+        console.log("기본 정보 등록 완료");
+        const stockNo = response.data.stockNo;
+      
+        const imageForm = new FormData();
+        combinedImages.forEach(file => imageForm.append("stockImg", file));
+      
+        const imgResp = await axios.post("http://localhost:8080/myPage/addStockImg", imageForm,{withCredentials: true});
+      
+        if (imgResp.status === 200) {
+          alert("매물 등록이 완료되었습니다.");
+          nav("/myPage");
+        }
       }
-    });
 
-    combinedImages.forEach(img => console.log(img instanceof File));
-    for (let pair of stockData.entries()) {
-    console.log(pair[0], pair[1]);
+    } catch (error) {
+        console.log("업로드 실패", error);
     }
-
-    // 3. 전송
-    await axios.post("http://localhost:8080/myPage/addStock", stockData);
-
-  } catch (error) {
-    console.log("업로드 실패", error);
-  }
-};
-    
+  };
     
     
     return (
@@ -810,33 +817,8 @@ const handleSubmit = async () => {
               
               <div className="my-page-stock-image-upload-section">
                 <div className="my-page-stock-image-upload-header">
-                  <span className="my-page-stock-image-upload-title">사진</span>
-                  <button className="my-page-stock-image-add-btn" onClick={handleBenefitClick}>
-                    <Plus size={16} className="plus-icon" />
-                    이미지추가
-                  </button>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    ref={inputRef}
-                    style={{ display: 'none' }}
-                    onChange={handleBalanceChange}
-                  />
-                </div>
-                <ul>
-                  {stockImg.map((img, idx) => (
-                    <li className='imgList' key={idx}>{img.name}</li>
-                  ))}
-                </ul>
-                <p className="my-page-stock-image-upload-desc">이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는 다음과 같습니다.</p>
-                <p className="my-page-stock-image-upload-desc">공유할 이미지는 최대로 첨부할 수 있습니다</p>
-              </div>
-              
-              <div className="my-page-stock-image-upload-section">
-                <div className="my-page-stock-image-upload-header">
                   <span className="my-page-stock-image-upload-title">평형 이미지</span>
-                  <button className="my-page-stock-image-add-btn" onClick={handleClick}>
+                  <button className="my-page-stock-image-add-btn" onClick={handleBenefitClick}>
                     <Plus size={16} className="plus-icon" />
                     이미지추가
                   </button>
@@ -846,11 +828,36 @@ const handleSubmit = async () => {
                     multiple
                     ref={balanceInputRef}
                     style={{ display: 'none' }}
-                    onChange={handleChange}
+                    onChange={handleBalanceChange}
                   />
                 </div>
                 <ul>
                   {balanceImg && <li className='imgList'>{balanceImg.name}</li>}
+                </ul>
+                <p className="my-page-stock-image-upload-desc">이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는 다음과 같습니다.</p>
+                <p className="my-page-stock-image-upload-desc">공유할 이미지는 최대로 첨부할 수 있습니다</p>
+              </div>
+              
+              <div className="my-page-stock-image-upload-section">
+                <div className="my-page-stock-image-upload-header">
+                  <span className="my-page-stock-image-upload-title">사진</span>
+                  <button className="my-page-stock-image-add-btn" onClick={handleClick}>
+                    <Plus size={16} className="plus-icon" />
+                    이미지추가
+                  </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    ref={inputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleChange}
+                  />
+                </div>
+                <ul>
+                  {stockImg.map((img, idx) => (
+                    <li className='imgList' key={idx}>{img.name}</li>
+                  ))}
                 </ul>
                 <p className="my-page-stock-image-upload-desc">이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는 다음과 같습니다.</p>
                 <p className="my-page-stock-image-upload-desc">공유할 이미지는 최대로 첨부할 수 있습니다</p>
