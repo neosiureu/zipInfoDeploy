@@ -184,7 +184,7 @@ const SearchBar = ({
         </div>
 
         {/* 구/군 */}
-        <div className="select-wrap">
+        <div className="search-select-wrap">
           <select value={sigunguSelected} onChange={handleSigunguChange}>
             {sigunguList?.length === 0 ? (
               <option value={-1} disabled>
@@ -203,7 +203,7 @@ const SearchBar = ({
         </div>
 
         {/* 매매/전세/월세 or 분양상태 */}
-        <div className="select-wrap">
+        <div className="search-select-wrap">
           <select value={dealType} onChange={handleDealChange}>
             {showSearchType ? (
               <>
@@ -230,7 +230,7 @@ const SearchBar = ({
         </div>
 
         {/* 주거/매물형태 */}
-        <div className="select-wrap">
+        <div className="search-select-wrap">
           <select value={residenceType} onChange={handleResidenceChange}>
             <option value="-1" disabled hidden>
               주거/매물형태
