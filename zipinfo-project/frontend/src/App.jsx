@@ -40,6 +40,9 @@ import AnnounceWrite from "./components/announce/AnnounceWrite";
 import NeighborhoodBoard from "./components/neighborhood/NeighborhoodBorad";
 import NeighborhoodDetail from "./components/neighborhood/NeighborhoodDetail";
 
+import Gonggong from "./components/common/gonggong";
+import NaverCallback from "./components/auth/NaverCallback";
+
 function MessageListener() {
   const { setMember } = useContext(MemberContext);
   const navigate = useNavigate();
@@ -62,18 +65,33 @@ function MessageListener() {
 }
 
 function App() {
+  const initNaver = () => {
+    if (window.naver && !window.naver._loginInitialized) {
+      const login = new window.naver.LoginWithNaverId({
+        clientId: import.meta.env.VITE_NAVER_CLIENT_ID,
+        callbackUrl: import.meta.env.VITE_NAVER_CALLBACK_URI,
+        isPopup: true,
+        loginButton: { type: 3, height: "48" },
+        authType: "reauthenticate",
+      });
+      login.init();
+      window.naverLoginInstance = login;
+      window.naver._loginInitialized = true;
+    }
+  };
   useEffect(() => {
     if (window.Kakao && !window.Kakao.isInitialized()) {
       window.Kakao.init(import.meta.env.VITE_KAKAO_JS_KEY);
       console.log("Kakao SDK 초기화", window.Kakao.isInitialized());
     }
+    initNaver();
   }, []);
+
   return (
     <AuthProvider>
       <BrowserRouter>
         <MemberProvider>
           <MessageListener />
-
           <Routes>
             {/* 공통 사용자 레이아웃 */}
             <Route path="/" element={<Layout />}>
@@ -82,7 +100,7 @@ function App() {
               <Route path="stock" element={<StockPage />} />
               <Route path="login" element={<MemberLogin />} />
               <Route path="signUp" element={<MemberSignup />} />
-              <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />
+              <Route path="gonggong" element={<Gonggong />} />
 
               {/* 마이페이지 */}
               <Route path="myPage" element={<MyInfo />} />
@@ -124,6 +142,9 @@ function App() {
               <Route path="list_sale" element={<ListSale />} />
               <Route path="add_sale" element={<AddSale />} />
             </Route>
+
+            <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />
+            <Route path="/oauth2/naver/redirect" element={<NaverCallback />} />
           </Routes>
         </MemberProvider>
       </BrowserRouter>

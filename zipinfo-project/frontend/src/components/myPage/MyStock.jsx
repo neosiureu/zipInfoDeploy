@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Plus } from 'lucide-react';
 import "../../css/myPage/menu.css";
 import "../../css/myPage/myStock.css";
 import Menu from "./Menu";
+import { axiosAPI } from '../../api/axiosApi';
+import axios from 'axios';
 
 export default function MyPage() {
   const [formData, setFormData] = useState({
@@ -26,7 +28,8 @@ export default function MyPage() {
     registDate: '',
     stockDetail: '',
     regionNo: '',
-    fulladdr: ''
+    fulladdr: '',
+    stockImg: []
   });
 
   const keyToLabel = {
@@ -57,7 +60,7 @@ export default function MyPage() {
     stockFeeMonth: true,
     stockName: false,
     stockInfo: false,
-    stockAddress: true,
+    stockAddress: false,
     stockForm: true,
     exclusiveArea: false,
     supplyArea: false,
@@ -73,253 +76,363 @@ export default function MyPage() {
     stockDetail: false,
   });  
 
-  const handleSubmit = async () => {
-    try {
-      console.log(checkData);
-      
-      for (const [key, value] of Object.entries(checkData)) {
-        if (!value){
-          const label = keyToLabel[key]|| key;
-          alert(`${label} 올바르지 않습니다.`);
-          return; 
-        }
-      }
-    
+  //---------------------- 이미지 관련 구문입니다-------------------------
 
-      const response = await axiosAPI.post("/myPage/addStock", formData
-      );
-  
-      if (response.status === 200) {
-        alert(
-          '매물 등록이 완료되었습니다.'
-        );
-      }
-  
-      nav("/myPage")
-      
-    } catch (error) {
-      console.log(error)
-    }
+  const [stockTubmImg, setStockTumbImg] = useState(null);
+  const [stockImg, setStockImg] = useState([]);
+  const [balanceImg, setBalanceImg] = useState(null);
 
+  // 각각의 input ref
+  const thumbInputRef = useRef(null);
+  const inputRef = useRef(null);
+  const balanceInputRef = useRef(null);
+  
+  // 각각의 버튼 클릭 핸들러
+  const handleThumbClick = () => thumbInputRef.current.click();
+  const handleClick = () => inputRef.current.click();
+  const handleBenefitClick = () => balanceInputRef.current.click();
+
+  // 파일 선택되면 상태에 추가
+  const handleTubmChange = (e) => {
+    const file = e.target.files[0];
+    setStockTumbImg(file);
   };
 
+  const handleChange = (e) => {
+    const files = Array.from(e.target.files);
+    setStockImg(prev => [...prev, ...files]);
+  };
+
+  const handleBalanceChange = (e) => {
+    const file = e.target.files[0];
+    setBalanceImg(file);
+  };
+
+  const combinedImages = [
+  ...(stockTubmImg ? [stockTubmImg] : []),
+  ...(balanceImg ? [balanceImg] : []),
+  ...stockImg
+  ];
+
+  //-----------------------------여기까지-----------------------------
+
+  const [postcode, setPostcode] = useState("");
+  const [address, setAddress] = useState("");
+  const [detailAddress, setDetailAddress] = useState("");
+
+  const execJusoAPI = (addr) => {
+  const callbackName = `jusoCallback_${Date.now()}`;
+  window[callbackName] = (data) => {
+    if (data.results && data.results.juso && data.results.juso.length > 0) {
+      const { admCd } = data.results.juso[0];
+      setFormData(prev => ({
+        ...prev,
+        regionNo: admCd,
+      }));
+    } else {
+      alert("검색 결과 없음");
+    }
+
+    // 정리
+    delete window[callbackName];
+    document.body.removeChild(script);
+  };
+
+  const params = new URLSearchParams({
+    currentPage: 1,
+    countPerPage: 10,
+    resultType: "json",
+    confmKey: "devU01TX0FVVEgyMDI1MDYyNDA5NDMxODExNTg3MjU=",
+    keyword: addr,
+    callback: callbackName,
+  });
+
+  const script = document.createElement("script");
+  script.src = `https://business.juso.go.kr/addrlink/addrLinkApiJsonp.do?${params.toString()}`;
+  document.body.appendChild(script);
+};
+
+  const execDaumPostcode = () => {
+    new window.daum.Postcode({
+      oncomplete: async (data) => {
+        const addr =
+          data.userSelectedType === "R" ? data.roadAddress : data.jibunAddress;
+          setPostcode(data.zonecode);
+          setAddress(addr);
+        document.getElementsByName("detailAddress")[0].focus();
+
+        execJusoAPI(addr);
+      },
+    }).open();
+    
+  };
+
+  
   const handleStockType = (e) => {
     console.log(formData);
-
+    
     const {value} = e.target;
-
+    
     setFormData(prev => ({
       ...prev,
       stockType: value
     }));
   }
-
+  
   const handleStockForm = (e) => {
     const {value} = e.target;
-
+    
     setFormData(prev => ({
       ...prev,
       stockForm: value
     }));
   }
-
-  useEffect(() => {
-  window.jusoCallBack = (
-    roadFullAddr,
-    roadAddrPart1,
-    addrDetail,
-    roadAddrPart2,
-    zipNo,
-    admCd
-  ) => {
-    console.log("주소 콜백 실행됨");
-    console.log("도로명주소:", roadFullAddr);
+  
+  const handleDetailAddress = (e) => {
+    const {value} = e.target;
+    
+    setDetailAddress(value);
     setFormData(prev => ({
       ...prev,
-      regionNo: admCd,
-      stockAddress: [zipNo, `${roadAddrPart1} ${roadAddrPart2}`, addrDetail].join("^^^"),
-      fulladdr: roadFullAddr
-    }));
-    console.log(formData);
-  };
-}, []);
-
+      stockAddress: [postcode, address, detailAddress].join("^^^")
+    }))
+      formData.stockAddress.length >2 && formData.stockAddress.length < 1000?
+      setCheckData((prev) => ({
+        ...prev,
+        stockAddress: true
+      })) :
+      setCheckData((prev) => ({
+        ...prev,
+        stockAddress: false
+      })); 
+  }
+  
   const handleStockInfo = (e) => {
     const { name, value } = e.target;
-
+    
     setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
-
+    
     const trimmed = value.trim();
-
+    
     switch(name) {
       case 'stockSellPrice': !isNaN(trimmed) && trimmed.length > 2 && trimmed.length < 15 ? 
-        setCheckData((prev) => ({
+      setCheckData((prev) => ({
         ...prev,
         stockSellPrice: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         stockSellPrice: false
-        })); break;
-
+      })); break;
+      
       case 'stockFeeMonth': !isNaN(trimmed) && trimmed.length > 2 && trimmed.length < 15 ? 
-        setCheckData((prev) => ({
+      setCheckData((prev) => ({
         ...prev,
         stockFeeMonth: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         stockFeeMonth: false
-        })); break; 
-
+      })); break; 
+      
       case 'stockName': trimmed.length > 2 && trimmed.length < 50 ? 
-        setCheckData((prev) => ({
+      setCheckData((prev) => ({
         ...prev,
         stockName: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         stockName: false
       })); break;
-
+      
       case 'stockInfo': trimmed.length > 1 && trimmed.length < 100 ? 
-        setCheckData((prev) => ({
+      setCheckData((prev) => ({
         ...prev,
         stockInfo: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         stockInfo: false
       })); break;
-
-      case 'exclusiveArea': !isNaN(trimmed) && trimmed.length > 0 && trimmed.length < 5 ? 
-        setCheckData((prev) => ({
+      
+      
+      case 'exclusiveArea': !isNaN(trimmed) && trimmed.length > 0 && trimmed.length < 11 ? 
+      setCheckData((prev) => ({
         ...prev,
         exclusiveArea: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         exclusiveArea: false
-        })); break;
+      })); break;
       
-      case 'supplyArea': !isNaN(trimmed) && trimmed.length > 0 && trimmed.length < 5 ? 
-        setCheckData((prev) => ({
+      case 'supplyArea': !isNaN(trimmed) && trimmed.length > 0 && trimmed.length < 11 ? 
+      setCheckData((prev) => ({
         ...prev,
         supplyArea: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         supplyArea: false
-        })); break;
-
+      })); break;
+      
       case 'currentFloor': !isNaN(trimmed) && trimmed.length > 0 && trimmed.length < 3 ? 
-        setCheckData((prev) => ({
+      setCheckData((prev) => ({
         ...prev,
         currentFloor: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         currentFloor: false
-        })); break;
-
+      })); break;
+      
       case 'floorTotalCount': !isNaN(trimmed) && trimmed.length > 0 && trimmed.length < 3 ? 
-        setCheckData((prev) => ({
+      setCheckData((prev) => ({
         ...prev,
         floorTotalCount: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         floorTotalCount: false
-        })); break;
-
+      })); break;
+      
       case 'roomCount': !isNaN(trimmed) && trimmed.length > 0 && trimmed.length < 3 ? 
-        setCheckData((prev) => ({
+      setCheckData((prev) => ({
         ...prev,
         roomCount: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         roomCount: false
-        })); break;
-
+      })); break;
+      
       case 'bathCount': !isNaN(trimmed) && trimmed.length > 0 && trimmed.length < 3 ? 
-        setCheckData((prev) => ({
+      setCheckData((prev) => ({
         ...prev,
         bathCount: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         bathCount: false
-        })); break;
-
+      })); break;
+      
       case 'stockDirection': trimmed.length > 0 && trimmed.length < 11 ? 
-        setCheckData((prev) => ({
+      setCheckData((prev) => ({
         ...prev,
         stockDirection: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         stockDirection: false
-        })); break;
-
-      case 'stockManageFee': !isNaN(trimmed) && trimmed.length > 2 && trimmed.length < 15 ? 
-        setCheckData((prev) => ({
+      })); break;
+      
+      case 'stockManageFee': !isNaN(trimmed) && trimmed.length < 15 ? 
+      setCheckData((prev) => ({
         ...prev,
         stockManageFee: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         stockManageFee: false
-        })); break;
-
+      })); break;
+      
       case 'ableDate': trimmed.length > 0 && trimmed.length < 11 ? 
-        setCheckData((prev) => ({
+      setCheckData((prev) => ({
         ...prev,
         ableDate: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         ableDate: false
-        })); break;
-
+      })); break;
+      
       case 'useApprovalDate': trimmed.length > 0 && trimmed.length < 11 ? 
-        setCheckData((prev) => ({
+      setCheckData((prev) => ({
         ...prev,
         useApprovalDate: true
-        })) :
-        setCheckData((prev) => ({
+      })) :
+      setCheckData((prev) => ({
         ...prev,
         useApprovalDate: false
-        })); break;
-
+      })); break;
+      
       case 'registDate': trimmed.length > 0 && trimmed.length < 11 ? 
-        setCheckData((prev) => ({
+      setCheckData((prev) => ({
         ...prev,
         registDate: true
+      })) :
+        setCheckData((prev) => ({
+          ...prev,
+          registDate: false
+        })); break;
+        
+        case 'stockDetail': trimmed.length > 0 && trimmed.length < 2000 ? 
+        setCheckData((prev) => ({
+          ...prev,
+          stockDetail: true
         })) :
         setCheckData((prev) => ({
-        ...prev,
-        registDate: false
+          ...prev,
+          stockDetail: false
         })); break;
-
-      case 'stockDetail': trimmed.length > 0 && trimmed.length < 2000 ? 
-        setCheckData((prev) => ({
-        ...prev,
-        stockDetail: true
-        })) :
-        setCheckData((prev) => ({
-        ...prev,
-        stockDetail: false
-        })); break;
+      }
+    }  
+    
+const handleSubmit = async () => {
+  try {
+    console.log(checkData);
+    console.log(formData);
+    
+    for (const [key, value] of Object.entries(checkData)) {
+      if (!value) {
+        const label = keyToLabel[key] || key;
+        alert(`${label} 올바르지 않습니다.`);
+        return; 
+      }
     }
-  }  
 
-  return (
+    if (stockTubmImg == null || balanceImg == null || stockImg.length == 0) {
+      alert('이미지 파일을 모두 넣어주세요.');
+      return;
+    }
 
-    <div className="my-page">
+    // 1. formData에 stockImg를 수동으로 조합한 객체 생성
+    const finalData = {
+      ...formData,
+      stockImg: combinedImages,
+    };
+
+    // 2. FormData로 변환
+    const stockData = new FormData();
+    Object.entries(finalData).forEach(([key, value]) => {
+      if (key === "stockImg") {
+        value.forEach(file => stockData.append("stockImg", file)); // 배열이라면 각각 추가
+      } else {
+        stockData.append(key, value);
+      }
+    });
+
+    combinedImages.forEach(img => console.log(img instanceof File));
+    for (let pair of stockData.entries()) {
+    console.log(pair[0], pair[1]);
+    }
+
+    // 3. 전송
+    await axios.post("http://localhost:8080/myPage/addStock", stockData);
+
+  } catch (error) {
+    console.log("업로드 실패", error);
+  }
+};
+    
+    
+    
+    return (
+      
+      <div className="my-page">
       <div className="my-page-container">
           
         <Menu/>
@@ -492,21 +605,38 @@ export default function MyPage() {
                 <label className="my-page-stock-input-label">매물 위치</label>
                 <input 
                   type="text"
-                  placeholder="매물 위치를 입력해주세요"
+                  placeholder="우편번호"
                   className="my-page-stock-input-field"
-                  value={formData.stockAddress}
-                  name='stockAddress'
+                  value={postcode}
+                  name='postcode'
                   readOnly
                 />
-                <button type="button" onClick={() => {
-                  window.open(
-                    "/jusoPopUp.html?inputYn=N",
-                    "pop",
-                    "width=570,height=420,scrollbars=yes,resizable=yes"
-                  );
-                }}>
+
+                <button className='my-page-stock-address-btn' type="button" onClick={execDaumPostcode}>
                   주소 찾기
                 </button>
+              </div>
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label"></label>
+                <input 
+                  type="text"
+                  placeholder="주소"
+                  className="my-page-stock-input-field"
+                  value={address}
+                  name='address'
+                  readOnly
+                />
+              </div>
+              <div className="my-page-stock-input-row">
+                <label className="my-page-stock-input-label"></label>
+                <input 
+                  type="text"
+                  placeholder="상세 위치를 입력해주세요"
+                  className="my-page-stock-input-field"
+                  value={detailAddress}
+                  name='detailAddress'
+                  onChange={handleDetailAddress}
+                />
               </div>
               <div className="my-page-stock-input-row">
                 <label className="my-page-stock-input-label">매물형태</label>
@@ -657,36 +787,71 @@ export default function MyPage() {
             <div className="my-page-stock-form-group">
               <div className="my-page-stock-image-upload-section">
                 <div className="my-page-stock-image-upload-header">
-                  <span className="my-page-stock-image-upload-title">올릴 이미지</span>
-                  <button className="my-page-stock-image-add-btn">
+                  <span className="my-page-stock-image-upload-title">썸네일 이미지</span>
+                  <button className="my-page-stock-image-add-btn" onClick={handleThumbClick}>
                     <Plus size={16} className="plus-icon" />
                     이미지추가
                   </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    ref={thumbInputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleTubmChange}
+                  />
                 </div>
+                <ul>
+                  {stockTubmImg && <li className='imgList'>{stockTubmImg.name}</li>}
+                </ul>
                 <p className="my-page-stock-image-upload-desc">이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는 다음과 같습니다.</p>
                 <p className="my-page-stock-image-upload-desc">공유할 이미지는 최대로 첨부할 수 있습니다</p>
               </div>
               
               <div className="my-page-stock-image-upload-section">
                 <div className="my-page-stock-image-upload-header">
-                  <span className="my-page-stock-image-upload-title">서면</span>
-                  <button className="my-page-stock-image-add-btn">
+                  <span className="my-page-stock-image-upload-title">사진</span>
+                  <button className="my-page-stock-image-add-btn" onClick={handleBenefitClick}>
                     <Plus size={16} className="plus-icon" />
                     이미지추가
                   </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    ref={inputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleBalanceChange}
+                  />
                 </div>
+                <ul>
+                  {stockImg.map((img, idx) => (
+                    <li className='imgList' key={idx}>{img.name}</li>
+                  ))}
+                </ul>
                 <p className="my-page-stock-image-upload-desc">이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는 다음과 같습니다.</p>
                 <p className="my-page-stock-image-upload-desc">공유할 이미지는 최대로 첨부할 수 있습니다</p>
               </div>
               
               <div className="my-page-stock-image-upload-section">
                 <div className="my-page-stock-image-upload-header">
-                  <span className="my-page-stock-image-upload-title">혜택 이미지</span>
-                  <button className="my-page-stock-image-add-btn">
+                  <span className="my-page-stock-image-upload-title">평형 이미지</span>
+                  <button className="my-page-stock-image-add-btn" onClick={handleClick}>
                     <Plus size={16} className="plus-icon" />
                     이미지추가
                   </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    ref={balanceInputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleChange}
+                  />
                 </div>
+                <ul>
+                  {balanceImg && <li className='imgList'>{balanceImg.name}</li>}
+                </ul>
                 <p className="my-page-stock-image-upload-desc">이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는 다음과 같습니다.</p>
                 <p className="my-page-stock-image-upload-desc">공유할 이미지는 최대로 첨부할 수 있습니다</p>
               </div>
