@@ -12,8 +12,7 @@ public interface OauthMapper {
 
 	void insertKakaoMember(Member member);
 
-	void updateAccessToken(
-	        @Param("memberEmail") String memberEmail,
-	        @Param("accessToken")  String accessToken
-	    );
+	void updateAccessToken( @Param("memberEmail") String memberEmail, @Param("accessToken")  String accessToken);
+
+	void insertNaverMember(Member member);
 }

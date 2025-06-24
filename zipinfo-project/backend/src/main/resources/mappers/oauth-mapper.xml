@@ -31,11 +31,40 @@ INSERT INTO MEMBER (
     #{accessToken},      <!--  서비스에서 발급한 JWT-->
     #{memberLocation}    
   )
-      </insert>
+ </insert>
+ 
+ 
+ <insert id=" insertNaverMember
+">
+INSERT INTO MEMBER (
+    MEMBER_NO,
+    MEMBER_EMAIL,
+    MEMBER_LOGIN,
+    MEMBER_NICKNAME,
+    MEMBER_NAME,
+    MEMBER_AUTH,
+    ACCESS_TOKEN,
+    MEMBER_LOCATION
+  ) VALUES (
+    SEQ_MEMBER.NEXTVAL,
+    #{memberEmail},
+    #{memberLogin},
+    #{memberNickname},
+    #{memberName},
+    #{memberAuth},
+    #{accessToken},      <!--  서비스에서 발급한 JWT-->
+    #{memberLocation}    
+  )
+ </insert>
+ 
 
 <update id="updateAccessToken">
   UPDATE MEMBER
     SET ACCESS_TOKEN = #{accessToken}
   WHERE MEMBER_EMAIL = #{memberEmail}
 </update>
+
+
+
+
 </mapper>
