@@ -1,5 +1,9 @@
 package com.zipinfo.project.stock.model.dto;
 
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.Data;
 
 @Data
@@ -31,4 +35,6 @@ public class Stock {
     //STOCK_COORD에서 추가
     private double lat;
     private double lng;
+    
+    private List<MultipartFile> stockImg;
 }
