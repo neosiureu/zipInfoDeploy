@@ -69,5 +69,24 @@ public class StockController {
 		}
 	}
 	
+	/** 시군구 코드를 입력하면 해당 시군구의 이름을 반환하는 함수
+	 * @param code : 이름을 얻고자 하는 시군구 코드
+	 * @return
+	 */
+	@PostMapping("getSigunguFullName")
+	private ResponseEntity<?> getSigunguFullName(@RequestBody int code){
+		
+		//return 
+	    try {
+	    	String fullName = service.getSigunguFullName(code);
+			
+			return ResponseEntity.status(HttpStatus.OK).body(fullName);
+		}catch(Exception e) {
+			log.error("시군구 명칭 조회중 오류 발생", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("매물 조회 중 문제발생" + e.getMessage());
+		
+		}
+	}
+	
 	
 }

@@ -74,4 +74,8 @@
 			</where>)
 			 i ON c.stockNo = i.STOCK_NO
 	</select>
+	<select id="selectSigunguFullName">
+		SELECT TOWN_NAME FROM BOARD_TOWN
+		WHERE TOWN_NO LIKE #{sido} || '___'
+	</select>	
 </mapper>
