@@ -3,9 +3,16 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.zipinfo.project.board.model.mapper.EditAnnounceMapper">
+<mapper namespace="com.zipinfo.project.announce.model.mapper.EditAnnounceMapper">
 
-    <insert id="insertBoard" useGeneratedKeys="true" keyProperty="boardNo">
+    <!--
+        공지사항 게시글 등록
+        - useGeneratedKeys="true": DB에서 생성한 키를 자동으로 매핑
+        - keyProperty="announceNo": 생성된 키를 DTO의 announceNo 필드에 저장
+        - parameterType: 전달받는 DTO 클래스 타입 지정
+        - ANNOUNCE_NO는 시퀀스 대신 DB가 자동생성하거나 트리거에서 처리하는 경우에만 사용 가능
+    -->
+    <insert id="insertAnnounce" useGeneratedKeys="true" keyProperty="announceNo" parameterType="com.zipinfo.project.announce.model.dto.Announce">
         INSERT INTO ANNOUNCE (
             ANNOUNCE_TITLE,
             ANNOUNCE,
@@ -15,8 +22,8 @@
             MEMBER_NO
         )
         VALUES (
-            #{title},
-            #{content},
+            #{announceTitle},
+            #{announce},
             SYSDATE,
             0,
             'N',
@@ -24,35 +31,53 @@
         )
     </insert>
 
-    <update id="updateBoard">
+    <!--
+        공지사항 게시글 수정
+        - 본인 게시글만 수정 가능하도록 MEMBER_NO 조건 포함
+        - ANNOUNCE_DEL_FL = 'N' 인 경우만 수정 가능 (삭제되지 않은 게시글)
+    -->
+    <update id="updateAnnounce" parameterType="com.zipinfo.project.announce.model.dto.Announce">
         UPDATE ANNOUNCE
         SET
-            ANNOUNCE_TITLE = #{title},
-            ANNOUNCE = #{content}
-        WHERE ANNOUNCE_NO = #{boardNo}
+            ANNOUNCE_TITLE = #{announceTitle},
+            ANNOUNCE = #{announce}
+        WHERE ANNOUNCE_NO = #{announceNo}
           AND MEMBER_NO = #{memberNo}
           AND ANNOUNCE_DEL_FL = 'N'
     </update>
 
-    <update id="deleteBoard">
+    <!--
+        공지사항 게시글 삭제 (논리 삭제)
+        - 파라미터로 Map 형태를 받고,
+          keys가 params 안에 포함된 구조일 때 사용
+        - 본인 게시글만 삭제 가능하도록 MEMBER_NO 조건 포함
+        - 삭제된 게시글은 ANNOUNCE_DEL_FL = 'Y'로 변경
+    -->
+    <update id="deleteAnnounce" parameterType="map">
         UPDATE ANNOUNCE
         SET ANNOUNCE_DEL_FL = 'Y'
-        WHERE ANNOUNCE_NO = #{params.boardNo}
+        WHERE ANNOUNCE_NO = #{params.announceNo}
           AND MEMBER_NO = #{params.memberNo}
           AND ANNOUNCE_DEL_FL = 'N'
     </update>
 
-    <select id="selectBoard" resultType="com.zipinfo.project.board.model.dto.Board">
+    <!--
+        공지사항 게시글 단일 조회
+        - parameterType="int": 공지사항 번호(announceNo)를 받아 조회
+        - resultType: DTO 클래스 타입
+        - 컬럼명과 DTO 필드명이 다를 경우 alias를 사용해 매핑
+    -->
+    <select id="selectAnnounce" resultType="com.zipinfo.project.announce.model.dto.Announce" parameterType="int">
         SELECT
-            ANNOUNCE_NO AS boardNo,
-            ANNOUNCE_TITLE AS title,
-            ANNOUNCE AS content,
-            ANNOUNCE_WRITE_DATE AS writeDate,
-            ANNOUNCE_READ_COUNT AS readCount,
-            ANNOUNCE_DEL_FL AS delFl,
+            ANNOUNCE_NO AS announceNo,
+            ANNOUNCE_TITLE AS announceTitle,
+            ANNOUNCE AS announce,
+            ANNOUNCE_WRITE_DATE AS announceWriteDate,
+            ANNOUNCE_READ_COUNT AS announceReadCount,
+            ANNOUNCE_DEL_FL AS announceDelFl,
             MEMBER_NO AS memberNo
         FROM ANNOUNCE
-        WHERE ANNOUNCE_NO = #{boardNo}
+        WHERE ANNOUNCE_NO = #{announceNo}
           AND ANNOUNCE_DEL_FL = 'N'
     </select>
 

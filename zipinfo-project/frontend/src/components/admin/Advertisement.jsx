@@ -146,8 +146,19 @@ const Advertisement = () => {
         </table>
       </div>
 
-      <div className="mb-6">
-        <input type="file" onChange={handleFileChange} />
+      <div
+        className="file-upload-container"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <input
+          type="file"
+          onChange={handleFileChange}
+          style={{ width: "300px", maxWidth: "90%" }}
+        />
       </div>
 
       <div className="advertisement-button-wrapper">

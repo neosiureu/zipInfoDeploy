@@ -1,9 +1,9 @@
-package com.zipinfo.project.board.model.service;
+package com.zipinfo.project.announce.model.service;
 
 import java.util.List;
 import java.util.Map;
 
-import com.zipinfo.project.board.model.dto.Board;
+import com.zipinfo.project.announce.model.dto.Announce;
 
 /**
  * 공지사항 게시판 관련 서비스 인터페이스
@@ -17,7 +17,7 @@ public interface AnnounceService {
      * @param cp 현재 페이지 번호
      * @return 게시글 목록
      */
-    List<Board> selectBoardList(int cp);
+    List<Announce> selectAnnounceList(int cp);
 
     /**
      * 게시글 검색 목록 조회 (페이징 및 필터링 포함)
@@ -27,53 +27,53 @@ public interface AnnounceService {
      * @param cp 현재 페이지 번호
      * @return 검색된 게시글 목록
      */
-    List<Board> searchList(String key, String query, int cp);
+    List<Announce> searchList(String key, String query, int cp);
 
     /**
      * 게시글 상세 조회 (여러 조건을 Map으로 받음)
      * 
-     * @param map 게시글 식별용 파라미터 (예: boardNo 등)
+     * @param map 게시글 식별용 파라미터 (예: announceNo 등)
      * @return 조회된 게시글 DTO
      */
-    Board selectOne(Map<String, Object> map);
+    Announce selectOne(Map<String, Object> map);
 
     /**
      * 게시글 상세 조회 (게시글 번호로 단일 조회)
      * 
-     * @param boardNo 게시글 번호
+     * @param announceNo 게시글 번호
      * @return 조회된 게시글 DTO
      */
-    Board selectBoard(int boardNo);
+    Announce selectAnnounce(int announceNo);
 
     /**
      * 게시글 조회수 증가
      * 
-     * @param boardNo 조회수를 증가시킬 게시글 번호
+     * @param announceNo 조회수를 증가시킬 게시글 번호
      * @return 영향받은 행 수 (1 이상이면 성공)
      */
-    int increaseViewCount(int boardNo);
+    int increaseViewCount(int announceNo);
 
     /**
      * 게시글 등록
      * 
-     * @param board 등록할 게시글 DTO
+     * @param announce 등록할 게시글 DTO
      * @return 성공 시 영향받은 행 수
      */
-    int insertBoard(Board board);
+    int insertAnnounce(Announce announce);
 
     /**
      * 게시글 수정
      * 
-     * @param board 수정할 게시글 DTO
+     * @param announce 수정할 게시글 DTO
      * @return 성공 시 영향받은 행 수
      */
-    int updateBoard(Board board);
+    int updateAnnounce(Announce announce);
 
     /**
      * 게시글 삭제 (논리 삭제)
      * 
-     * @param map 삭제 조건 (예: boardNo)
+     * @param map 삭제 조건 (예: announceNo)
      * @return 성공 시 영향받은 행 수
      */
-    int deleteBoard(Map<String, Object> map);
+    int deleteAnnounce(Map<String, Object> map);
 }

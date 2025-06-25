@@ -1,4 +1,4 @@
-package com.zipinfo.project.board.model.dto;
+package com.zipinfo.project.announce.model.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 

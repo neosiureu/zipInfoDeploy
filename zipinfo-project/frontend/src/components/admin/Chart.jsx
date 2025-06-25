@@ -74,7 +74,7 @@ function Chart() {
 
   return (
     <>
-      <h2>BoardProject 회원 유입/이탈 추이</h2>
+      <h2>Zipinfo 회원 유입/이탈 추이</h2>
       {/* 높이의 경우 100%라고 문자열로 쓰면 화면에 렌더링 불가 */}
       <ResponsiveContainer width="100%" height={500}>
         <AreaChart
