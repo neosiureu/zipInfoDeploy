@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 
 import Layout from "./components/common/Layout";
 import React, { useEffect, useContext } from "react";
+import ProtectedRoute from "./ProtectedRoute";
 
 import Main from "./components/Main";
 import SalePage from "./components/sale/SalePage";
@@ -37,10 +38,10 @@ import Announce from "./components/announce/Announce";
 import AnnounceDetail from "./components/announce/AnnounceDetail";
 import AnnounceWrite from "./components/announce/AnnounceWrite";
 
-import NeighborhoodBoard from "./components/neighborhood/NeighborhoodBorad";
-import NeighborhoodDetail from "./components/neighborhood/NeighborhoodDetail";
+import NeighborhoodBoard from "./components/neighborhood/NeighborhoodBoard";
+import NeighborhoodDetail from "./components/neighborhood/NeighborhoodBoardDetail";
 
-import Gonggong from "./components/common/gonggong";
+import Gonggong from "./components/common/Gonggong";
 import NaverCallback from "./components/auth/NaverCallback";
 
 function MessageListener() {
@@ -89,7 +90,15 @@ function App() {
               <Route path="gonggong" element={<Gonggong />} />
 
               {/* 마이페이지 */}
-              <Route path="myPage" element={<MyInfo />} />
+
+              <Route
+                path="myPage"
+                element={
+                  <ProtectedRoute>
+                    <MyInfo />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="myPage/updateInfo" element={<UpdateInfo />} />
               <Route path="myPage/myStock" element={<MyStock />} />
               <Route path="myPage/myAnnounce" element={<MyAnnounce />} />
@@ -112,7 +121,7 @@ function App() {
               {/* 우리동네 게시판 */}
               <Route path="neighborhoodBoard" element={<NeighborhoodBoard />} />
               <Route
-                path="neighborhood/detail/:id"
+                path="neighborhoodBoard/detail/:boardNo"
                 element={<NeighborhoodDetail />}
               />
             </Route>

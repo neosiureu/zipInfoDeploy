@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "../../css/neighborhood/NeighborhoodDetail.css";
+import "../../css/neighborhood/NeighborhoodBoardDetail.css";
+import { CITY, TOWN } from "../common/Gonggong";
 
-const NeighborhoodDetail = () => {
+const NeighborhoodBoardDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
@@ -85,4 +86,4 @@ const NeighborhoodDetail = () => {
   );
 };
 
-export default NeighborhoodDetail;
+export default NeighborhoodBoardDetail;
