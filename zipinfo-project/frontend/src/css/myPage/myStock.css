@@ -166,18 +166,6 @@
   font-size: 0.75rem;
 }
 
-@media (max-width: 1024px) {
-  .property-grid {
-    grid-template-columns: repeat(2, 1fr); /* 태블릿 이하에서는 2개씩 */
-  }
-}
-
-@media (max-width: 640px) {
-  .property-grid {
-    grid-template-columns: 1fr; /* 모바일에서는 1개씩 */
-  }
-}
-
 .my-stock-pagination {
   margin-top: 2rem;
   display: flex;

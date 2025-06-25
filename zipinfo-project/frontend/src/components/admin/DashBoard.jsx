@@ -20,48 +20,48 @@ export default function DashBoard() {
     <>
       <Header />
 
-      <div className="dash-board-container">
-        <div className="dash-board-header">
+      <div className="admin-dash-container">
+        <div className="admin-dash-header">
           <h2 onClick={goDashBoardMain} style={{ cursor: "pointer" }}>
             관리자 대시보드
           </h2>
         </div>
 
-        <div className="router-tab-box">
+        <div className="admin-dash-tab-box">
           <NavLink
             to="/admin"
             end
-            className={({ isActive }) => (isActive ? "active" : "")}
+            className={({ isActive }) => (isActive ? "admin-dash-active" : "")}
           >
             통계
           </NavLink>
           <NavLink
             to="/admin/management"
-            className={({ isActive }) => (isActive ? "active" : "")}
+            className={({ isActive }) => (isActive ? "admin-dash-active" : "")}
           >
             서비스관리 권한 발급
           </NavLink>
           <NavLink
             to="/admin/inquiry"
-            className={({ isActive }) => (isActive ? "active" : "")}
+            className={({ isActive }) => (isActive ? "admin-dash-active" : "")}
           >
             문의 확인
           </NavLink>
           <NavLink
             to="/admin/advertisement"
-            className={({ isActive }) => (isActive ? "active" : "")}
+            className={({ isActive }) => (isActive ? "admin-dash-active" : "")}
           >
             광고 관리
           </NavLink>
           <NavLink
             to="/admin/list_sale"
-            className={({ isActive }) => (isActive ? "active" : "")}
+            className={({ isActive }) => (isActive ? "admin-dash-active" : "")}
           >
             분양 관리
           </NavLink>
         </div>
 
-        <div className="admin-info">
+        <div className="admin-dash-info">
           {globalState && globalState.user ? (
             <>
               <p>현재 {globalState.user.memberNickname} 으로 접속중입니다.</p>
@@ -72,7 +72,7 @@ export default function DashBoard() {
           )}
         </div>
 
-        {/* 중첩 라우트 컴포넌트 렌더링 자리 */}
+        {/* 중첩 라우트 컴포넌트 렌더링 */}
         <Outlet />
       </div>
 

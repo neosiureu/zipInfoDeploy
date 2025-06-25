@@ -246,7 +246,7 @@ export default function MemberLogin() {
               fill="currentColor"
             />
           </svg>
-          카카오로 간편 로그인
+          카카오로 간편하게 로그인하기
         </button>
 
         {/* 네이버 간편 로그인 */}
@@ -254,7 +254,7 @@ export default function MemberLogin() {
           onClick={handleNaverLogin}
           className="naver-login-btn brand-color"
         >
-          <span className="naver-simple-n">N</span>네이버로 간편 로그인
+          <span className="naver-simple-n">N</span>네이버로 간편하게 로그인하기
         </button>
 
         {/* 회원가입 */}

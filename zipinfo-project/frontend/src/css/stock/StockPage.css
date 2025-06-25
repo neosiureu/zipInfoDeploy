@@ -44,7 +44,7 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  margin: 16px 48px;
+  margin: 16px 0 48px 48px;
   cursor: pointer;
 }
 
@@ -59,12 +59,12 @@
 .item-type {
   font-size: 18px;
   font-weight: 700;
-  color: #2d7be5;
+  color: #495cf8;
   line-height: 24px;
 }
 
 .item-font-default {
-  font-size: 15px;
+  font-size: 14px;
   color: #888;
   line-height: 24px;
 }

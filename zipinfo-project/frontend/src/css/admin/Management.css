@@ -154,7 +154,7 @@ thead {
 }
 
 /* 복원/삭제 버튼 등 */
-button {
+.tab-menu button {
   cursor: pointer;
   background-color: transparent;
   border: none;
