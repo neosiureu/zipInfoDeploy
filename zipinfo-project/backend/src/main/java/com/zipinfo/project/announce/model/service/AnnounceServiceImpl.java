@@ -1,12 +1,12 @@
-package com.zipinfo.project.board.model.service;
+package com.zipinfo.project.announce.model.service;
 
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.zipinfo.project.board.model.dto.Board;
-import com.zipinfo.project.board.model.mapper.AnnounceMapper;
+import com.zipinfo.project.announce.model.dto.Announce;
+import com.zipinfo.project.announce.model.mapper.AnnounceMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AnnounceServiceImpl implements AnnounceService {
 
-    private final AnnounceMapper boardMapper;
+    private final AnnounceMapper announceMapper;
 
     /**
      * 게시글 목록 조회 (페이징)
@@ -27,8 +27,8 @@ public class AnnounceServiceImpl implements AnnounceService {
      * @return 게시글 목록 리스트
      */
     @Override
-    public List<Board> selectBoardList(int cp) {
-        return boardMapper.selectBoardList(cp);
+    public List<Announce> selectAnnounceList(int cp) {
+        return announceMapper.selectAnnounceList(cp);
     }
 
     /**
@@ -39,68 +39,68 @@ public class AnnounceServiceImpl implements AnnounceService {
      * @return 검색 결과 게시글 리스트
      */
     @Override
-    public List<Board> searchList(String key, String query, int cp) {
-        return boardMapper.searchList(key, query, cp);
+    public List<Announce> searchList(String key, String query, int cp) {
+        return announceMapper.searchList(key, query, cp);
     }
 
     /**
      * 게시글 단일 조회 (다양한 조건 지원)
-     * @param map 조회 조건 (예: boardNo)
+     * @param map 조회 조건 (예: announceNo)
      * @return 단일 게시글 DTO
      */
     @Override
-    public Board selectOne(Map<String, Object> map) {
-        return boardMapper.selectOne(map);
+    public Announce selectOne(Map<String, Object> map) {
+        return announceMapper.selectOne(map);
     }
 
     /**
-     * 게시글 단일 조회 (boardNo 기준)
-     * @param boardNo 게시글 번호
+     * 게시글 단일 조회 (announceNo 기준)
+     * @param announceNo 게시글 번호
      * @return 단일 게시글 DTO
      */
     @Override
-    public Board selectBoard(int boardNo) {
-        Map<String, Object> param = Map.of("boardNo", boardNo);
-        return boardMapper.selectOne(param);
+    public Announce selectAnnounce(int announceNo) {
+        Map<String, Object> param = Map.of("announceNo", announceNo);
+        return announceMapper.selectOne(param);
     }
 
     /**
      * 게시글 조회수 1 증가
-     * @param boardNo 조회수를 증가시킬 게시글 번호
+     * @param announceNo 조회수를 증가시킬 게시글 번호
      * @return 영향받은 행 수
      */
     @Override
-    public int increaseViewCount(int boardNo) {
-        return boardMapper.increaseViewCount(boardNo);
+    public int increaseViewCount(int announceNo) {
+        return announceMapper.increaseViewCount(announceNo);
     }
 
     /**
      * 게시글 등록
-     * @param board 등록할 게시글 DTO
+     * @param announce 등록할 게시글 DTO
      * @return 영향받은 행 수
      */
     @Override
-    public int insertBoard(Board board) {
-        return boardMapper.insertBoard(board);
+    public int insertAnnounce(Announce announce) {
+        return announceMapper.insertAnnounce(announce);
     }
 
     /**
      * 게시글 수정
-     * @param board 수정할 게시글 DTO
+     * @param announce 수정할 게시글 DTO
      * @return 영향받은 행 수
      */
     @Override
-    public int updateBoard(Board board) {
-        return boardMapper.updateBoard(board);
+    public int updateAnnounce(Announce announce) {
+        return announceMapper.updateAnnounce(announce);
     }
 
     /**
      * 게시글 삭제 (논리 삭제)
-     * @param map 삭제 조건 (예: boardNo)
+     * @param map 삭제 조건 (예: announceNo)
      * @return 영향받은 행 수
      */
     @Override
-    public int deleteBoard(Map<String, Object> map) {
-        return boardMapper.deleteBoard(map);
+    public int deleteAnnounce(Map<String, Object> map) {
+        return announceMapper.deleteAnnounce(map);
     }
 }

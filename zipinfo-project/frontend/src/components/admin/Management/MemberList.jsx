@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Search, RefreshCw } from "lucide-react";
+import { Search, RefreshCw, Lock, CheckCircle } from "lucide-react";
 import "../../../css/admin/Management.css";
 
 const MemberList = ({ initialMembers }) => {
@@ -13,7 +13,6 @@ const MemberList = ({ initialMembers }) => {
 
   const membersPerPage = 10;
 
-  // 권한 매핑
   const authMap = {
     0: "관리자",
     1: "일반회원",
@@ -31,7 +30,6 @@ const MemberList = ({ initialMembers }) => {
     }
   }, [initialMembers]);
 
-  // 필터 및 검색
   useEffect(() => {
     let updated = [...currentMembers];
 
@@ -51,7 +49,7 @@ const MemberList = ({ initialMembers }) => {
     }
 
     setFilteredMembers(updated);
-    setCurrentPage(1); // 필터나 검색 변경 시 첫 페이지로
+    setCurrentPage(1);
   }, [searchTerm, roleFilter, currentMembers]);
 
   const indexOfLastMember = currentPage * membersPerPage;
@@ -74,7 +72,6 @@ const MemberList = ({ initialMembers }) => {
     <div className="member-list p-4">
       <h3>회원 목록</h3>
 
-      {/* 🔽 검색, 필터, 새로고침 */}
       <div className="controls flex gap-4 mb-4 items-center">
         <div className="search-box relative">
           <Search size={18} className="absolute left-2 top-2.5 text-gray-400" />
@@ -117,7 +114,7 @@ const MemberList = ({ initialMembers }) => {
             <th>가입일</th>
             <th>최근 로그인</th>
             <th>게시글 수</th>
-            <th>차단 여부</th>
+            <th>상태</th>
           </tr>
         </thead>
         <tbody>
@@ -144,14 +141,19 @@ const MemberList = ({ initialMembers }) => {
                     : "-"}
                 </td>
                 <td>{member.postCount ?? 0}</td>
-                <td>{member.blockFlag ? "차단됨" : "정상"}</td>
+                <td>
+                  {member.blockFlag ? (
+                    <Lock size={18} color="red" title="차단됨" />
+                  ) : (
+                    <CheckCircle size={18} color="green" title="정상" />
+                  )}
+                </td>
               </tr>
             ))
           )}
         </tbody>
       </table>
 
-      {/* 페이지 버튼 */}
       <div className="pagination mt-4">
         {Array.from({ length: totalPages || 1 }, (_, i) => i + 1).map(
           (page) => (

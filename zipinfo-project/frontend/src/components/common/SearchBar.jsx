@@ -88,17 +88,17 @@ const SearchBar = ({
     );
     if (sigunguSelected === -1 && sidoSelected !== -1) {
       // 시/도 가 선택된 상태에서 시/군/구가 선택이 안되있거나 전체로 선택되어있을떄
-
+      console.log("sigunguSelected === -1 && sidoSelected !== -1");
       console.log(typeof searchLocationCode);
       setSearchLocationCode(sidoSelected); // 시도(lower than < 100)를 SearchLocationCode로 끌어올림
       //setSearchLocationCode(1000000000000);
     } else if (sigunguSelected !== -1 && sidoSelected !== -1) {
       // 시/도 가 선택된 상태에서 시/군/구도 선택되었을떄
-
+      console.log("sigunguSelected !== -1 && sidoSelected !== -1");
       setSearchLocationCode(sigunguSelected);
     } else if (sigunguSelected === -1 && sidoSelected === -1) {
       // 시/도, 시/군/구 모두 선택을 안헀을떄(또는 전체로 선택되었을떄)
-
+      console.log("sigunguSelected === -1 && sidoSelected === -1");
       setSearchLocationCode(-1);
     } else {
       console.log(
@@ -130,7 +130,7 @@ const SearchBar = ({
 
     fetchSigunguList();
   }, [sidoSelected]);
-  // 새로고침시 모든 조건을 전체로 초기화하는 handle함수
+  // 새로고침시 모든 검색조건을 "전체"로 초기화하는 handle함수
   const handleRefresh = () => {
     setSidoSelected(-1);
     setSigunguSelected(-1);
@@ -184,7 +184,7 @@ const SearchBar = ({
         </div>
 
         {/* 구/군 */}
-        <div className="search-select-wrap">
+        <div className="select-wrap">
           <select value={sigunguSelected} onChange={handleSigunguChange}>
             {sigunguList?.length === 0 ? (
               <option value={-1} disabled>
@@ -203,7 +203,7 @@ const SearchBar = ({
         </div>
 
         {/* 매매/전세/월세 or 분양상태 */}
-        <div className="search-select-wrap">
+        <div className="select-wrap">
           <select value={dealType} onChange={handleDealChange}>
             {showSearchType ? (
               <>
@@ -230,7 +230,7 @@ const SearchBar = ({
         </div>
 
         {/* 주거/매물형태 */}
-        <div className="search-select-wrap">
+        <div className="select-wrap">
           <select value={residenceType} onChange={handleResidenceChange}>
             <option value="-1" disabled hidden>
               주거/매물형태

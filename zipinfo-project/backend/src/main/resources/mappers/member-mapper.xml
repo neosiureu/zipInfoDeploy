@@ -56,4 +56,22 @@ AND MEMBER_DEL_FL ='N' </select>
                     )
   	</insert>
 
+<!-- 관리자 인증 -->
+	<select id="selectByEmail" parameterType="string" resultType="com.zipinfo.project.member.model.dto.Member">
+		  SELECT 
+		    member_no,
+		    member_email,
+		    member_pw,
+		    member_auth,
+		    member_name,
+		    member_nickname,
+		    member_location,
+		    member_del_fl
+		  FROM member
+		  WHERE member_email = #{email}
+		    AND member_del_fl = 'N'
+		</select>
+
+	
+
 </mapper>

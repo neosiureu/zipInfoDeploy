@@ -36,7 +36,14 @@
 	  <result property="lat" column="LAT"/>
 	  <result property="lng" column="LNG"/>
 	</resultMap>
-
+	<resultMap id="coordsMap"  type="com.zipinfo.project.stock.model.dto.CoordsStatInfo">
+	  <result property="latCenter" column="latCenter"/>
+	  <result property="lngCenter" column="lngCenter"/>
+	  <result property="latMin" column="latMin"/>
+	  <result property="lngMin" column="lngMin"/>
+	  <result property="latMax" column="latMax"/>
+	  <result property="lngMax" column="lngMax"/>
+	</resultMap>
 	<select id="selectStockInRange">
 		SELECT *
 			FROM (
@@ -78,4 +85,43 @@
 		SELECT TOWN_NAME FROM BOARD_TOWN
 		WHERE TOWN_NO LIKE #{sido} || '___'
 	</select>	
+
+	<select id="getCoordsFromStock"  resultMap="coordsMap">
+		SELECT AVG(lat) AS latCenter, AVG(lng) AS lngCenter
+		,MIN(lat) AS latMin, MIN(lng) AS lngMin
+		,MAX(lat) AS latMax, MAX(lng) AS lngMax
+		, COUNT(*)
+			FROM (
+			    SELECT STOCK_NO AS stockNo, LAT AS lat, LNG AS lng
+			    FROM STOCK_COORD 
+			
+			) c
+			INNER JOIN (SELECT * FROM STOCK_INFO
+			<where>
+				<if test="searchKeyWord != null and searchKeyWord != ''">
+			      AND (STOCK_NAME LIKE  '%' || #{searchKeyWord} || '%'
+			      OR STOCK_NAME LIKE CONCAT(#{searchKeyWord}, '%')
+			      OR STOCK_NAME LIKE CONCAT('%', #{searchKeyWord})
+			      OR STOCK_NAME = #{searchKeyWord})
+			    </if>
+			    <if test="locationCode != -1">
+			    	<if test="locationCode &lt; 100"> <!--들어온 locationCode 가 두자리수일떄-->
+			    		AND REGION_NO LIKE CONCAT(#{locationCode}, '%') <!-- 시도 코드 두자리만 들어왔을떄 주소 코드가 앞 두자리가 일치하는 것 모두를 SELECT-->
+			    	</if>
+			    	<if test="locationCode &gt; 100"> <!--들어온 locationCode 가 다섯자리 수 일떄-->
+			    		AND REGION_NO = #{locationCode} <!-- 주소 코드 다섯자리가 정확히 일치하는 것만 SELECT-->
+			    	</if>
+			      
+			      
+			    </if>
+			    <if test="stockType != -1">
+			      AND STOCK_TYPE = #{stockType}
+			    </if>
+			    <if test="stockForm != -1">
+			      AND STOCK_FORM = #{stockForm}
+			    </if>
+			</where>)
+			 i ON c.stockNo = i.STOCK_NO
+	</select>
+	
 </mapper>

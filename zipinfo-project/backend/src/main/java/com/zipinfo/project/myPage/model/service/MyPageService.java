@@ -25,5 +25,13 @@ public interface MyPageService {
 
 	int addStockImg(List<MultipartFile> stockImg, int memberNo);
 
+	int searchStockNo(int memberNo);
+
+	int addCoord(Stock stock);
+
+	List<Stock> getMyStock(int memberNo);
+
+	int deleteStockInfo(int stockNo);
+
 
 }

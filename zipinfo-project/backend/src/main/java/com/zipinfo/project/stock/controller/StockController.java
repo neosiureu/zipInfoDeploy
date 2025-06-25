@@ -12,20 +12,29 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.zipinfo.project.oauth.controller.OauthController;
+import com.zipinfo.project.stock.model.dto.CoordsStatInfo;
 import com.zipinfo.project.stock.model.dto.SearchRequest;
 import com.zipinfo.project.stock.model.dto.Stock;
 import com.zipinfo.project.stock.model.service.StockService;
 
 
 import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("stock")
 @Slf4j
 public class StockController {
+
+    private final OauthController oauthController;
 	@Autowired
 	private StockService service;
+
+
+    StockController(OauthController oauthController) {
+        this.oauthController = oauthController;
+    }
 	
 	
 	/**@RequestBody SearchRequest : dto
@@ -88,5 +97,19 @@ public class StockController {
 		}
 	}
 	
+	@PostMapping("getCoordsFromStock")
+	private ResponseEntity<?> getCoordsFromStock(@RequestBody SearchRequest sr){
+		System.out.println(" getCoordsFromStock location:" + sr.getLocationCode());
+		//return 
+	    try {
+	    	CoordsStatInfo fullName = service.getCoordsFromStock(sr);
+			
+			return ResponseEntity.status(HttpStatus.OK).body(fullName);
+		}catch(Exception e) {
+			log.error("getCoordsFromStock 조회중 오류 발생", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("getCoordsFromStock 조회중 오류 발생" + e.getMessage());
+		
+		}
+	}
 	
 }

@@ -20,6 +20,8 @@ public interface MemberMapper {
 	int signupBroker(Member member);
 
 	int signupGeneral(Member member);
+
+	Member selectByEmail(String email);
 	
 	
 	

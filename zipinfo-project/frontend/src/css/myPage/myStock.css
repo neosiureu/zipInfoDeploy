@@ -1,176 +1,211 @@
-/* 서브 탭 */
-.my-page-stock-sub-tab-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 2rem;
-}
-
-.my-page-stock-sub-tab-nav {
-  display: flex;
-  gap: 1.5rem;
-  font-size: 0.875rem;
-}
-
-.my-page-stock-sub-tab-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding-bottom: 0.25rem;
-  color: #6b7280;
-  transition: color 0.2s;
-}
-
-.my-page-stock-sub-tab-btn.active {
-  color: #000000;
-  font-weight: 500;
-  border-bottom: 2px solid #000000;
-}
-
-/* 콘텐츠 카드 */
-.my-page-stock-content-card {
+.my-page-my-stock {
+  min-height: 100vh;
   background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
-  padding: 1.5rem;
+  min-width: 1600px;
 }
 
-/* 섹션 스타일 */
-.my-page-stock-section {
-  margin-bottom: 2rem;
+.my-page-my-stock-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
-.my-page-stock-section-title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.my-page-stock-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* 입력 필드 */
-.my-page-stock-input-row {
-  display: flex;
-  align-items: center;
-}
-
-.my-page-stock-input-label {
-  width: 100px;
-  font-size: 13px;
-  color: #374151;
-}
-
-.my-page-stock-input-field {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-}
-
-.my-page-stock-input-field:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.my-page-stock-textarea {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.25rem;
-  font-size: 13px;
-  height: 250px;
-  resize: none;
-}
-
-.my-page-stock-textarea:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-/* 이미지 업로드 섹션 */
-.my-page-stock-image-upload-section {
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
+.property-container {
+  max-width: 1300px;
+  margin: 0 auto;
   padding: 1rem;
 }
 
-.my-page-stock-image-upload-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.property-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4개씩 한 줄 */
+  gap: 1rem;
+}
+
+/* 반응형 그리드 */
+@media (min-width: 768px) {
+  .property-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .property-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.property-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* .property-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+} */
+
+.property-image-container {
+  position: relative;
+  height: 10rem;
+  margin-bottom: 50px;
+}
+
+.property-image-item img {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.property-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.property-type-badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.property-type-sale {
+  background-color: #ef4444;
+}
+
+.property-type-jeonse {
+  background-color: #3b82f6;
+}
+
+.property-type-monthly {
+  background-color: #10b981;
+}
+
+.property-type-default {
+  background-color: #6b7280;
+}
+
+.property-content {
+  padding: 0.25rem;
+}
+
+.property-header {
   margin-bottom: 0.5rem;
 }
 
-.my-page-stock-image-upload-title {
-  font-size: 0.875rem;
+.property-category {
+  color: grey;
+  font-size: 16px;
   font-weight: 500;
 }
 
-.my-page-stock-image-add-btn {
-  color: #2563eb;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
+.property-title {
+  font-weight: bold;
+  color: #111827;
+  margin-top: 0.25rem;
 }
 
-.my-page-stock-image-add-btn:hover {
-  color: #1d4ed8;
-}
-
-.my-page-stock-plus-icon {
-  margin-right: 0.25rem;
-}
-
-.my-page-stock-image-upload-desc {
-  font-size: 0.75rem;
+.property-location {
   color: #6b7280;
-  margin: 0;
-  line-height: 1.4;
-}
-
-/* 저장 버튼 */
-.my-page-stock-save-button-container {
-  text-align: center;
-}
-
-.my-page-stock-save-button {
-  background-color: #2563eb;
-  color: white;
-  padding: 0.75rem 2rem;
-  border: none;
-  border-radius: 0.25rem;
   font-size: 0.875rem;
-  font-weight: 500;
+}
+
+.property-price-container {
+  margin-bottom: 0.5rem;
+}
+
+.property-price {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: blue;
+}
+.property-prices {
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.property-fee-month {
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.property-price-unit {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-left: 0.25rem;
+}
+
+.property-details {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
+
+.property-details-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.property-tags {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.property-tag {
+  background-color: #374151;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.my-stock-pagination {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.my-stock-pagination button {
+  padding: 0.5rem 1rem;
+  background-color: #eee;
+  border: none;
   cursor: pointer;
-  transition: background-color 0.2s;
+  border-radius: 4px;
 }
 
-.my-page-stock-save-button:hover {
-  background-color: #1d4ed8;
+.my-stock-pagination button.active-page {
+  background-color: #333;
+  color: white;
 }
 
-.imgList {
-  font-size: 12px;
-  color: #2563eb;
-  list-style-type: none;
+.update-stock-info{
+  width: 50px;
+  height: 30px;
+  background-color: blue;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 15px;
+  margin-right: 10px;
+  border-radius: 8px;
 }
 
-.my-page-stock-address-btn {
-  width: 200px;
+.delete-stock-info{
+  width: 50px;
+  height: 30px;
   background-color: black;
   color: white;
-  height: 34px;
-  border-radius: 5px;
-  margin-left: 10px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 15px;
+  margin-right: 10px;
+  border-radius: 8px;
 }

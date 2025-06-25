@@ -1,0 +1,256 @@
+/* 서브 탭 */
+.my-page-stock-sub-tab-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.my-page-stock-sub-tab-nav {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.my-page-stock-sub-tab-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding-bottom: 0.25rem;
+  color: #6b7280;
+  transition: color 0.2s;
+}
+
+.my-page-stock-sub-tab-btn.active {
+  color: #000000;
+  font-weight: 500;
+  border-bottom: 2px solid #000000;
+}
+
+/* 콘텐츠 카드 */
+.my-page-stock-content-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem;
+}
+
+/* 섹션 스타일 */
+.my-page-stock-section {
+  margin-bottom: 2rem;
+}
+
+.my-page-stock-section-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.my-page-stock-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* 입력 필드 */
+.my-page-stock-input-row {
+  display: flex;
+  align-items: center;
+}
+
+.my-page-stock-input-label {
+  width: 100px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.my-page-stock-input-field {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.my-page-stock-input-field:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.my-page-stock-textarea {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  font-size: 13px;
+  height: 250px;
+  resize: none;
+}
+
+.my-page-stock-textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* 이미지 업로드 섹션 */
+.my-page-stock-image-upload-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.my-page-stock-image-upload-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.my-page-stock-image-upload-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.my-page-stock-image-add-btn {
+  color: #2563eb;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.my-page-stock-image-add-btn:hover {
+  color: #1d4ed8;
+}
+
+.my-page-stock-plus-icon {
+  margin-right: 0.25rem;
+}
+
+.my-page-stock-image-upload-desc {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* 저장 버튼 */
+.my-page-stock-save-button-container {
+  text-align: center;
+}
+
+.my-page-stock-save-button {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.my-page-stock-save-button:hover {
+  background-color: #1d4ed8;
+}
+
+.imgList {
+  font-size: 12px;
+  color: #2563eb;
+  list-style-type: none;
+}
+
+.my-page-stock-address-btn {
+  width: 200px;
+  background-color: black;
+  color: white;
+  height: 34px;
+  border-radius: 5px;
+  margin-left: 10px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .header-content {
+    padding: 0 1rem;
+  }
+
+  .header-left {
+    gap: 1rem;
+  }
+
+  .nav {
+    display: none;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
+  .tab-nav {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .tab-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .sub-tab-nav {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .input-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .input-label {
+    width: auto;
+  }
+
+  .input-field {
+    width: 100%;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-right {
+    gap: 0.5rem;
+  }
+
+  .signup-text {
+    font-size: 0.875rem;
+  }
+
+  .login-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .content-card {
+    padding: 1rem;
+  }
+
+  .section-title {
+    font-size: 1rem;
+  }
+}

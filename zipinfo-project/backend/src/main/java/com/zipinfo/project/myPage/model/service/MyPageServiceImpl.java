@@ -2,6 +2,7 @@ package com.zipinfo.project.myPage.model.service;
 
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,5 +160,49 @@ public class MyPageServiceImpl implements MyPageService{
 			e.printStackTrace();
 			return 0;
 		}
+	}
+	
+	@Override
+	public int searchStockNo(int memberNo) {
+		return mapper.searchStockNo(memberNo);
+	}
+	
+	
+	@Override
+	public int addCoord(Stock stock) {
+		return mapper.addCoord(stock);
+	}
+	
+	@Override
+	public List<Stock> getMyStock(int memberNo) {
+		
+		List<Stock> stock = mapper.getMyStock(memberNo);
+
+	    for (Stock i : stock) {
+	        int stockNo = i.getStockNo();
+
+	        // 예: 이미지 리스트 조회
+	        Stock coord = mapper.selectStockCoord(stockNo);
+	        List<Stock> imageUrl = mapper.selectImgUrl(stockNo);
+	        List<String> imageUrls = new ArrayList<>();
+	        List<String> imageNames = new ArrayList<>();
+	        for(Stock img : imageUrl) {
+	        	imageUrls.add(img.getImgUrl());
+	        	imageNames.add(img.getImgOriginName());
+	        }
+	        i.setImgUrls(imageUrls);
+	        i.setImgOriginNames(imageNames);
+	        i.setLat(coord.getLat());
+	        i.setLng(coord.getLng());
+
+	        // 필요시 다른 정보도 추가 조회 가능
+	    }
+
+	    return stock;
+	}
+	
+	@Override
+	public int deleteStockInfo(int stockNo) {
+		return mapper.deleteStockInfo(stockNo);
 	}
 }
