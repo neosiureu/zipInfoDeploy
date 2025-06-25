@@ -95,6 +95,14 @@
 }
 
 /* 테이블 */
+/* Management.css */
+.no-wrap {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
 table {
   border-collapse: separate; /* separated로 바꿔야 border-bottom만 제대로 보임 */
   border-spacing: 0;
@@ -189,4 +197,9 @@ button {
   font-size: 15px;
   color: #374151;
   margin-bottom: 10px;
+}
+
+/* 버튼 내부 텍스트 한 줄 유지 */
+button span {
+  white-space: nowrap;
 }

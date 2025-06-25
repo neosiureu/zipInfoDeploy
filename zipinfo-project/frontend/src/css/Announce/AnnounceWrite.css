@@ -58,6 +58,7 @@
   font-family: inherit;
   transition: all 0.3s ease;
   box-sizing: border-box;
+  resize: none;
 }
 
 .announce-content-input:focus {
@@ -181,6 +182,7 @@
     min-height: 250px;
     padding: 16px;
     font-size: 13px;
+    resize: none;
   }
 
   .announce-write-buttons {

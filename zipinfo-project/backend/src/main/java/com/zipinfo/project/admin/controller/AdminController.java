@@ -1,5 +1,6 @@
 package com.zipinfo.project.admin.controller;
 
+import java.util.ArrayList;               // 추가
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,7 @@ import com.zipinfo.project.admin.model.service.AdminService;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.member.model.service.MemberService;
 
-import ch.qos.logback.core.model.Model;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,17 +30,19 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @SessionAttributes({ "loginMember" })
 public class AdminController {
-	private final AdminService service;
-	@PostMapping("login")
-	public Member login(@RequestBody Member inputMember, Model model) {
-		Member loginMember = service.login(inputMember);
-		if (loginMember == null) {
-			return null;
-		}
-		
-		return loginMember;
-	}
-	
+
+    private final AdminService service;
+
+    @PostMapping("login")
+    public ResponseEntity<?> login(@RequestBody Member inputMember, HttpSession session) {
+        Member loginMember = service.login(inputMember);
+        if (loginMember == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패");
+        }
+        session.setAttribute("loginMember", loginMember);
+        return ResponseEntity.ok(loginMember);
+    }
+
 	// 중개인 권한 부여
 	@PutMapping("/admin/member/{memberNo}/authorize")
 	public ResponseEntity<String> authorizeBroker(

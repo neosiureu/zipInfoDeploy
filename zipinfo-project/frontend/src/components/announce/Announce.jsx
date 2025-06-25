@@ -1,13 +1,11 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import { fetchPosts } from "./AnnounceApi";
-import Pagination from "../common/Pagination";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../admin/AuthContext";
 import "../../css/announce/Announce.css";
 
 const Announce = () => {
   const [posts, setPosts] = useState([]);
-  const [pageInfo, setPageInfo] = useState({ currentPage: 0, totalPages: 1 });
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [keyword, setKeyword] = useState("");
@@ -15,37 +13,30 @@ const Announce = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-
-  // 권한 체크 함수 (memberAuth, role, roles 필드가 다양하게 올 수 있으니 안전하게 처리)
-  const checkAdmin = (user) => {
+  // 관리자 여부 판단
+  const isAdmin = useMemo(() => {
     if (!user) return false;
-    const memberAuth = user.memberAuth ?? user.member_auth ?? null;
-    const role = user.role ?? null;
-    const roles = user.roles ?? [];
+    const memberAuth = user.memberAuth ?? user.member_auth;
+    const role = user.role ?? "";
+    const roles = Array.isArray(user.roles) ? user.roles : [];
     return (
-      memberAuth === 0 ||
-      memberAuth === "0" ||
-      role === "ADMIN" ||
+      Number(memberAuth) === 0 ||
+      role.toUpperCase() === "ADMIN" ||
+      roles.includes("ADMIN") ||
       roles.includes("ROLE_ADMIN")
     );
-  };
+  }, [user]);
 
-  const isAdmin = checkAdmin(user);
-
-  //const isAdmin = user && (user.memberAuth === 0 || user.memberAuth === "0");
-
-
-  // 디버깅용: user와 isAdmin 값 출력
+  // 디버깅 로그
   useEffect(() => {
     console.log("현재 user:", user);
     console.log("isAdmin:", isAdmin);
   }, [user, isAdmin]);
 
-  // 공지사항 목록 로딩
+  // 공지사항 불러오기
   const loadPosts = async (page = 0) => {
     try {
       const data = await fetchPosts(page, 10, keyword);
-
       setPosts(data.posts || []);
       setCurrentPage(page);
       setTotalPages(data.totalPages || 1);
@@ -57,11 +48,16 @@ const Announce = () => {
     }
   };
 
+  useEffect(() => {
+    loadPosts(0);
+  }, []);
+
+  // 검색 버튼 클릭 시
   const handleSearch = () => {
     loadPosts(0);
   };
 
-
+  // 페이지네이션 렌더링
   const renderPagination = () => {
     const pageButtons = [];
     for (let i = 0; i < totalPages; i++) {
@@ -83,6 +79,25 @@ const Announce = () => {
       <div className="an-board-wrapper">
         <h1 className="an-title">공지사항</h1>
 
+        {/* 검색 UI 추가 */}
+        <div style={{ marginBottom: "1rem" }}>
+          <input
+            type="text"
+            placeholder="검색어를 입력하세요"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            style={{ padding: "0.5rem", width: "200px" }}
+          />
+          <button
+            onClick={handleSearch}
+            style={{ marginLeft: "0.5rem", padding: "0.5rem 1rem" }}
+          >
+            검색
+          </button>
+        </div>
+
+        {/* 게시판 테이블 */}
         <div className="an-board-table">
           <div className="an-header">
             <div className="an-header-cell an-header-number">번호</div>
@@ -102,18 +117,21 @@ const Announce = () => {
                     <div
                       className="an-cell an-cell-title"
                       onClick={() => navigate(`/announce/detail/${id}`)}
+                      style={{ cursor: "pointer" }}
                     >
-                      {post.boardTitle ?? "제목 없음"}
+                      {post.announceTitle ?? "제목 없음"}
                     </div>
                     <div className="an-cell an-cell-author">
                       {post.memberNickname ?? "작성자 없음"}
                     </div>
                     <div className="an-cell an-cell-date">
-                      {post.boardWriteDate
-                        ? new Date(post.boardWriteDate).toLocaleDateString()
+                      {post.announceWriteDate
+                        ? new Date(post.announceWriteDate).toLocaleDateString()
                         : "날짜 없음"}
                     </div>
-                    <div className="an-cell an-cell-views">0</div>
+                    <div className="an-cell an-cell-views">
+                      {post.announceReadCount ?? 0}
+                    </div>
                   </div>
                 );
               })
@@ -130,6 +148,7 @@ const Announce = () => {
           </div>
         </div>
 
+        {/* 페이지네이션 + 글쓰기 버튼 */}
         <div className="an-pagination-container">
           <div className="an-pagination">
             <button
