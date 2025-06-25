@@ -2,7 +2,7 @@ package com.zipinfo.project.neighborhood.model.dto;
 
 import java.util.List;
 
-import com.zipinfo.project.board.model.dto.Comment;
+import com.zipinfo.project.announce.model.dto.Comment;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,5 +26,5 @@ public class Neighborhood {
 	private int townNo;
 	private int cityNo;
 
-    private List<Comment> commentList;
+    private List<Comment> commentList; // 임시 주석
 }
