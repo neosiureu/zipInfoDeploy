@@ -4,7 +4,12 @@ import "../../css/stock/stockPage.css";
 import SearchBar from "../common/SearchBar";
 import warning from "../../assets/circle_warning.svg"; // 미검색 결과 아이콘
 import saleThumbnail from "../../assets/sale-page-thumbnail.svg"; // 썸네일 이미지 추가
-import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import {
+  useNavigate,
+  useLocation,
+  useSearchParams,
+  useParams,
+} from "react-router-dom";
 const StockPage = () => {
   /**********************Kakao api 세팅****************** */
   const mapRef = useRef(null); // 지도를 담을 div의 ref
@@ -35,6 +40,9 @@ const StockPage = () => {
   검색창 내 부동산 유형(아파트:1, 빌라:2, 오피스텔:3)을 저장하는 상태변수 - 기본값 -1(전체 매물 선택)*/
   const [searchStockForm, setSearchStockForm] = useState(-1);
   const searchStockFormRef = useRef(searchStockForm); //  **중요**
+
+  // 상세 디테일 페이지를 URL로 연결할 변수
+  const navigate = useNavigate();
   /*******************마커 겹침 처리기능 관련 변수***************** */
   // ⚙️ 격자 셀의 크기를 설정 (화면 픽셀 기준)
   // 마커가 겹친다고 판단할 최소 거리보다 약간 큰 값이 좋습니다.
@@ -86,32 +94,61 @@ const StockPage = () => {
     searchStockFormRef.current = searchStockForm;
     searchStockTypeRef.current = searchStockType;
   }, [searchKeyWord, searchLocationCode, searchStockForm, searchStockType]); // 페이지 처음 로딩시 state변수의 ref 현재값(current) 초기화
-
   useEffect(() => {
     const setCoord = async () => {
       // SearchBar에 검색 Location이 변경될때 해당 지역을 보여주기 위한 useEffect()
-      let fullName = null; // 요청으로 얻어온 시군구 이름을 여기다 저장
-      //1. 지역 코드를 매개변수로 Spring 서버에 시군구 이름을 요청한다. ( ex. req : 11110 -> resp : "종로구")
-      if (searchParams.get("sigungu")) {
-        // queryString에 sigungu가 존재한다면
+      /***********실행전에 mapRef 초기화*********** */
+      console.log("mapRef : ", mapRef.current);
+      const container = mapRef.current; // 지도를 표시할 div
+      const options = {
+        center: new window.kakao.maps.LatLng(37.5451, 127.0425), // 아크로서울포레스트아파트 대략적인 위도, 경도
+        level: 3, // 지도의 확대 레벨
+      };
+      const map = new window.kakao.maps.Map(container, options);
+      mapInstanceRef.current = map;
+      /************************ */
 
+      if ([...searchParams.entries()].length !== 0) {
+        //searchParams가 비지 않았을때! (비엇을떄도 spring server에 request를 보낼 필요 없음!)
+        console.log(
+          "getCoordsFromStock searchLocationCode: ",
+          searchLocationCode
+        );
         try {
           const resp = await axiosAPI.post(
-            "/stock/getSigunguFullName",
-            searchParams.get("sigungu")
+            // 검색창에 있는 모든 조건 loading.
+            "/stock/getCoordsFromStock",
+            /*{
+              searchKeyWord: searchKeyWordRef.current || "",
+              locationCode: searchLocationCode.current ?? -1,
+              stockType: searchStockForm.current ?? -1,
+              stockForm: searchStockType.current ?? -1,
+            }*/
+            {
+              searchKeyWord: searchParams.get("keyWord") || "",
+              locationCode: Number(
+                searchParams.get("sigungu") || searchParams.get("sido") || -1
+              ),
+              stockType: Number(searchParams.get("type") ?? -1),
+              stockForm: Number(searchParams.get("form") ?? -1),
+            }
           );
-          fullName = resp.data;
+          console.log("getCoordsFromStock resp:", resp.data);
+          if (resp.data) {
+            const { latCenter, lngCenter, minLat, minLng, maxLat, maxLng } =
+              resp.data; // 요청으로 얻어온 평균 좌표, 최소 lat, 최소 lng, 최대 lat, 최대 lng를 저장.
+            const center = new window.kakao.maps.LatLng(latCenter, lngCenter);
+
+            mapInstanceRef.current.setCenter(center);
+
+            mapInstanceRef.current.setLevel(7);
+          }
         } catch (error) {
-          console.log("error:", error);
-          return;
+          console.log(error);
         }
       }
-
-      //2. 이렇게 얻은 지역코드를 카카오 api로 요청하여 반환되는 좌표를 받는다. (ex. 서울시 종로구 -> lat, lng)
-      if (fullName) {
-      }
-      //3. 지금 보고있는 Map의 위치를 이동시킨다.
     };
+    setCoord();
   }, [searchParams]);
   /*********************Kakao map 로드 Kakao Map에 spring서버로 매물 리스트 요청하는 eventListener 추가************** */
   useEffect(() => {
@@ -369,9 +406,6 @@ const StockPage = () => {
       const sw = bounds.getSouthWest();
       const ne = bounds.getNorthEast();
 
-      console.log("현재 화면 범위:");
-      console.log("좌하단(SW):", sw.getLat(), sw.getLng());
-      console.log("우상단(NE):", ne.getLat(), ne.getLng());
       try {
         const resp = await axiosAPI.post("/stock/selectItems", {
           coords: {
@@ -406,28 +440,18 @@ const StockPage = () => {
     setIsAsideVisible(true); //클릭시 상세창 표시=true 함.
     setClickedStockItem(item); // 클릭한 item의 index를 저장.
     //map?.setDraggable(false); // 사용자가 지도를 드래그하지 못하게 막음!
+    navigate(`/stock/${item.stockNo}`);
+    console.log("stockNo:", item.stockNo);
   };
   const closeStockDetail = () => {
     setIsAsideVisible(false);
     setClickedStockIndex(null);
+    navigate("/stock", { replace: true });
   };
 
-  const StockItemDetail = ({ item }) => {
-    /*let stockForm; // 매물 형태(아파트, 빌라, 오피스텔 중 하나)를 int형에서 string으로 변환
-    switch (item.stockForm) {
-      case 1: // 아파트
-        stockForm = "아파트";
-        break;
-      case 2: // 빌라
-        stockForm = "빌라";
-        break;
-      case 3: // 오피스텔
-        stockForm = "오피스텔";
-        break;
-      default: // 기타
-        stockForm = "기타";
-    }*/
+  //updateMarker() 뒤에 queryString 조건에 따라 화면전환하는 useEffect() 사용
 
+  const StockItemDetail = ({ item }) => {
     if (item) {
       //null 오류 방지
 

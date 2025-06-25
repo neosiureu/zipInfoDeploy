@@ -99,7 +99,8 @@ function App() {
                 element={<UpdatePassword />}
               />
               <Route path="myPage/withDraw" element={<WithDraw />} />
-
+              {/*매물페이지*/}
+              <Route path="/stock/:stockNo" element={<StockPage />} />
               {/* 분양페이지 */}
               <Route path="/sale/:saleStockNo" element={<SalePage />} />
 
