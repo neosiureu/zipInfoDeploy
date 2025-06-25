@@ -18,7 +18,7 @@ export default function Menu(){
     
     const getInitialTab = () => {
       const currentTab = tabs.find(tab => tab.path === location.pathname);
-      return currentTab ? currentTab.label : "내 정보";
+      return currentTab ? currentTab.label : "관심 매물";
     };
 
     const [activeTab, setActiveTab] = useState(getInitialTab);

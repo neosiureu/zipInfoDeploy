@@ -31,10 +31,16 @@ public class Stock {
     private String stockAddress;          // STOCK_ADDRESS
     private int regionNo;                // REGION_NO
     private String sellYn;                // SELL_YN ('Y' or 'N')
+    private String imgUrl;
+    private String imgOriginName;
+    private int imgOrder;
     
     //STOCK_COORD에서 추가
     private double lat;
     private double lng;
     
     private List<MultipartFile> stockImg;
+    private List<String> imgOriginNames;
+    private List<String> imgUrls;
+    
 }

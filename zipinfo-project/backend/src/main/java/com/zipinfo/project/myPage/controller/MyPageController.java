@@ -196,7 +196,11 @@ public class MyPageController {
 			
 			int result = service.addStock(stock);
 			
+			int stockNo = service.searchStockNo(loginMember.getMemberNo());
 			
+			stock.setStockNo(stockNo);
+			
+			int coordResult = service.addCoord(stock);
 		
 			return ResponseEntity.status(HttpStatus.OK) // 200
 					.body(result); 
@@ -211,7 +215,6 @@ public class MyPageController {
 	@PostMapping(value = "addStockImg", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Object> addStockImg(HttpSession session, @RequestPart("stockImg") List<MultipartFile> stockImg){
 		
-		System.out.println(stockImg);
 		try {
 			
 			Member loginMember = (Member)session.getAttribute("loginMember");
@@ -228,4 +231,39 @@ public class MyPageController {
 		}
 		
 	}
+	
+	@GetMapping("getMyStock")
+	public ResponseEntity<Object> getMyStock(HttpSession session){
+//		try {
+			
+			Member loginMember = (Member)session.getAttribute("loginMember");
+			
+			int memberNo = loginMember.getMemberNo();
+			
+			List<Stock> stock = service.getMyStock(memberNo);
+			
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(stock); 
+//		} catch (Exception e) {
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//					.body("불러오는 중 예외 발생 : " + e.getMessage());
+//		}
+	}
+	
+	@PostMapping("deleteStockInfo")
+	public ResponseEntity<Object> deleteStockInfo(@RequestBody Stock stock){
+		try {
+			
+			int stockNo = stock.getStockNo();
+			
+			int result = service.deleteStockInfo(stockNo);
+			
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(result); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
+	
 }

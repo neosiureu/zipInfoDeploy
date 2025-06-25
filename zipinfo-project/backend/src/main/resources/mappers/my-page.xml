@@ -87,4 +87,31 @@
 		)
 		WHERE ROWNUM = 1
 	</select>
+	
+	<insert id="addCoord">
+		INSERT INTO "STOCK_COORD"
+		VALUES(#{stockNo}, #{lat}, #{lng})
+	</insert>
+	
+	<select id="getMyStock">
+		SELECT * FROM "STOCK_INFO"
+		WHERE MEMBER_NO = #{memberNo}
+		ORDER BY STOCK_NO DESC
+	</select>
+	
+	<select id="selectImgUrl">
+		SELECT IMG_URL, IMG_ORIGIN_NAME FROM "STOCK_IMG"
+		WHERE STOCK_NO = #{stockNo}
+		ORDER BY IMG_ORDER
+	</select>
+	
+	<select id="selectStockCoord">
+		SELECT * FROM "STOCK_COORD"
+		WHERE STOCK_NO = #{stockNo}
+	</select>
+	
+	<delete id="deleteStockInfo">
+		DELETE "STOCK_INFO"
+		WHERE STOCK_NO = #{stockNo}
+	</delete>
 </mapper>

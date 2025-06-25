@@ -11,6 +11,8 @@ import StockPage from "./components/stock/StockPage";
 
 import MyInfo from "./components/myPage/MyInfo";
 import MyStock from "./components/myPage/MyStock";
+import UpdateMyStock from "./components/myPage/UpdateMyStock";
+import AddStock from "./components/myPage/AddStock";
 import MyAnnounce from "./components/myPage/MyAnnounce";
 import MyPost from "./components/myPage/MyPost";
 import UpdatePassword from "./components/myPage/UpdatePassword";
@@ -101,6 +103,8 @@ function App() {
               />
               <Route path="myPage/updateInfo" element={<UpdateInfo />} />
               <Route path="myPage/myStock" element={<MyStock />} />
+              <Route path="myPage/updateMyStock" element={<UpdateMyStock />} />
+              <Route path="myPage/addStock" element={<AddStock />} />
               <Route path="myPage/myAnnounce" element={<MyAnnounce />} />
               <Route path="myPage/myPost" element={<MyPost />} />
               <Route

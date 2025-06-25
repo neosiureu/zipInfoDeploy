@@ -1,5 +1,7 @@
 package com.zipinfo.project.myPage.model.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -36,5 +38,15 @@ public interface MyPageMapper {
             @Param("stockNo") int stockNo);
 	
 	int searchStockNo(int memberNo);
+
+	int addCoord(Stock stock);
+
+	List<Stock> getMyStock(int memberNo);
+
+	List<Stock> selectImgUrl(int stockNo);
+
+	int deleteStockInfo(int stockNo);
+
+	Stock selectStockCoord(int stockNo);
 
 }
