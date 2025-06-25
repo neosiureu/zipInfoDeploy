@@ -22,29 +22,24 @@ const Advertisement = () => {
     },
   ]);
 
-  // 선택한 파일 상태
   const [selectedFile, setSelectedFile] = useState(null);
 
-  // 파일 선택 시 처리
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setSelectedFile(file);
   };
 
-  // 메인 등록 토글 (기존 로직 유지)
   const handleToggleMain = (id) => {
     setAds((prev) =>
       prev.map((ad) => (ad.id === id ? { ...ad, isMain: !ad.isMain } : ad))
     );
   };
 
-  // 광고 삭제 (기존 로직 유지)
   const handleDelete = (id) => {
     setAds((prev) => prev.filter((ad) => ad.id !== id));
   };
 
-  // 광고 등록 서버 요청
   const handleAdUpload = async () => {
     if (!selectedFile) {
       alert("업로드할 파일을 선택해주세요.");
@@ -67,13 +62,9 @@ const Advertisement = () => {
         }
       );
 
-      // 서버가 반환한 새 광고 데이터 추가
       const newAd = response.data;
       setAds((prev) => [...prev, newAd]);
-
-      // 파일 초기화
       setSelectedFile(null);
-
       alert("광고가 성공적으로 등록되었습니다.");
     } catch (error) {
       console.error(error);
@@ -82,59 +73,59 @@ const Advertisement = () => {
   };
 
   return (
-    <div className="p-8 font-sans">
-      <h1 className="text-2xl font-bold mb-4">광고 등록 관리</h1>
+    <div className="admin-ad-wrap">
+      <h1 className="admin-ad-title">광고 등록 관리</h1>
 
-      <div className="mb-4 p-4 bg-gray-100 rounded shadow">
+      <div className="admin-ad-info">
         <p>
-          현재 <span className="font-semibold">{adminName}</span> 으로
+          현재 <span className="admin-ad-name">{adminName}</span> 으로
           접속중입니다.
         </p>
         <p>
-          접속 ID : <span className="text-blue-600">{adminId}</span>
+          접속 ID : <span className="admin-ad-id">{adminId}</span>
         </p>
       </div>
 
-      <div className="overflow-x-auto border rounded-lg shadow mb-6">
-        <table className="w-full text-sm text-left table-auto">
-          <thead className="bg-gray-200">
+      <div className="admin-ad-table-box">
+        <table className="admin-ad-table">
+          <thead>
             <tr>
-              <th className="p-3">번호</th>
-              <th className="p-3">파일명</th>
-              <th className="p-3">작성자</th>
-              <th className="p-3">날짜</th>
-              <th className="p-3">메인등록</th>
-              <th className="p-3">삭제</th>
+              <th>번호</th>
+              <th>파일명</th>
+              <th>작성자</th>
+              <th>날짜</th>
+              <th>메인등록</th>
+              <th>삭제</th>
             </tr>
           </thead>
           <tbody>
             {ads.length === 0 && (
               <tr>
-                <td colSpan="6" className="text-center p-4 text-gray-500">
+                <td colSpan="6" className="admin-ad-empty">
                   등록된 광고가 없습니다.
                 </td>
               </tr>
             )}
 
             {ads.map((ad, index) => (
-              <tr key={ad.id} className="border-t">
-                <td className="p-3">{index + 1}</td>
-                <td className="p-3">{ad.filename}</td>
-                <td className="p-3">{ad.author}</td>
-                <td className="p-3">{ad.date}</td>
-                <td className="p-3">
+              <tr key={ad.id}>
+                <td>{index + 1}</td>
+                <td>{ad.filename}</td>
+                <td>{ad.author}</td>
+                <td>{ad.date}</td>
+                <td>
                   <button
-                    className={`px-3 py-1 text-white rounded ${
-                      ad.isMain ? "bg-green-500" : "bg-blue-500"
+                    className={`admin-ad-btn ${
+                      ad.isMain ? "admin-ad-green" : "admin-ad-blue"
                     }`}
                     onClick={() => handleToggleMain(ad.id)}
                   >
                     {ad.isMain ? "등록됨" : "등록"}
                   </button>
                 </td>
-                <td className="p-3">
+                <td>
                   <button
-                    className="px-3 py-1 bg-red-500 text-white rounded"
+                    className="admin-ad-btn admin-ad-red"
                     onClick={() => handleDelete(ad.id)}
                   >
                     삭제
@@ -146,15 +137,12 @@ const Advertisement = () => {
         </table>
       </div>
 
-      <div className="mb-6">
+      <div className="admin-ad-upload">
         <input type="file" onChange={handleFileChange} />
       </div>
 
-      <div className="advertisement-button-wrapper">
-        <button
-          className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 py-2 rounded"
-          onClick={handleAdUpload}
-        >
+      <div className="admin-ad-action">
+        <button className="admin-ad-add" onClick={handleAdUpload}>
           광고 등록
         </button>
       </div>

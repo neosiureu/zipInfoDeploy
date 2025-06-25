@@ -29,8 +29,8 @@
   border: none;
   background-color: #f8f9fa;
   color: #6c757d;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -192,27 +192,4 @@
 
 .submit-button.active:hover {
   background-color: #3367d6;
-}
-
-/* 반응형 */
-@media (max-width: 768px) {
-  .signup-container {
-    padding: 20px 16px;
-  }
-
-  .input-wrapper {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .signup-verify-button,
-  .signup-address-button {
-    margin-top: 8px;
-  }
-
-  .message-right {
-    margin-top: 8px;
-    padding-left: 4px;
-    min-width: auto;
-  }
 }

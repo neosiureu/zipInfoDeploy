@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../../css/admin/saleForm/ListSale.css";
-import { axiosAPI } from "../../../api/axiosApi";
-
+import "../../../css/admin/saleForm/listSale.css";
+import { axiosAPI } from "../../../api/axiosAPI";
 import { Link } from "react-router-dom";
 
 const ListSale = () => {
@@ -16,7 +15,7 @@ const ListSale = () => {
     const fetchData = async () => {
       try {
         const response = await axiosAPI.get("/admin/selectSaleList");
-        setSaleList(response.data); // DB에서 불러온 매물 목록
+        setSaleList(response.data);
       } catch (error) {
         console.error("분양 매물 목록 불러오기 실패:", error);
       }
@@ -35,7 +34,7 @@ const ListSale = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
-    return dateString.split("T")[0]; // yyyy-MM-dd 형식으로 자르기
+    return dateString.split("T")[0];
   };
 
   const saleTypeMap = {
@@ -45,61 +44,51 @@ const ListSale = () => {
   };
 
   return (
-    <div className="p-8 font-sans">
-      <h1 className="text-2xl font-bold mb-4">분양 관리</h1>
+    <div className="ls-container">
+      <h1 className="ls-title">분양 관리</h1>
 
-      <div className="mb-4 p-4 bg-gray-100 rounded shadow">
+      <div className="ls-admin-box">
         <p>
-          현재 <span className="font-semibold">{adminName}</span> 으로
+          현재 <span className="ls-admin-name">{adminName}</span> 으로
           접속중입니다.
         </p>
         <p>
-          접속 ID : <span className="text-blue-600">{adminId}</span>
+          접속 ID : <span className="ls-admin-id">{adminId}</span>
         </p>
       </div>
 
-      <div className="overflow-x-auto border rounded-lg shadow mb-6">
-        <table className="w-full text-sm text-left table-auto">
-          <thead className="bg-gray-200">
+      <div className="ls-table-wrapper">
+        <table className="ls-table">
+          <thead>
             <tr>
-              <th className="p-3 text-center">매물번호</th>
-              <th className="p-3 text-center">매물유형</th>
-              <th className="p-3 text-center">매물명</th>
-              <th className="p-3 text-center">작성자</th>
-              <th className="p-3 text-center">작성일</th>
-              <th className="p-3 text-center">삭제</th>
+              <th>매물번호</th>
+              <th>매물유형</th>
+              <th>매물명</th>
+              <th>작성자</th>
+              <th>작성일</th>
+              <th>삭제</th>
             </tr>
           </thead>
           <tbody>
             {saleList.length > 0 ? (
               saleList.map((sale) => (
-                <tr key={sale.saleStockNo} className="border-t">
-                  <td className="p-3 text-center">
-                    <Link
-                      to={`/sale/${sale.saleStockNo}`}
-                      className="text-blue-600 underline hover:text-blue-800"
-                    >
+                <tr key={sale.saleStockNo}>
+                  <td>
+                    <Link to={`/sale/${sale.saleStockNo}`} className="ls-link">
                       {sale.saleStockNo}
                     </Link>
                   </td>
-                  <td className="p-3 text-center">
-                    {saleTypeMap[sale.saleStockForm] || "기타"}
-                  </td>
-                  <td className="p-3 text-center">
-                    <Link
-                      to={`/sale/${sale.saleStockNo}`}
-                      className="text-blue-600 underline hover:text-blue-800"
-                    >
+                  <td>{saleTypeMap[sale.saleStockForm] || "기타"}</td>
+                  <td>
+                    <Link to={`/sale/${sale.saleStockNo}`} className="ls-link">
                       {sale.saleStockName}
                     </Link>
                   </td>
-                  <td className="p-3 text-center">{sale.company}</td>
-                  <td className="p-3 text-center">
-                    {formatDate(sale.announcementDate)}
-                  </td>
-                  <td className="p-3 text-center">
+                  <td>{sale.company}</td>
+                  <td>{formatDate(sale.announcementDate)}</td>
+                  <td>
                     <button
-                      className="px-3 py-1 bg-red-500 text-white rounded"
+                      className="ls-delete-btn"
                       onClick={() => handleDelete(sale.saleStockNo)}
                     >
                       삭제
@@ -109,7 +98,7 @@ const ListSale = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center p-4 text-gray-500">
+                <td colSpan="6" className="ls-empty">
                   등록된 매물이 없습니다.
                 </td>
               </tr>
@@ -118,11 +107,8 @@ const ListSale = () => {
         </table>
       </div>
 
-      <div className="flex justify-end">
-        <button
-          className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 py-2 rounded"
-          onClick={handleAdd}
-        >
+      <div className="ls-btn-wrapper">
+        <button className="ls-add-btn" onClick={handleAdd}>
           매물 등록
         </button>
       </div>

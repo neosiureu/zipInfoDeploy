@@ -57,14 +57,14 @@ const Header = () => {
   };
 
   return (
-    <header className="navbar">
-      <div className="navbar-left">
-        <span className="logo">
+    <header className="Header-navbar">
+      <div className="Header-navbar-left">
+        <span className="Header-logo">
           <Link to="/">
             <img src={logo} alt="로고이미지" />
           </Link>
         </span>
-        <ul className="menu">
+        <ul className="Header-menu">
           <li>
             <Link to="/stock">실거래가</Link>
           </li>
@@ -86,35 +86,43 @@ const Header = () => {
         </ul>
       </div>
 
-      <div className="navbar-right">
-        <ul className="member">
+      <div className="Header-navbar-right">
+        <ul className="Header-member">
           {member ? (
             member.memberAuth == 0 ? (
               <>
-                <li id="admin-page">
+                <li id="admin-page" className="Header-admin-page">
                   <Link to="/admin">관리자 페이지로 이동</Link>
                 </li>
                 <li id="logout-btn">
-                  <button onClick={handleLogout}>로그아웃</button>
+                  <button className="Header-logout-btn" onClick={handleLogout}>
+                    로그아웃
+                  </button>
                 </li>
               </>
             ) : (
               <>
-                <li id="my-page">
+                <li id="my-page" className="Header-my-page">
                   <Link to="/myPage">마이페이지</Link>
                 </li>
                 <li id="logout-btn">
-                  <button onClick={handleLogout}>로그아웃</button>
+                  <button className="Header-logout-btn" onClick={handleLogout}>
+                    로그아웃
+                  </button>
                 </li>
               </>
             )
           ) : (
             <>
               <li id="signup-btn">
-                <Link to="/signUp">회원가입</Link>
+                <Link to="/signUp" className="Header-signup-btn">
+                  회원가입
+                </Link>
               </li>
               <li id="login-btn">
-                <Link to="/login">로그인</Link>
+                <Link to="/login" className="Header-login-btn">
+                  로그인
+                </Link>
               </li>
             </>
           )}

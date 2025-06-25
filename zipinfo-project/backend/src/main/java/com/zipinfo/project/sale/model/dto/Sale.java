@@ -1,5 +1,9 @@
 package com.zipinfo.project.sale.model.dto;
 
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,4 +40,6 @@ public class Sale {
 	// SALE_COORD에서 추가
 	private double lat;
 	private double lng;
+	
+	private MultipartFile saleImg;				// 이미지
 }

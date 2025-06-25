@@ -1,3 +1,7 @@
+* {
+  font-family: "Pretendard-Regular";
+}
+
 /* 전체 레이아웃 */
 .login-container {
   display: flex;
@@ -125,7 +129,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 /* 정교한 카카오톡 아이콘 */
@@ -154,12 +158,8 @@
 }
 
 .naver-login-btn.brand-color {
-  background: #03c75a;
+  background: #00c73c;
   color: white;
-}
-
-.naver-login-btn.brand-color:hover {
-  background: #02b351;
 }
 
 /* 정교한 네이버 아이콘 */
@@ -167,14 +167,13 @@
   width: 20px;
   height: 20px;
   background: white;
-  color: #03c75a;
+  color: #00c73c;
   border-radius: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
   font-size: 12px;
-  font-family: Arial, sans-serif;
 }
 
 /* 회원가입 링크 */
@@ -192,45 +191,4 @@
   text-decoration: underline;
   font-size: 14px;
   margin-left: 8px;
-}
-
-/* 반응형 디자인 */
-@media (max-width: 480px) {
-  .login-form {
-    padding: 24px;
-    margin: 16px;
-  }
-
-  .login-title {
-    font-size: 24px;
-    margin-bottom: 24px;
-  }
-
-  .form-input {
-    height: 44px;
-    font-size: 16px; /* iOS에서 줌 방지 */
-  }
-
-  .login-btn,
-  .kakao-login-btn {
-    height: 48px;
-  }
-}
-
-/* 접근성 개선 */
-.form-input:focus-visible {
-  outline: 2px solid #8b5cf6;
-  outline-offset: 2px;
-}
-
-.login-btn:focus-visible,
-.kakao-login-btn:focus-visible {
-  outline: 2px solid #1e40af;
-  outline-offset: 2px;
-}
-
-/* 체크박스 커스텀 스타일 */
-.checkbox-input:focus {
-  outline: 2px solid #8b5cf6;
-  outline-offset: 2px;
 }
