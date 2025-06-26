@@ -88,12 +88,23 @@
 }
 
 .nb-header-number {
-  width: 60px;
+  width: 50px;
   flex-shrink: 0;
+}
+
+.nb-header-subject {
+  width: 130px;
+  flex-shrink: 0;
+  color: #767676;
 }
 
 .nb-header-title {
   flex: 1;
+}
+
+.nb-header-area {
+  width: 160px;
+  flex-shrink: 0;
 }
 
 .nb-header-author {
@@ -107,7 +118,7 @@
 }
 
 .nb-header-views {
-  width: 60px;
+  width: 50px;
   flex-shrink: 0;
 }
 
@@ -137,15 +148,31 @@
 }
 
 .nb-cell-number {
-  width: 60px;
+  width: 50px;
   flex-shrink: 0;
   justify-content: center;
 }
 
+.nb-cell-subject {
+  width: 130px;
+  flex-shrink: 0;
+  justify-content: center;
+  color: #999999;
+}
+
 .nb-cell-title {
   flex: 1;
-  padding-left: 48px;
+  /* justify-content: center; */
+  padding-left: 12px;
+
   cursor: pointer;
+}
+
+.nb-cell-area {
+  width: 160px;
+  flex-shrink: 0;
+  justify-content: center;
+  color: #999999;
 }
 
 .nb-cell-author {
@@ -161,7 +188,7 @@
 }
 
 .nb-cell-views {
-  width: 60px;
+  width: 50px;
   flex-shrink: 0;
   justify-content: center;
 }
