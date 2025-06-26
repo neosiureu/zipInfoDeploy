@@ -48,8 +48,9 @@ const AddSale = () => {
   const removeComma = (val) => val.replace(/,/g, ""); // 콤마 제거
 
   const totalPrice =
-    (!isNaN(form.price1) && Number(form.price1)) * 10000 +
-    (!isNaN(form.price2) && Number(form.price2));
+    ((!isNaN(form.price1) && Number(form.price1)) * 10000 +
+      (!isNaN(form.price2) && Number(form.price2))) *
+    10000;
 
   // 주소를 통해 위도/경도 좌표 조회 (Kakao API)
   const getCoordsByAddress = async (address) => {
@@ -230,6 +231,7 @@ const AddSale = () => {
         }
       );
       const result = response.data.documents[0];
+
       if (!result) throw new Error("주소에 해당하는 위치가 없습니다.");
       const regionNo = result.address.region_3depth_h_code; // 법정동 코드
 
@@ -256,10 +258,17 @@ const AddSale = () => {
         deposit: cleanCurrency(form.contractAmount), // 계약금
         middlePayment: cleanCurrency(form.interimAmount), // 중도금
         balancePayment: cleanCurrency(form.balanceAmount), // 잔금
-        regionNo: parseInt(form.regionNo), // 법정동 코드
+        regionNo: parseInt(regionNo), // 법정동 코드
         lat,
         lng,
       };
+
+      console.log("전송할 saleData: ", saleData);
+      console.log("주소 검색 결과:", result);
+      console.log(
+        "region_3depth_h_code:",
+        result?.address?.region_3depth_h_code
+      );
 
       const fd = new FormData();
       fd.append(
