@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.zipinfo.project.admin.model.mapper.AdminSaleMapper;
+import com.zipinfo.project.common.utility.Utility;
 import com.zipinfo.project.sale.model.dto.Sale;
 
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class AdminSaleServiceImpl implements AdminSaleService {
         return mapper.selectSaleList();
     }
 
-    /** 관리자 분양 매물 등록 + 이미지 저장 처리
+    /** 관리자 분양 매물 등록 + 이미지 저장 처리 + 좌표 등록
      * @param sale 등록할 매물 정보 DTO
      * @param thumbnailImages 썸네일 이미지 파일 목록
      * @param floorImages 평면도 이미지 파일 목록
@@ -51,10 +52,13 @@ public class AdminSaleServiceImpl implements AdminSaleService {
         mapper.addSale(sale);
         Long saleNo = (long) sale.getSaleStockNo(); // 등록 후 자동 채번된 PK
 
-        // 2. 썸네일 이미지 처리
+        // 2. SALE_COORD 테이블에 좌표 저장
+        mapper.addSaleCoord(saleNo, sale.getLat(), sale.getLng());
+
+        // 3. 썸네일 이미지 처리
         saveImages(thumbnailImages, "thumbnail", saleNo);
 
-        // 3. 평면도 이미지 처리
+        // 4. 평면도 이미지 처리
         saveImages(floorImages, "floor", saleNo);
     }
 
@@ -66,40 +70,33 @@ public class AdminSaleServiceImpl implements AdminSaleService {
     private void saveImages(List<MultipartFile> images, String subDir, Long saleNo) {
         if (images == null || images.isEmpty()) return;
 
+        int order = 1; // 이미지 순서
         for (MultipartFile file : images) {
             if (!file.isEmpty()) {
                 try {
-                    String savedPath = saveFile(file, subDir);
-                    mapper.addSaleImage(saleNo, savedPath, subDir);
+                    String originalName = file.getOriginalFilename();
+                    String rename = Utility.fileRename(originalName);
+
+                    // 1. 디렉토리 생성
+                    File dir = new File(saleFolderPath + "/" + subDir);
+                    if (!dir.exists()) dir.mkdirs();
+
+                    // 2. 파일 저장
+                    File dest = new File(dir, rename);
+                    file.transferTo(dest);
+
+                    // 3. 웹 접근 경로
+                    String imageUrl = saleWebPath + subDir + "/" + rename;
+
+                    // 4. DB INSERT
+                    mapper.addSaleImage(saleNo, imageUrl, order, originalName, rename);
+                    order++;
+
                 } catch (IOException e) {
                     log.error("[{} 이미지 저장 실패] {}", subDir, e.getMessage());
                     throw new RuntimeException(subDir + " 이미지 저장 중 오류 발생");
                 }
             }
         }
-    }
-
-    /** 단일 이미지 파일을 디스크에 저장하고 웹 경로 반환
-     * @param file
-     * @param subDir
-     * @return
-     * @throws IOException
-     */
-    private String saveFile(MultipartFile file, String subDir) throws IOException {
-        // 1. 파일명 생성 (UUID_원본명)
-        String originalName = file.getOriginalFilename();
-        String uuid = UUID.randomUUID().toString().replace("-", "");
-        String rename = uuid + "_" + originalName;
-
-        // 2. 디렉토리 생성
-        File dir = new File(saleFolderPath + "/" + subDir);
-        if (!dir.exists()) dir.mkdirs();
-
-        // 3. 파일 저장
-        File dest = new File(dir, rename);
-        file.transferTo(dest);
-
-        // 4. 웹 접근 경로 반환
-        return saleWebPath + subDir + "/" + rename;
     }
 }

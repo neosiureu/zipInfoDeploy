@@ -35,70 +35,88 @@
   </select>
 
   <!-- 관리자 분양 매물 등록 -->
-  <insert id="addSale" parameterType="com.zipinfo.project.sale.model.dto.Sale"
-          useGeneratedKeys="true" keyProperty="saleStockNo">
-    INSERT INTO SALE_INFO (
-      SALE_STOCK_NO,
-      MEMBER_NO,
-      SALE_STOCK_FORM,
-      SALE_STATUS,
-      SALE_STOCK_NAME,
-      SALE_ADDRESS,
-      SALE_PRICE,
-      SALE_ROOM_COUNT,
-      SALE_BATHROOM_COUNT,
-      SALE_SUPPLY_AREA,
-      SALE_EXCLUSIVE_AREA,
-      APPLICATION_START_DATE,
-      APPLICATION_END_DATE,
-      ANNOUNCEMENT_DATE,
-      COMPANY,
-      CONTACT_INFO,
-      ACQUISITION_TAX,
-      DEPOSIT,
-      MIDDLE_PAYMENT,
-      BALANCE_PAYMENT,
-      REGION_NO,
-      SCALE
-    ) VALUES (
-      SEQ_SALE_INFO.NEXTVAL,
-      #{memberNo},
-      #{saleStockForm},
-      #{saleStatus},
-      #{saleStockName},
-      #{saleAddress},
-      #{salePrice},
-      #{saleRoomCount},
-      #{saleBathroomCount},
-      #{saleSupplyArea},
-      #{saleExclusiveArea},
-      #{applicationStartDate},
-      #{applicationEndDate},
-      #{announcementDate},
-      #{company},
-      #{contactInfo},
-      #{acquisitionTax},
-      #{deposit},
-      #{middlePayment},
-      #{balancePayment},
-      #{regionNo},
-      #{scale}
-    )
+  <insert id="addSale" useGeneratedKeys="true" keyProperty="saleStockNo">
+  <selectKey keyProperty="saleStockNo" resultType="int" order="BEFORE">
+    SELECT SEQ_SALE_INFO.NEXTVAL FROM DUAL
+  </selectKey>
+  INSERT INTO SALE_INFO (
+    SALE_STOCK_NO,
+    MEMBER_NO,
+    SALE_STOCK_FORM,
+    SALE_STOCK_NAME,
+    SALE_PRICE,
+    SALE_STATUS,
+    SALE_ADDRESS,
+    SCALE,
+    APPLICATION_START_DATE,
+    APPLICATION_END_DATE,
+    ANNOUNCEMENT_DATE,
+    COMPANY,
+    CONTACT_INFO,
+    ACQUISITION_TAX,
+    SALE_SUPPLY_AREA,
+    SALE_EXCLUSIVE_AREA,
+    SALE_ROOM_COUNT,
+    SALE_BATHROOM_COUNT,
+    DEPOSIT,
+    MIDDLE_PAYMENT,
+    BALANCE_PAYMENT,
+    REGION_NO
+  ) VALUES (
+    #{saleStockNo}, #{memberNo},
+    #{saleStockForm},
+    #{saleStockName},
+    #{salePrice},
+    #{saleStatus},
+    #{saleAddress},
+    #{scale},
+    #{applicationStartDate},
+    #{applicationEndDate},
+    #{announcementDate},
+    #{company},
+    #{contactInfo},
+    #{acquisitionTax},
+    #{saleSupplyArea},
+    #{saleExclusiveArea},
+    #{saleRoomCount},
+    #{saleBathroomCount},
+    #{deposit},
+    #{middlePayment},
+    #{balancePayment},
+    #{regionNo}
+  )
   </insert>
 
   <!-- 이미지 등록 -->
   <insert id="addSaleImage">
-    INSERT INTO SALE_IMAGE (
-      IMAGE_NO,
-      SALE_STOCK_NO,
-      IMAGE_PATH,
-      IMAGE_TYPE
-    ) VALUES (
-      SEQ_SALE_IMAGE.NEXTVAL,
-      #{saleNo},
-      #{imagePath},
-      #{imageType}
-    )
+  INSERT INTO SALE_IMG (
+    SALE_IMG_NO,
+    SALE_STOCK_NO,
+    SALE_IMG_URL,
+    SALE_IMG_ORDER,
+    SALE_ORIGIN_NAME,
+    SALE_RENAME
+  ) VALUES (
+    SEQ_SALE_IMG.NEXTVAL,
+    #{saleStockNo},
+    #{imageUrl},
+    #{imageOrder},
+    #{originName},
+    #{rename}
+  )
+  </insert>
+  
+  <!-- 좌표 저장 -->
+  <insert id="addSaleCoord">
+  INSERT INTO SALE_COORD (
+    SALE_STOCK_NO,
+    LAT,
+    LNG
+  ) VALUES (
+    #{saleStockNo},
+    #{lat},
+    #{lng}
+  )
   </insert>
 
 </mapper>
