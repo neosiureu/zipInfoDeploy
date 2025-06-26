@@ -51,7 +51,7 @@ public class StockController {
 	 * @param(필수X) stockForm : 매물 형태(아파트:1, 빌라:2, 오피스텔:3)
 	 * @return
 	 */
-	@PostMapping("selectItems")
+	@PostMapping("items")
 	private ResponseEntity<?> selectItem(@RequestBody SearchRequest sr){
 		
 	    double swLat = sr.getCoords().get("swLat");
@@ -82,7 +82,7 @@ public class StockController {
 	 * @param code : 이름을 얻고자 하는 시군구 코드
 	 * @return
 	 */
-	@PostMapping("getSigunguFullName")
+	@PostMapping("sigunguFullName")
 	private ResponseEntity<?> getSigunguFullName(@RequestBody int code){
 		
 		//return 
@@ -97,7 +97,7 @@ public class StockController {
 		}
 	}
 	
-	@PostMapping("getCoordsFromStock")
+	@PostMapping("coordsFromStock")
 	private ResponseEntity<?> getCoordsFromStock(@RequestBody SearchRequest sr){
 		System.out.println(" getCoordsFromStock location:" + sr.getLocationCode());
 		//return 
@@ -108,6 +108,20 @@ public class StockController {
 		}catch(Exception e) {
 			log.error("getCoordsFromStock 조회중 오류 발생", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("getCoordsFromStock 조회중 오류 발생" + e.getMessage());
+		
+		}
+	}
+	
+	@PostMapping("itemOnMain")
+	private ResponseEntity<?> getAnyFour(){
+		
+		try {
+	    	List<Stock> stockList = service.selectAnyFour();
+			
+			return ResponseEntity.status(HttpStatus.OK).body(stockList);
+		}catch(Exception e) {
+			log.error("매물 조회 중 오류 발생", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("매물 조회 중 문제발생" + e.getMessage());
 		
 		}
 	}
