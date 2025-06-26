@@ -33,5 +33,11 @@ public interface MyPageService {
 
 	int deleteStockInfo(int stockNo);
 
+	int updateStock(Stock stock);
+
+	int updateCoord(Stock stock);
+
+	int updateTumbImg(MultipartFile stockImg, int stockNo);
+
 
 }

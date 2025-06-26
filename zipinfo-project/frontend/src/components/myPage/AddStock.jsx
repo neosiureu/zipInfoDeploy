@@ -84,7 +84,7 @@ export default function AddStock() {
 
   //---------------------- 이미지 관련 구문입니다-------------------------
 
-  const [stockTubmImg, setStockTumbImg] = useState(null);
+  const [stockTumbImg, setStockTumbImg] = useState(null);
   const [stockImg, setStockImg] = useState([]);
   const [balanceImg, setBalanceImg] = useState(null);
 
@@ -99,7 +99,7 @@ export default function AddStock() {
   const handleClick = () => inputRef.current.click();
 
   // 파일 선택되면 상태에 추가
-  const handleTubmChange = (e) => {
+  const handleTumbChange = (e) => {
     const file = e.target.files[0];
     setStockTumbImg(file);
   };
@@ -115,7 +115,7 @@ export default function AddStock() {
   };
 
   const combinedImages = [
-  ...(stockTubmImg ? [stockTubmImg] : []),
+  ...(stockTumbImg ? [stockTumbImg] : []),
   ...(balanceImg ? [balanceImg] : []),
   ...stockImg
   ];
@@ -426,8 +426,18 @@ const handleSubmit = async () => {
       }
     }
 
-    if (combinedImages.length == 0) {
-      alert('이미지 파일을 모두 넣어주세요.');
+    if(stockTumbImg === null){
+      alert('썸네일 이미지를 넣어주세요.');
+      return;
+    }
+
+    if(balanceImg === null){
+      alert('평형 이미지를 넣어주세요.');
+      return;
+    }
+
+    if (stockImg.length == 0) {
+      alert('매물 사진을 넣어주세요.');
       return;
     }
 
@@ -453,8 +463,7 @@ const handleSubmit = async () => {
 
       if (response.status === 200) {
         console.log("기본 정보 등록 완료");
-        const stockNo = response.data.stockNo;
-      
+
         const imageForm = new FormData();
         combinedImages.forEach(file => imageForm.append("stockImg", file));
       
@@ -833,11 +842,11 @@ const handleSubmit = async () => {
                     multiple
                     ref={thumbInputRef}
                     style={{ display: 'none' }}
-                    onChange={handleTubmChange}
+                    onChange={handleTumbChange}
                   />
                 </div>
                 <ul>
-                  {stockTubmImg && <li className='imgList'>{stockTubmImg.name}</li>}
+                  {stockTumbImg && <li className='imgList'>{stockTumbImg.name}</li>}
                 </ul>
                 <p className="my-page-stock-image-upload-desc">이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는 다음과 같습니다.</p>
                 <p className="my-page-stock-image-upload-desc">공유할 이미지는 최대로 첨부할 수 있습니다</p>

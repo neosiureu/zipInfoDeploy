@@ -234,7 +234,7 @@ public class MyPageController {
 	
 	@GetMapping("getMyStock")
 	public ResponseEntity<Object> getMyStock(HttpSession session){
-//		try {
+		try {
 			
 			Member loginMember = (Member)session.getAttribute("loginMember");
 			
@@ -244,10 +244,10 @@ public class MyPageController {
 			
 			return ResponseEntity.status(HttpStatus.OK) // 200
 					.body(stock); 
-//		} catch (Exception e) {
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//					.body("불러오는 중 예외 발생 : " + e.getMessage());
-//		}
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
 	}
 	
 	@PostMapping("deleteStockInfo")
@@ -264,6 +264,49 @@ public class MyPageController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("불러오는 중 예외 발생 : " + e.getMessage());
 		}
+	}
+	
+	@PostMapping("updateStock")
+	public ResponseEntity<Object> updateStock(HttpSession session,  @RequestBody Stock stock){
+		
+		try {
+			
+			Member loginMember = (Member)session.getAttribute("loginMember");
+			
+	        if (loginMember == null) {
+	            System.out.println("세션에 로그인 정보 없음");
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	                    .body("로그인 정보 없음 (세션 만료 혹은 미로그인)");
+	        }
+			
+			int result = service.updateStock(stock);
+			
+			int coordResult = service.updateCoord(stock);
+		
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(result); 
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+		
+	}
+	
+	@PostMapping(value = "updateTumbImg", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<Object> updateTumbImg(@RequestParam("stockNo") int stockNo, @RequestParam("stockImg") MultipartFile stockImg){
+		
+		try {
+			
+			int imgResult = service.updateTumbImg(stockImg, stockNo);
+		
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(imgResult); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+		
 	}
 	
 }

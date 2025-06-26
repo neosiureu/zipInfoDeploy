@@ -114,4 +114,45 @@
 		DELETE "STOCK_INFO"
 		WHERE STOCK_NO = #{stockNo}
 	</delete>
+	
+	<update id="updateStock">
+		UPDATE "STOCK_INFO" SET
+		STOCK_NAME = #{stockName},
+		STOCK_SELL_PRICE = #{stockSellPrice},
+		STOCK_MANAGE_FEE = #{stockManageFee},
+		STOCK_FEE_MONTH = #{stockFeeMonth},
+		STOCK_INFO = #{stockInfo},
+		STOCK_TYPE = #{stockType},
+		STOCK_FORM = #{stockForm},
+		EXCLUSIVE_AREA = #{exclusiveArea},
+		SUPPLY_AREA = #{supplyArea},
+		CURRENT_FLOOR = #{currentFloor},
+		FLOOR_TOTAL_COUNT = #{floorTotalCount},
+		ROOM_COUNT = #{roomCount},
+		BATH_COUNT = #{bathCount},
+		STOCK_DIRECTION = #{stockDirection},
+		ABLE_DATE = #{ableDate},
+		USE_APPROVAL_DATE = #{useApprovalDate},
+		REGIST_DATE = #{registDate},
+		STOCK_DETAIL = #{stockDetail},
+		STOCK_ADDRESS = #{stockAddress},
+		REGION_NO = #{regionNo}
+		WHERE STOCK_NO = #{stockNo}
+	</update>
+
+	<update id="updateCoord">
+		UPDATE "STOCK_COORD" SET
+		LAT = #{lat},
+		LNG = #{lng}
+		WHERE STOCK_NO = #{stockNo}
+	</update>
+	
+	<update id="updateTumbImg">
+		UPDATE "STOCK_IMG" SET
+			IMG_URL = #{finalPath},
+			IMG_ORIGIN_NAME = #{originalName},
+			IMG_RENAME = #{rename}
+			WHERE IMG_ORDER = 0
+			AND STOCK_NO = #{stockNo}
+	</update>
 </mapper>

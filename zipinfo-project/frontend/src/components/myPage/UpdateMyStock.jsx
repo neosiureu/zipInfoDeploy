@@ -13,6 +13,7 @@ export default function AddStock() {
   const property = location.state; 
 
   const [formData, setFormData] = useState({
+    stockNo: property.stockNo,
     stockType: property.stockType,
     stockSellPrice: property.stockSellPrice,
     stockFeeMonth: property.stockFeeMonth,
@@ -61,24 +62,24 @@ export default function AddStock() {
 
   const [checkData, setCheckData] = useState({
     stockType: true,
-    stockSellPrice: false,
+    stockSellPrice: true,
     stockFeeMonth: true,
-    stockName: false,
-    stockInfo: false,
-    stockAddress: false,
+    stockName: true,
+    stockInfo: true,
+    stockAddress: true,
     stockForm: true,
-    exclusiveArea: false,
-    supplyArea: false,
-    currentFloor: false,
-    floorTotalCount: false,
-    roomCount: false,
-    bathCount: false,
-    stockDirection: false,
-    stockManageFee: false,
-    ableDate: false,
-    useApprovalDate: false,
-    registDate: false,
-    stockDetail: false,
+    exclusiveArea: true,
+    supplyArea: true,
+    currentFloor: true,
+    floorTotalCount: true,
+    roomCount: true,
+    bathCount: true,
+    stockDirection: true,
+    stockManageFee: true,
+    ableDate: true,
+    useApprovalDate: true,
+    registDate: true,
+    stockDetail: true,
   });
   
   const nav = useNavigate();
@@ -91,7 +92,7 @@ export default function AddStock() {
   const [previewBalanceImgName, setPreviewBalanceImgName] = useState(property.imgOriginNames[1]);
   const [previewImgName, setPreviewImgName] = useState(property.imgOriginNames.slice(2));
 
-  const [stockTubmImg, setStockTumbImg] = useState(null);
+  const [stockTumbImg, setStockTumbImg] = useState(null);
   const [stockImg, setStockImg] = useState([]);
   const [balanceImg, setBalanceImg] = useState(null);
 
@@ -106,7 +107,7 @@ export default function AddStock() {
   const handleClick = () => inputRef.current.click();
 
   // 파일 선택되면 상태에 추가
-  const handleTubmChange = (e) => {
+  const handleTumbChange = (e) => {
     const file = e.target.files[0];
     setStockTumbImg(file);
   };
@@ -122,7 +123,7 @@ export default function AddStock() {
   };
 
   const combinedImages = [
-  ...(stockTubmImg ? [stockTubmImg] : []),
+  ...(stockTumbImg ? [stockTumbImg] : []),
   ...(balanceImg ? [balanceImg] : []),
   ...stockImg
   ];
@@ -433,11 +434,6 @@ const handleSubmit = async () => {
       }
     }
 
-    if (combinedImages.length == 0) {
-      alert('이미지 파일을 모두 넣어주세요.');
-      return;
-    }
-
     const convertedData = {
       ...formData,
       stockType: parseInt(formData.stockType),
@@ -456,21 +452,42 @@ const handleSubmit = async () => {
 
 
 
-      const response = await axios.post("http://localhost:8080/myPage/addStock", convertedData,{withCredentials: true});
+      const response = await axios.post("http://localhost:8080/myPage/updateStock", convertedData,{withCredentials: true});
 
       if (response.status === 200) {
         console.log("기본 정보 등록 완료");
-        const stockNo = response.data.stockNo;
+          // const combinedImages = [
+          // ...(stockTumbImg ? [stockTumbImg] : []),
+          // ...(balanceImg ? [balanceImg] : []),
+          // ...stockImg
+          // ];
+          if(stockTumbImg !== null){
+            const tumbImgForm = new FormData();
+            tumbImgForm.append("stockImg", stockTumbImg);
+            tumbImgForm.append("stockNo", parseInt(formData.stockNo));
+            const tumbImgResp = await axios.post("http://localhost:8080/myPage/updateTumbImg", tumbImgForm,{withCredentials: true});
+            if(tumbImgResp.status === 200){console.log("썸네일 업데이트 완료.");}
+            else{console.log("썸네일 업데이트 실패");}
+          }
+
+          if(balanceImg !== null){
+
+          }
+
+          if(stockImg !== null){
+
+          }
       
-        const imageForm = new FormData();
-        combinedImages.forEach(file => imageForm.append("stockImg", file));
+        // const imageForm = new FormData();
+        // combinedImages.forEach(file => imageForm.append("stockImg", file));
       
-        const imgResp = await axios.post("http://localhost:8080/myPage/addStockImg", imageForm,{withCredentials: true});
+        // const imgResp = await axios.post("http://localhost:8080/myPage/updateStockImg", imageForm,{withCredentials: true});
       
-        if (imgResp.status === 200) {
-          alert("매물 등록이 완료되었습니다.");
-          nav("/myPage");
-        }
+        // if (imgResp.status === 200) {
+        //   alert("매물 등록이 완료되었습니다.");
+        //   nav("/myPage");
+        // }
+        nav("/myPage");
       }
 
     } catch (error) {
@@ -840,11 +857,15 @@ const handleSubmit = async () => {
                     multiple
                     ref={thumbInputRef}
                     style={{ display: 'none' }}
-                    onChange={handleTubmChange}
+                    onChange={handleTumbChange}
                   />
                 </div>
                 <ul>
-                  {stockTubmImg && <li className='imgList'>{stockTubmImg.name}</li>}
+                  {stockTumbImg !== null ? (
+                  <li className='imgList'>{stockTumbImg.name}</li>
+                  ) : (
+                      <li className="imgList">{previewTumbImgName}</li>
+                  )}
                 </ul>
                 <p className="my-page-stock-image-upload-desc">이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는 다음과 같습니다.</p>
                 <p className="my-page-stock-image-upload-desc">공유할 이미지는 최대로 첨부할 수 있습니다</p>
@@ -867,7 +888,11 @@ const handleSubmit = async () => {
                   />
                 </div>
                 <ul>
-                  {balanceImg && <li className='imgList'>{balanceImg.name}</li>}
+                  {balanceImg !== null ? (
+                  <li className='imgList'>{balanceImg.name}</li>
+                  ) : (
+                      <li className="imgList">{previewBalanceImgName}</li>
+                  )}
                 </ul>
                 <p className="my-page-stock-image-upload-desc">이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는 다음과 같습니다.</p>
                 <p className="my-page-stock-image-upload-desc">공유할 이미지는 최대로 첨부할 수 있습니다</p>
