@@ -45,6 +45,7 @@ import NeighborhoodDetail from "./components/neighborhood/NeighborhoodBoardDetai
 
 import Gonggong from "./components/common/Gonggong";
 import NaverCallback from "./components/auth/NaverCallback";
+import NeighborhoodEdit from "./components/neighborhood/NeighborhoodEdit";
 
 function MessageListener() {
   const { setMember } = useContext(MemberContext);
@@ -128,6 +129,10 @@ function App() {
               <Route
                 path="neighborhoodBoard/detail/:boardNo"
                 element={<NeighborhoodDetail />}
+              />
+              <Route
+                path="neighborhoodBoard/edit/:boardNo"
+                element={<NeighborhoodEdit />}
               />
             </Route>
 

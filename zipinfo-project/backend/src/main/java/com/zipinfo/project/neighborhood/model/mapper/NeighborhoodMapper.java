@@ -1,6 +1,7 @@
 package com.zipinfo.project.neighborhood.model.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.RowBounds;
@@ -14,5 +15,11 @@ public interface NeighborhoodMapper {
 	int getListCount(int boardCode);
 
 	List<Neighborhood> selectBoardList(int boardCode, RowBounds rowBounds);
+
+	Neighborhood selectOne(Map<String, Integer> map);
+
+	int updateReadCount(int boardNo);
+
+	int selectReadCount(int boardNo);
 
 }

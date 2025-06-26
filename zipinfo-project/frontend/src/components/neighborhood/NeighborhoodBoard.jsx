@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoard.css";
 import arrowDown from "../../assets/arrow-down.svg";
 import { CITY, TOWN } from "../common/Gonggong";
@@ -6,7 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { axiosAPI } from "../../api/axiosAPI";
 
 const NeighborhoodBoard = ({}) => {
-  const [currentPage, setCurrentPage] = useState(1); // cp를 관리해서 뒤로가기 시 유지시키기 위함
+  const [searchParams] = useSearchParams();
+
+  const initCp = Number(searchParams.get("cp") ?? 1);
+
+  const [currentPage, setCurrentPage] = useState(initCp); // cp를 관리해서 뒤로가기 시 유지시키기 위함
   const [selectedCity, setSelectedCity] = useState(-1); // 선택된 시도 (e.target)
   const [selectedTown, setSelectedTown] = useState(-1); // 선택된 시군구 (e.target)
   const [selectedSubject, setSelectedSubject] = useState(-1); // 선택된 주제 (e.target)
@@ -33,6 +38,9 @@ const NeighborhoodBoard = ({}) => {
   // 따로 서버에서 갔다와서 로드하는 기능을 가져온다음 페이지네이션은 그 이후에 진행하도록 한다
 
   // 페이지네이션 자체를 만들어내는 함수 만약 nextPage prevPage가 없다면 0이나 false를 반환한다.
+
+  // 초기값 변경
+
   const calculatePage = () => {
     const { startPage, endPage, maxPage } = pagination;
     if (pagination.nextPage !== undefined && pagination.prevPage !== undefined)
@@ -59,17 +67,22 @@ const NeighborhoodBoard = ({}) => {
     }
   };
 
-  const handlePaginationChange = (page) => setCurrentPage(page);
+  const handlePaginationChange = (page) => {
+    setCurrentPage(page);
+    const params = new URLSearchParams(searchParams);
+    params.set("cp", page);
+    navigate(`/neighborhoodBoard?${params}`);
+  };
 
   // 서버에서 온 board객체에 대해 boardNo가 넘어올거니까 그에 따라 상세페이지로 이동
 
-  const handleBoardClick = async (item) => {
-    navigate(`/neighborhoodBoard/detail/${item.boardNo}`);
+  const handleBoardClick = (item) => {
+    navigate(`/neighborhoodBoard/detail/${item.boardNo}?cp=${currentPage}`);
   };
 
   // 글쓰기 버튼에서 이동하게 만들 함수
   const handleBoardWriteClick = (board) => {
-    navigate(`/editBoard/insert`);
+    navigate(`/editBoard/insert?cp=${currentPage}`);
   };
 
   const renderPagination = () => {
@@ -217,7 +230,10 @@ const NeighborhoodBoard = ({}) => {
         <div className="nb-board-table">
           <div className="nb-header">
             <div className="nb-header-cell nb-header-number">번호</div>
+            <div className="nb-header-cell nb-header-subject">분류</div>
             <div className="nb-header-cell nb-header-title">제목</div>
+            <div className="nb-header-cell nb-header-area">지역</div>
+
             <div className="nb-header-cell nb-header-author">작성자</div>
             <div className="nb-header-cell nb-header-date">날짜</div>
             <div className="nb-header-cell nb-header-views">조회</div>
@@ -226,12 +242,22 @@ const NeighborhoodBoard = ({}) => {
           {boardList.map((item, index) => (
             <div key={index} className="nb-row">
               <div className="nb-cell nb-cell-number">{item.boardNo}</div>
+              <div className="nb-cell nb-cell-subject">
+                {item.boardSubject === "Q"
+                  ? "질문답변"
+                  : item.boardSubject === "R"
+                  ? "리뷰"
+                  : "자유"}
+              </div>
               <div
                 className="nb-cell nb-cell-title"
                 onClick={() => handleBoardClick(item)} // 클릭 이벤트로 상세화면으로 이동하게
                 style={{ cursor: "pointer" }}
               >
                 {item.boardTitle}
+              </div>
+              <div className="nb-cell nb-cell-area">
+                {item.cityName} {">"} {item.townName}
               </div>
               <div className="nb-cell nb-cell-author">
                 {item.memberNickName}

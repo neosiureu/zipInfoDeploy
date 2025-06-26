@@ -60,6 +60,30 @@ public class NeighborhoodServiceImpl implements NeighborhoodService {
 		return null;
 	}
 
+
+
+
+
+	@Override
+	public Neighborhood selectOne(Map<String, Integer> map) {
+		log.debug("디테일을 위한 서비스단에 도달했습니다."+ map);
+
+		return mapper.selectOne(map);
+	}
+
+
+
+
+
+	@Override
+	public int updateReadCount(int boardNo) {
+		int result = mapper.updateReadCount(boardNo);
+		if (result > 0) {
+			return mapper.selectReadCount(boardNo);
+		}
+		return -1;
+	}
+
 	
 	
 	
