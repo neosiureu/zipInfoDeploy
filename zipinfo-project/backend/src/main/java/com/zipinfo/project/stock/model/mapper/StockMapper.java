@@ -38,4 +38,9 @@ public interface StockMapper {
 			@Param("locationCode") int locationCode,
 			@Param("stockForm") int stockForm,
 			@Param("stockType") int stockType);
+	
+	/** DB에 등록된 가장 최신 매물 4개(다른 조건 없음)를 가져옴
+	 * @return
+	 */
+	List<Stock> selectAnyFour();
 }

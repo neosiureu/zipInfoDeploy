@@ -163,14 +163,20 @@
   margin: 12px 0 4px 4px;
   color: #767676;
 }
-
+.card-title:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
 .card-price {
   font-size: 18px;
   font-weight: 700;
   margin-left: 4px;
   margin-bottom: 4px;
 }
-
+.card-price:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
 .card-price span {
   color: #495cf8;
 }
@@ -198,6 +204,10 @@
   display: flex;
   align-items: center;
   gap: 4px;
+}
+.card-agent:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .card-agent img {
@@ -232,4 +242,13 @@
   font-weight: 400;
   margin-left: 4px;
   margin-bottom: 120px;
+}
+/*************슬라이딩 애니메이션을 위한 css******************************/
+.slide-list {
+  overflow: hidden;
+}
+
+.slide {
+  flex: 0 0 100%; /* 카드 하나가 전체 너비 */
+  transition: transform 0.5s ease-in-out;
 }

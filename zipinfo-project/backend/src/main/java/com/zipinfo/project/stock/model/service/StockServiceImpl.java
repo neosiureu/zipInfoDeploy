@@ -71,7 +71,10 @@ public class StockServiceImpl implements StockService{
 				sr.getStockForm(),
 				sr.getStockType());
 	}
-
-	
+	@Override
+	public List<Stock> selectAnyFour(){
+		
+		return mapper.selectAnyFour();
+	};
 	
 }

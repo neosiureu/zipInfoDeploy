@@ -110,14 +110,11 @@ const StockPage = () => {
 
       if ([...searchParams.entries()].length !== 0) {
         //searchParams가 비지 않았을때! (비엇을떄도 spring server에 request를 보낼 필요 없음!)
-        console.log(
-          "getCoordsFromStock searchLocationCode: ",
-          searchLocationCode
-        );
+        console.log("coordsFromStock searchLocationCode: ", searchLocationCode);
         try {
           const resp = await axiosAPI.post(
             // 검색창에 있는 모든 조건 loading.
-            "/stock/getCoordsFromStock",
+            "/stock/coordsFromStock",
             /*{
               searchKeyWord: searchKeyWordRef.current || "",
               locationCode: searchLocationCode.current ?? -1,
@@ -133,7 +130,7 @@ const StockPage = () => {
               stockForm: Number(searchParams.get("form") ?? -1),
             }
           );
-          console.log("getCoordsFromStock resp:", resp.data);
+          console.log("coordsFromStock resp:", resp.data);
           if (resp.data) {
             const { latCenter, lngCenter, minLat, minLng, maxLat, maxLng } =
               resp.data; // 요청으로 얻어온 평균 좌표, 최소 lat, 최소 lng, 최대 lat, 최대 lng를 저장.
@@ -161,7 +158,7 @@ const StockPage = () => {
     const fetchData = async () => {
       try {
         console.log("API 요청 전 locationCode:", searchLocationCode);
-        const resp = await axiosAPI.post("/stock/selectItems", {
+        const resp = await axiosAPI.post("/stock/items", {
           coords: {
             swLat: sw.getLat(),
             swLng: sw.getLng(),
@@ -206,7 +203,7 @@ const StockPage = () => {
         console.log("좌하단(SW):", sw.getLat(), sw.getLng());
         console.log("우상단(NE):", ne.getLat(), ne.getLng());
         try {
-          const resp = await axiosAPI.post("/stock/selectItems", {
+          const resp = await axiosAPI.post("/stock/items", {
             coords: {
               swLat: sw.getLat(),
               swLng: sw.getLng(),
@@ -406,7 +403,7 @@ const StockPage = () => {
       const ne = bounds.getNorthEast();
 
       try {
-        const resp = await axiosAPI.post("/stock/selectItems", {
+        const resp = await axiosAPI.post("/stock/items", {
           coords: {
             swLat: sw.getLat(),
             swLng: sw.getLng(),

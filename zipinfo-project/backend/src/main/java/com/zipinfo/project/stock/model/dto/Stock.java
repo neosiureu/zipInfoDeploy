@@ -43,4 +43,6 @@ public class Stock {
     private List<String> imgOriginNames;
     private List<String> imgUrls;
     
+    private String companyName;//중개사이름
+    
 }

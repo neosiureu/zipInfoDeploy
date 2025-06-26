@@ -163,8 +163,6 @@ const SearchBar = ({
 
         {/* 시/도 */}
         <div className="select-wrap">
-          <p>(debug)value:{sidoSelected}</p>
-          {/**for debug */}
           <select value={sidoSelected} onChange={handleSidoChange}>
             <option value={-1}>전국</option>
             <option value={11}>서울특별시</option>
@@ -192,8 +190,6 @@ const SearchBar = ({
 
         {/* 구/군 */}
         <div className="select-wrap">
-          <p>(debug)value:{sigunguSelected}</p>
-          {/**for debug */}
           <select value={sigunguSelected} onChange={handleSigunguChange}>
             {sigunguList?.length === 0 ? (
               <option value={-1} disabled>

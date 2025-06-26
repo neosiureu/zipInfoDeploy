@@ -20,7 +20,104 @@ import saleMain02 from "../assets/sale-thumbnail-02.svg";
 import saleMain03 from "../assets/sale-thumbnail-03.svg";
 import saleMain04 from "../assets/sale-thumbnail-04.svg";
 
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { axiosAPI } from "../api/axiosApi";
+
+import { formatPrice } from "../components/common/priceConvert";
 const Main = () => {
+  const navigate = useNavigate();
+
+  const [stockList, setStockList] = useState([]); // 대문에서 보여줄 spring 서버에서 받아오는 매물 List
+  const [saleList, setSaleList] = useState([]); // 대문에서 보여줄 spring 서버에서 받아오는 매물 List
+
+  // 페이지가 로딩되면 서버에서 실거래가 매물, 분양 매물 load
+  useEffect(() => {
+    const loadStock = async () => {
+      const resp = await axiosAPI.post("/stock/itemOnMain", {});
+      setStockList(resp.data);
+    };
+    loadStock();
+  }, []);
+  //**************************************매매 목록 Element
+  const StockSample = () => {
+    return stockList.map((item, index) => (
+      <div className="card" key={item.stockNo}>
+        <img
+          src={main01}
+          alt="실거래 집 썸네일 이미지"
+          onClick={() => {
+            navigate(`/stock/${item.stockNo}`);
+          }}
+        />
+        <div
+          className="card-title"
+          onClick={() => {
+            navigate(`/stock/${item.stockNo}`);
+          }}
+        >
+          {item.stockForm === 1
+            ? "아파트"
+            : item.stockForm === 2
+            ? "빌라"
+            : item.stockForm === 3
+            ? "오피스텔"
+            : "기타"}{" "}
+          · {item.stockName}
+        </div>
+        <div
+          className="card-price"
+          onClick={() => {
+            navigate(`/stock/${item.stockNo}`);
+          }}
+        >
+          {item.stockType === 0 ? (
+            <>
+              <span>매매 </span>
+              {formatPrice(item.stockSellPrice)}
+            </>
+          ) : item.stockType === 1 ? (
+            <>
+              <span>전세 </span>
+              {formatPrice(item.stockSellPrice)}
+            </>
+          ) : item.stockType === 2 ? (
+            <>
+              <span>월세 </span>
+              {formatPrice(item.stockSellPrice)} / {item.stockFeeMonth}
+            </>
+          ) : (
+            "기타"
+          )}
+        </div>
+        <div className="card-desc">
+          {item.currentFloor}/{item.floorTotalCount}층 <span>|</span>{" "}
+          {item.exclusiveArea}㎡ <span>|</span> 관리비 {item.stockManageFee}만원
+        </div>
+        <div className="card-agent">
+          <span>
+            <img src={agent} alt="중개사 아이콘" />
+          </span>
+          {item.companyName}
+        </div>
+      </div>
+    ));
+  };
+  //***********************************분양 목록 Element
+  const showSales = () => {
+    return stockList.map((item) => (
+      <div className="card-sale">
+        <img src={saleMain02} alt="분양 썸네일 이미지" />
+        <div className="card-title">아파트 · {item.saleStockName}</div>
+        <div className="card-price">
+          <span>분양가</span> {item.saleStockPrice}
+        </div>
+        <div className="card-adress">{item.saleAddress}</div>
+        <div className="card-area">62.04㎡ ~ 82.05㎡</div>
+      </div>
+    ));
+  };
+
   return (
     <main>
       <section className="main-visual">
@@ -38,16 +135,36 @@ const Main = () => {
             <input type="text" placeholder="검색어를 입력하세요" />
           </div>
           <div className="main-icons">
-            <button className="apart-icons">
+            <button
+              className="apart-icons"
+              onClick={() => {
+                navigate("/stock?sido=11&type=1");
+              }}
+            >
               <img src={apart} alt="아파트 아이콘 이미지" />
             </button>
-            <button className="house-icons">
+            <button
+              className="house-icons"
+              onClick={() => {
+                navigate("/stock?sido=11&type=2");
+              }}
+            >
               <img src={house} alt="주택/빌라 아이콘 이미지" />
             </button>
-            <button className="officetel-icons">
+            <button
+              className="officetel-icons"
+              onClick={() => {
+                navigate("/stock?sido=11&type=3");
+              }}
+            >
               <img src={officetel} alt="오피스텔 아이콘 이미지" />
             </button>
-            <button className="sale-icons">
+            <button
+              className="sale-icons"
+              onClick={() => {
+                navigate("/sale");
+              }}
+            >
               <img src={sale} alt="분양 아이콘 이미지" />
             </button>
           </div>
@@ -61,74 +178,18 @@ const Main = () => {
       <section className="section-main">
         {/* 인기 단지 */}
         <div className="section-header">
-          <h2>요즘 많이 찾는 트렌디한 매력적인 단지들이에요</h2>
-          <button className="more-btn">모두 보기</button>
+          <h2>최근에 올라온 따끈따끈한 매물들이에요</h2>
+          <button
+            className="more-btn"
+            onClick={() => {
+              navigate("/stock");
+            }}
+          >
+            모두 보기
+          </button>
         </div>
         <div className="card-list">
-          <div className="card">
-            <img src={main01} alt="실거래 집 썸네일 이미지" />
-            <div className="card-title">아파트 · 아크로리버파크 105동</div>
-            <div className="card-price">
-              <span>매매</span> 55억 5,000
-            </div>
-            <div className="card-desc">
-              3/31층 <span>|</span> 114.20㎡ <span>|</span> 관리비 45만원
-            </div>
-            <div className="card-agent">
-              <span>
-                <img src={agent} alt="중개사 아이콘" />
-              </span>
-              바른공인중개사사무소
-            </div>
-          </div>
-          <div className="card">
-            <img src={main02} alt="실거래 집 썸네일 이미지" />
-            <div className="card-title">아파트 · 나인원한남 108동</div>
-            <div className="card-price">
-              <span>매매</span> 260억
-            </div>
-            <div className="card-desc">
-              1/5층 <span>|</span> 273㎡ <span>|</span> 관리비 150만원
-            </div>
-            <div className="card-agent">
-              <span>
-                <img src={agent} alt="중개사 아이콘" />
-              </span>
-              바른공인중개사사무소
-            </div>
-          </div>
-          <div className="card">
-            <img src={main03} alt="실거래 집 썸네일 이미지" />
-            <div className="card-title">아파트 · 판교푸르지오월드마크 2동</div>
-            <div className="card-price">
-              <span>매매</span> 24억 5,000
-            </div>
-            <div className="card-desc">
-              7/20층 <span>|</span> 143.33㎡ <span>|</span> 관리비 68만원
-            </div>
-            <div className="card-agent">
-              <span>
-                <img src={agent} alt="중개사 아이콘" />
-              </span>
-              바른공인중개사사무소
-            </div>
-          </div>
-          <div className="card">
-            <img src={main04} alt="실거래 집 썸네일 이미지" />
-            <div className="card-title">아파트 · 래미안퍼스티지 122동</div>
-            <div className="card-price">
-              <span>매매</span> 75억
-            </div>
-            <div className="card-desc">
-              16/26층 <span>|</span> 198.22㎡ <span>|</span> 관리비 70만원
-            </div>
-            <div className="card-agent">
-              <span>
-                <img src={agent} alt="중개사 아이콘" />
-              </span>
-              바른공인중개사사무소
-            </div>
-          </div>
+          <StockSample />
         </div>
 
         {/* 분양 소식 */}
