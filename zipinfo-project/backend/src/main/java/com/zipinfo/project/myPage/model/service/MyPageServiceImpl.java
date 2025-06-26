@@ -218,6 +218,7 @@ public class MyPageServiceImpl implements MyPageService{
 	public int updateTumbImg(MultipartFile stockImg, int stockNo) {
 		
 		try {
+			System.out.println(stockImg);
 			
 			String finalPath = null;
 			
@@ -238,11 +239,157 @@ public class MyPageServiceImpl implements MyPageService{
 			file.transferTo(saveFile);
 				
 			int result = mapper.updateTumbImg(originalName, rename, finalPath, stockNo);
-				
+			
+			System.out.println(result);
+			
 			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return 0;
 		}
 	}
+	
+	@Override
+	public int updateBalanceImg(MultipartFile stockImg, int stockNo) {
+		
+		try {
+			System.out.println(stockImg);
+			
+			String finalPath = null;
+			
+			String originalName = null;
+			String rename = null;
+			
+			MultipartFile file = stockImg;
+				
+			originalName = file.getOriginalFilename();
+			rename = Utility.fileRename(originalName);
+							File saveFile = new File(stockFolderPath, rename);
+			
+			// 디렉토리가 없으면 생성
+			saveFile.getParentFile().mkdirs();
+				
+			// /myPage/stock/변경된 파일명
+			finalPath = stockWebPath + rename;
+			file.transferTo(saveFile);
+				
+			int result = mapper.updateBalanceImg(originalName, rename, finalPath, stockNo);
+			
+			System.out.println(result);
+			
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
+	
+	@Override
+	public int updateStockImg(List<MultipartFile> stockImg, int stockNo) {
+	    try {
+	        int result = 0;
+
+	        // DB에 있는 기존 일반 이미지 개수 (order >= 2)
+	        int stockCount = mapper.getStockImgCount(stockNo); // 반드시 stockOrder >= 2 조건으로 조회할 것
+	        int newCount = stockImg.size();
+	        int existingCount = stockCount-2;
+
+	        // 1. update: 최소 개수만큼
+	        int minCount = Math.min(existingCount, newCount);
+	        
+	        for (int i = 0; i < minCount; i++) {
+	            MultipartFile file = stockImg.get(i);
+	            String originalName = file.getOriginalFilename();
+	            String rename = Utility.fileRename(originalName);
+	            File saveFile = new File(stockFolderPath, rename);
+	            saveFile.getParentFile().mkdirs();
+	            file.transferTo(saveFile);
+
+	            System.out.println("으럇"+stockNo);
+	            String finalPath = stockWebPath + rename;
+	            int stockOrder = i + 2;
+	            System.out.println("으럇"+stockOrder);
+	            int updateResult = mapper.updateStockImg(originalName, rename, finalPath, stockNo, stockOrder);
+	            if (updateResult == 1) result++;
+	        }
+
+	        // 2. insert: 새 이미지가 더 많을 때
+	        if (newCount > existingCount) {
+	            for (int i = existingCount; i < newCount; i++) {
+	                MultipartFile file = stockImg.get(i);
+	                String originalName = file.getOriginalFilename();
+	                String rename = Utility.fileRename(originalName);
+	                File saveFile = new File(stockFolderPath, rename);
+	                saveFile.getParentFile().mkdirs();
+	                file.transferTo(saveFile);
+
+	                String finalPath = stockWebPath + rename;
+	                int stockOrder = i + 2;
+	                int insertResult = mapper.insertStockImg(originalName, rename, finalPath, stockNo, stockOrder);
+	                if (insertResult == 1) result++;
+	            }
+	        }
+
+	        // 3. delete: 기존 이미지가 더 많을 때
+	        if (existingCount > newCount) {
+	            for (int i = newCount; i < existingCount; i++) {
+	                int stockOrder = i + 2;
+	                int deleteResult = mapper.deleteStockImg(stockNo, stockOrder);
+	                if (deleteResult == 1) result++;
+	            }
+	        }
+
+	        return result;
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return 0;
+	    }
+	}
+	
+	@Override
+	public List<Stock> getSawStock(int memberNo) {
+	    List<Integer> sawStock = mapper.getSawStock(memberNo);
+	    List<Stock> stockList = new ArrayList<>();
+
+	    for (int stockNo : sawStock) {
+	        List<Stock> stockInfoList = mapper.getSawStockInfo(stockNo);
+
+	        for (Stock s : stockInfoList) {
+	            List<Stock> imageUrl = mapper.selectImgUrl(stockNo);
+	            List<String> imageUrls = new ArrayList<>();
+	            for (Stock img : imageUrl) {
+	                imageUrls.add(img.getImgUrl());
+	            }
+	            s.setImgUrls(imageUrls);
+	            stockList.add(s); // ✅ 누적 추가
+	        }
+	    }
+
+	    return stockList;
+	}
+	
+	@Override
+	public List<Stock> getLikeStock(int memberNo) {
+	    List<Integer> sawStock = mapper.getLikeStock(memberNo);
+	    List<Stock> stockList = new ArrayList<>();
+
+	    for (int stockNo : sawStock) {
+	        List<Stock> stockInfoList = mapper.getSawStockInfo(stockNo);
+
+	        for (Stock s : stockInfoList) {
+	            List<Stock> imageUrl = mapper.selectImgUrl(stockNo);
+	            List<String> imageUrls = new ArrayList<>();
+	            for (Stock img : imageUrl) {
+	                imageUrls.add(img.getImgUrl());
+	            }
+	            s.setImgUrls(imageUrls);
+	            stockList.add(s); // ✅ 누적 추가
+	        }
+	    }
+
+	    return stockList;
+	}
+	
+	
 }

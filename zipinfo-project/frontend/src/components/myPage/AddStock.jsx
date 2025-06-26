@@ -483,8 +483,8 @@ const handleSubmit = async () => {
     
     return (
       
-      <div className="my-page">
-      <div className="my-page-container">
+      <div className="my-page-add-stock">
+      <div className="my-page-add-stock-container">
           
         <StockMenu/>
         <MiniMenu/>

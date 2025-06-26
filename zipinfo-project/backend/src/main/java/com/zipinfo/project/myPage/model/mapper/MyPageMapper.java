@@ -54,6 +54,37 @@ public interface MyPageMapper {
 
 	int updateStock(Stock stock);
 
-	int updateTumbImg(String originalName, String rename, String finalPath, int stockNo);
+	int updateTumbImg(@Param("originalName") String originalName,
+            @Param("rename") String rename,
+            @Param("finalPath") String finalPath,
+            @Param("stockNo") int stockNo);
+	
+	int updateBalanceImg(@Param("originalName") String originalName,
+            @Param("rename") String rename,
+            @Param("finalPath") String finalPath,
+            @Param("stockNo") int stockNo);
+	
+	int updateStockImg(@Param("originalName") String originalName,
+            @Param("rename") String rename,
+            @Param("finalPath") String finalPath,
+            @Param("stockNo") int stockNo,
+            @Param("stockOrder") int stockOrder);
+
+	int getStockImgCount(int stockNo);
+
+	int deleteStockImg(@Param("stockNo") int stockNo, @Param("stockOrder") int stockOrder);
+
+	int insertStockImg(@Param("originalName") String originalName,
+            @Param("rename") String rename,
+            @Param("finalPath") String finalPath,
+            @Param("stockNo") int stockNo,
+            @Param("stockOrder") int stockOrder);
+
+	List<Integer> getSawStock(int memberNo);
+
+	List<Stock> getSawStockInfo(int stockNo);
+
+	List<Integer> getLikeStock(int memberNo);
+
 
 }

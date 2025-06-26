@@ -1,3 +1,14 @@
+.my-page-add-stock {
+  min-height: 100vh;
+  background-color: white;
+}
+
+.my-page-add-stock-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
 /* 서브 탭 */
 .my-page-stock-sub-tab-container {
   display: flex;
