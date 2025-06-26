@@ -114,9 +114,7 @@ public class MyPageServiceImpl implements MyPageService{
 	
 	@Override
 	public int addStock(Stock stock) {
-		int result = mapper.addStock(stock);
-	    System.out.println("insert result = " + result);
-	    return result;
+	    return mapper.addStock(stock);
 	}
 	
 	@Override
@@ -204,5 +202,47 @@ public class MyPageServiceImpl implements MyPageService{
 	@Override
 	public int deleteStockInfo(int stockNo) {
 		return mapper.deleteStockInfo(stockNo);
+	}
+	
+	@Override
+	public int updateCoord(Stock stock) {
+		return mapper.updateCoord(stock);
+	}
+	
+	@Override
+	public int updateStock(Stock stock) {
+		return mapper.updateStock(stock);
+	}
+	
+	@Override
+	public int updateTumbImg(MultipartFile stockImg, int stockNo) {
+		
+		try {
+			
+			String finalPath = null;
+			
+			String originalName = null;
+			String rename = null;
+			
+			MultipartFile file = stockImg;
+				
+			originalName = file.getOriginalFilename();
+			rename = Utility.fileRename(originalName);
+							File saveFile = new File(stockFolderPath, rename);
+			
+			// 디렉토리가 없으면 생성
+			saveFile.getParentFile().mkdirs();
+				
+			// /myPage/stock/변경된 파일명
+			finalPath = stockWebPath + rename;
+			file.transferTo(saveFile);
+				
+			int result = mapper.updateTumbImg(originalName, rename, finalPath, stockNo);
+				
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
 	}
 }

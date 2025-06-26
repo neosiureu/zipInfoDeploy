@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.stock.model.dto.Stock;
@@ -48,5 +49,11 @@ public interface MyPageMapper {
 	int deleteStockInfo(int stockNo);
 
 	Stock selectStockCoord(int stockNo);
+
+	int updateCoord(Stock stock);
+
+	int updateStock(Stock stock);
+
+	int updateTumbImg(String originalName, String rename, String finalPath, int stockNo);
 
 }
