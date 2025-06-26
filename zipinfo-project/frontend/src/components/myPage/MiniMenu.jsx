@@ -11,7 +11,7 @@ export default function Menu(){
       {label: "등록한 매물", path: "/myPage/myStock"},
       {label: "매물 등록", path: "/myPage/addStock"},
       {label: "최근 본 매물", path: "/myPage/sawStock"},
-      {label: "찜 매물", path: "/myPage/lickStock"}
+      {label: "찜 매물", path: "/myPage/likeStock"}
     ];
     
     const getInitialTab = () => {

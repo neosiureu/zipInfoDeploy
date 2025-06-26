@@ -9,6 +9,7 @@ export default function MyStock() {
   const [properties, setProperties] = useState([]);
 
   const nav = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   const fetchProperties = async () => {
   try {
@@ -17,6 +18,8 @@ export default function MyStock() {
     console.log(response.data);
   } catch (err) {
     console.error("매물 불러오기 실패:", err);
+  }finally {
+    setLoading(false);
   }
   };
 
@@ -71,6 +74,11 @@ export default function MyStock() {
   const currentProperties = properties.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(properties.length / itemsPerPage);
 
+  const pageGroupSize = 10;
+  const currentGroup = Math.floor((currentPage - 1) / pageGroupSize);
+  const startPage = currentGroup * pageGroupSize + 1;
+  const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
+
   const handleDeleteStock = async (stockNo) => {
 
     const confirmDelete = window.confirm("정말 이 매물을 삭제하시겠습니까?");
@@ -95,60 +103,120 @@ export default function MyStock() {
         <MiniMenu />
 
         <div className="property-container">
-          <div className="property-grid">
-            {currentProperties.map((property) => {
-              const roomInfo = property.stockAddress?.split('^^^')[2] || '';
-
-              return (
-                <div key={property.stockNo} className="property-card">
-                  {/* 이미지 */}
-                  <div className="property-image-container">
-                      <div className="property-image-item">
-                        <img 
-                          src={`http://localhost:8080${property.imgUrls[0]}`} 
-                          className="property-image"
-                          alt="매물 이미지"
-                          loading="lazy"
-                        />
+          {loading ? (
+            <div className="no-like-stock">
+              <h1>로딩 중...</h1>
+            </div>
+          ) : properties.length === 0 ? (
+            <div className="no-like-stock">
+              <h1>최근 본 매물이 없습니다.</h1>
+            </div>
+          ) : (
+            <>
+              <div className="property-grid">
+                {currentProperties.map((property) => {
+                  const roomInfo = property.stockAddress?.split('^^^')[2] || '';
+                  return (
+                    <div key={property.stockNo} className="property-card">
+                      {/* 이미지 */}
+                      <div onClick={() => nav(`/stock/${property.stockNo}`)} className="property-image-container">
+                        <div className="property-image-item">
+                          <img
+                            src={`http://localhost:8080${property.imgUrls[0]}`}
+                            className="property-image"
+                            alt="매물 이미지"
+                            loading="eager"
+                          />
+                        </div>
                       </div>
-                  </div>
-
-                  {/* 본문 */}
-                  <div className="property-content">
-                    <div className="property-header">
-                      <span className="property-category">{stockFormLabel[property.stockForm]} · {property.stockName} {roomInfo}</span>
-                    </div>
-
-                    <div className="property-price-container">
-                      <span className="property-price">{stockTypeLabel[property.stockType]}</span><span className="property-prices"> {formatToKoreanCurrency(property.stockSellPrice)}</span>
-                        {property.stockType === 2 && (
-                          <span className="property-fee-month">/{formatToKoreanCurrency(property.stockFeeMonth)}</span>
-                        )}
-                    </div>
-
-                    <div className="property-details">
-                      <div className="property-details-row">
-                        <span>{property.currentFloor}/{property.floorTotalCount}층 | {property.supplyArea}㎡ | 관리비 {formatToKoreanCurrency(property.stockManageFee)}원</span>
+                  
+                      {/* 본문 */}
+                      <div onClick={() => nav(`/stock/${property.stockNo}`)} className="property-content">
+                        <div className="property-header">
+                          <span className="property-category">
+                            {stockFormLabel[property.stockForm]} · {property.stockName} {roomInfo}
+                          </span>
+                        </div>
+                  
+                        <div className="property-price-container">
+                          <span className="property-price">{stockTypeLabel[property.stockType]}</span>
+                          <span className="property-prices"> {formatToKoreanCurrency(property.stockSellPrice)}</span>
+                          {property.stockType === 2 && (
+                            <span className="property-fee-month">/{formatToKoreanCurrency(property.stockFeeMonth)}</span>
+                          )}
+                        </div>
+                        
+                        <div className="property-details">
+                          <div className="property-details-row">
+                            <span>
+                              {property.currentFloor}/{property.floorTotalCount}층 | {property.supplyArea}㎡ | 관리비{' '}
+                              {property.stockManageFee !== 0
+                                ? `${formatToKoreanCurrency(property.stockManageFee)}원`
+                                : '없음'}
+                            </span>
+                          </div>
+                        </div>
                       </div>
+                      <button className="update-stock-info" onClick={() => nav("/myPage/updateMyStock", { state: property })}>
+                        수정
+                      </button>
+                      <button className="delete-stock-info" onClick={() => handleDeleteStock(property.stockNo)}>
+                        삭제
+                      </button>
                     </div>
-                  </div>
-                  <button className='update-stock-info' onClick={() => nav("/myPage/updateMyStock", { state: property })}>수정</button>
-                  <button className='delete-stock-info' onClick={() => handleDeleteStock(property.stockNo)}>삭제</button>
-                </div>
-              );
-            })}
-          </div>
-          <div className="my-stock-pagination">
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentPage(index + 1)}
-                className={currentPage === index + 1 ? "active-page" : ""}
-              >
-                {index + 1}
-              </button>
-            ))}
-          </div>
+                  );
+                })}
+              </div>
+              
+<div className="my-stock-pagination">
+  {/* 맨 처음 페이지로 */}
+  <button className='my-stock-page-prev'
+    onClick={() => setCurrentPage(1)}
+    disabled={currentPage === 1}
+  >
+    ‹‹
+  </button>
+
+  {/* 이전 그룹 이동 */}
+  <button className='my-stock-page-prev'
+    onClick={() => setCurrentPage(Math.max(1, startPage - 1))}
+    disabled={startPage === 1}
+  >
+    ‹
+  </button>
+
+  {/* 현재 그룹의 페이지들 */}
+  {Array.from({ length: endPage - startPage + 1 }, (_, index) => {
+    const page = startPage + index;
+    return (
+      <button
+        key={page}
+        onClick={() => setCurrentPage(page)}
+        className={currentPage === page ? "active-page" : ""}
+      >
+        {page}
+      </button>
+    );
+  })}
+
+  {/* 다음 그룹 이동 */}
+  <button className='my-stock-page-next'
+    onClick={() => setCurrentPage(endPage + 1)}
+    disabled={endPage >= totalPages}
+  >
+    ›
+  </button>
+
+  {/* 맨 마지막 페이지로 */}
+  <button className='my-stock-page-next'
+    onClick={() => setCurrentPage(totalPages)}
+    disabled={currentPage === totalPages}
+  >
+    ››
+  </button>
+</div>
+            </>
+          )}
         </div>
       </div>
     </div>
