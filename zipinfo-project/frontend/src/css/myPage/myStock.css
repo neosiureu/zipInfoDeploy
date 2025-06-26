@@ -51,6 +51,10 @@
   margin-bottom: 50px;
 }
 
+.property-image-container :hover {
+  cursor: pointer;
+}
+
 .property-image-item img {
   border-radius: 0.5rem;
   overflow: hidden;
@@ -93,8 +97,14 @@
   padding: 0.25rem;
 }
 
+.property-content :hover {
+  cursor: pointer;
+}
+
 .property-header {
   margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
 }
 
 .property-category {
@@ -167,23 +177,36 @@
 }
 
 .my-stock-pagination {
-  margin-top: 2rem;
+  margin-top: 4rem;
+  margin-bottom: 2rem;
   display: flex;
+  gap: 4px;
+  align-items: center;
   justify-content: center;
-  gap: 0.5rem;
 }
 
 .my-stock-pagination button {
-  padding: 0.5rem 1rem;
-  background-color: #eee;
   border: none;
+  background: none;
+  font-weight: normal;
+  color: #767676;
+  font-size: 14px;
+  padding: 4px 4px;
+  margin: 0 4px;
   cursor: pointer;
-  border-radius: 4px;
 }
 
 .my-stock-pagination button.active-page {
-  background-color: #333;
-  color: white;
+  font-weight: 700;
+  background: none;
+  color: #111;
+}
+
+.my-stock-page-prev,
+.my-stock-page-next {
+  font-size: 14px;
+  font-weight: 600;
+  color: #999;
 }
 
 .update-stock-info{
@@ -208,4 +231,10 @@
   margin-bottom: 15px;
   margin-right: 10px;
   border-radius: 8px;
+}
+
+.no-like-stock {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

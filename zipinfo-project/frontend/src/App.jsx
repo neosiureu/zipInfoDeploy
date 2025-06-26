@@ -13,6 +13,8 @@ import MyInfo from "./components/myPage/MyInfo";
 import MyStock from "./components/myPage/MyStock";
 import UpdateMyStock from "./components/myPage/UpdateMyStock";
 import AddStock from "./components/myPage/AddStock";
+import SawStock from "./components/myPage/SawStock";
+import LikeStock from "./components/myPage/LikeStock";
 import MyAnnounce from "./components/myPage/MyAnnounce";
 import MyPost from "./components/myPage/MyPost";
 import UpdatePassword from "./components/myPage/UpdatePassword";
@@ -45,6 +47,7 @@ import NeighborhoodDetail from "./components/neighborhood/NeighborhoodBoardDetai
 
 import Gonggong from "./components/common/Gonggong";
 import NaverCallback from "./components/auth/NaverCallback";
+import NeighborhoodEdit from "./components/neighborhood/NeighborhoodEdit";
 
 function MessageListener() {
   const { setMember } = useContext(MemberContext);
@@ -105,6 +108,8 @@ function App() {
               <Route path="myPage/myStock" element={<MyStock />} />
               <Route path="myPage/updateMyStock" element={<UpdateMyStock />} />
               <Route path="myPage/addStock" element={<AddStock />} />
+              <Route path="myPage/sawStock" element={<SawStock />} />
+              <Route path="myPage/likeStock" element={<LikeStock />} />
               <Route path="myPage/myAnnounce" element={<MyAnnounce />} />
               <Route path="myPage/myPost" element={<MyPost />} />
               <Route
@@ -128,6 +133,10 @@ function App() {
               <Route
                 path="neighborhoodBoard/detail/:boardNo"
                 element={<NeighborhoodDetail />}
+              />
+              <Route
+                path="neighborhoodBoard/edit/:boardNo"
+                element={<NeighborhoodEdit />}
               />
             </Route>
 

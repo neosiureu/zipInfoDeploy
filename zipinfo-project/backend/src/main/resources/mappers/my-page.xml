@@ -155,4 +155,53 @@
 			WHERE IMG_ORDER = 0
 			AND STOCK_NO = #{stockNo}
 	</update>
+	
+	<update id="updateBalanceImg">
+		UPDATE "STOCK_IMG" SET
+			IMG_URL = #{finalPath},
+			IMG_ORIGIN_NAME = #{originalName},
+			IMG_RENAME = #{rename}
+			WHERE IMG_ORDER = 1
+			AND STOCK_NO = #{stockNo}
+	</update>
+	
+	<update id="updateStockImg">
+		UPDATE "STOCK_IMG" SET
+			IMG_URL = #{finalPath},
+			IMG_ORIGIN_NAME = #{originalName},
+			IMG_RENAME = #{rename}
+			WHERE STOCK_NO = #{stockNo}
+			AND IMG_ORDER = #{stockOrder}
+	</update>
+	
+	<select id="getStockImgCount">
+		SELECT COUNT(*) FROM "STOCK_IMG"
+		WHERE STOCK_NO = #{stockNo}
+	</select>
+	
+	<delete id="deleteStockImg">
+		DELETE "STOCK_IMG"
+		WHERE STOCK_NO = #{stockNo}
+		AND IMG_ORDER = #{stockOrder}
+	</delete>
+	
+	<insert id="insertStockImg">
+		INSERT INTO "STOCK_IMG"
+		VALUES(SEQ_STOCK_IMG.NEXTVAL, #{stockNo}, #{stockOrder}, #{finalPath}, #{originalName}, #{rename})
+	</insert>
+	
+	<select id="getSawStock">
+		SELECT STOCK_NO FROM "STOCK_SAW"
+		WHERE MEMBER_NO = #{memberNo}
+	</select>
+	
+	<select id="getLikeStock">
+		SELECT STOCK_NO FROM "LIKE_STOCK"
+		WHERE MEMBER_NO = #{memberNo}
+	</select>
+	
+	<select id="getSawStockInfo">
+		SELECT * FROM "STOCK_INFO"
+		WHERE STOCK_NO = #{stockNo}
+	</select>
 </mapper>

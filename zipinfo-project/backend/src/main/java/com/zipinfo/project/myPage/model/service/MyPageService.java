@@ -39,5 +39,13 @@ public interface MyPageService {
 
 	int updateTumbImg(MultipartFile stockImg, int stockNo);
 
+	int updateBalanceImg(MultipartFile stockImg, int stockNo);
+
+	int updateStockImg(List<MultipartFile> stockImg, int stockNo);
+
+	List<Stock> getSawStock(int memberNo);
+
+	List<Stock> getLikeStock(int memberNo);
+
 
 }

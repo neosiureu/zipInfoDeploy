@@ -513,12 +513,14 @@ export default function AddStock() {
       console.log("업로드 실패", error);
     }
   };
-
-  return (
-    <div className="my-page">
-      <div className="my-page-container">
-        <StockMenu />
-        <MiniMenu />
+    
+    return (
+      
+      <div className="my-page-add-stock">
+      <div className="my-page-add-stock-container">
+          
+        <StockMenu/>
+        <MiniMenu/>
 
         <div className="my-page-stock-content-card">
           {/* 기본정보 섹션 */}

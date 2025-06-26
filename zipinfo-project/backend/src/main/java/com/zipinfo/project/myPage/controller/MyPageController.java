@@ -309,4 +309,72 @@ public class MyPageController {
 		
 	}
 	
+	@PostMapping(value = "updateBalanceImg", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<Object> updateBalanceImg(@RequestParam("stockNo") int stockNo, @RequestParam("stockImg") MultipartFile stockImg){
+		
+		try {
+			
+			int imgResult = service.updateBalanceImg(stockImg, stockNo);
+		
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(imgResult); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+		
+	}
+	
+	@PostMapping(value = "updateStockImg", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<Object> updateStockImg(@RequestParam("stockNo") int stockNo, @RequestParam("stockImg") List<MultipartFile> stockImg){
+		
+		try {
+			
+			int imgResult = service.updateStockImg(stockImg, stockNo);
+		
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(imgResult); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+		
+	}
+	
+	@GetMapping("getSawStock")
+	public ResponseEntity<Object> getSawStock(HttpSession session){
+		try {
+			
+			Member loginMember = (Member)session.getAttribute("loginMember");
+			
+			int memberNo = loginMember.getMemberNo();
+			
+			List<Stock> stock = service.getSawStock(memberNo);
+			
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(stock); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
+	
+	@GetMapping("getLikeStock")
+	public ResponseEntity<Object> getLikeStock(HttpSession session){
+		try {
+			
+			Member loginMember = (Member)session.getAttribute("loginMember");
+			
+			int memberNo = loginMember.getMemberNo();
+			
+			List<Stock> stock = service.getLikeStock(memberNo);
+			
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(stock); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
+	
 }

@@ -471,23 +471,25 @@ const handleSubmit = async () => {
           }
 
           if(balanceImg !== null){
-
+            const balanceImgForm = new FormData();
+            balanceImgForm.append("stockImg", balanceImg);
+            balanceImgForm.append("stockNo", parseInt(formData.stockNo));
+            const balanceImgResp = await axios.post("http://localhost:8080/myPage/updateBalanceImg", balanceImgForm,{withCredentials: true});
+            if(balanceImgResp.status === 200){console.log("평형 이미지 업데이트 완료.");}
+            else{console.log("썸네일 업데이트 실패");}
           }
 
-          if(stockImg !== null){
-
+          if(stockImg.length !== 0){
+            const stockImgForm = new FormData();
+            stockImg.forEach(file => stockImgForm.append("stockImg", file));
+            stockImgForm.append("stockNo", parseInt(formData.stockNo));
+            const stockImgResp = await axios.post("http://localhost:8080/myPage/updateStockImg", stockImgForm,{withCredentials: true});
+            if(stockImgResp.status === 200){console.log("이미지 업데이트 완료.");}
+            else{console.log("썸네일 업데이트 실패");}
           }
       
-        // const imageForm = new FormData();
-        // combinedImages.forEach(file => imageForm.append("stockImg", file));
-      
-        // const imgResp = await axios.post("http://localhost:8080/myPage/updateStockImg", imageForm,{withCredentials: true});
-      
-        // if (imgResp.status === 200) {
-        //   alert("매물 등록이 완료되었습니다.");
-        //   nav("/myPage");
-        // }
-        nav("/myPage");
+          alert("매물 수정이 완료되었습니다");
+        nav("/myPage/myStock");
       }
 
     } catch (error) {
@@ -498,8 +500,8 @@ const handleSubmit = async () => {
     
     return (
       
-      <div className="my-page">
-      <div className="my-page-container">
+      <div className="my-page-add-stock">
+      <div className="my-page-add-stock-container">
           
         <StockMenu/>
         <MiniMenu/>
