@@ -3,6 +3,7 @@ package com.zipinfo.project.common.searchbar.controller;
 
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,11 @@ public class SearchBarController { //author: 안준성
 	@Autowired
 	private SearchBarService service;
 	@PostMapping("getAllSigungu")
-	private ResponseEntity<?> getAllSigungu(@RequestBody int sido){
+	private ResponseEntity<?> getAllSigungu(@RequestBody  Map<String, String> request){
+		
+		Object rawValue = request.get("sidoSelected");
+		int sido = Integer.parseInt(rawValue.toString());
+		
 		if(sido < 100) {
 			 //return 
 		    try {

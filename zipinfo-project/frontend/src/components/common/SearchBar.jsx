@@ -86,6 +86,7 @@ const SearchBar = ({
       "sigunguSelected:",
       sigunguSelected
     );
+
     if (sigunguSelected === -1 && sidoSelected !== -1) {
       // 시/도 가 선택된 상태에서 시/군/구가 선택이 안되있거나 전체로 선택되어있을떄
       console.log("sigunguSelected === -1 && sidoSelected !== -1");
@@ -108,15 +109,19 @@ const SearchBar = ({
       );
     }
   }, [sidoSelected, sigunguSelected, searchLocationCode]);
+
   //sidoSelected가 바뀔때마다 시/군/구 목록을 서버 DB로부터 업데이트해준다.
   useEffect(() => {
+    setSigunguSelected(-1); // 시/도가 바뀌면 시/군/구를  전체로 reset해줘야 한다.
     const fetchSigunguList = async () => {
       if (sidoSelected !== -1) {
         try {
           console.log("sidoSelected:", sidoSelected);
           const resp = await axiosAPI.post(
             "/searchBar/getAllSigungu",
-            sidoSelected
+
+            { sidoSelected: sidoSelected },
+            { headers: { "Content-Type": "application/json" } }
           );
           setSigunguList(resp.data);
           console.log(resp.data);
@@ -158,6 +163,8 @@ const SearchBar = ({
 
         {/* 시/도 */}
         <div className="select-wrap">
+          <p>(debug)value:{sidoSelected}</p>
+          {/**for debug */}
           <select value={sidoSelected} onChange={handleSidoChange}>
             <option value={-1}>전국</option>
             <option value={11}>서울특별시</option>
@@ -185,6 +192,8 @@ const SearchBar = ({
 
         {/* 구/군 */}
         <div className="select-wrap">
+          <p>(debug)value:{sigunguSelected}</p>
+          {/**for debug */}
           <select value={sigunguSelected} onChange={handleSigunguChange}>
             {sigunguList?.length === 0 ? (
               <option value={-1} disabled>

@@ -101,8 +101,8 @@ const StockPage = () => {
       console.log("mapRef : ", mapRef.current);
       const container = mapRef.current; // 지도를 표시할 div
       const options = {
-        center: new window.kakao.maps.LatLng(37.5451, 127.0425), // 아크로서울포레스트아파트 대략적인 위도, 경도
-        level: 3, // 지도의 확대 레벨
+        center: new window.kakao.maps.LatLng(37.567937, 126.983001), // KH종로지원 대략적인 위도, 경도
+        level: 7, // 지도의 확대 레벨
       };
       const map = new window.kakao.maps.Map(container, options);
       mapInstanceRef.current = map;
@@ -383,9 +383,8 @@ const StockPage = () => {
       // 여기서 직접 이벤트 바인딩
       customOverlay
         .querySelector(".custom-overlay")
-        .addEventListener("click", (item, index) => {
-          console.log(`${item.index} clicked`);
-          handleItemClick(item, index);
+        .addEventListener("click", () => {
+          handleItemClick(item);
         });
 
       const itemMarker = new window.kakao.maps.CustomOverlay({
@@ -436,7 +435,7 @@ const StockPage = () => {
   }, [searchKeyWord, searchLocationCode, searchStockType, searchStockForm]);
 
   // 매물 item을 클릭했을떄 수행되는 핸들러 함수
-  const handleItemClick = (item, index) => {
+  const handleItemClick = (item) => {
     setIsAsideVisible(true); //클릭시 상세창 표시=true 함.
     setClickedStockItem(item); // 클릭한 item의 index를 저장.
     //map?.setDraggable(false); // 사용자가 지도를 드래그하지 못하게 막음!
