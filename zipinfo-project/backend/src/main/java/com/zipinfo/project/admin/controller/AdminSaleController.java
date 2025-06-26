@@ -52,8 +52,6 @@ public class AdminSaleController {
     ) {
         // 관리자 로그인 여부 확인
         Member loginMember = (Member) session.getAttribute("loginMember");
-        
-        System.out.println("✅ /admin/addSale 도달함");  // 요청 도달 로그
 
         if (loginMember == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
@@ -64,6 +62,7 @@ public class AdminSaleController {
         }
 
         try {
+        	sale.setMemberNo(loginMember.getMemberNo()); // 관리자 회원 로그인 정보 추가
             service.addSale(sale, thumbnailImages, floorImages);
             return ResponseEntity.ok("등록 완료");
             

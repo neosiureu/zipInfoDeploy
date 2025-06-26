@@ -47,9 +47,11 @@ const AddSale = () => {
   const formatWithComma = (val) => val.replace(/\B(?=(\d{3})+(?!\d))/g, ","); // 숫자에 콤마 포맷 적용
   const removeComma = (val) => val.replace(/,/g, ""); // 콤마 제거
 
+  const navigate = useNavigate();
+
   const totalPrice =
-    ((!isNaN(form.price1) && Number(form.price1)) * 10000 +
-      (!isNaN(form.price2) && Number(form.price2))) *
+    (Number(removeComma(form.price1)) * 10000 +
+      Number(removeComma(form.price2))) *
     10000;
 
   // 주소를 통해 위도/경도 좌표 조회 (Kakao API)
@@ -95,13 +97,14 @@ const AddSale = () => {
     if (balance < 0) balance = 0;
 
     const toKoreanCurrency = (amount) => {
-      const billion = Math.floor(amount / 10000);
-      const million = amount % 10000;
-      return billion > 0
-        ? million > 0
-          ? `${billion}억 ${million.toLocaleString()}만원`
-          : `${billion}억`
-        : `${million.toLocaleString()}만원`;
+      const billion = Math.floor(amount / 100000000); // 억
+      const million = Math.floor((amount % 100000000) / 10000); // 만 단위
+
+      if (billion > 0 && million > 0)
+        return `${billion}억 ${million.toLocaleString()}만원`;
+      if (billion > 0) return `${billion}억`;
+      if (million > 0) return `${million.toLocaleString()}만원`;
+      return `${amount.toLocaleString()}원`;
     };
 
     const contractAmount = contract
@@ -131,8 +134,7 @@ const AddSale = () => {
     const phonePattern = /^[0-9\-]*$/;
 
     const fieldMaxLength = {
-      name: 20,
-      address: 20,
+      name: 15,
       scale: 30,
       builder: 10,
       contact: 13,
@@ -155,10 +157,10 @@ const AddSale = () => {
     )
       return;
 
-    if (name === "tax") {
+    if (["price1", "price2", "tax"].includes(name)) {
       const numeric = removeComma(value);
       if (!onlyNumber.test(numeric)) return;
-      setForm((prev) => ({ ...prev, tax: formatWithComma(numeric) }));
+      setForm((prev) => ({ ...prev, [name]: formatWithComma(numeric) }));
       return;
     }
 
@@ -217,9 +219,6 @@ const AddSale = () => {
     }
 
     try {
-      const { lat, lng } = await getCoordsByAddress(form.address);
-
-      // 주소 → 좌표 + regionNo 조회
       const response = await axios.get(
         `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(
           form.address
@@ -230,13 +229,42 @@ const AddSale = () => {
           },
         }
       );
+
       const result = response.data.documents[0];
 
       if (!result) throw new Error("주소에 해당하는 위치가 없습니다.");
-      const regionNo = result.address.region_3depth_h_code; // 법정동 코드
 
-      const cleanCurrency = (str) =>
-        parseInt(removeComma(str.replace(/[^\d]/g, "")));
+      console.log("Kakao API 응답 result:", result); // ✅ 이 위치에서 출력해야 함
+
+      // region_3depth_h_code 추출 (address 또는 road_address 중에서)
+      const regionHCode = result.address?.h_code || result.road_address?.h_code;
+
+      console.log("Kakao API 응답 result:", result);
+      console.log("추출된 region_3depth_h_code:", regionHCode);
+
+      if (!regionHCode || regionHCode.length < 5) {
+        throw new Error(
+          "법정동 코드(region_3depth_h_code)가 유효하지 않습니다."
+        );
+      }
+
+      // 앞 5자리만 추출
+      const regionNo = parseInt(regionHCode.substring(0, 5), 10);
+
+      console.log("regionNo (앞 5자리):", regionNo);
+
+      // 위도, 경도
+      const lat = result.y;
+      const lng = result.x;
+
+      // 납입 금액 계산 (실제 숫자 값으로)
+      const deposit = Math.floor(
+        (totalPrice * (parseInt(form.contractRate) || 0)) / 100
+      );
+      const middlePayment = Math.floor(
+        (totalPrice * (parseInt(form.interimRate) || 0)) / 100
+      );
+      const balancePayment = totalPrice - deposit - middlePayment;
 
       const saleData = {
         saleStockForm: typeMap[form.type], // 매물 형태 (1, 2, 3)
@@ -255,20 +283,18 @@ const AddSale = () => {
         saleExclusiveArea: parseFloat(form.exclusiveArea), // 전용 면적
         saleRoomCount: parseInt(form.rooms), // 방 개수
         saleBathroomCount: parseInt(form.baths), // 욕실 개수
-        deposit: cleanCurrency(form.contractAmount), // 계약금
-        middlePayment: cleanCurrency(form.interimAmount), // 중도금
-        balancePayment: cleanCurrency(form.balanceAmount), // 잔금
+        deposit, // 계약금
+        middlePayment, // 중도금
+        balancePayment, // 잔금
         regionNo: parseInt(regionNo), // 법정동 코드
         lat,
         lng,
       };
 
       console.log("전송할 saleData: ", saleData);
-      console.log("주소 검색 결과:", result);
-      console.log(
-        "region_3depth_h_code:",
-        result?.address?.region_3depth_h_code
-      );
+      console.log("region_3depth_h_code:", regionHCode);
+      console.log("regionNo (5자리):", regionNo);
+      console.log("좌표:", { lat, lng });
 
       const fd = new FormData();
       fd.append(
@@ -290,11 +316,14 @@ const AddSale = () => {
       );
 
       if (res.status === 200) {
+        alert("분양 매물이 등록되었습니다.");
+        navigate("/admin/list_sale");
         setSubmitStatus("등록이 완료되었습니다.");
         setForm(initialState);
         setThumbnailImages([]);
         setFloorImages([]);
       } else {
+        alert("등록에 실패했습니다. 다시 시도해주세요.");
         setSubmitStatus("등록에 실패했습니다.");
       }
     } catch (error) {

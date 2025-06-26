@@ -8,7 +8,7 @@
 
 /* 리스트/상세 공통 패널 */
 .sale-side-panel {
-  width: 448px;
+  width: 480px;
   height: 100%;
   background: #fff;
   overflow-y: auto;
@@ -44,10 +44,10 @@
 }
 
 /* 닫기 버튼 */
-.close-button {
+.sale-close-button {
   position: absolute;
   top: 12px;
-  left: calc(448px * 2 + 12px); /* 패널 2개 너비 + 여백 */
+  left: calc(480px * 2 + 12px); /* 패널 2개 너비 + 여백 */
   z-index: 20;
   width: 36px;
   height: 36px;

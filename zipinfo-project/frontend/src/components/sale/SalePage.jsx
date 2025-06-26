@@ -373,7 +373,10 @@ const SalePage = () => {
                     <span>분양가</span> {formatPrice(item.salePrice)}
                   </div>
                   <div className="sale-address">
-                    {item.saleSupplyArea}㎡ | {item.saleAddress}
+                    {item.saleSupplyArea}㎡ |{" "}
+                    {item.saleAddress.length > 10
+                      ? `${item.saleAddress.slice(0, 10)}...`
+                      : item.saleAddress}
                   </div>
                   <div className="sale-status">{status[item.saleStatus]}</div>
                 </div>
@@ -410,7 +413,7 @@ const SalePage = () => {
             <aside className="sale-side-panel detail-panel">
               <StockItemDetail item={clickedStockItem} />
             </aside>
-            <button className="close-button" onClick={closeStockDetail}>
+            <button className="sale-close-button" onClick={closeStockDetail}>
               ✕
             </button>
           </>
