@@ -2,7 +2,7 @@ package com.zipinfo.project.neighborhood.model.dto;
 
 import java.util.List;
 
-import com.zipinfo.project.board.model.dto.Comment;
+import com.zipinfo.project.announce.model.dto.Comment;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

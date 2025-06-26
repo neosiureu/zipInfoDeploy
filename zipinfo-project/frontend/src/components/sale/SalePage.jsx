@@ -72,8 +72,8 @@ const SalePage = () => {
     if (window.kakao && window.kakao.maps) {
       const container = mapRef.current;
       const options = {
-        center: new window.kakao.maps.LatLng(37.5451, 127.0425),
-        level: 3,
+        center: new window.kakao.maps.LatLng(37.567937, 126.983001), // KH종로지원 대략적인 위도, 경도
+        level: 7, // 지도의 확대 레벨
       };
       const map = new window.kakao.maps.Map(container, options);
       mapInstanceRef.current = map;
@@ -104,11 +104,6 @@ const SalePage = () => {
           console.log("매물 items 조회 중 error 발생 : ", error);
         }
       });
-
-      // 마커를 추가하고 싶다면 여기에 추가
-      const markerPosition = new window.kakao.maps.LatLng(37.5451, 127.0425);
-      const marker = new window.kakao.maps.Marker({ position: markerPosition });
-      marker.setMap(map);
     }
   }, []);
 
