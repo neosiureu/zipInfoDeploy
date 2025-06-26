@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.zipinfo.project.announce.model.dto.Announce;
 import com.zipinfo.project.announce.model.service.AnnounceService;
-import com.zipinfo.project.member.model.dto.Member;
-import com.zipinfo.project.member.model.mapper.MemberMapper;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,35 +18,48 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/api/board/announce")
+@RequestMapping("/api/announce")
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class AnnounceController {
 
     private final AnnounceService service;
-    private final MemberMapper memberMapper;
 
-    /** 공지사항 목록 조회 */
+    /** 공지사항 목록 조회 - 페이징 및 검색 키워드 처리 */
     @GetMapping("")
-    public ResponseEntity<List<Announce>> selectBoardList(
+    public ResponseEntity<Map<String, Object>> selectAnnounceList(
             @RequestParam(value = "cp", defaultValue = "1") int cp,
+            @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "key", required = false) String key,
             @RequestParam(value = "query", required = false) String query) {
 
-        List<Announce> resultList = (key == null || key.trim().isEmpty())
-            ? service.selectAnnounceList(cp)
-            : service.searchList(key, query, cp);
+        List<Announce> list;
+        int totalCount;
 
-        return ResponseEntity.ok(resultList);
+        if (key == null || key.trim().isEmpty()) {
+            list = service.selectAnnounceList(cp, size);
+            totalCount = service.countAnnounce();
+        } else {
+            list = service.searchList(key, query, cp, size);
+            totalCount = service.countSearchAnnounce(key, query);
+        }
+
+        int totalPages = (int) Math.ceil((double) totalCount / size);
+
+        Map<String, Object> result = Map.of(
+                "posts", list,
+                "totalPages", totalPages
+        );
+
+        return ResponseEntity.ok(result);
     }
 
-    /** 공지사항 상세 조회 */
+    /** 공지사항 상세 조회 - 조회수 중복 증가 방지 쿠키 처리 */
     @GetMapping("/{announceNo}")
-    public ResponseEntity<?> selectAnnounceDetail(
-            @PathVariable int announceNo,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+    public ResponseEntity<?> selectAnnounceDetail(@PathVariable(name = "announceNo") int announceNo,
+                                                  HttpServletRequest request,
+                                                  HttpServletResponse response) {
         try {
             Cookie[] cookies = request.getCookies();
             Cookie readCookie = null;
@@ -85,7 +96,7 @@ public class AnnounceController {
                 }
             }
 
-            Announce announce = service.selectOne(Map.of("announceNo", announceNo));
+            Announce announce = service.selectOne(announceNo);
             if (announce == null) {
                 return ResponseEntity.status(404).body("해당 게시글이 존재하지 않습니다.");
             }
@@ -93,94 +104,8 @@ public class AnnounceController {
             return ResponseEntity.ok(announce);
 
         } catch (Exception e) {
-            log.error("공지사항 상세 조회 실패", e);
+            log.error("📛 공지사항 상세 조회 실패", e);
             return ResponseEntity.status(500).body("서버 오류 발생");
         }
-    }
-
-    /** 공지사항 등록 (관리자만) */
-    @PostMapping("")
-    public ResponseEntity<?> createBoard(@RequestBody Announce announce, HttpServletRequest request) {
-        Member loginMember = (Member) request.getSession().getAttribute("loginMember");
-        log.info("Session loginMember: {}", loginMember);
-
-        // 권한 체크 주석 처리
-        /*
-        if (loginMember == null) {
-            return ResponseEntity.status(401).body("로그인이 필요합니다.");
-        }
-        if (loginMember.getMemberAuth() != 0) {
-            return ResponseEntity.status(403).body("관리자만 공지사항을 등록할 수 있습니다.");
-        }
-        */
-
-        if (loginMember != null) {
-            announce.setMemberNo(loginMember.getMemberNo());
-        } else {
-            // 로그인 정보가 없을 경우, 기본값 설정 가능 (예: 0 또는 -1)
-            announce.setMemberNo(0);
-        }
-
-        int result = service.insertAnnounce(announce);
-        if (result > 0) {
-            return ResponseEntity.ok(Map.of("message", "공지사항 등록 성공", "announceNo", announce.getAnnounceNo()));
-        }
-        return ResponseEntity.status(500).body("공지사항 등록 실패");
-    }
-
-    /** 공지사항 수정 (관리자만) */
-    @PutMapping("/{announceNo}")
-    public ResponseEntity<?> updateBoard(@PathVariable int announceNo,
-                                         @RequestBody Announce announce,
-                                         HttpServletRequest request) {
-
-        Member loginMember = (Member) request.getSession().getAttribute("loginMember");
-
-        // 권한 체크 주석 처리
-        /*
-        if (loginMember == null) {
-            return ResponseEntity.status(401).body("로그인이 필요합니다.");
-        }
-        if (loginMember.getMemberAuth() != 0) {
-            return ResponseEntity.status(403).body("관리자만 수정할 수 있습니다.");
-        }
-        */
-
-        if (loginMember != null) {
-            announce.setMemberNo(loginMember.getMemberNo());
-        } else {
-            announce.setMemberNo(0);
-        }
-        announce.setAnnounceNo(announceNo);
-
-        int result = service.updateAnnounce(announce);
-        if (result > 0) {
-            return ResponseEntity.ok(Map.of("message", "공지사항 수정 성공"));
-        }
-        return ResponseEntity.status(500).body("공지사항 수정 실패");
-    }
-
-    /** 공지사항 삭제 (관리자만) */
-    @DeleteMapping("/{announceNo}")
-    public ResponseEntity<?> deleteBoard(@PathVariable int announceNo,
-                                         HttpServletRequest request) {
-
-        Member loginMember = (Member) request.getSession().getAttribute("loginMember");
-
-        // 권한 체크 주석 처리
-        /*
-        if (loginMember == null) {
-            return ResponseEntity.status(401).body("로그인이 필요합니다.");
-        }
-        if (loginMember.getMemberAuth() != 0) {
-            return ResponseEntity.status(403).body("관리자만 삭제할 수 있습니다.");
-        }
-        */
-
-        int result = service.deleteAnnounce(announceNo);
-        if (result > 0) {
-            return ResponseEntity.ok(Map.of("message", "공지사항 삭제 성공"));
-        }
-        return ResponseEntity.status(500).body("공지사항 삭제 실패");
     }
 }

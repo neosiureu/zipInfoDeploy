@@ -65,11 +65,16 @@
   margin: 40px 0 20px 0;
   padding-top: 20px;
   border-top: 1px solid #e8e8e8;
+
+  justify-content: flex-end; /* 오른쪽 정렬 */
+  align-items: center; /* 수직 중앙 정렬 */
 }
 
 .an-detail-btn-edit,
-.an-detail-btn-delete {
+.an-detail-btn-delete,
+.an-detail-btn-back {
   padding: 10px 20px;
+  height: 40px; /* 높이 통일 */
   border: none;
   border-radius: 6px;
   font-size: 14px;
@@ -77,6 +82,11 @@
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 80px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 .an-detail-btn-edit {
@@ -90,7 +100,7 @@
 }
 
 .an-detail-btn-delete {
-  background-color: #ea4335;
+  background-color: black;
   color: white;
 }
 
@@ -100,21 +110,15 @@
 }
 
 .an-detail-btn-back {
-  padding: 12px 24px;
   background-color: #f8f9fa;
   color: #5f6368;
   border: 1px solid #dadce0;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 20px;
 }
 
 .an-detail-btn-back:hover {
   background-color: #e8eaed;
   border-color: #c4c7ca;
+  transform: translateY(-1px);
 }
 
 .an-detail-loading {

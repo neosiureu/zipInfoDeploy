@@ -189,4 +189,11 @@ public class MemberController {
 	    
 	    return ResponseEntity.ok(result);
 	}
+	
+	@GetMapping("/check-session")
+	public ResponseEntity<Boolean> checkSession(HttpSession session) {
+	    Member loginMember = (Member) session.getAttribute("loginMember");
+	    return ResponseEntity.ok(loginMember != null);
+	}
+
 }

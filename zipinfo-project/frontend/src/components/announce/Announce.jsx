@@ -6,33 +6,35 @@ import "../../css/announce/Announce.css";
 
 const Announce = () => {
   const [posts, setPosts] = useState([]);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [keyword, setKeyword] = useState("");
+  const [currentPage, setCurrentPage] = useState(0); // 현재 페이지 (0부터 시작)
+  const [totalPages, setTotalPages] = useState(1); // 총 페이지 수
+  const [keyword, setKeyword] = useState(""); // 검색어 상태
 
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  // 관리자 여부 판단: memberAuth === 0
+  // 관리자 여부 판단: memberAuth가 0이면 관리자
   const isAdmin = useMemo(() => {
     if (!user) return false;
     const memberAuth = user.memberAuth ?? user.member_auth;
     return Number(memberAuth) === 0;
   }, [user]);
 
-  // 디버깅용 콘솔 로그
+  // 디버깅용: 현재 user와 isAdmin 상태 로그
   useEffect(() => {
     console.log("현재 user:", user);
     console.log("isAdmin:", isAdmin);
   }, [user, isAdmin]);
 
-  // 공지사항 불러오기
+  // 공지사항 목록 불러오기 함수 (페이지 번호를 0부터 받음)
   const loadPosts = async (page = 0) => {
     try {
       const data = await fetchPosts(page, 10, keyword);
+      console.log("공지사항 데이터:", data); // 데이터 형태 확인용
+
       setPosts(data.posts || []);
-      setCurrentPage(page);
       setTotalPages(data.totalPages || 1);
+      setCurrentPage(page);
     } catch (error) {
       console.error("공지사항 불러오기 실패", error);
       setPosts([]);
@@ -41,16 +43,17 @@ const Announce = () => {
     }
   };
 
+  // 컴포넌트 마운트 시 0페이지(첫 페이지) 불러오기
   useEffect(() => {
     loadPosts(0);
   }, []);
 
-  // 검색
+  // 검색 버튼 클릭 시 호출, 0페이지부터 다시 조회
   const handleSearch = () => {
     loadPosts(0);
   };
 
-  // 페이지네이션
+  // 페이지 번호 버튼 렌더링 함수
   const renderPagination = () => {
     const pageButtons = [];
     for (let i = 0; i < totalPages; i++) {
@@ -67,7 +70,7 @@ const Announce = () => {
     return pageButtons;
   };
 
-  // 글쓰기 버튼 클릭 시 관리자 확인 및 이동
+  // 글쓰기 버튼 클릭 시 관리자 여부 확인 후 이동
   const handleWriteClick = () => {
     if (!isAdmin) {
       alert("관리자만 글을 작성할 수 있습니다.");
@@ -81,25 +84,7 @@ const Announce = () => {
       <div className="an-board-wrapper">
         <h1 className="an-title">공지사항</h1>
 
-        {/* 검색 UI */}
-        <div style={{ marginBottom: "1rem" }}>
-          <input
-            type="text"
-            placeholder="검색어를 입력하세요"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            style={{ padding: "0.5rem", width: "200px" }}
-          />
-          <button
-            onClick={handleSearch}
-            style={{ marginLeft: "0.5rem", padding: "0.5rem 1rem" }}
-          >
-            검색
-          </button>
-        </div>
-
-        {/* 게시판 테이블 */}
+        {/* 게시판 테이블 헤더 및 본문 */}
         <div className="an-board-table">
           <div className="an-header">
             <div className="an-header-cell an-header-number">번호</div>
@@ -112,7 +97,8 @@ const Announce = () => {
           <div className="an-body">
             {posts.length > 0 ? (
               posts.map((post) => {
-                const id = post.boardNo;
+                const id = post.announceNo ?? post.boardNo;
+
                 return (
                   <div key={id} className="an-row">
                     <div className="an-cell an-cell-number">{id}</div>
@@ -150,27 +136,45 @@ const Announce = () => {
           </div>
         </div>
 
-        {/* 페이지네이션 + 글쓰기 */}
+        {/* 검색창 */}
+        <div className="an-search-container">
+          <input
+            type="text"
+            className="an-search-input"
+            placeholder="검색어를 입력하세요"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          />
+          <button className="an-search-btn" onClick={handleSearch}>
+            검색
+          </button>
+        </div>
+
+        {/* 페이지네이션 및 글쓰기 버튼 */}
         <div className="an-pagination-container">
           <div className="an-pagination">
             <button
               className="an-page-btn"
               onClick={() => loadPosts(Math.max(0, currentPage - 1))}
+              disabled={currentPage === 0}
             >
               ‹
             </button>
+
             {renderPagination()}
+
             <button
               className="an-page-btn"
               onClick={() =>
                 loadPosts(Math.min(totalPages - 1, currentPage + 1))
               }
+              disabled={currentPage === totalPages - 1}
             >
               ›
             </button>
           </div>
 
-          {/* ✅ 관리자만 글쓰기 버튼 표시 */}
           {isAdmin && (
             <button className="an-write-btn" onClick={handleWriteClick}>
               글쓰기

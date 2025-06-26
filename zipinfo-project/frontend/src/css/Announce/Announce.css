@@ -19,6 +19,45 @@
   text-align: left;
 }
 
+/* 검색창 영역 */
+.an-search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 30px 0;
+}
+
+.an-search-input {
+  width: 260px;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border-color 0.2s;
+}
+
+.an-search-input:focus {
+  outline: none;
+  border-color: #495cf8;
+}
+
+.an-search-btn {
+  padding: 10px 20px;
+  background-color: #495cf8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.an-search-btn:hover {
+  background-color: #3b4ce6;
+}
+
 /* 게시판 테이블 */
 .an-board-table {
   border: 1px solid #dbdbdb;
@@ -69,6 +108,12 @@
   display: flex;
   border-bottom: 1px solid #e9ecef;
   background-color: white;
+  grid-column: 1 / -1;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  color: #767676;
 }
 
 .an-row:last-child {
@@ -97,8 +142,13 @@
 
 .an-cell-title {
   flex: 1;
-  padding-left: 48px;
+  padding-left: 0;
+  justify-content: center;
   cursor: pointer;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  text-align: center;
 }
 
 .an-cell-title:hover {
@@ -150,7 +200,6 @@
   cursor: pointer;
 }
 
-/* 선택된 페이지 스타일 */
 .an-page-active {
   font-weight: 700;
   background: none;
@@ -180,14 +229,4 @@
 
 .an-write-btn:hover {
   background-color: #3b4ce6;
-}
-
-.an-row {
-  grid-column: 1 / -1;
-  text-align: center;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  height: 60px;
-  color: #767676;
 }

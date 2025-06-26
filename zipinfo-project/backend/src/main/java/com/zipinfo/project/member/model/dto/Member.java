@@ -39,7 +39,6 @@ public class Member {
     private String companyAddress;
     private String companyDetailAddress;
     
-    private Member loginMember;
     
 
 }
