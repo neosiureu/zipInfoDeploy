@@ -2,7 +2,7 @@ package com.zipinfo.project.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,9 +13,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true) // @PreAuthorize 활성화
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     // 비밀번호 암호화 빈
@@ -24,16 +26,16 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // CORS 설정 (공통)
+    // CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-
         CorsConfiguration config = new CorsConfiguration();
+
         config.setAllowCredentials(true);
-
-        config.addAllowedOrigin("https://cmh-board-admin.vercel.app");
-        config.addAllowedOriginPattern("http://localhost:*");
-
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",
+                "https://cmh-announce-admin.vercel.app"
+        ));
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 
@@ -43,59 +45,30 @@ public class SecurityConfig {
         return source;
     }
 
-    // 관리자 관련 경로 필터 체인 (기존 유지)
+    // Security 설정
     @Bean
-    @Order(1)
-    public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http) throws Exception {
-
-        http.securityMatcher("/admin/**")
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
             .cors(Customizer.withDefaults())
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/admin/**",
-                                 "/testSock/**",
-                                 "/chattingSock/**").permitAll()
+                // 공지사항 등록/수정/삭제는 관리자만 가능
+                .requestMatchers(HttpMethod.POST, "/api/announce").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/announce/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/announce/**").hasRole("ADMIN")
+
+                // 공지사항 조회는 모두 허용
+                .requestMatchers(HttpMethod.GET, "/api/announce/**").permitAll()
+
+                // 관리자 기타 경로 허용
+                .requestMatchers("/admin/**", "/testSock/**", "/chattingSock/**").permitAll()
+
+                // 나머지 모든 요청 허용
                 .anyRequest().permitAll()
             )
-            .csrf(csrf -> csrf.disable())
+            // iframe 허용 (H2 콘솔 등)
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
         return http.build();
     }
-
-    // 게시판 API 및 기타 요청 필터 체인
-    @Bean
-    @Order(2)
-    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
-
-        http.securityMatcher("/api/**")
-            .cors(Customizer.withDefaults())
-            .authorizeHttpRequests(auth -> auth
-                // 공지사항, 게시판 API 중 GET 요청은 모두 허용
-                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/board/**").permitAll()
-
-                // 그 외 POST, PUT, DELETE는 ADMIN 권한 필요
-                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/board/**").hasRole("ADMIN")
-                .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/board/**").hasRole("ADMIN")
-                .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/board/**").hasRole("ADMIN")
-
-                // 나머지 API 요청도 인증 필요 (또는 permitAll 원하는 경우 변경 가능)
-                .anyRequest().authenticated()
-            )
-            .csrf(csrf -> csrf.disable());
-
-        return http.build();
-    }
-
-    // 기본 체인: 기타 모든 요청은 모두 허용
-    @Bean
-    @Order(3)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/**")
-            .cors(Customizer.withDefaults())
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-            .csrf(csrf -> csrf.disable());
-
-        return http.build();
-    }
-    
 }

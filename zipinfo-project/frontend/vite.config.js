@@ -5,16 +5,26 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/vworld": {
-        target: "https://api.vworld.kr",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/vworld/, ""),
-      },
+      // /api로 시작하는 모든 요청은 http://localhost:8080으로 포워딩
       "/api": {
         target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
+      // /member로 시작하는 요청도 같은 백엔드로 포워딩
+      "/member": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+      },
+      // 아래처럼 따로 특정 경로를 명시해도 무방함 (필요시)
+      /*
+      "/api/announce": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+      },
+      */
     },
   },
 });

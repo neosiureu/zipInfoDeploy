@@ -1,7 +1,6 @@
 package com.zipinfo.project.announce.model.service;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -11,9 +10,7 @@ import com.zipinfo.project.announce.model.mapper.AnnounceMapper;
 import lombok.RequiredArgsConstructor;
 
 /**
- * 공지사항 게시판 관련 비즈니스 로직 처리 서비스 구현체
- * - MyBatis Mapper를 통해 DB 접근
- * - 게시글 목록 조회, 검색, 상세 조회, 등록, 수정, 삭제, 조회수 증가 기능을 처리
+ * 공지사항 조회 관련 비즈니스 로직 구현 클래스
  */
 @Service
 @RequiredArgsConstructor
@@ -21,91 +18,49 @@ public class AnnounceServiceImpl implements AnnounceService {
 
     private final AnnounceMapper announceMapper;
 
+    private static final int DEFAULT_PAGE_SIZE = 10;
+
     /**
-     * 게시글 목록 조회 (페이징)
-     * @param cp 현재 페이지 번호
-     * @return 게시글 목록 리스트
+     * 기본 페이지 크기 10으로 공지사항 목록 조회 편의 메서드
      */
-    @Override
     public List<Announce> selectAnnounceList(int cp) {
-        return announceMapper.selectAnnounceList(cp);
+        return selectAnnounceList(cp, DEFAULT_PAGE_SIZE);
     }
 
     /**
-     * 게시글 검색 목록 조회
-     * @param key 검색 타입 (t: 제목, c: 내용, tc: 제목+내용, 기타: 작성자 닉네임 등)
-     * @param query 검색어
-     * @param cp 현재 페이지 번호
-     * @return 검색 결과 게시글 리스트
+     * 기본 페이지 크기 10으로 검색 목록 조회 편의 메서드
      */
-    @Override
     public List<Announce> searchList(String key, String query, int cp) {
-        return announceMapper.searchList(key, query, cp);
+        return searchList(key, query, cp, DEFAULT_PAGE_SIZE);
     }
 
-    /**
-     * 게시글 단일 조회 (다양한 조건 지원)
-     * @param map 조회 조건 (예: announceNo)
-     * @return 단일 게시글 DTO
-     */
     @Override
-    public Announce selectOne(Map<String, Object> map) {
-        return announceMapper.selectOne(map);
+    public List<Announce> selectAnnounceList(int cp, int size) {
+        return announceMapper.selectAnnounceListWithSize(cp, size);
     }
 
-    /**
-     * 게시글 단일 조회 (announceNo 기준)
-     * @param announceNo 게시글 번호
-     * @return 단일 게시글 DTO
-     */
     @Override
-    public Announce selectAnnounce(int announceNo) {
-        Map<String, Object> param = Map.of("announceNo", announceNo);
-        return announceMapper.selectOne(param);
+    public List<Announce> searchList(String key, String query, int cp, int size) {
+        return announceMapper.searchListWithSize(key, query, cp, size);
     }
 
-    /**
-     * 게시글 조회수 1 증가
-     * @param announceNo 조회수를 증가시킬 게시글 번호
-     * @return 영향받은 행 수
-     */
+    @Override
+    public Announce selectOne(int announceNo) {
+        return announceMapper.selectOne(announceNo);
+    }
+
     @Override
     public int increaseViewCount(int announceNo) {
         return announceMapper.increaseViewCount(announceNo);
     }
 
-    /**
-     * 게시글 등록
-     * @param announce 등록할 게시글 DTO
-     * @return 영향받은 행 수
-     */
     @Override
-    public int insertAnnounce(Announce announce) {
-        return announceMapper.insertAnnounce(announce);
+    public int countAnnounce() {
+        return announceMapper.countAnnounce();
     }
 
-    /**
-     * 게시글 수정
-     * @param announce 수정할 게시글 DTO
-     * @return 영향받은 행 수
-     */
     @Override
-    public int updateAnnounce(Announce announce) {
-        return announceMapper.updateAnnounce(announce);
+    public int countSearchAnnounce(String key, String query) {
+        return announceMapper.countSearchAnnounce(key, query);
     }
-
-    /**
-     * 게시글 삭제 (논리 삭제)
-     * @param map 삭제 조건 (예: announceNo)
-     * @return 영향받은 행 수
-     */
-	@Override
-	public int deleteAnnounce(Map<String, Object> map) {
-        return announceMapper.deleteAnnounce(map);
-    }
-
-	 @Override
-	    public int deleteAnnounce(int announceNo) {
-	        return announceMapper.deleteAnnounce(Map.of("announceNo", announceNo));
-	    }
 }

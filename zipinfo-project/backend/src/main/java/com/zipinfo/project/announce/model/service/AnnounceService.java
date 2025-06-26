@@ -1,86 +1,63 @@
 package com.zipinfo.project.announce.model.service;
 
 import java.util.List;
-import java.util.Map;
-
 import com.zipinfo.project.announce.model.dto.Announce;
 
 /**
- * 공지사항 게시판 관련 서비스 인터페이스
- * - 게시글 목록 조회, 검색, 상세 조회, 등록, 수정, 삭제, 조회수 증가 기능을 정의
+ * 공지사항 게시판 관련 비즈니스 로직 정의
  */
 public interface AnnounceService {
 
     /**
-     * 게시글 목록 조회 (페이징 지원)
+     * 공지사항 목록 조회 (페이징 및 크기 지정)
      * 
-     * @param cp 현재 페이지 번호
+     * @param cp   현재 페이지 번호 (1부터 시작)
+     * @param size 페이지당 게시글 수
      * @return 게시글 목록
      */
-    List<Announce> selectAnnounceList(int cp);
+    List<Announce> selectAnnounceList(int cp, int size);
 
     /**
-     * 게시글 검색 목록 조회 (페이징 및 필터링 포함)
+     * 검색 조건에 따른 게시글 목록 조회 (페이징 및 크기 지정)
      * 
-     * @param key 검색키 (t: 제목, c: 내용, tc: 제목+내용, 그외: 작성자 닉네임)
+     * @param key   검색 조건 (t: 제목, c: 내용, tc: 제목+내용, 그 외: 작성자)
      * @param query 검색어
-     * @param cp 현재 페이지 번호
+     * @param cp    현재 페이지 번호
+     * @param size  페이지당 게시글 수
      * @return 검색된 게시글 목록
      */
-    List<Announce> searchList(String key, String query, int cp);
+    List<Announce> searchList(String key, String query, int cp, int size);
 
     /**
-     * 게시글 상세 조회 (여러 조건을 Map으로 받음)
-     * 
-     * @param map 게시글 식별용 파라미터 (예: announceNo 등)
-     * @return 조회된 게시글 DTO
-     */
-    Announce selectOne(Map<String, Object> map);
-
-    /**
-     * 게시글 상세 조회 (게시글 번호로 단일 조회)
+     * 게시글 상세 조회
      * 
      * @param announceNo 게시글 번호
-     * @return 조회된 게시글 DTO
+     * @return 조회된 게시글
      */
-    Announce selectAnnounce(int announceNo);
+    Announce selectOne(int announceNo);
+
+    /**
+     * 전체 게시글 수 조회 (페이징 계산용)
+     * 
+     * @return 전체 게시글 수
+     */
+    int countAnnounce();
+
+    /**
+     * 검색 조건에 해당하는 게시글 수 조회
+     * 
+     * @param key   검색 조건
+     * @param query 검색어
+     * @return 검색된 게시글 수
+     */
+    int countSearchAnnounce(String key, String query);
 
     /**
      * 게시글 조회수 증가
      * 
-     * @param announceNo 조회수를 증가시킬 게시글 번호
-     * @return 영향받은 행 수 (1 이상이면 성공)
+     * @param announceNo 대상 게시글 번호
+     * @return 반영된 행 수
      */
     int increaseViewCount(int announceNo);
 
-    /**
-     * 게시글 등록
-     * 
-     * @param announce 등록할 게시글 DTO
-     * @return 성공 시 영향받은 행 수
-     */
-    int insertAnnounce(Announce announce);
-
-    /**
-     * 게시글 수정
-     * 
-     * @param announce 수정할 게시글 DTO
-     * @return 성공 시 영향받은 행 수
-     */
-    int updateAnnounce(Announce announce);
-
-    /**
-     * 게시글 삭제 (논리 삭제)
-     * 
-     * @param announceNo 삭제 조건 (예: announceNo)
-     * @return 성공 시 영향받은 행 수
-     */
-    int deleteAnnounce(int announceNo);
-
-	/**
-	 * 게시글 삭제 (논리 삭제)
-	 * @param map 삭제 조건 (예: announceNo)
-	 * @return 영향받은 행 수
-	 */
-	int deleteAnnounce(Map<String, Object> map);
 }
