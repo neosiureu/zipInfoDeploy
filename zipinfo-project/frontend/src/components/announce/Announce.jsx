@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext, useMemo } from "react";
-import { fetchPosts } from "./AnnounceApi";
+import { fetchPosts } from "../../api/AnnounceApi";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../admin/AuthContext";
 import "../../css/announce/Announce.css";
@@ -13,21 +13,14 @@ const Announce = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  // 관리자 여부 판단
+  // 관리자 여부 판단: memberAuth === 0
   const isAdmin = useMemo(() => {
     if (!user) return false;
     const memberAuth = user.memberAuth ?? user.member_auth;
-    const role = user.role ?? "";
-    const roles = Array.isArray(user.roles) ? user.roles : [];
-    return (
-      Number(memberAuth) === 0 ||
-      role.toUpperCase() === "ADMIN" ||
-      roles.includes("ADMIN") ||
-      roles.includes("ROLE_ADMIN")
-    );
+    return Number(memberAuth) === 0;
   }, [user]);
 
-  // 디버깅 로그
+  // 디버깅용 콘솔 로그
   useEffect(() => {
     console.log("현재 user:", user);
     console.log("isAdmin:", isAdmin);
@@ -52,12 +45,12 @@ const Announce = () => {
     loadPosts(0);
   }, []);
 
-  // 검색 버튼 클릭 시
+  // 검색
   const handleSearch = () => {
     loadPosts(0);
   };
 
-  // 페이지네이션 렌더링
+  // 페이지네이션
   const renderPagination = () => {
     const pageButtons = [];
     for (let i = 0; i < totalPages; i++) {
@@ -74,12 +67,21 @@ const Announce = () => {
     return pageButtons;
   };
 
+  // 글쓰기 버튼 클릭 시 관리자 확인 및 이동
+  const handleWriteClick = () => {
+    if (!isAdmin) {
+      alert("관리자만 글을 작성할 수 있습니다.");
+      return;
+    }
+    navigate("/announce/write");
+  };
+
   return (
     <div className="an-container">
       <div className="an-board-wrapper">
         <h1 className="an-title">공지사항</h1>
 
-        {/* 검색 UI 추가 */}
+        {/* 검색 UI */}
         <div style={{ marginBottom: "1rem" }}>
           <input
             type="text"
@@ -148,7 +150,7 @@ const Announce = () => {
           </div>
         </div>
 
-        {/* 페이지네이션 + 글쓰기 버튼 */}
+        {/* 페이지네이션 + 글쓰기 */}
         <div className="an-pagination-container">
           <div className="an-pagination">
             <button
@@ -168,11 +170,9 @@ const Announce = () => {
             </button>
           </div>
 
+          {/* ✅ 관리자만 글쓰기 버튼 표시 */}
           {isAdmin && (
-            <button
-              className="an-write-btn"
-              onClick={() => navigate("/announce/write")}
-            >
+            <button className="an-write-btn" onClick={handleWriteClick}>
               글쓰기
             </button>
           )}

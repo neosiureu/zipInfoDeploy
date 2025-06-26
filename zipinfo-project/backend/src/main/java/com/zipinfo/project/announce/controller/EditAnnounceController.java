@@ -8,10 +8,8 @@ import com.zipinfo.project.announce.model.service.EditAnnounceService;
 import com.zipinfo.project.member.model.dto.Member;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -22,12 +20,12 @@ public class EditAnnounceController {
 
     private final EditAnnounceService editBoardService;
 
-    // 관리자 권한 체크 메서드
+    // 관리자 권한 체크
     private boolean isAdmin(Member loginMember) {
         return loginMember != null && loginMember.getMemberAuth() == 0;
     }
 
-    // 글 작성 폼
+    /** ✅ 공지사항 작성 폼 */
     @GetMapping("/write")
     public String showWriteForm(@SessionAttribute(value = "loginMember", required = false) Member loginMember,
                                 RedirectAttributes ra) {
@@ -38,12 +36,11 @@ public class EditAnnounceController {
         return "announce/AnnounceWrite";
     }
 
-    // 글 등록 처리
+    /** ✅ 공지사항 등록 처리 */
     @PostMapping("/write")
     public String insertBoard(@ModelAttribute Announce announce,
                               @SessionAttribute(value = "loginMember", required = false) Member loginMember,
                               RedirectAttributes ra) {
-
         if (!isAdmin(loginMember)) {
             ra.addFlashAttribute("message", "권한이 없습니다.");
             return "redirect:/announce";
@@ -62,7 +59,7 @@ public class EditAnnounceController {
         }
     }
 
-    // 상세 조회 (권한 체크는 필요 없으므로 그대로)
+    /** ✅ 상세 조회 (권한 체크 X) */
     @GetMapping("/detail/{announceNo}")
     public String viewBoardDetail(@PathVariable int announceNo, Model model) {
         Announce announce = editBoardService.selectBoard(announceNo);
@@ -76,7 +73,7 @@ public class EditAnnounceController {
         return "announce/AnnounceDetail";
     }
 
-    // 수정 폼
+    /** ✅ 수정 폼 요청 (관리자만) */
     @GetMapping("/update/{announceNo}")
     public String showUpdateForm(@PathVariable int announceNo,
                                  @SessionAttribute(value = "loginMember", required = false) Member loginMember,
@@ -95,17 +92,11 @@ public class EditAnnounceController {
             return "redirect:/announce";
         }
 
-        // 작성자만 수정 가능하게 하려면 아래 주석 해제
-        // if (announce.getMemberNo() != loginMember.getMemberNo()) {
-        //     ra.addFlashAttribute("message", "수정 권한이 없습니다.");
-        //     return "redirect:/announce/detail/" + announceNo;
-        // }
-
         model.addAttribute("board", announce);
         return "announce/AnnounceUpdate";
     }
 
-    // 수정 처리
+    /** ✅ 수정 처리 (관리자만) */
     @PostMapping("/update/{announceNo}")
     public String updateBoard(@PathVariable int announceNo,
                               @ModelAttribute Announce announce,
@@ -131,7 +122,7 @@ public class EditAnnounceController {
         return "redirect:/announce/detail/" + announceNo;
     }
 
-    // 삭제 처리
+    /** ✅ 삭제 처리 (관리자만) */
     @PostMapping("/delete/{announceNo}")
     public String deleteBoard(@PathVariable int announceNo,
                               @SessionAttribute(value = "loginMember", required = false) Member loginMember,
@@ -157,3 +148,5 @@ public class EditAnnounceController {
         }
     }
 }
+
+

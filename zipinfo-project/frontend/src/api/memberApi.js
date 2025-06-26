@@ -10,7 +10,6 @@ export default defineConfig({
         secure: false,
       },
       "/api": {
-        // 추가
         target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,

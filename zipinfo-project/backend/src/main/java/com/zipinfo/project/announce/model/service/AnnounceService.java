@@ -72,8 +72,15 @@ public interface AnnounceService {
     /**
      * 게시글 삭제 (논리 삭제)
      * 
-     * @param map 삭제 조건 (예: announceNo)
+     * @param announceNo 삭제 조건 (예: announceNo)
      * @return 성공 시 영향받은 행 수
      */
-    int deleteAnnounce(Map<String, Object> map);
+    int deleteAnnounce(int announceNo);
+
+	/**
+	 * 게시글 삭제 (논리 삭제)
+	 * @param map 삭제 조건 (예: announceNo)
+	 * @return 영향받은 행 수
+	 */
+	int deleteAnnounce(Map<String, Object> map);
 }
