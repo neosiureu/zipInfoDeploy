@@ -99,8 +99,13 @@ public class AnnounceServiceImpl implements AnnounceService {
      * @param map 삭제 조건 (예: announceNo)
      * @return 영향받은 행 수
      */
-    @Override
-    public int deleteAnnounce(Map<String, Object> map) {
+	@Override
+	public int deleteAnnounce(Map<String, Object> map) {
         return announceMapper.deleteAnnounce(map);
     }
+
+	 @Override
+	    public int deleteAnnounce(int announceNo) {
+	        return announceMapper.deleteAnnounce(Map.of("announceNo", announceNo));
+	    }
 }

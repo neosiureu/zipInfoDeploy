@@ -9,32 +9,29 @@ const AnnounceWrite = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  // 수정 모드 여부 및 수정 대상 글 ID 확인
+  // 수정 모드 여부 및 글 ID
   const isEdit = !!location.state?.id;
   const postId = location.state?.id;
 
-  // 제목과 내용 상태 관리
+  // 제목과 내용 상태
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  /**
-   * 관리자 권한 확인 함수
-   * @param {Object} user - 로그인 유저 객체
-   * @returns {boolean} 관리자 권한 여부
-   */
-  const checkAdmin = (user) => {
-    if (!user) return false;
-    return (
-      user.memberAuth === 0 || // memberAuth가 숫자 0이면 관리자
-      user.memberAuth === "0" || // memberAuth가 문자 '0'이면 관리자
-      user.role === "ADMIN" || // role이 ADMIN인 경우
-      user.authority === "ADMIN" || // authority가 ADMIN인 경우
-      (Array.isArray(user.roles) && user.roles.includes("ROLE_ADMIN")) // roles 배열에 ROLE_ADMIN 포함
-    );
-  };
-  const isAdmin = checkAdmin(user);
+  // ✅ 관리자 여부 체크: memberAuth === 0
+  const isAdmin = user && String(user.memberAuth) === "0";
 
-  // 수정 모드일 경우 초기값 세팅 (title, content)
+  // 페이지 접근 시 관리자 아니면 자동 리디렉션
+  useEffect(() => {
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      navigate("/login"); // 로그인 페이지로
+    } else if (!isAdmin) {
+      alert("관리자만 접근할 수 있습니다.");
+      navigate("/announce"); // 목록으로
+    }
+  }, [user, isAdmin, navigate]);
+
+  // 수정 모드일 경우 초기값 설정
   useEffect(() => {
     if (isEdit) {
       setTitle(location.state?.title || "");
@@ -42,13 +39,7 @@ const AnnounceWrite = () => {
     }
   }, [isEdit, location.state]);
 
-  /**
-   * 등록 또는 수정 처리 함수
-   * 제목과 내용이 비어있으면 경고 후 종료
-   * 로그인 정보 및 권한이 없으면 경고
-   * API 호출 후 성공 시 알림 및 상세페이지로 이동
-   * 실패 시 오류 알림
-   */
+  // 등록/수정 처리
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
       alert("제목과 내용을 입력해주세요.");
@@ -60,7 +51,6 @@ const AnnounceWrite = () => {
       return;
     }
 
-    // 서버에 보낼 데이터 객체 (필드명은 백엔드 DTO에 맞춤)
     const postData = {
       announceTitle: title,
       announce: content,
@@ -75,7 +65,6 @@ const AnnounceWrite = () => {
       } else {
         const newPost = await createPost(postData);
         alert("공지사항이 등록되었습니다.");
-        // 새로 생성된 공지사항의 번호를 받아서 상세페이지로 이동
         navigate(`/announce/detail/${newPost.announceNo || newPost.id}`);
       }
     } catch (error) {
@@ -83,11 +72,6 @@ const AnnounceWrite = () => {
       alert("오류가 발생했습니다.");
     }
   };
-
-  // 로그인 정보 없으면 표시
-  if (!user) return <div>로그인 정보가 없습니다.</div>;
-  // 관리자 권한 없으면 표시
-  if (!isAdmin) return <div>권한이 없습니다.</div>;
 
   return (
     <div className="announce-write-container">

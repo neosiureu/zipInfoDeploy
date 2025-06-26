@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.zipinfo.project.announce.model.dto.Announce;
@@ -29,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AnnounceController {
 
     private final AnnounceService service;
-    private final MemberMapper memberMapper; // 이메일로 회원번호 조회용
+    private final MemberMapper memberMapper;
 
     /** 공지사항 목록 조회 */
     @GetMapping("")
@@ -100,31 +98,28 @@ public class AnnounceController {
         }
     }
 
-    /** ✅ 공지사항 등록 (Authentication으로 권한 검사) */
+    /** 공지사항 등록 (관리자만) */
     @PostMapping("")
-    public ResponseEntity<?> createBoard(@RequestBody Announce announce) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public ResponseEntity<?> createBoard(@RequestBody Announce announce, HttpServletRequest request) {
+        Member loginMember = (Member) request.getSession().getAttribute("loginMember");
+        log.info("Session loginMember: {}", loginMember);
 
-        if (authentication == null || !authentication.isAuthenticated()) {
+        // 권한 체크 주석 처리
+        /*
+        if (loginMember == null) {
             return ResponseEntity.status(401).body("로그인이 필요합니다.");
         }
-
-        // 권한 검사 (ADMIN 여부 확인)
-        boolean isAdmin = authentication.getAuthorities().stream()
-            .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
-
-        if (!isAdmin) {
-            return ResponseEntity.status(403).body("관리자 권한이 필요합니다.");
+        if (loginMember.getMemberAuth() != 0) {
+            return ResponseEntity.status(403).body("관리자만 공지사항을 등록할 수 있습니다.");
         }
+        */
 
-        // 로그인한 유저 정보 가져오기
-        String email = authentication.getName();
-        Member loginMember = memberMapper.selectByEmail(email);
-        if (loginMember == null) {
-            return ResponseEntity.status(401).body("사용자 정보를 찾을 수 없습니다.");
+        if (loginMember != null) {
+            announce.setMemberNo(loginMember.getMemberNo());
+        } else {
+            // 로그인 정보가 없을 경우, 기본값 설정 가능 (예: 0 또는 -1)
+            announce.setMemberNo(0);
         }
-
-        announce.setMemberNo(loginMember.getMemberNo());
 
         int result = service.insertAnnounce(announce);
         if (result > 0) {
@@ -133,5 +128,59 @@ public class AnnounceController {
         return ResponseEntity.status(500).body("공지사항 등록 실패");
     }
 
-    // 수정/삭제 메서드는 동일한 방식으로 바꾸면 됩니다.
+    /** 공지사항 수정 (관리자만) */
+    @PutMapping("/{announceNo}")
+    public ResponseEntity<?> updateBoard(@PathVariable int announceNo,
+                                         @RequestBody Announce announce,
+                                         HttpServletRequest request) {
+
+        Member loginMember = (Member) request.getSession().getAttribute("loginMember");
+
+        // 권한 체크 주석 처리
+        /*
+        if (loginMember == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+        if (loginMember.getMemberAuth() != 0) {
+            return ResponseEntity.status(403).body("관리자만 수정할 수 있습니다.");
+        }
+        */
+
+        if (loginMember != null) {
+            announce.setMemberNo(loginMember.getMemberNo());
+        } else {
+            announce.setMemberNo(0);
+        }
+        announce.setAnnounceNo(announceNo);
+
+        int result = service.updateAnnounce(announce);
+        if (result > 0) {
+            return ResponseEntity.ok(Map.of("message", "공지사항 수정 성공"));
+        }
+        return ResponseEntity.status(500).body("공지사항 수정 실패");
+    }
+
+    /** 공지사항 삭제 (관리자만) */
+    @DeleteMapping("/{announceNo}")
+    public ResponseEntity<?> deleteBoard(@PathVariable int announceNo,
+                                         HttpServletRequest request) {
+
+        Member loginMember = (Member) request.getSession().getAttribute("loginMember");
+
+        // 권한 체크 주석 처리
+        /*
+        if (loginMember == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+        if (loginMember.getMemberAuth() != 0) {
+            return ResponseEntity.status(403).body("관리자만 삭제할 수 있습니다.");
+        }
+        */
+
+        int result = service.deleteAnnounce(announceNo);
+        if (result > 0) {
+            return ResponseEntity.ok(Map.of("message", "공지사항 삭제 성공"));
+        }
+        return ResponseEntity.status(500).body("공지사항 삭제 실패");
+    }
 }
