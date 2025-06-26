@@ -90,16 +90,19 @@ const NeighborhoodBoard = ({}) => {
     try {
       setLoading(true);
 
-      // 1) 쿼리 파라미터 조립
+      // 1) 쿼리 파라미터 조립 (키, 검색어자체, 선택된 시도, 선택된 시군구, 선택된 주제라는 5개의 선택 사항이 쿼리로 넘어가 하나도 없을 떄만 일반적인 페이지네이션 리스트로 가게 됨)
       const params = new URLSearchParams({ cp: currentPage });
       if (searchQuery.trim()) {
         params.append("key", searchKey);
         params.append("query", searchQuery);
+        params.append("city", selectedCity);
+        params.append("town", selectedTown);
+        params.append("subject", selectedSubject);
       }
 
       // 2) API 호출
       const resp = await axiosAPI.get(`/board/neighborhoodList?${params}`);
-      const { boardList = [], pagination = {} } = resp.data; // ← 구조 분해
+      const { boardList = [], pagination = {} } = resp.data; // 구조 분해
 
       // 3) 상태 저장
       setBoardList(boardList);
@@ -156,7 +159,11 @@ const NeighborhoodBoard = ({}) => {
                 </option>
               ))}
             </select>
-            <img className="arrow-icon" src={arrowDown} alt="아래 아이콘" />
+            <img
+              className="arrow-icon"
+              src={arrowDown}
+              alt="아래 화살표 아이콘을 통한 select 화면"
+            />
           </div>
 
           <div className="select-wrap">
@@ -166,14 +173,19 @@ const NeighborhoodBoard = ({}) => {
               onChange={handleTownChange}
               disabled={selectedCity === -1}
             >
-              <option value={-1}>군/구/시</option>
+              <option value={-1}>시/군/구</option>
               {filteredTowns.map((town) => (
                 <option key={town.fullcode} value={town.fullcode}>
                   {town.name}
                 </option>
               ))}
             </select>
-            <img className="arrow-icon" src={arrowDown} alt="아래 아이콘" />
+
+            <img
+              className="arrow-icon"
+              src={arrowDown}
+              alt="아래 화살표 아이콘을 통한 select 화면"
+            />
           </div>
 
           <div className="select-wrap">

@@ -12,7 +12,7 @@ const naverLogout = () => {
       iframe.src = "https://nid.naver.com/nidlogin.logout";
       document.body.appendChild(iframe);
 
-      // 3초 후 iframe 제거 및 완료 처리
+      // 3초 후 오류로 발생하는 iframe 제거 및 완료 처리
       setTimeout(() => {
         if (document.body.contains(iframe)) {
           document.body.removeChild(iframe);
@@ -80,9 +80,13 @@ const Header = () => {
           <li>
             <Link to="/interest">관심목록</Link>
           </li>
-          <li>
-            <Link to="/gonggong">공공데이터 샘플 삽입</Link>
-          </li>
+          {member?.memberAuth == 0 ? (
+            <>
+              <li>
+                <Link to="/gonggong">공공데이터 샘플 삽입</Link>
+              </li>
+            </>
+          ) : null}
         </ul>
       </div>
 
