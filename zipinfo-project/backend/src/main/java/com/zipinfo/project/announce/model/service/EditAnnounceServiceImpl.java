@@ -61,4 +61,13 @@ public class EditAnnounceServiceImpl implements EditAnnounceService {
     public Announce selectOne(int announceNo) {
         return editAnnounceMapper.selectAnnounce(announceNo);
     }
+
+    /**
+     * 수정 기존 내용 불러오기
+     */
+    @Override
+    public Announce selectAnnounceByNo(int announceNo) {
+        return editAnnounceMapper.selectAnnounce(announceNo);
+    }
+
 }

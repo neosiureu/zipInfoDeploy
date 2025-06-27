@@ -16,31 +16,32 @@ public interface ManagementMapper {
 
     /**
      * 삭제되지 않은 전체 회원 조회
-     * @return 회원 목록
+     * @return 회원 목록 반환
      */
     List<Member> selectAllMembers();
 
     /**
      * 논리 삭제된 회원 목록 조회
-     * @return 삭제 회원 목록
+     * @return 삭제된 회원 목록 반환
      */
     List<Member> selectDeletedMembers();
 
     /**
      * 중개인 권한 신청 내역 조회
-     * @return 중개인 신청 DTO 리스트
+     * @return 중개인 신청 DTO 리스트 반환
      */
     List<BrokerApplicationDTO> selectBrokerApplications();
     
     /**
      * 중개인 정보(BROKER_INFO) 신규 저장
-     * @param brokerInfo 중개인 정보 DTO 또는 파라미터 맵(필요시)
-     * @return 삽입 성공 건수
+     * @param memberNo 회원 번호
+     * @param companyName 회사명
+     * @param officeLocation 사무소 위치
+     * @return 삽입 성공 건수 반환
      */
     int insertBrokerInfo(@Param("memberNo") Long memberNo,
                          @Param("companyName") String companyName,
                          @Param("officeLocation") String officeLocation);
-
 
     /**
      * 특정 회원의 중개인 신청 상태 업데이트
@@ -54,7 +55,7 @@ public interface ManagementMapper {
      * 회원 권한(authId) 변경
      * @param memberNo 회원 번호 (PK)
      * @param authId 변경할 권한 ID (0: 관리자, 1: 일반회원, 2: 중개인 신청, 3: 중개인)
-     * @return 영향 받은 행 수
+     * @return 영향 받은 행 수 반환
      */
     int updateMemberAuth(@Param("memberNo") Long memberNo, @Param("authId") int authId);
 
@@ -62,21 +63,21 @@ public interface ManagementMapper {
      * 회원 차단 여부 설정
      * @param memberNo 회원 번호 (PK)
      * @param block 차단 여부 (true: 차단, false: 해제)
-     * @return 영향 받은 행 수
+     * @return 영향 받은 행 수 반환
      */
     int toggleBlockMember(@Param("memberNo") Long memberNo, @Param("block") boolean block);
 
     /**
      * 회원 논리 삭제 처리
      * @param memberNo 회원 번호 (PK)
-     * @return 영향 받은 행 수
+     * @return 영향 받은 행 수 반환
      */
     int deleteMember(@Param("memberNo") Long memberNo);
 
     /**
      * 논리 삭제된 회원 복원
      * @param memberNo 회원 번호 (PK)
-     * @return 영향 받은 행 수
+     * @return 영향 받은 행 수 반환
      */
     int restoreMember(@Param("memberNo") Long memberNo);
 }

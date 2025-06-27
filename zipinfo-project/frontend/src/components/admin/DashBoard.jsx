@@ -42,7 +42,7 @@ export default function DashBoard() {
             서비스관리 권한 발급
           </NavLink>
           <NavLink
-            to="/admin/inquiry"
+            to="/admin/helpmessage"
             className={({ isActive }) => (isActive ? "admin-dash-active" : "")}
           >
             문의 확인

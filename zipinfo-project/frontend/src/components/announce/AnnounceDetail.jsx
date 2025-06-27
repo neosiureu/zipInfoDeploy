@@ -76,10 +76,19 @@ const AnnounceDetail = () => {
           <>
             <button
               className="an-detail-btn-edit"
-              onClick={() => navigate(`/announce/edit/${id}`)}
+              onClick={() =>
+                navigate(`/announce/edit/${id}`, {
+                  state: {
+                    id: id,
+                    title: post.announceTitle,
+                    content: post.announce,
+                  },
+                })
+              }
             >
               수정
             </button>
+
             <button className="an-detail-btn-delete" onClick={handleDelete}>
               삭제
             </button>

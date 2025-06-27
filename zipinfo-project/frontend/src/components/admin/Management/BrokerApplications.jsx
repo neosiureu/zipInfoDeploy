@@ -56,7 +56,6 @@ const BrokerApplications = () => {
 
   useEffect(() => {
     let filtered = applications;
-
     if (searchTerm) {
       filtered = filtered.filter(
         (app) =>
@@ -64,13 +63,11 @@ const BrokerApplications = () => {
           app.memberNumber?.toString().includes(searchTerm)
       );
     }
-
     if (roleFilter) {
       filtered = filtered.filter(
         (app) => roleMap[app.memberRole] === roleFilter
       );
     }
-
     setFilteredApps(filtered);
     setCurrentPage(1);
   }, [searchTerm, roleFilter, applications]);
@@ -78,9 +75,11 @@ const BrokerApplications = () => {
   const handleRoleChange = async (memberNumber, newRoleStr) => {
     const newRole = reverseRoleMap[newRoleStr];
     try {
-      await axios.put(`/admin/management/members/${memberNumber}/role`, null, {
-        params: { authId: newRole },
-      });
+      await axios.put(
+        `${BASE_URL}/admin/management/members/${memberNumber}/role`,
+        null,
+        { params: { authId: newRole } }
+      );
       const updated = applications.map((app) =>
         app.memberNumber === memberNumber
           ? { ...app, memberRole: newRole }
@@ -96,16 +95,15 @@ const BrokerApplications = () => {
   const handleReject = async (memberNumber) => {
     try {
       await axios.put(
-        `/admin/management/broker-applications/${memberNumber}/status`,
+        `${BASE_URL}/admin/management/broker-applications/${memberNumber}/status`,
         null,
-        {
-          params: { status: "거절됨" },
-        }
+        { params: { status: "거절됨" } }
       );
-      await axios.put(`/admin/management/members/${memberNumber}/role`, null, {
-        params: { authId: 1 },
-      });
-
+      await axios.put(
+        `${BASE_URL}/admin/management/members/${memberNumber}/role`,
+        null,
+        { params: { authId: 1 } }
+      );
       const updated = applications.map((app) =>
         app.memberNumber === memberNumber
           ? { ...app, applicationStatus: "거절됨", memberRole: 1 }
@@ -167,7 +165,7 @@ const BrokerApplications = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm table-auto">
+        <table className="w-full text-sm table-auto member-list">
           <thead>
             <tr>
               <th>회원 번호</th>

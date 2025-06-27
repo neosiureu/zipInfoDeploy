@@ -34,7 +34,8 @@ import ListSale from "./components/admin/saleForm/ListSale";
 import DashBoard from "./components/admin/DashBoard";
 import Chart from "./components/admin/Chart";
 import Advertisement from "./components/admin/Advertisement";
-import Inquiry from "./components/admin/Inquiry";
+// 여기 HelpMessage 경로 수정
+import HelpMessage from "./components/admin/HelpMessage/HelpMessage";
 import Management from "./components/admin/Management/Management";
 import { AuthProvider } from "./components/admin/AuthContext";
 
@@ -144,7 +145,7 @@ function App() {
               <Route path="dashboard" element={<Chart />} />
               <Route path="chart" element={<Chart />} />
               <Route path="advertisement" element={<Advertisement />} />
-              <Route path="inquiry" element={<Inquiry />} />
+              <Route path="helpMessage" element={<HelpMessage />} />
               <Route path="management" element={<Management />} />
               <Route path="list_sale" element={<ListSale />} />
               <Route path="add_sale" element={<AddSale />} />

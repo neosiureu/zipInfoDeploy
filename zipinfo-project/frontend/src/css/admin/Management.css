@@ -203,3 +203,47 @@ thead {
 button span {
   white-space: nowrap;
 }
+
+/* 중개인 권한 거절 버튼 */
+.reject-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 40px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  transition: background-color 0.2s ease;
+}
+
+.reject-button:hover {
+  background-color: #f3f4f6;
+}
+
+.reject-button.disabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  border-color: #d1d5db;
+  cursor: not-allowed;
+}
+
+/* 테이블 가로 스크롤 대응 */
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
+/* 공통 테이블 레이아웃 */
+.table-auto {
+  width: 100%;
+  table-layout: auto;
+}
+
+/* 버튼 + 아이콘 정렬 개선 */
+button.flex {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

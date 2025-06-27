@@ -10,24 +10,28 @@
         - useGeneratedKeys="true": DB에서 생성한 키를 자동으로 매핑
         - keyProperty="announceNo": 생성된 키를 DTO의 announceNo 필드에 저장
     -->
-    <insert id="insertAnnounce" useGeneratedKeys="true" keyProperty="announceNo" parameterType="com.zipinfo.project.announce.model.dto.Announce">
-        INSERT INTO ANNOUNCE (
-            ANNOUNCE_TITLE,
-            ANNOUNCE,
-            ANNOUNCE_WRITE_DATE,
-            ANNOUNCE_READ_COUNT,
-            ANNOUNCE_DEL_FL,
-            MEMBER_NO
-        )
-        VALUES (
-            #{announceTitle},
-            #{announce},
-            SYSDATE,
-            0,
-            'N',
-            #{memberNo}
-        )
-    </insert>
+  <insert id="insertAnnounce" parameterType="com.zipinfo.project.announce.model.dto.Announce" useGeneratedKeys="true" keyProperty="announceNo" keyColumn="ANNOUNCE_NO">
+		 INSERT INTO ANNOUNCE (
+		  ANNOUNCE_NO,
+		  ANNOUNCE_TITLE,
+		  ANNOUNCE,
+		  ANNOUNCE_WRITE_DATE,
+		  ANNOUNCE_READ_COUNT,
+		  ANNOUNCE_DEL_FL,
+		  MEMBER_NO
+		)
+		VALUES (
+		  SEQ_ANNOUNCE.NEXTVAL,  
+		  #{announceTitle},
+		  #{announce},
+		  SYSDATE,
+		  0,
+		  'N',
+		  #{memberNo}
+		)
+
+</insert>
+
 
     <!--
         공지사항 게시글 수정

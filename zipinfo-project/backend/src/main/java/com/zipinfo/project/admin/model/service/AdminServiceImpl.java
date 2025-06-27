@@ -1,5 +1,4 @@
 package com.zipinfo.project.admin.model.service;
-import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -12,21 +11,29 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
 
-	private final AdminMapper mapper;
+    private final AdminMapper mapper;
 
-	@Override
-	public List<Member> selectWithdrawnMemberList() {
-		return mapper.selectWithdrawnMemberList();
-	}
+    /**
+     * 관리자 로그인 처리
+     * 
+     * @param inputMember 입력받은 회원 정보 (이메일, 비밀번호)
+     * @return 로그인 성공 시 회원 정보 반환, 실패 시 null 반환
+     */
+    @Override
+    public Member login(Member inputMember) {
+        // 이메일로 회원 조회
+        Member loginMember = mapper.login(inputMember.getMemberEmail());
 
-	@Override
-	public boolean restoreWithdrawnMember(Long memberNo) {
-		return mapper.restoreWithdrawnMember(memberNo) > 0;
-	}
+        // 회원이 없으면 null 반환
+        if (loginMember == null) {
+            return null;
+        }
 
-	@Override
-	public Member login(Member inputMember) {
-
-		  return mapper.login(inputMember);
-	}
+        // 비밀번호 일치 여부 확인 (단순 문자열 비교 - 실제 운영 시 암호화 필요)
+        if (loginMember.getMemberPw().equals(inputMember.getMemberPw())) {
+            return loginMember;
+        } else {
+            return null;
+        }
+    }
 }
