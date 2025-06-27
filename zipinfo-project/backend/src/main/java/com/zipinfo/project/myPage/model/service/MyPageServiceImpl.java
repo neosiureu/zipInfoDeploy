@@ -219,7 +219,6 @@ public class MyPageServiceImpl implements MyPageService{
 	public int updateTumbImg(MultipartFile stockImg, int stockNo) {
 		
 		try {
-			System.out.println(stockImg);
 			
 			String finalPath = null;
 			
@@ -241,7 +240,6 @@ public class MyPageServiceImpl implements MyPageService{
 				
 			int result = mapper.updateTumbImg(originalName, rename, finalPath, stockNo);
 			
-			System.out.println(result);
 			
 			return result;
 		} catch (Exception e) {
@@ -254,7 +252,6 @@ public class MyPageServiceImpl implements MyPageService{
 	public int updateBalanceImg(MultipartFile stockImg, int stockNo) {
 		
 		try {
-			System.out.println(stockImg);
 			
 			String finalPath = null;
 			
@@ -276,7 +273,6 @@ public class MyPageServiceImpl implements MyPageService{
 				
 			int result = mapper.updateBalanceImg(originalName, rename, finalPath, stockNo);
 			
-			System.out.println(result);
 			
 			return result;
 		} catch (Exception e) {
@@ -306,10 +302,8 @@ public class MyPageServiceImpl implements MyPageService{
 	            saveFile.getParentFile().mkdirs();
 	            file.transferTo(saveFile);
 
-	            System.out.println("으럇"+stockNo);
 	            String finalPath = stockWebPath + rename;
 	            int stockOrder = i + 2;
-	            System.out.println("으럇"+stockOrder);
 	            int updateResult = mapper.updateStockImg(originalName, rename, finalPath, stockNo, stockOrder);
 	            if (updateResult == 1) result++;
 	        }

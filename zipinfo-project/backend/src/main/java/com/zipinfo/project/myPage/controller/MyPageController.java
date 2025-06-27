@@ -48,7 +48,6 @@ public class MyPageController {
 			
 			Member member = service.getMemberInfo(loginMember);
 			
-			System.out.println(member);
 			
 			
 			if (member.getCompanyLocation() != null) {
@@ -75,7 +74,6 @@ public class MyPageController {
 
 			}
 			
-			System.out.println(member);
 			
 			return ResponseEntity.status(HttpStatus.OK) // 200
 				   .body(member); 

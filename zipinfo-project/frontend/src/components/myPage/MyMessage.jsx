@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import "../../css/myPage/myMessage.css";
 import StockMenu from "./StockMenu";
 import MessageMenu from "./MessageMenu";
 import { useNavigate } from 'react-router-dom';
 import { axiosAPI } from '../../api/axiosAPI';
+import { Plus } from 'lucide-react';
 
 
 export default function MyStock() {
@@ -12,6 +13,30 @@ export default function MyStock() {
     messageTitle: '',
     messageContent: '',
   });
+  
+  const [messageFile, setMessageFile] = useState(null);
+
+  const messageRef = useRef(null);
+
+  const maxFileSize = 10 * 1024 * 1024;
+
+  const handleBenefitClick = () => messageRef.current.click();
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+  if (!file) {
+    setMessageFile(null); // 사용자가 취소한 경우 상태를 null로 복원
+    return;
+  }
+
+  if (file.size > maxFileSize) {
+    alert("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+    setMessageFile(null);
+    e.target.value = null; // input 초기화 (같은 파일 다시 선택 가능하게)
+    return;
+  }
+    setMessageFile(file);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,6 +53,7 @@ export default function MyStock() {
       alert('문의가 성공적으로 전송되었습니다.');
     }
   };
+
 
 
   return (
@@ -70,10 +96,39 @@ export default function MyStock() {
           </div>
         <div>
               <div className="my-message-file">
-                <div className='my-message-form-label'>첨부파일</div>
+                <div className='my-message-file-label'>첨부파일</div>
                 <div className="my-message-file-help">
-                <span className="my-message-file-info">+ 첨부파일</span>
-                  <div>지원 확장자: jpg, gif, png, zip, doc, hwp(최대5M)</div>
+
+                <button
+                  className="my-page-stock-image-add-btn"
+                  onClick={handleBenefitClick}
+                >
+                  {messageFile === null ? (
+                    <>
+                      <Plus size={16} className="plus-icon" />
+                      <span>이미지추가</span>
+                    </>
+                  ) : (
+                    <span>{messageFile?.name}</span>
+                  )}
+                </button>
+                  <input
+                    type="file"
+                    accept="
+                      image/*,
+                      .pdf,
+                      .doc, .docx,
+                      .hwp,
+                      .txt, .csv,
+                      .zip, .rar, .7z,
+                      .xls, .xlsx
+                    "
+                    multiple
+                    ref={messageRef}
+                    style={{ display: "none" }}
+                    onChange={handleFileChange}
+                  />
+                  <div>지원 확장자: jpg, gif, png, zip, doc, hwp(최대10M)</div>
                   <div>악성코드나 개인정보가 포함된 파일은 업로드하지 마세요.</div>
                 </div>
               </div>

@@ -141,7 +141,7 @@ const CommentItem = ({ comment, loginMember, reload }) => {
       )}
 
       {/* 자식 댓글은 무조건 렌더링 */}
-      {comment.children?.length > 0 && (
+      {/* {comment.children?.length > 0 && (
         <ul id="commentList">
           {comment.children.map((child) => (
             <CommentItem
@@ -152,22 +152,25 @@ const CommentItem = ({ comment, loginMember, reload }) => {
             />
           ))}
         </ul>
-      )}
+      )} */}
     </li>
   );
 };
 
 // 트리화 된 댓글을 뿌려주는 컴포넌트
 // 트리의 루트 댓글들을 순회 =>  각 루트를 CommentItem으로 뿌림 =>  트리를 재귀 호출로 끝까지 내려줌
-const CommentTree = ({ nodes, loginMember, reload }) =>
-  nodes.map((node) => (
-    <CommentItem
-      key={node.commentNo}
-      comment={node}
-      loginMember={loginMember}
-      reload={reload}
-    />
-  ));
+// const CommentTree = ({ nodes, loginMember, reload }) =>
+//   nodes.map((node) => (
+//     <CommentItem
+//       key={node.commentNo}
+//       comment={node}
+//       loginMember={loginMember}
+//       reload={reload}
+//     />
+//   ));
+
+const flattenTree = (nodes) =>
+  nodes.flatMap((n) => [n, ...flattenTree(n.children || [])]);
 
 // 마지막 컴포넌트의 역할: 첫 로딩 또는 새 등록 때 서버에서 목록 가져오기 => 가져온 배열을 트리 자료로 변환 => 변환된 트리를 CommentTree에 넘김
 const NeighborhoodCommentSection = ({ boardNo }) => {
@@ -256,12 +259,14 @@ const NeighborhoodCommentSection = ({ boardNo }) => {
         <p className="nb-comment-loading">로딩 중…</p>
       ) : (
         <ul className="commentList">
-          <CommentTree
-            nodes={buildTree(comments)}
-            loginMember={member}
-            /* 자식에게는 setRefreshKey만 넘겨서 트리거를 직접 증가시킴 */
-            reload={() => setRefreshKey((k) => k + 1)}
-          />
+          {flattenTree(buildTree(comments)).map((c) => (
+            <CommentItem
+              key={c.commentNo}
+              comment={c}
+              loginMember={member}
+              reload={() => setRefreshKey((k) => k + 1)}
+            />
+          ))}
         </ul>
       )}
     </section>

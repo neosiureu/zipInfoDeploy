@@ -140,6 +140,7 @@ function App() {
                 path="neighborhoodBoard/edit/:boardNo?"
                 element={<NeighborhoodEdit />}
               />
+
               {/* 선택 파라미터 문법으로 ?가 있을 때는 있을수도 없을수도 있다.
               baordNo가 들어가 있으면 수정화면으로 전환
               boardNo가 안 들어가면 글쓰기 화면으로 전환할 예정이다. 하나의 path로 두개의 처리를 하여 줄일 수 있을 듯 하다*/}
