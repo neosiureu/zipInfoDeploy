@@ -72,7 +72,7 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  margin: 16px 48px;
+  margin: 16px 24px;
 }
 
 .sale-img {
@@ -157,20 +157,19 @@
 }
 
 .sale-section-content {
-  padding: 24px 48px;
+  padding: 12px 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
 .sale-section-title {
-  font-size: 18px;
+  font-size: 18px !important;
   font-weight: 600;
   color: #111;
   line-height: 24px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  margin: 12px 0 !important;
 }
 
 /* 표 스타일 - SalePage 전용 */
@@ -184,14 +183,14 @@
 }
 
 .sale-table tr td {
-  padding: 6px;
+  padding: 6px 0;
   vertical-align: top;
   line-height: 24px;
   text-align: left;
 }
 
 .sale-table tr td:first-child {
-  width: 35%;
+  width: 120px;
   white-space: nowrap;
   color: #111;
   font-weight: 600;

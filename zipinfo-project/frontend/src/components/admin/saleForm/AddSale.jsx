@@ -211,6 +211,8 @@ const AddSale = () => {
       !form.price1 ||
       !form.price2 ||
       !form.contractRate ||
+      !form.supplyArea ||
+      !form.exclusiveArea ||
       thumbnailImages.length === 0 ||
       floorImages.length === 0
     ) {
@@ -490,7 +492,7 @@ const AddSale = () => {
       <section className="sale-form-section">
         <h2 className="sale-section-title">평형정보</h2>
         <div className="sale-form-row">
-          <label className="sale-form-label">공급면적</label>
+          <label className="sale-form-label required">공급면적</label>
           <input
             type="text"
             name="supplyArea"
@@ -501,7 +503,7 @@ const AddSale = () => {
           />
         </div>
         <div className="sale-form-row">
-          <label className="sale-form-label">전용면적</label>
+          <label className="sale-form-label required">전용면적</label>
           <input
             type="text"
             name="exclusiveArea"
