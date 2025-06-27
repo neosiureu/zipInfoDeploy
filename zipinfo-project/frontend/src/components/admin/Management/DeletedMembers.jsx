@@ -1,32 +1,53 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Search, RefreshCw } from "lucide-react";
-import "../../../css/admin/Management.css";
+import "../../../css/admin/Management/DeletedMembers.css";
 
 const roleOptions = ["일반회원", "중개인", "관리자"];
+const BASE_URL = "http://localhost:8080"; // API 주소 맞게 조정하세요
 
-const DeletedMembers = ({ initialDeletedMembers }) => {
-  const [deletedMembers, setDeletedMembers] = useState(
-    Array.isArray(initialDeletedMembers) ? initialDeletedMembers : []
-  );
+const DeletedMembers = () => {
+  const [deletedMembers, setDeletedMembers] = useState([]);
   const [filteredDeletedMembers, setFilteredDeletedMembers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const membersPerPage = 10;
 
+  // 서버에서 삭제된 회원 목록 불러오기
+  const fetchDeletedMembers = async () => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/admin/management/members/deleted`
+      );
+      console.log("삭제된 회원 데이터:", response.data); // 서버 응답 구조 확인용 로그
+      setDeletedMembers(response.data);
+    } catch (error) {
+      console.error("삭제된 회원 목록 로드 실패:", error);
+    }
+  };
+
+  // 컴포넌트 마운트 시 목록 로드
+  useEffect(() => {
+    fetchDeletedMembers();
+  }, []);
+
+  // deletedMembers 상태 변경 시 필터 초기화 및 적용
   useEffect(() => {
     setFilteredDeletedMembers(deletedMembers);
   }, [deletedMembers]);
 
+  // 검색어, 권한 필터, deletedMembers 변경 시 필터링 및 페이지 초기화
   useEffect(() => {
     let filtered = deletedMembers;
 
     if (searchTerm) {
       filtered = filtered.filter(
         (member) =>
-          member.memberId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          member.memberNumber?.toString().includes(searchTerm)
+          member.memberEmail
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          member.memberNo?.toString().includes(searchTerm)
       );
     }
 
@@ -38,17 +59,16 @@ const DeletedMembers = ({ initialDeletedMembers }) => {
     setCurrentPage(1);
   }, [searchTerm, roleFilter, deletedMembers]);
 
-  const handleRestoreMember = async (memberNumber) => {
+  // 회원 복구 함수
+  const handleRestoreMember = async (memberNo) => {
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/admin/members/restore/${memberNumber}`
+        `${BASE_URL}/admin/management/members/${memberNo}/restore`
       );
 
       if (response.status === 200) {
-        setDeletedMembers((prev) =>
-          prev.filter((m) => m.memberNumber !== memberNumber)
-        );
         alert("계정이 성공적으로 복구되었습니다.");
+        await fetchDeletedMembers(); // 복구 후 목록 최신화
       } else {
         alert("복구에 실패했습니다. 다시 시도해주세요.");
       }
@@ -80,15 +100,15 @@ const DeletedMembers = ({ initialDeletedMembers }) => {
   };
 
   return (
-    <div className="member-list p-4">
-      <h3>삭제된 회원 목록</h3>
+    <div className="deleted-members-container p-4">
+      <h3 className="deleted-members-header">삭제된 회원 목록</h3>
 
-      <div className="controls flex gap-4 mb-4 items-center">
-        <div className="search-box relative">
-          <Search size={18} className="absolute left-2 top-2.5 text-gray-400" />
+      <div className="controls">
+        <div className="search-box">
+          <Search size={18} className="search-icon" />
           <input
             type="text"
-            className="pl-8 pr-2 py-1 border rounded"
+            className="search-input"
             placeholder="회원 아이디 또는 번호 검색"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -96,7 +116,7 @@ const DeletedMembers = ({ initialDeletedMembers }) => {
         </div>
 
         <select
-          className="border px-2 py-1 rounded"
+          className="filter-select"
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
         >
@@ -109,85 +129,88 @@ const DeletedMembers = ({ initialDeletedMembers }) => {
         </select>
 
         <button
-          className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded flex items-center"
+          className="refresh-button"
           onClick={handleRefresh}
           aria-label="초기화"
         >
-          <RefreshCw size={16} className="mr-1" />
+          <RefreshCw size={16} className="icon-inline" />
         </button>
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>회원 번호</th>
-            <th>아이디</th>
-            <th>가입일</th>
-            <th>회원 권한</th>
-            <th>최근 접속일</th>
-            <th>올린 글 개수</th>
-            <th>계정 복구</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentData.length === 0 ? (
+      <div className="overflow-x-auto">
+        <table className="deleted-members-table">
+          <thead>
             <tr>
-              <td colSpan="7" style={{ textAlign: "center" }}>
-                삭제된 회원이 없습니다.
-              </td>
+              <th>회원 번호</th>
+              <th>아이디</th>
+              <th>가입일</th>
+              <th>회원 권한</th>
+              <th>최근 접속일</th>
+              <th>올린 글 개수</th>
+              <th>계정 복구</th>
             </tr>
-          ) : (
-            currentData.map((member, index) => (
-              <tr key={member.memberNumber}>
-                <td>{member.memberNumber}</td>
-                <td>{member.memberId}</td>
-                <td>
-                  {member.joinDate
-                    ? new Date(member.joinDate).toLocaleDateString()
-                    : "-"}
-                </td>
-                <td>
-                  <select
-                    className="border px-2 py-1 rounded"
-                    value={member.memberRole || "일반회원"}
-                    onChange={(e) =>
-                      handleRoleChange(index + indexOfFirst, e.target.value)
-                    }
-                  >
-                    {roleOptions.map((role) => (
-                      <option key={role} value={role}>
-                        {role}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  {member.lastLoginDate
-                    ? new Date(member.lastLoginDate).toLocaleDateString()
-                    : "-"}
-                </td>
-                <td>{member.postCount ?? 0}</td>
-                <td>
-                  <button
-                    onClick={() => handleRestoreMember(member.memberNumber)}
-                    className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
-                  >
-                    계정 복구
-                  </button>
+          </thead>
+          <tbody>
+            {currentData.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="no-data">
+                  삭제된 회원이 없습니다.
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              currentData.map((member, idx) => (
+                <tr key={member.memberNo}>
+                  <td>{member.memberNo}</td>
+                  <td>{member.memberEmail || member.memberId}</td>
+                  <td>
+                    {member.joinDate
+                      ? new Date(member.joinDate).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td>
+                    <select
+                      className="filter-select"
+                      value={member.memberRole || "일반회원"}
+                      onChange={(e) =>
+                        handleRoleChange(idx + indexOfFirst, e.target.value)
+                      }
+                    >
+                      {roleOptions.map((role) => (
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    {member.lastLoginDate
+                      ? new Date(member.lastLoginDate).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td>{member.postCount ?? 0}</td>
+                  <td>
+                    <button
+                      className="restore-button"
+                      onClick={() => handleRestoreMember(member.memberNo)}
+                    >
+                      계정 복구
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      <div className="pagination mt-4">
+      <div className="pagination">
         {Array.from({ length: totalPages || 1 }, (_, i) => i + 1).map(
           (page) => (
             <button
               key={page}
               className={`page-button ${page === currentPage ? "active" : ""}`}
               onClick={() => handlePageChange(page)}
+              aria-label={`페이지 ${page}`}
             >
               {page}
             </button>

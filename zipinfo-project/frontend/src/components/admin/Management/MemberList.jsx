@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Search, RefreshCw, Lock, CheckCircle } from "lucide-react";
-import "../../../css/admin/Management.css";
+import { Search, RefreshCw, Lock, CheckCircle, XCircle } from "lucide-react";
+import axios from "axios";
+import "../../../css/admin/Management/MemberList.css";
+
+const BASE_URL = "http://localhost:8080"; // API 주소에 맞게 변경하세요
 
 const MemberList = ({ initialMembers }) => {
   const [currentMembers, setCurrentMembers] = useState(
@@ -68,16 +71,32 @@ const MemberList = ({ initialMembers }) => {
     setCurrentPage(1);
   };
 
-  return (
-    <div className="member-list p-4">
-      <h3>회원 목록</h3>
+  const handleDeleteMember = async (memberNo) => {
+    const confirmed = window.confirm("정말 이 회원을 삭제하시겠습니까?");
+    if (!confirmed) return;
 
-      <div className="controls flex gap-4 mb-4 items-center">
-        <div className="search-box relative">
-          <Search size={18} className="absolute left-2 top-2.5 text-gray-400" />
+    try {
+      await axios.delete(`${BASE_URL}/admin/management/members/${memberNo}`);
+      alert("회원이 삭제되었습니다.");
+
+      // 삭제 후 목록에서 제거
+      setCurrentMembers((prev) => prev.filter((m) => m.memberNo !== memberNo));
+    } catch (error) {
+      console.error("회원 삭제 실패", error);
+      alert("회원 삭제에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
+
+  return (
+    <div className="member-list-container p-4">
+      <h3 className="member-list-header">회원 목록</h3>
+
+      <div className="controls">
+        <div className="search-box">
+          <Search size={18} className="search-icon" />
           <input
             type="text"
-            className="pl-8 pr-2 py-1 border rounded"
+            className="search-input"
             placeholder="회원 아이디 또는 번호 검색"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -85,7 +104,7 @@ const MemberList = ({ initialMembers }) => {
         </div>
 
         <select
-          className="border px-2 py-1 rounded"
+          className="filter-select"
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
         >
@@ -97,70 +116,79 @@ const MemberList = ({ initialMembers }) => {
           ))}
         </select>
 
-        <button
-          className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded"
-          onClick={handleRefresh}
-        >
-          <RefreshCw size={16} className="inline-block mr-1" />
+        <button className="refresh-button" onClick={handleRefresh}>
+          <RefreshCw size={16} className="icon-inline" />
         </button>
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>번호</th>
-            <th>아이디</th>
-            <th>권한</th>
-            <th>가입일</th>
-            <th>최근 로그인</th>
-            <th>게시글 수</th>
-            <th>상태</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredMembers.length === 0 ? (
+      <div className="overflow-x-auto">
+        <table className="member-table">
+          <thead>
             <tr>
-              <td colSpan="7" style={{ textAlign: "center" }}>
-                회원 정보가 없습니다.
-              </td>
+              <th>번호</th>
+              <th>아이디</th>
+              <th>권한</th>
+              <th>가입일</th>
+              <th>최근 로그인</th>
+              <th>게시글 수</th>
+              <th>삭제</th>
             </tr>
-          ) : (
-            currentPageMembers.map((member) => (
-              <tr key={member.memberNo}>
-                <td>{member.memberNo}</td>
-                <td>{member.memberEmail || member.memberId}</td>
-                <td>{authMap[member.memberAuth] || "알 수 없음"}</td>
-                <td>
-                  {new Date(
-                    member.joinDate || member.createdAt
-                  ).toLocaleDateString()}
-                </td>
-                <td>
-                  {member.lastLoginDate
-                    ? new Date(member.lastLoginDate).toLocaleDateString()
-                    : "-"}
-                </td>
-                <td>{member.postCount ?? 0}</td>
-                <td>
-                  {member.blockFlag ? (
-                    <Lock size={18} color="red" title="차단됨" />
-                  ) : (
-                    <CheckCircle size={18} color="green" title="정상" />
-                  )}
+          </thead>
+          <tbody>
+            {filteredMembers.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="no-data">
+                  회원 정보가 없습니다.
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              currentPageMembers.map((member) => (
+                <tr key={member.memberNo}>
+                  <td>{member.memberNo}</td>
+                  <td>{member.memberEmail || member.memberId}</td>
+                  <td>{authMap[member.memberAuth] || "알 수 없음"}</td>
+                  <td>
+                    {new Date(
+                      member.joinDate || member.createdAt
+                    ).toLocaleDateString()}
+                  </td>
+                  <td>
+                    {member.lastLoginDate
+                      ? new Date(member.lastLoginDate).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td>{member.postCount ?? 0}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className={`status-button ${
+                        member.blockFlag ? "blocked" : "active"
+                      }`}
+                      title={member.blockFlag ? "차단됨" : "정상"}
+                      onClick={() => handleDeleteMember(member.memberNo)}
+                    >
+                      {member.blockFlag ? (
+                        <Lock size={18} />
+                      ) : (
+                        <XCircle size={18} />
+                      )}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      <div className="pagination mt-4">
+      <div className="pagination">
         {Array.from({ length: totalPages || 1 }, (_, i) => i + 1).map(
           (page) => (
             <button
               key={page}
               className={`page-button ${page === currentPage ? "active" : ""}`}
               onClick={() => setCurrentPage(page)}
+              aria-label={`페이지 ${page}`}
             >
               {page}
             </button>
