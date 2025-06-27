@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.zipinfo.project.member.model.dto.Member;
+import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
 import com.zipinfo.project.stock.model.dto.Stock;
 
 @Mapper
@@ -85,6 +86,16 @@ public interface MyPageMapper {
 	List<Stock> getSawStockInfo(int stockNo);
 
 	List<Integer> getLikeStock(int memberNo);
+
+	List<Neighborhood> getMyPost(int memberNo);
+
+	int likeStock(Stock stock);
+
+	int unlikeStock(Stock stock);
+
+	int updateSellN(Stock stock);
+
+	int updateSellY(Stock stock);
 
 
 }

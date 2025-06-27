@@ -32,11 +32,13 @@ public interface AnnounceMapper {
      * @param size 페이지당 게시글 수
      * @return 검색 결과 리스트
      */
-    List<Announce> searchListWithSize(@Param("key") String key,
-                                      @Param("query") String query,
-                                      @Param("cp") int cp,
-                                      @Param("size") int size);
-
+    List<Announce> searchListWithSize(
+    	    @Param("key") String key,
+    	    @Param("query") String query,
+    	    @Param("cp") int cp,
+    	    @Param("size") int size
+    	);
+    
     /**
      * 공지사항 조회수 1 증가
      * @param announceNo 대상 게시글 번호

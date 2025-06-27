@@ -76,4 +76,6 @@ public interface EditAnnounceMapper {
     int updateAnnounceImage(@Param("announceNo") int announceNo, 
                             @Param("renamedFileName") String renamedFileName, 
                             @Param("order") int order);
+    
+    
 }

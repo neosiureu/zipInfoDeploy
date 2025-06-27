@@ -69,7 +69,7 @@
 		VALUES(SEQ_STOCK_INFO.NEXTVAL, #{memberNo}, #{stockName}, #{stockSellPrice}, #{stockManageFee}
 		, #{stockFeeMonth}, #{stockInfo}, #{stockType}, #{stockForm}, #{exclusiveArea}, #{supplyArea}
 		, #{currentFloor}, #{floorTotalCount}, #{roomCount}, #{bathCount}, #{stockDirection}, #{ableDate}
-		, #{useApprovalDate}, #{registDate}, #{stockDetail}, #{stockAddress}, #{regionNo}, 'N')
+		, #{useApprovalDate}, SYSDATE, #{stockDetail}, #{stockAddress}, #{regionNo}, 'N')
 	</insert>
 	
 	<insert id="addStockImg">
@@ -133,7 +133,6 @@
 		STOCK_DIRECTION = #{stockDirection},
 		ABLE_DATE = #{ableDate},
 		USE_APPROVAL_DATE = #{useApprovalDate},
-		REGIST_DATE = #{registDate},
 		STOCK_DETAIL = #{stockDetail},
 		STOCK_ADDRESS = #{stockAddress},
 		REGION_NO = #{regionNo}
@@ -193,15 +192,123 @@
 	<select id="getSawStock">
 		SELECT STOCK_NO FROM "STOCK_SAW"
 		WHERE MEMBER_NO = #{memberNo}
+		ORDER BY SAW_DATE DESC
 	</select>
 	
 	<select id="getLikeStock">
 		SELECT STOCK_NO FROM "LIKE_STOCK"
 		WHERE MEMBER_NO = #{memberNo}
+		ORDER BY LIKE_DATE DESC
 	</select>
 	
 	<select id="getSawStockInfo">
 		SELECT * FROM "STOCK_INFO"
 		WHERE STOCK_NO = #{stockNo}
 	</select>
+	
+	<select id="getMyPost">
+		SELECT
+		B.BOARD_NO,
+		B.BOARD_TITLE,
+		M.MEMBER_NICKNAME,
+		B.READ_COUNT,
+		B.BOARD_CONTENT,
+		B.BOARD_SUBJECT AS boardSubject,
+		B.MEMBER_NO AS
+		memberNo,
+		B.TOWN_NO AS townNo,
+		M.MEMBER_NICKNAME,
+
+		(
+		SELECT COUNT(DISTINCT
+		CL.COMMENT_NO)
+		FROM "COMMENT" C
+		JOIN "COMMENT_LIKE" CL ON CL.COMMENT_NO
+		= C.COMMENT_NO
+		WHERE C.BOARD_NO = B.BOARD_NO
+		AND C.COMMENT_DEL_FL = 'N'
+		) AS COMMENT_COUNT,
+
+		(SELECT COUNT(*)
+		FROM "LIKE" L
+		WHERE L.BOARD_NO =
+		B.BOARD_NO) AS LIKE_COUNT,
+
+		(SELECT BT.TOWN_NAME
+		FROM "BOARD_TOWN" BT
+		WHERE BT.TOWN_NO = B.TOWN_NO) AS TOWN_NAME,
+
+		(SELECT BC.CITY_NAME
+		FROM
+		"BOARD_CITY" BC
+		WHERE BC.CITY_NO = (
+		SELECT BT.CITY_NO
+		FROM "BOARD_TOWN"
+		BT
+		WHERE BT.TOWN_NO = B.TOWN_NO
+		)) AS CITY_NAME,
+		(SELECT BC.CITY_NO
+		FROM
+		"BOARD_CITY" BC
+		WHERE BC.CITY_NO = (
+		SELECT BT.CITY_NO
+
+		FROM "BOARD_TOWN"
+		BT
+		WHERE BT.TOWN_NO = B.TOWN_NO)) AS CITY_NO,
+        <![CDATA[
+        CASE 
+          WHEN SYSDATE - B.BOARD_WRITE_DATE < 1/24/60  THEN FLOOR((SYSDATE - B.BOARD_WRITE_DATE)*24*60*60) || '초 전'
+          WHEN SYSDATE - B.BOARD_WRITE_DATE < 1/24     THEN FLOOR((SYSDATE - B.BOARD_WRITE_DATE)*24*60)    || '분 전'
+          WHEN SYSDATE - B.BOARD_WRITE_DATE < 1        THEN FLOOR((SYSDATE - B.BOARD_WRITE_DATE)*24)       || '시간 전'
+          WHEN SYSDATE - B.BOARD_WRITE_DATE < 30       THEN FLOOR( SYSDATE - B.BOARD_WRITE_DATE)           || '일 전'
+          WHEN SYSDATE - B.BOARD_WRITE_DATE < 365      THEN FLOOR((SYSDATE - B.BOARD_WRITE_DATE)/30)       || '달 전'
+          ELSE  FLOOR((SYSDATE - B.BOARD_WRITE_DATE)/365)                                                 || '년 전'
+        END
+        ]]>
+		AS BOARD_WRITE_DATE
+
+		FROM "BOARD" B
+		JOIN "MEMBER" M ON B.MEMBER_NO =
+		M.MEMBER_NO
+
+		WHERE B.BOARD_DEL_FL = 'N'
+		AND M.MEMBER_DEL_FL = 'N'
+		AND M.MEMBER_NO = #{memberNo}
+
+		ORDER BY
+		B.BOARD_NO DESC
+	</select>
+	
+	<delete id="unlikeStock">
+		DELETE "LIKE_STOCK"
+		WHERE MEMBER_NO = #{memberNo}
+		AND STOCK_NO = #{stockNo}
+	</delete>
+	
+	<insert id="likeStock">
+		INSERT INTO "LIKE_STOCK"
+		VALUES(#{stockNo}, #{memberNo}, SYSDATE)
+	</insert>
+	
+	<update id="updateSellN">
+		UPDATE "STOCK_INFO" SET
+		SELL_YN = 'N'
+		WHERE STOCK_NO = #{stockNo}
+	</update>
+	
+	<update id="updateSellY">
+		UPDATE "STOCK_INFO" SET
+		SELL_YN = 'Y'
+		WHERE STOCK_NO = #{stockNo}
+	</update>
+	
+	
+	
+	
+	
+	
+	
+	
+	
 </mapper>

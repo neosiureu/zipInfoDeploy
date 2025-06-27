@@ -179,7 +179,7 @@ const Main = () => {
       <section className="section-main">
         {/* 인기 단지 */}
         <div className="section-header">
-          <h2>최근에 올라온 따끈따끈한 매물들이에요</h2>
+          <h2>최근 올라온 신규 매물을 확인해보세요</h2>
           <button
             className="more-btn"
             onClick={() => {

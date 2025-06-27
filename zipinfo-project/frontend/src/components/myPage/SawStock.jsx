@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import "../../css/myPage/MyStock.css";
 import StockMenu from "./StockMenu";
 import MiniMenu from "./MiniMenu";
-import { axiosAPI } from '../../api/axiosApi';
+import { axiosAPI } from '../../api/axiosAPI';
 import { useNavigate } from 'react-router-dom';
 
 export default function MyStock() {
@@ -12,11 +12,16 @@ export default function MyStock() {
 
   const [loading, setLoading] = useState(true);
 
+  const [sellYn, setSellYn] = useState(new Set());
+
   const fetchProperties = async () => {
   try {
     const response = await axiosAPI.get('/myPage/getSawStock');
     setProperties(response.data);
-    console.log(response.data);
+    const sellYnSet = new Set(
+      response.data.filter(item => item.sellYn === 'Y').map(item => item.stockNo)
+    );
+    setSellYn(sellYnSet);
   } catch (err) {
     console.error("매물 불러오기 실패:", err);
   }finally {
@@ -54,6 +59,11 @@ export default function MyStock() {
       default: return 'property-type-default';
     }
   };
+
+  const sellYnLabel =  {
+    'N': '판매중',
+    'Y': '판매완료'
+  }
 
   const stockTypeLabel = {
     0: '매매',
@@ -102,6 +112,11 @@ export default function MyStock() {
 
             {/* 본문 */}
             <div onClick={() => nav(`/stock/${property.stockNo}`)} className="property-content">
+              <div>
+                <div className={`stock-sell-yn ${sellYn.has(property.stockNo) ? 'sold' : ''}`}>
+                  {sellYn.has(property.stockNo) ? sellYnLabel['Y'] : sellYnLabel['N']}
+                </div>
+              </div>
               <div className="property-header">
                 <span className="property-category">
                   {stockFormLabel[property.stockForm]} · {property.stockName} {roomInfo}

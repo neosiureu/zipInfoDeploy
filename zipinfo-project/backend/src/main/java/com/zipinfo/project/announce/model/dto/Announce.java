@@ -5,7 +5,7 @@ import java.util.Date;
 
 @Data
 public class Announce {
-    private int announceNo;             // ANNOUNCE_NO (게시글 번호)
+	private Integer announceNo;            // ANNOUNCE_NO (게시글 번호)
     private String announceTitle;       // ANNOUNCE_TITLE (게시글 제목)
     private String announce;            // ANNOUNCE (게시글 내용)
     private Date announceWriteDate;     // ANNOUNCE_WRITE_DATE (작성일)

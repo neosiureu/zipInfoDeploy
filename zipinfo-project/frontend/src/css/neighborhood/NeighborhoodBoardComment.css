@@ -1,0 +1,206 @@
+/* ───────── 공통 리스트 초기화 ───────── */
+.commentList,
+#commentList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ───────── 루트 댓글 카드 ───────── */
+.comment-row {
+  border: 1px solid #dadada !important;
+  border-top: 1px solid #e8e8e8;
+  background: #ffffff;
+  padding: 22px 26px;
+}
+
+.comment-writer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #222;
+}
+
+.comment-date {
+  margin-left: 0;
+  font-size: 12px;
+  color: #9a9a9a;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+/* ─── 본문 ─── */
+.comment-content {
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #444;
+  margin-bottom: 18px;
+}
+
+/* ─── 삭제된 댓글 메시지 ─── */
+.deleted-comment {
+  text-align: center;
+  font-style: italic;
+  color: #9c9c9c;
+  padding: 18px 0;
+}
+
+/* ─── 버튼 영역 ─── */
+.comment-btn-area {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+.comment-btn-area button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #797979;
+  font-size: 13px;
+  padding: 0;
+  transition: color 0.15s;
+}
+.comment-btn-area button:hover {
+  color: #6100ff;
+}
+.comment-btn-area button:first-child {
+  color: #6100ff;
+}
+
+.commentList > .comment-row:first-child {
+  border-top: none;
+}
+/* ───────── 1단계 답글 카드 ───────── */
+.child-comment {
+  border: none !important;
+  border-radius: 0 !important;
+  margin: 12px 0 0 26px;
+  padding: 0;
+  background: #f9f9f9;
+  border: 1px solid #f1f1f1;
+  position: relative;
+}
+.child-comment::before {
+  position: absolute;
+  left: -22px;
+  top: 16px;
+  color: #6100ff;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* ───────── 2단계+ 답글 : 카드·기호 제거 ───────── */
+.child-comment .child-comment {
+  /* 1단계·2단계·… 전부 */
+  background: transparent !important; /* 회색 박스 제거 */
+  border: none !important; /* 박스 테두리 제거 */
+  padding-left: 0; /* 카드 안쪽 여백만 사용 */
+  margin-left: 26px; /* 들여쓰기(계층감) */
+  margin-top: 18px; /* 위 간격 */
+}
+.child-comment .child-comment::before {
+  display: none;
+}
+
+/* ───────── 답글 작성 textarea / 수정 textarea ───────── */
+.comment-reply-area {
+  margin-top: 20px;
+  border-top: 1px solid #eeeeee;
+  padding-top: 16px;
+}
+.comment-reply-area textarea,
+.update-textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 10px 12px;
+  border: 1px solid #cfcfcf;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+.comment-reply-area textarea:focus,
+.update-textarea:focus {
+  outline: none;
+  border-color: #6100ff;
+  box-shadow: 0 0 0 2px rgba(97, 0, 255, 0.12);
+}
+
+/* ───────── 댓글 입력 폼 ───────── */
+.nb-comment-form {
+  display: flex;
+  gap: 16px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  background: #fff;
+  padding: 22px;
+  margin-bottom: 48px;
+}
+.nb-comment-form textarea {
+  flex: 1;
+  min-height: 110px;
+  padding: 12px;
+  border: 1px solid #cfcfcf;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+.nb-comment-form button {
+  background: #6100ff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0 24px;
+  font-size: 14px;
+  cursor: pointer;
+  height: 44px;
+  align-self: flex-end;
+  transition: background 0.15s;
+}
+.nb-comment-form button:hover {
+  background: #4a00c9;
+}
+
+/* ───────── 모바일(≤768px) ───────── */
+@media (max-width: 768px) {
+  .comment-row,
+  .child-comment {
+    padding: 18px;
+  }
+  .child-comment {
+    margin-left: 26px;
+  }
+  .child-comment::before {
+    left: -16px;
+  }
+  .comment-writer {
+    flex-wrap: nowrap;
+  }
+  .comment-date {
+    width: 100%;
+    margin-top: 4px;
+  }
+  .nb-comment-form {
+    flex-direction: column;
+  }
+  .nb-comment-form button {
+    width: 100%;
+  }
+}
+
+/* 1) 2 단계 댓글 li 공통 스타일 */
+.child-comment > #commentList > li {
+  border-top: 1px solid #e5e5e5;
+  margin: 22px 0 0 0;
+  padding: 22px 0 0 0;
+}
+.child-comment,
+.child-comment + .child-comment {
+  /* 형제 관계도 포함 */
+  margin-top: 0 !important;
+  border-top: none !important;
+}

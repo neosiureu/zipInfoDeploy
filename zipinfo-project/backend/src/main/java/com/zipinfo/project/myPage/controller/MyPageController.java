@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.myPage.model.service.MyPageService;
+import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
 import com.zipinfo.project.stock.model.dto.Stock;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -377,4 +378,73 @@ public class MyPageController {
 		}
 	}
 	
+	@GetMapping("getMyPost")
+	public ResponseEntity<Object> getMyPost(HttpSession session){
+		try {
+			
+			Member loginMember = (Member)session.getAttribute("loginMember");
+			
+			int memberNo = loginMember.getMemberNo();
+			
+			List<Neighborhood> board = service.getMyPost(memberNo);
+			
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(board); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
+	
+	@PostMapping("unlikeStock")
+	public ResponseEntity<Object> unlikeStock(HttpSession session, @RequestBody Stock stock){
+		try {
+			Member loginMember = (Member)session.getAttribute("loginMember"); 
+			
+			int memberNo = loginMember.getMemberNo();
+			
+			stock.setMemberNo(memberNo);
+			
+			int result = service.unlikeStock(stock);
+			
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(result); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
+	
+	@PostMapping("likeStock")
+	public ResponseEntity<Object> likeStock(HttpSession session, @RequestBody Stock stock){
+		try {
+			Member loginMember = (Member)session.getAttribute("loginMember"); 
+			
+			int memberNo = loginMember.getMemberNo();
+			
+			stock.setMemberNo(memberNo);
+			
+			int result = service.likeStock(stock);
+			
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(result); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
+	
+	@PostMapping("changeSellYn")
+	public ResponseEntity<Object> changeSellYn(@RequestBody Stock stock){
+		try {
+			
+			int result = service.updateSellYn(stock);
+			
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(result); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
 }

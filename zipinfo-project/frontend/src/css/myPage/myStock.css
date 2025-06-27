@@ -238,3 +238,47 @@
   justify-content: center;
   align-items: center;
 }
+
+.like-stock-bookmark{
+  color: green;
+}
+
+.like-stock-bookmark.active{
+  fill: green;
+  stroke: none;
+}
+
+.like-stock-flex{
+  display: flex;
+}
+
+.stock-sell-yn{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 24px;
+  border: 1px solid blue;
+  color: white;
+  background-color: blue;
+  font-size: 12px;
+  margin-bottom: 14px;
+}
+
+.stock-sell-yn.sold{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 24px;
+  border: 1px solid blue;
+  color: blue;
+  background-color: white;
+  font-size: 12px;
+  margin-bottom: 14px;
+}
+
+.like-stock-box{
+  display: flex;
+  justify-content: space-between;
+}

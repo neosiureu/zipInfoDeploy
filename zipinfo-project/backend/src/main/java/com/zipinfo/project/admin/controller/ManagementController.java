@@ -4,6 +4,7 @@ import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.admin.model.dto.BrokerApplicationDTO;
 import com.zipinfo.project.admin.model.service.ManagementService;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,8 +16,7 @@ import java.util.List;
  * 기본 경로: /admin/management
  */
 @RestController
-@RequestMapping(
-		"/admin/management")
+@RequestMapping("/admin/management")
 public class ManagementController {
 
     private final ManagementService managementService;
@@ -90,6 +90,23 @@ public class ManagementController {
         return ResponseEntity.badRequest().body("중개인 신청 거절 처리 실패");
     }
 
+    /**
+     * 회원 권한 변경 처리
+     * PUT /admin/management/members/{memberNo}/role?authId={권한번호}
+     * 예: 관리자(0), 일반회원(1), 중개인 신청(2), 중개인(3)
+     */
+    @PutMapping("/members/{memberNo}/role")
+    public ResponseEntity<String> updateMemberRole(
+            @PathVariable Long memberNo,
+            @RequestParam("authId") int authId) {
+
+        int result = managementService.updateMemberAuth(memberNo, authId);
+        if (result > 0) {
+            return ResponseEntity.ok("회원 권한이 변경되었습니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원 권한 변경 실패");
+        }
+    }
 
     /**
      * 회원 차단 및 차단 해제

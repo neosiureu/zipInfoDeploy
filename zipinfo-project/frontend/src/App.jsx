@@ -15,7 +15,7 @@ import UpdateMyStock from "./components/myPage/UpdateMyStock";
 import AddStock from "./components/myPage/AddStock";
 import SawStock from "./components/myPage/SawStock";
 import LikeStock from "./components/myPage/LikeStock";
-import MyAnnounce from "./components/myPage/MyAnnounce";
+import MyMessage from "./components/myPage/MyMessage";
 import MyPost from "./components/myPage/MyPost";
 import UpdatePassword from "./components/myPage/UpdatePassword";
 import WithDraw from "./components/myPage/WithDraw";
@@ -34,7 +34,8 @@ import ListSale from "./components/admin/saleForm/ListSale";
 import DashBoard from "./components/admin/DashBoard";
 import Chart from "./components/admin/Chart";
 import Advertisement from "./components/admin/Advertisement";
-import Inquiry from "./components/admin/Inquiry";
+// 여기 HelpMessage 경로 수정
+import HelpMessage from "./components/admin/HelpMessage/HelpMessage";
 import Management from "./components/admin/Management/Management";
 import { AuthProvider } from "./components/admin/AuthContext";
 
@@ -107,9 +108,7 @@ function App() {
               <Route
                 path="myPage"
                 element={
-                  <ProtectedRoute>
                     <MyInfo />
-                  </ProtectedRoute>
                 }
               />
               <Route path="myPage/updateInfo" element={<UpdateInfo />} />
@@ -118,7 +117,7 @@ function App() {
               <Route path="myPage/addStock" element={<AddStock />} />
               <Route path="myPage/sawStock" element={<SawStock />} />
               <Route path="myPage/likeStock" element={<LikeStock />} />
-              <Route path="myPage/myAnnounce" element={<MyAnnounce />} />
+              <Route path="myPage/myMessage" element={<MyMessage />} />
               <Route path="myPage/myPost" element={<MyPost />} />
               <Route
                 path="myPage/updatePassword"
@@ -143,9 +142,12 @@ function App() {
                 element={<NeighborhoodDetail />}
               />
               <Route
-                path="neighborhoodBoard/edit/:boardNo"
+                path="neighborhoodBoard/edit/:boardNo?"
                 element={<NeighborhoodEdit />}
               />
+              {/* 선택 파라미터 문법으로 ?가 있을 때는 있을수도 없을수도 있다.
+              baordNo가 들어가 있으면 수정화면으로 전환
+              boardNo가 안 들어가면 글쓰기 화면으로 전환할 예정이다. 하나의 path로 두개의 처리를 하여 줄일 수 있을 듯 하다*/}
             </Route>
 
             {/* 관리자 페이지 - DashBoard 레이아웃 하위 중첩 라우팅 */}
@@ -154,7 +156,7 @@ function App() {
               <Route path="dashboard" element={<Chart />} />
               <Route path="chart" element={<Chart />} />
               <Route path="advertisement" element={<Advertisement />} />
-              <Route path="inquiry" element={<Inquiry />} />
+              <Route path="helpMessage" element={<HelpMessage />} />
               <Route path="management" element={<Management />} />
               <Route path="list_sale" element={<ListSale />} />
               <Route path="add_sale" element={<AddSale />} />

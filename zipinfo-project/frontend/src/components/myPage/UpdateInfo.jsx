@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 // import '../../css/myPage/myInfo.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Menu from "./Menu";
-import { axiosAPI } from '../../api/axiosApi';
+import { axiosAPI } from '../../api/axiosAPI';
 
 const UpdateInfo = () => {
   const nav = useNavigate();

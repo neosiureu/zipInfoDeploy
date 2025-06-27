@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -46,13 +45,13 @@
     FROM ANNOUNCE
     WHERE ANNOUNCE_DEL_FL = 'N'
     <choose>
-      <when test="key == 't'">
+      <when test='key == "t"'>
         AND ANNOUNCE_TITLE LIKE '%' || #{query} || '%'
       </when>
-      <when test="key == 'c'">
+      <when test='key == "c"'>
         AND ANNOUNCE LIKE '%' || #{query} || '%'
       </when>
-      <when test="key == 'tc'">
+      <when test='key == "tc"'>
         AND (ANNOUNCE_TITLE LIKE '%' || #{query} || '%' OR ANNOUNCE LIKE '%' || #{query} || '%')
       </when>
       <otherwise>
@@ -77,13 +76,13 @@
     FROM ANNOUNCE
     WHERE ANNOUNCE_DEL_FL = 'N'
     <choose>
-      <when test="key == 't'">
+      <when test='key == "t"'>
         AND ANNOUNCE_TITLE LIKE '%' || #{query} || '%'
       </when>
-      <when test="key == 'c'">
+      <when test='key == "c"'>
         AND ANNOUNCE LIKE '%' || #{query} || '%'
       </when>
-      <when test="key == 'tc'">
+      <when test='key == "tc"'>
         AND (ANNOUNCE_TITLE LIKE '%' || #{query} || '%' OR ANNOUNCE LIKE '%' || #{query} || '%')
       </when>
       <otherwise>

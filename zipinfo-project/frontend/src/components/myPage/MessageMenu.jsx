@@ -1,0 +1,52 @@
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+export default function Menu(){
+
+    const nav = useNavigate();
+
+    const location = useLocation();
+
+    const tabs = [
+      {label: "문의하기", path: "/myPage/myMessage"},
+      {label: "문의 내역", path: "/myPage/seeMyMessage"},
+
+    ];
+    
+    const getInitialTab = () => {
+      const currentTab = tabs.find(tab => tab.path === location.pathname);
+      return currentTab ? currentTab.label : "문의하기";
+    };
+
+    const [activeTab, setActiveTab] = useState(getInitialTab);
+  
+
+    useEffect(() => {
+      const currentTab = tabs.find(tab => tab.path === location.pathname);
+      if (currentTab) {
+        setActiveTab(currentTab.label);
+      }
+    }, [location.pathname]);
+
+  return(
+          <div className="my-page-stock-sub-tab-container">
+            <div className="my-page-stock-sub-tab-nav">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.label}
+                  onClick={() => {
+                    setActiveTab(tab.label);
+                    nav(tab.path);
+                  }}
+                  className={`my-page-stock-sub-tab-btn ${
+                    activeTab === tab.label ? "active" : "inactive"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+  )
+}

@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.zipinfo.project.common.utility.Utility;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.myPage.model.mapper.MyPageMapper;
+import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
 import com.zipinfo.project.stock.model.dto.Stock;
 
 import lombok.RequiredArgsConstructor;
@@ -391,5 +392,32 @@ public class MyPageServiceImpl implements MyPageService{
 	    return stockList;
 	}
 	
+	@Override
+	public List<Neighborhood> getMyPost(int memberNo) {
+		return mapper.getMyPost(memberNo);
+	}
+	
+	@Override
+	public int likeStock(Stock stock) {
+		return mapper.likeStock(stock);
+	}
+	
+	@Override
+	public int unlikeStock(Stock stock) {
+		return mapper.unlikeStock(stock);
+	}
+	
+	@Override
+	public int updateSellYn(Stock stock) {
+		int result;
+		
+		if(stock.getSellYn().equals("Y")) {
+			result = mapper.updateSellY(stock);
+		}else {
+			result = mapper.updateSellN(stock);
+		}
+		
+		return result;
+	}
 	
 }
