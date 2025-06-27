@@ -1,7 +1,175 @@
 import { useState, useEffect, useContext } from "react";
 import { MemberContext } from "../member/MemberContext";
 import { axiosAPI } from "../../api/axiosAPI";
+import "../../css/neighborhood/NeighborhoodBoardComment.css";
 
+//NeighborhoodCommentSection  ────────(데이터/상태 총괄)
+//   └─ fetchComments()  ───>  comments []   (DB → 평면 배열)
+//   └─ buildTree()   ───────>  트리 구조        (댓글과 답글에 대한 계층화)
+//   └─ CommentTree           (트리 루트들을 순회)
+//         └─ CommentItem     (한 댓글 카드 + 재귀로 자식을 출력함)
+//               ├─ 수정 · 삭제 · 답글 버튼
+//               ├─ setEdit / setReply ← 지역 state
+//               └─ axios 3종 CRUD
+// 이 파일안에는 세개의 함수형 컴포넌트가 존재한다.
+// 일단 하나의 댓글 또는 답글을 담당하는 부분을 분리하자.
+// 하나의 댓글 또는 답글에 대해 수정 삭제 삽입등을 할 수 있게 하는 함수를 안에 만드록 return한다.
+const CommentItem = ({ comment, loginMember, reload }) => {
+  const [edit, setEdit] = useState(false);
+  const [reply, setReply] = useState(false);
+  const [text, setText] = useState("");
+  const isMine = loginMember && loginMember.memberNo === comment.memberNo;
+  const isAdmin = loginMember && loginMember.memberAuth === 0;
+
+  // 답글의 삽입 (진짜 댓글을 아래 세번째 컴포넌트에서 따로 처리하게 된다)
+  const addReply = async () => {
+    if (!loginMember) return alert("로그인 후 이용해주세요");
+    if (!text.trim()) return alert("내용을 입력해주세요");
+    const params = {
+      commentContent: text,
+      memberNo: loginMember?.memberNo,
+      boardNo: comment.boardNo,
+      commentParentNo: comment.commentNo,
+    };
+    const { data: result } = await axiosAPI.post("/boardComment", params);
+    if (result > 0) {
+      setReply(false);
+      setText("");
+      reload();
+      // alert("답글이 등록되었습니다.");
+    } else {
+      alert("답글 등록 실패!");
+    }
+  };
+
+  // 댓글의 삭제
+  const remove = async () => {
+    if (!confirm("정말 삭제하시겠습니까?")) return;
+    const { data: result } = await axiosAPI.delete(
+      `/boardComment/${comment.commentNo}`
+    );
+    if (result > 0) {
+      alert("댓글이 삭제되었습니다");
+      reload();
+    }
+  };
+
+  // 댓글의 수정
+  const update = async () => {
+    if (!text.trim()) return alert("내용을 입력해주세요");
+    const { data: result } = await axiosAPI.put(
+      `/boardComment/${comment.commentNo}`,
+      { commentContent: text }
+    );
+    if (result > 0) {
+      setEdit(false);
+      reload();
+    }
+  };
+  // 댓글이 삭제된 경우를 대비
+  // if (comment.commentDelFl == "Y") {
+  //   return <li className="comment-row">삭제된 댓글입니다</li>;
+  // }
+
+  // 컴포넌트 내 댓글 랜더링 영역 => 댓글과 답글을 한번에 처리한다
+  return (
+    <li
+      className={`comment-row ${
+        comment.commentParentNo ? "child-comment" : ""
+      }`}
+    >
+      {comment.commentDelFl === "Y" ? (
+        <p className="deleted-comment">삭제된 댓글입니다</p>
+      ) : (
+        <>
+          {/* 작성자 및 날짜 */}
+          <p className="comment-writer">
+            <span>{comment.memberNickname}</span>
+            <span className="comment-date">{comment.commentDate}</span>
+          </p>
+
+          {/* 수정 textarea */}
+          {edit ? (
+            <textarea
+              className="update-textarea"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
+          ) : (
+            <p className="comment-content">{comment.commentContent}</p>
+          )}
+
+          {/* 버튼 영역 */}
+          <div className="comment-btn-area">
+            {!edit && <button onClick={() => setReply((p) => !p)}>답글</button>}
+            {isMine && !edit && (
+              <>
+                <button
+                  onClick={() => {
+                    setEdit(true);
+                    setText(comment.commentContent);
+                  }}
+                >
+                  수정
+                </button>
+                <button onClick={remove}>삭제</button>
+              </>
+            )}
+            {edit && (
+              <>
+                <button onClick={update}>수정</button>
+                <button onClick={() => setEdit(false)}>취소</button>
+              </>
+            )}
+          </div>
+
+          {/* 답글 작성창 */}
+          {reply && (
+            <div className="comment-reply-area">
+              <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="답글을 입력하세요"
+              />
+              <div className="comment-btn-area">
+                <button onClick={addReply}>등록</button>
+                <button onClick={() => setReply(false)}>취소</button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* 자식 댓글은 무조건 렌더링 */}
+      {comment.children?.length > 0 && (
+        <ul id="commentList">
+          {comment.children.map((child) => (
+            <CommentItem
+              key={child.commentNo}
+              comment={child}
+              loginMember={loginMember}
+              reload={reload}
+            />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+};
+
+// 트리화 된 댓글을 뿌려주는 컴포넌트
+// 트리의 루트 댓글들을 순회 =>  각 루트를 CommentItem으로 뿌림 =>  트리를 재귀 호출로 끝까지 내려줌
+const CommentTree = ({ nodes, loginMember, reload }) =>
+  nodes.map((node) => (
+    <CommentItem
+      key={node.commentNo}
+      comment={node}
+      loginMember={loginMember}
+      reload={reload}
+    />
+  ));
+
+// 마지막 컴포넌트의 역할: 첫 로딩 또는 새 등록 때 서버에서 목록 가져오기 => 가져온 배열을 트리 자료로 변환 => 변환된 트리를 CommentTree에 넘김
 const NeighborhoodCommentSection = ({ boardNo }) => {
   const { member } = useContext(MemberContext);
   const [comments, setComments] = useState([]);
@@ -13,7 +181,7 @@ const NeighborhoodCommentSection = ({ boardNo }) => {
     const fetchComments = async () => {
       try {
         setLoading(true);
-        const { data } = await axiosAPI.get("/board/boardComment", {
+        const { data } = await axiosAPI.get("/boardComment", {
           params: { boardNo },
         });
         setComments(data);
@@ -25,6 +193,7 @@ const NeighborhoodCommentSection = ({ boardNo }) => {
     };
     fetchComments();
   }, [refreshKey, boardNo]);
+
   // 새 댓글등록
   const handleInsertComment = async () => {
     if (!member) return alert("로그인 후 이용해주세요");
@@ -37,26 +206,37 @@ const NeighborhoodCommentSection = ({ boardNo }) => {
       boardNo,
     };
 
-    const data = await axiosAPI.post("/boardComment", params);
-    if (Number(data.result) > 0) {
+    const { data: result } = await axiosAPI.post("/boardComment", params);
+    if (result > 0) {
       setContent("");
       setRefreshKey((k) => k + 1);
+      reload();
       // 트리거를 증가시켜 한 화면에서 댓글을 다시 로드한다
+      alert("댓글이 등록되었습니다");
     } else {
       alert("댓글 등록 실패");
     }
   };
+
+  // 댓글 트리의 형성
+  // 수정된 buildTree
   const buildTree = (list) => {
+    if (!Array.isArray(list)) return [];
+
     const map = {};
     list.forEach((c) => (map[c.commentNo] = { ...c, children: [] }));
+
     const roots = [];
+
     list.forEach((c) => {
-      if (c.parentCommentNo) {
-        map[c.parentCommentNo]?.children.push(map[c.commentNo]);
+      const parentId = c.commentParentNo;
+      if (parentId && map[parentId]) {
+        map[parentId].children.push(map[c.commentNo]);
       } else {
         roots.push(map[c.commentNo]);
       }
     });
+
     return roots;
   };
 
@@ -75,12 +255,14 @@ const NeighborhoodCommentSection = ({ boardNo }) => {
       {loading ? (
         <p className="nb-comment-loading">로딩 중…</p>
       ) : (
-        <CommentTree
-          nodes={buildTree(comments)}
-          loginMember={member}
-          /* 자식에게는 setRefreshKey만 넘겨서 트리거를 직접 증가시킴 */
-          reload={() => setRefreshKey((k) => k + 1)}
-        />
+        <ul className="commentList">
+          <CommentTree
+            nodes={buildTree(comments)}
+            loginMember={member}
+            /* 자식에게는 setRefreshKey만 넘겨서 트리거를 직접 증가시킴 */
+            reload={() => setRefreshKey((k) => k + 1)}
+          />
+        </ul>
       )}
     </section>
   );

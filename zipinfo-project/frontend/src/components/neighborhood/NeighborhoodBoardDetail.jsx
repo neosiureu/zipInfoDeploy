@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoardDetail.css";
-// import NeighborhoodCommentSection from "./NeighborhoodCommentSection";
+import NeighborhoodCommentSection from "./NeighborhoodCommentSection";
 import { axiosAPI } from "../../api/axiosAPI";
 const NeighborhoodBoardDetail = () => {
   const { boardNo } = useParams();
@@ -16,10 +16,11 @@ const NeighborhoodBoardDetail = () => {
   // 이 글에서 서버로 보낼 url 주소: /board/detail/boardNo
 
   // 목록보기, 수정, 삭제버튼을 각각 눌렀을 때 행동으로 아직은 구현하지 않음
+
   const handleList = () => navigate(`/neighborhoodBoard?cp=${cp}`);
 
   const handleEdit = useNavigate(() => {
-    navigate(`/editBoard/update/${boardNo}?cp=${cp}`);
+    navigate(`neighborhoodBoard/edit/:boardNo?`);
   }, []);
 
   const handleDelete = useNavigate(() => {
@@ -68,12 +69,12 @@ const NeighborhoodBoardDetail = () => {
         </div>
 
         <div className="nb-detail-content">
-          <div className="nb-detail-image">
+          {/* <div className="nb-detail-image">
             <img
               src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=400&fit=crop"
               alt="게시글 이미지"
             />
-          </div>
+          </div> */}
           <div className="nb-detail-text">
             {boardContent.split("\n\n").map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
@@ -91,7 +92,7 @@ const NeighborhoodBoardDetail = () => {
             목록보기
           </button>
         </div>
-        {/* <NeighborhoodCommentSection boardNo={boardNo} /> */}
+        <NeighborhoodCommentSection boardNo={boardNo} />
       </div>
     </div>
   );
