@@ -1,6 +1,5 @@
 /* ───────── 공통 리스트 초기화 ───────── */
-.commentList,
-#commentList {
+.commentList {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -8,199 +7,166 @@
 
 /* ───────── 루트 댓글 카드 ───────── */
 .comment-row {
-  border: 1px solid #dadada !important;
-  border-top: 1px solid #e8e8e8;
-  background: #ffffff;
-  padding: 22px 26px;
+  position: relative;
+  margin-bottom: 24px; /* 카드 간 간격 */
+  padding: 20px 24px; /* 카드 안쪽 여백 */
+  border: 1px solid #ddd; /* 카드 테두리 */
+  border-radius: 6px; /* 둥근 모서리 */
+  background: #fff; /* 흰배경 */
 }
 
+/* 작성자·날짜: 한 줄에 양쪽 정렬 */
 .comment-writer {
-  display: inline-flex;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   font-weight: 600;
-  color: #222;
+  color: #333;
 }
-
-.comment-date {
-  margin-left: 0;
-  font-size: 12px;
-  color: #9a9a9a;
+.comment-writer .comment-date {
   font-weight: 400;
+  font-size: 12px;
+  color: #999;
   white-space: nowrap;
 }
 
-/* ─── 본문 ─── */
+/* 본문 */
 .comment-content {
+  margin-bottom: 16px;
+  color: #444;
+  line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;
-  color: #444;
-  margin-bottom: 18px;
 }
 
-/* ─── 삭제된 댓글 메시지 ─── */
+/* “삭제된 댓글” */
 .deleted-comment {
+  padding: 16px 0;
   text-align: center;
   font-style: italic;
-  color: #9c9c9c;
-  padding: 18px 0;
+  color: #999;
 }
 
-/* ─── 버튼 영역 ─── */
 .comment-btn-area {
   display: flex;
   gap: 12px;
-  justify-content: flex-end;
-  margin-top: 12px;
 }
 .comment-btn-area button {
   border: none;
   background: none;
-  cursor: pointer;
-  color: #797979;
   font-size: 13px;
+  color: #666;
+  cursor: pointer;
   padding: 0;
-  transition: color 0.15s;
-}
-.comment-btn-area button:hover {
-  color: #6100ff;
+  transition: color 0.2s;
 }
 .comment-btn-area button:first-child {
-  color: #6100ff;
+  color: #6200ff; /* “답글” 버튼 */
+}
+.comment-btn-area button:hover {
+  color: #6200ff;
 }
 
-.commentList > .comment-row:first-child {
-  border-top: none;
-}
-/* ───────── 1단계 답글 카드 ───────── */
+/* ───────── 모든 답글(1단계 이상) ───────── */
 .child-comment {
-  border: none !important;
-  border-radius: 0 !important;
-  margin: 12px 0 0 26px;
-  padding: 0;
-  background: #f9f9f9;
-  border: 1px solid #f1f1f1;
-  position: relative;
-}
-.child-comment::before {
-  position: absolute;
-  left: -22px;
-  top: 16px;
-  color: #6100ff;
-  font-weight: 700;
-  font-size: 18px;
+  margin: 16px 0 24px 32px;
+  padding: 16px 24px 16px 24px; /* 카드 안쪽 여백 (좌측은 이미 margin으로 들여쓰기) */
+  border: 1px solid #eee; /* 답글 테두리 */
+  border-radius: 4px; /* 살짝 둥글게 */
+  background: #fafafa; /* 연한 회색 */
+  position: relative; /* 내부 버튼 절대위치용 */
 }
 
-/* ───────── 2단계+ 답글 : 카드·기호 제거 ───────── */
-.child-comment .child-comment {
-  /* 1단계·2단계·… 전부 */
-  background: transparent !important; /* 회색 박스 제거 */
-  border: none !important; /* 박스 테두리 제거 */
-  padding-left: 0; /* 카드 안쪽 여백만 사용 */
-  margin-left: 26px; /* 들여쓰기(계층감) */
-  margin-top: 18px; /* 위 간격 */
+/* 답글 내부 작성자·본문 간격 */
+.child-comment .comment-writer {
+  margin-bottom: 8px;
 }
-.child-comment .child-comment::before {
-  display: none;
+.child-comment .comment-content {
+  margin-bottom: 12px;
 }
 
-/* ───────── 답글 작성 textarea / 수정 textarea ───────── */
-.comment-reply-area {
-  margin-top: 20px;
-  border-top: 1px solid #eeeeee;
-  padding-top: 16px;
+/* 답글 버튼 위치: 루트와 동일하게 절대위치 */
+.child-comment .comment-btn-area {
+  top: auto;
+  bottom: 5px;
+  right: 15px;
 }
-.comment-reply-area textarea,
+
+/* ───────── 답글 간 구분선(옵션) ───────── */
+/* 여러 답글이 연속될 때 답글 간에도 살짝 분리하고 싶으면 활성화하세요 */
+/*
+.child-comment + .child-comment {
+  margin-top: 12px;
+}
+*/
+
+/* ───────── 답글 입력 textarea ───────── */
+.comment-reply-area,
 .update-textarea {
   width: 100%;
-  min-height: 90px;
+  min-height: 80px;
   padding: 10px 12px;
-  border: 1px solid #cfcfcf;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  font-family: inherit;
   font-size: 14px;
+  font-family: inherit;
   resize: vertical;
 }
-.comment-reply-area textarea:focus,
-.update-textarea:focus {
-  outline: none;
-  border-color: #6100ff;
-  box-shadow: 0 0 0 2px rgba(97, 0, 255, 0.12);
+.comment-reply-area {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
 }
 
-/* ───────── 댓글 입력 폼 ───────── */
+/* ───────── 댓글 새로 작성 폼 ───────── */
 .nb-comment-form {
   display: flex;
   gap: 16px;
-  border: 1px solid #d9d9d9;
+  margin-bottom: 32px;
+  padding: 20px;
+  border: 1px solid #ddd;
   border-radius: 6px;
   background: #fff;
-  padding: 22px;
-  margin-bottom: 48px;
 }
 .nb-comment-form textarea {
   flex: 1;
-  min-height: 110px;
+  min-height: 80px;
   padding: 12px;
-  border: 1px solid #cfcfcf;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  font-family: inherit;
   font-size: 14px;
-  resize: vertical;
+  font-family: inherit;
+  resize: none; /* 높이 고정 */
 }
 .nb-comment-form button {
-  background: #6100ff;
-  color: #fff;
+  padding: 0 20px;
+  height: 40px;
   border: none;
   border-radius: 4px;
-  padding: 0 24px;
+  background: #6200ff;
+  color: #fff;
   font-size: 14px;
   cursor: pointer;
-  height: 44px;
-  align-self: flex-end;
-  transition: background 0.15s;
+  transition: background 0.2s;
 }
 .nb-comment-form button:hover {
   background: #4a00c9;
 }
-
-/* ───────── 모바일(≤768px) ───────── */
-@media (max-width: 768px) {
-  .comment-row,
-  .child-comment {
-    padding: 18px;
-  }
-  .child-comment {
-    margin-left: 26px;
-  }
-  .child-comment::before {
-    left: -16px;
-  }
-  .comment-writer {
-    flex-wrap: nowrap;
-  }
-  .comment-date {
-    width: 100%;
-    margin-top: 4px;
-  }
-  .nb-comment-form {
-    flex-direction: column;
-  }
-  .nb-comment-form button {
-    width: 100%;
-  }
+/* ───────── 루트 댓글 버튼 위치(우측 하단) ───────── */
+.comment-row > .comment-btn-area {
+  position: absolute;
+  bottom: 5px;
+  right: 15px;
+  display: flex;
+  gap: 12px;
 }
 
-/* 1) 2 단계 댓글 li 공통 스타일 */
-.child-comment > #commentList > li {
-  border-top: 1px solid #e5e5e5;
-  margin: 22px 0 0 0;
-  padding: 22px 0 0 0;
-}
-.child-comment,
-.child-comment + .child-comment {
-  /* 형제 관계도 포함 */
-  margin-top: 0 !important;
-  border-top: none !important;
+/* ───────── 모든 답글 버튼 위치(우측 하단) ───────── */
+.child-comment > .comment-btn-area {
+  position: absolute;
+  bottom: 5px;
+  right: 15px;
+  display: flex;
+  gap: 12px;
 }

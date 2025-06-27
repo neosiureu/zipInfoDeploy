@@ -47,10 +47,10 @@ export function AuthProvider({ children }) {
 
       const loginUser = await response.json();
 
-      if (loginUser.memberAuth !== 0 && loginUser.memberAuth !== "0") {
-        alert("관리자 권한이 없습니다.");
-        return false;
-      }
+      // if (loginUser.memberAuth !== 0 && loginUser.memberAuth !== "0") {
+      //   alert("관리자 권한이 없습니다.");
+      //   return false;
+      // }
 
       setUser(loginUser);
       localStorage.setItem("loginMember", JSON.stringify(loginUser));
