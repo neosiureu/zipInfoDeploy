@@ -1,14 +1,49 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import "../../css/myPage/myPost.css";
 import "../../css/myPage/menu.css";
 import Menu from "./Menu";
 import { useNavigate } from 'react-router-dom';
-import { axiosAPI } from '../../api/axiosApi';
+import { axiosAPI } from '../../api/axiosAPI';
 
 const MyPost = () => {
   const nav = useNavigate();
 
   const [posts, setPosts] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+
+  const fetchProperties = async () => {
+  try {
+    const response = await axiosAPI.get('/myPage/getMyPost');
+    setPosts(response.data);
+    console.log(response.data);
+  } catch (err) {
+    console.error("매물 불러오기 실패:", err);
+  }finally {
+    setLoading(false);
+  }
+  };
+
+  useEffect(() => {
+    fetchProperties();
+  }, []);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentPosts = posts.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(posts.length / itemsPerPage);
+
+  const pageGroupSize = 10;
+  const currentGroup = Math.floor((currentPage - 1) / pageGroupSize);
+  const startPage = currentGroup * pageGroupSize + 1;
+  const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
+
+  const handleBoardClick = (item) => {
+    nav(`/neighborhoodBoard/detail/${item.boardNo}?cp=${currentPage}`);
+  };
 
   return (
     <div className="my-page">
@@ -18,45 +53,110 @@ const MyPost = () => {
 
           <div className="my-page-board-container">
       {/* 게시판 헤더 */}
-      <div className="my-page-board-header">
-        <div className="my-page-header-row">
-          <div className="my-page-col-number">번호</div>
-          <div className="my-page-col-title">제목</div>
-          <div className="my-page-col-author">작성자</div>
-          <div className="my-page-col-date">날짜</div>
-          <div className="my-page-col-views">조회</div>
-        </div>
-      </div>
+        <div className="nb-board-table">
+          <div className="nb-header">
+            <div className="nb-header-cell nb-header-number">번호</div>
+            <div className="nb-header-cell nb-header-subject">분류</div>
+            <div className="nb-header-cell nb-header-title">제목</div>
+            <div className="nb-header-cell nb-header-area">지역</div>
 
-      {/* 게시글 목록 */}
-      <div className="my-page-board-content">
-        {posts.length!==0? posts.map((post) => (
-          <div 
-            key={post.id}
-            className="my-page-post-row"
-            onClick={() => handlePostClick(post.id)}
-          >
-            <div className="my-page-col-number">
-              {post.id}
-            </div>
-            <div className="my-page-col-title">
-              <div className="my-page-title-text">
-                {post.title}
-              </div>
-            </div>
-            <div className="my-page-col-author">
-              {post.author}
-            </div>
-            <div className="my-page-col-date">
-              {post.date}
-            </div>
-            <div className="my-page-col-views">
-              {post.views}
-            </div>
+            <div className="nb-header-cell nb-header-author">작성자</div>
+            <div className="nb-header-cell nb-header-date">날짜</div>
+            <div className="nb-header-cell nb-header-views">조회</div>
           </div>
-        )) : <div>작성한 게시글이 없습니다.</div>}
-      </div>
-      </div>
+
+          {currentPosts.length!==0? currentPosts.map((item, index) => (
+            <div key={index} className="nb-row">
+              <div className="nb-cell nb-cell-number">{item.boardNo}</div>
+              <div className="nb-cell nb-cell-subject">
+                {item.boardSubject === "Q"
+                  ? "질문답변"
+                  : item.boardSubject === "R"
+                  ? "리뷰"
+                  : "자유"}
+              </div>
+              <div
+                className="nb-cell nb-cell-title"
+                onClick={() => handleBoardClick(item)} // 클릭 이벤트로 상세화면으로 이동하게
+                style={{ cursor: "pointer" }}
+              >
+                {item.boardTitle}
+              </div>
+              <div className="nb-cell nb-cell-area">
+                {item.cityName} {">"} {item.townName}
+              </div>
+              <div className="nb-cell nb-cell-author">
+                {item.memberNickName}
+              </div>
+              <div className="nb-cell nb-cell-date">{item.boardWriteDate}</div>
+              <div className="nb-cell nb-cell-views">{item.readCount}</div>
+            </div>
+          )): <div className='no-my-post'>작성한 게시글이 없습니다.</div>}
+          </div>
+          <div className="my-stock-pagination">
+
+            <button
+              className='my-stock-page-prev'
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+            >
+              ‹‹
+            </button>
+
+            {/* 이전 그룹으로 이동 또는 1페이지로 */}
+            <button
+              className='my-stock-page-prev'
+              onClick={() => {
+                if (startPage === 1) {
+                  setCurrentPage(1);
+                } else {
+                  setCurrentPage(startPage - 1);
+                }
+              }}
+              disabled={currentPage === 1}
+            >
+              ‹
+            </button>
+            
+            {/* 현재 그룹 페이지들 */}
+            {Array.from({ length: endPage - startPage + 1 }, (_, index) => {
+              const page = startPage + index;
+              return (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={currentPage === page ? "active-page" : ""}
+                >
+                  {page}
+                </button>
+              );
+            })}
+
+            {/* 다음 그룹으로 이동 또는 마지막 페이지로 */}
+            <button
+              className='my-stock-page-next'
+              onClick={() => {
+                if (endPage >= totalPages) {
+                  setCurrentPage(totalPages);
+                } else {
+                  setCurrentPage(endPage + 1);
+                }
+              }}
+              disabled={currentPage === totalPages}
+            >
+              ›
+            </button>
+            
+            {/* 맨 마지막 페이지로 */}
+            <button
+              className='my-stock-page-next'
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              ››
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

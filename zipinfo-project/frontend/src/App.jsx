@@ -15,7 +15,7 @@ import UpdateMyStock from "./components/myPage/UpdateMyStock";
 import AddStock from "./components/myPage/AddStock";
 import SawStock from "./components/myPage/SawStock";
 import LikeStock from "./components/myPage/LikeStock";
-import MyAnnounce from "./components/myPage/MyAnnounce";
+import MyMessage from "./components/myPage/MyMessage";
 import MyPost from "./components/myPage/MyPost";
 import UpdatePassword from "./components/myPage/UpdatePassword";
 import WithDraw from "./components/myPage/WithDraw";
@@ -99,9 +99,7 @@ function App() {
               <Route
                 path="myPage"
                 element={
-                  <ProtectedRoute>
                     <MyInfo />
-                  </ProtectedRoute>
                 }
               />
               <Route path="myPage/updateInfo" element={<UpdateInfo />} />
@@ -110,7 +108,7 @@ function App() {
               <Route path="myPage/addStock" element={<AddStock />} />
               <Route path="myPage/sawStock" element={<SawStock />} />
               <Route path="myPage/likeStock" element={<LikeStock />} />
-              <Route path="myPage/myAnnounce" element={<MyAnnounce />} />
+              <Route path="myPage/myMessage" element={<MyMessage />} />
               <Route path="myPage/myPost" element={<MyPost />} />
               <Route
                 path="myPage/updatePassword"

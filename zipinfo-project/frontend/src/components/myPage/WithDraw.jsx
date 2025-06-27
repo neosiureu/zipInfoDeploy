@@ -3,7 +3,7 @@ import "../../css/myPage/withDraw.css";
 import "../../css/myPage/menu.css";
 import Menu from "./Menu";
 import { useNavigate } from 'react-router-dom';
-import { axiosAPI } from '../../api/axiosApi';
+import { axiosAPI } from '../../api/axiosAPI';
 import { MemberContext } from '../member/MemberContext';
 
 const PasswordChange = () => {

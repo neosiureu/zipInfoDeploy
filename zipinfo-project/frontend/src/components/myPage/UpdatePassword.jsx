@@ -3,7 +3,7 @@ import "../../css/myPage/updatePassword.css";
 import "../../css/myPage/menu.css";
 import Menu from "./Menu";
 import { useNavigate } from 'react-router-dom';
-import { axiosAPI } from '../../api/axiosApi';
+import { axiosAPI } from '../../api/axiosAPI';
 
 const PasswordChange = () => {
   const nav = useNavigate();
