@@ -1,0 +1,32 @@
+/* 중개인 권한 거절 버튼 */
+.reject-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 40px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  transition: background-color 0.2s ease;
+}
+
+.reject-button.active:hover {
+  background-color: #f3f4f6;
+}
+
+.reject-button.rejected {
+  background-color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+/* 버튼 내부 텍스트 색상 */
+.reject-label.text-active {
+  color: #000;
+}
+
+.reject-label.text-disabled {
+  color: #9ca3af;
+}
