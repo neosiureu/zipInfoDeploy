@@ -82,7 +82,9 @@ const NeighborhoodBoard = ({}) => {
 
   // 글쓰기 버튼에서 이동하게 만들 함수
   const handleBoardWriteClick = (board) => {
-    `/neighborhoodBoard/edit${currentPage ? `?cp=${currentPage}` : ""}`;
+    navigate(
+      `/neighborhoodBoard/edit${currentPage ? `?cp=${currentPage}` : ""}`
+    );
   };
 
   const renderPagination = () => {

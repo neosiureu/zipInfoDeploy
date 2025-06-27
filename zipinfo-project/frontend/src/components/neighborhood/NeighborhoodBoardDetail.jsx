@@ -17,11 +17,9 @@ const NeighborhoodBoardDetail = () => {
 
   // 목록보기, 수정, 삭제버튼을 각각 눌렀을 때 행동으로 아직은 구현하지 않음
 
-  const handleList = () => navigate(`/neighborhoodBoard?cp=${cp}`);
-
-  const handleEdit = useNavigate(() => {
-    navigate(`neighborhoodBoard/edit/:boardNo?`);
-  }, []);
+  const handleBoardUpdateClick = () => {
+    navigate(`/neighborhoodBoard/edit/${boardNo}${cp ? `?cp=${cp}` : ""}`);
+  };
 
   const handleDelete = useNavigate(() => {
     navigate(`/neighborhoodBoard?cp=${cp}`);
@@ -83,7 +81,12 @@ const NeighborhoodBoardDetail = () => {
         </div>
 
         <div className="nb-detail-buttons">
-          <button className="nb-detail-btn nb-detail-btn-edit">수정</button>
+          <button
+            className="nb-detail-btn nb-detail-btn-edit"
+            onClick={handleBoardUpdateClick}
+          >
+            수정
+          </button>
           <button className="nb-detail-btn nb-detail-btn-delete">삭제</button>
           <button
             className="nb-detail-btn nb-detail-btn-list"
