@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.zipinfo.project.member.model.dto.Member;
+import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
 import com.zipinfo.project.stock.model.dto.Stock;
 
 public interface MyPageService {
@@ -46,6 +47,14 @@ public interface MyPageService {
 	List<Stock> getSawStock(int memberNo);
 
 	List<Stock> getLikeStock(int memberNo);
+
+	List<Neighborhood> getMyPost(int memberNo);
+
+	int unlikeStock(Stock stock);
+
+	int likeStock(Stock stock);
+
+	int updateSellYn(Stock stock);
 
 
 }

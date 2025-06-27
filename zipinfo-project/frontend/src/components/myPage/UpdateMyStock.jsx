@@ -4,7 +4,6 @@ import "../../css/myPage/menu.css";
 import "../../css/myPage/addStock.css";
 import StockMenu from "./StockMenu";
 import MiniMenu from "./MiniMenu";
-import { axiosAPI} from '../../api/axiosApi';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -31,7 +30,6 @@ export default function AddStock() {
     stockDirection: property.stockDirection,
     ableDate: property.ableDate.substring(0, 10),
     useApprovalDate: property.useApprovalDate.substring(0, 10),
-    registDate: property.registDate.substring(0, 10),
     stockDetail: property.stockDetail,
     regionNo: property.regionNo,
     lat:property.lat,
@@ -56,7 +54,6 @@ export default function AddStock() {
     stockManageFee: '관리비가',
     ableDate: '입주 가능일이',
     useApprovalDate: '사용 승인일이',
-    registDate: '최초 등록일이',
     stockDetail: '상세 설명이',
   };  
 
@@ -78,7 +75,6 @@ export default function AddStock() {
     stockManageFee: true,
     ableDate: true,
     useApprovalDate: true,
-    registDate: true,
     stockDetail: true,
   });
   
@@ -400,16 +396,6 @@ export default function AddStock() {
         ...prev,
         useApprovalDate: false
       })); break;
-      
-      case 'registDate': trimmed.length > 0 && trimmed.length < 11 ? 
-      setCheckData((prev) => ({
-        ...prev,
-        registDate: true
-      })) :
-        setCheckData((prev) => ({
-          ...prev,
-          registDate: false
-        })); break;
         
         case 'stockDetail': trimmed.length > 0 && trimmed.length < 2000 ? 
         setCheckData((prev) => ({
@@ -815,17 +801,6 @@ const handleSubmit = async () => {
                   value={formData.useApprovalDate}
                   onChange={handleStockInfo}
                   name='useApprovalDate'
-                />
-              </div>
-              <div className="my-page-stock-input-row">
-                <label className="my-page-stock-input-label">최초등록일</label>
-                <input 
-                  type="date"
-                  placeholder="최초등록일을 입력해주세요"
-                  className="my-page-stock-input-field"
-                  value={formData.registDate}
-                  onChange={handleStockInfo}
-                  name='registDate'
                 />
               </div>
               <div className="my-page-stock-input-row">

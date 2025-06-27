@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import "../../css/myPage/MyStock.css";
 import StockMenu from "./StockMenu";
 import MiniMenu from "./MiniMenu";
-import { axiosAPI } from '../../api/axiosApi';
+import { axiosAPI } from '../../api/axiosAPI';
 import { useNavigate } from 'react-router-dom';
-import { Heart } from "lucide-react";
+import { Bookmark } from "lucide-react";
 
 export default function MyStock() {
   const [properties, setProperties] = useState([]);
@@ -13,11 +13,19 @@ export default function MyStock() {
 
   const [loading, setLoading] = useState(true);
 
+  const [likeStock, setLikeStock] = useState(new Set());
+
+  const [sellYn, setSellYn] = useState(new Set());
+
   const fetchProperties = async () => {
   try {
     const response = await axiosAPI.get('/myPage/getLikeStock');
     setProperties(response.data);
-    console.log(response.data);
+    setLikeStock(new Set(response.data.map(item => item.stockNo)));
+    const sellYnSet = new Set(
+      response.data.filter(item => item.sellYn === 'Y').map(item => item.stockNo)
+    );
+    setSellYn(sellYnSet);
   } catch (err) {
     console.error("매물 불러오기 실패:", err);
   }finally {
@@ -56,6 +64,11 @@ export default function MyStock() {
     }
   };
 
+  const sellYnLabel =  {
+    'N': '판매중',
+    'Y': '판매완료'
+  }
+
   const stockTypeLabel = {
     0: '매매',
     1: '전세',
@@ -80,6 +93,31 @@ export default function MyStock() {
   const currentGroup = Math.floor((currentPage - 1) / pageGroupSize);
   const startPage = currentGroup * pageGroupSize + 1;
   const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
+
+
+
+  const handleStockLike = async (stockNo) => {
+    
+    setLikeStock(prev => {
+    const updated = new Set(prev);
+    if (updated.has(stockNo)) {
+      updated.delete(stockNo); // 찜 해제
+    } else {
+      updated.add(stockNo); // 찜 추가
+    }
+    return updated;
+  });
+    try {
+      
+      if (likeStock.has(stockNo)) {
+        const resp = await axiosAPI.post('/myPage/unlikeStock', { stockNo });
+      } else {
+        const resp = await axiosAPI.post('/myPage/likeStock', { stockNo });
+      }
+    } catch (err) {
+      console.error("찜 상태 변경 실패:", err);
+    }
+  }
 
   return (
     <div className="my-page-my-stock">
@@ -118,11 +156,20 @@ export default function MyStock() {
 
               {/* 본문 */}
               <div onClick={() => nav(`/stock/${property.stockNo}`)} className="property-content">
+                <div className='like-stock-box'>
+                  <div className={`stock-sell-yn ${sellYn.has(property.stockNo) ? 'sold' : ''}`}>
+                    {sellYn.has(property.stockNo) ? sellYnLabel['Y'] : sellYnLabel['N']}
+                  </div>
+                  <span onClick={(e) => {
+                    e.stopPropagation(); // nav 방지
+                    handleStockLike(property.stockNo); 
+                  }}><Bookmark className={`like-stock-bookmark ${likeStock.has(property.stockNo) ? 'active' : ''}`}/></span>
+                </div>
                 <div className="property-header">
                   <span className="property-category">
                     {stockFormLabel[property.stockForm]} · {property.stockName} {roomInfo}
                   </span>
-                  <span><Heart size={16} color="red" style={{ marginLeft: '6px', verticalAlign: 'middle' }} /></span>
+
                 </div>
 
                 <div className="property-price-container">
