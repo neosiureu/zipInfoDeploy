@@ -92,7 +92,8 @@ const Main = () => {
         </div>
         <div className="card-desc">
           {item.currentFloor}/{item.floorTotalCount}층 <span>|</span>{" "}
-          {item.exclusiveArea}㎡ <span>|</span> 관리비 {item.stockManageFee}만원
+          {item.exclusiveArea}㎡ <span>|</span> 관리비{" "}
+          {item.stockManageFee / 10000}만원
         </div>
         <div className="card-agent">
           <span>
