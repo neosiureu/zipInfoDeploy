@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Search, RefreshCw, XCircle } from "lucide-react";
-import "../../../css/admin/Management.css";
+import "../../../css/admin/Management/BrokerApplications.css";
 
 const roleOptions = ["관리자", "일반회원", "중개인 신청", "중개인"];
 

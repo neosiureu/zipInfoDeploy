@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Shield, User, Trash2, UserPlus } from "lucide-react";
-import "../../../css/admin/Management.css";
+import "../../../css/admin/Management/Management.css";
 
 import MemberList from "./MemberList";
 import DeletedMembers from "./DeletedMembers";
