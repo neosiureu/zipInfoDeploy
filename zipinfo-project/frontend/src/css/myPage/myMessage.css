@@ -65,18 +65,42 @@
 }
 
 .my-message-form-label {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-width: 80px;
-  height: 60px;
+  padding: 12px 16px;
   font-weight: 500;
   color: #333;
   font-size: 14px;
   background-color: #F7F7FB;
   margin-right: 10px;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 아래 2줄 추가가 중요 */
+  height: 100%;
+  align-self: stretch;
 }
+
+.my-message-file-label {
+  min-width: 80px;
+  padding: 12px 16px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+  background-color: #F7F7FB;
+  margin-right: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 높이 자동 확장 */
+  height: auto;
+  align-self: stretch;
+}
+
+
 
 .my-message-content-label{
   display: flex;
@@ -182,6 +206,11 @@
   background-color: #2c5aa0;
 }
 
-.my-message-file{
+.my-message-file {
   display: flex;
+  align-items: flex-start; /* 상단 정렬로 통일 */
+}
+
+.my-page-stock-image-add-btn{
+  margin: 10px 0;
 }
