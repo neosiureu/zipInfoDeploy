@@ -612,19 +612,19 @@ const StockPage = () => {
                     </tr>
                     <tr>
                       <td>주소</td>
-                      <td>서울 서초구 반포대로 291 1층 155호</td>
+                      <td>{item.companyLocation}</td>
                     </tr>
                     <tr>
                       <td>대표</td>
-                      <td>김부동</td>
+                      <td>{item.presidentName}</td>
                     </tr>
                     <tr>
                       <td>중개등록번호</td>
-                      <td>12345-1234-00123</td>
+                      <td>{item.brokerNo}</td>
                     </tr>
                     <tr>
                       <td>대표번호</td>
-                      <td>02-1234-1234</td>
+                      <td>{item.presidentPhone}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -691,7 +691,9 @@ const StockPage = () => {
                   <div className="stock-item-summary">
                     {item.currentFloor}/{item.floorTotalCount}층<span> | </span>
                     {item.exclusiveArea}㎡<span> | </span>관리비{" "}
-                    {item.stockManageFee / 10000}만원
+
+                    {item.stockManageFee / 10000}원
+
                   </div>
                   <div className="stock-item-info">
                     {item.stockInfo.length > 16
