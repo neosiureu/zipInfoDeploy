@@ -105,12 +105,7 @@ function App() {
 
               {/* 마이페이지 */}
 
-              <Route
-                path="myPage"
-                element={
-                    <MyInfo />
-                }
-              />
+              <Route path="myPage" element={<MyInfo />} />
               <Route path="myPage/updateInfo" element={<UpdateInfo />} />
               <Route path="myPage/myStock" element={<MyStock />} />
               <Route path="myPage/updateMyStock" element={<UpdateMyStock />} />

@@ -2,8 +2,12 @@ import { useEffect, useRef, useState } from "react"; // useRef 추가
 import { axiosAPI } from "../../api/axiosApi";
 import "../../css/stock/stockPage.css";
 import SearchBar from "../common/SearchBar";
+import floor from "../../assets/floor.svg"; // 평면도 이미지 추가
+import agent from "../../assets/agent-icon.svg"; // 중개사 아이콘
 import warning from "../../assets/circle_warning.svg"; // 미검색 결과 아이콘
 import saleThumbnail from "../../assets/sale-page-thumbnail.svg"; // 썸네일 이미지 추가
+import stockImgLeft from "../../assets/main-thumbnail-01.svg";
+import stockImgRight from "../../assets/main-thumbnail-02.svg";
 import {
   useNavigate,
   useLocation,
@@ -11,65 +15,35 @@ import {
   useParams,
 } from "react-router-dom";
 import { useStockContext } from "./StockContext";
-const StockPage = (
-  mapRef,
-  mapInstanceRef,
-  itemMarkersRef,
-  isAsideVisible,
-  setIsAsideVisible,
-  stockList,
-  setStockList,
-  clickedStockItem,
-  setClickedStockItem,
-  searchKeyWord,
-  setSearchKeyWord,
-  searchKeyWordRef,
-  searchLocationCode,
-  setSearchLocationCode,
-  locationCodeRef,
-  searchStockType,
-  setSearchStockType,
-  searchStockTypeRef,
-  searchStockForm,
-  setSearchStockForm,
-  searchStockFormRef,
-  navigate,
-  //gridsize -> state 변수가 아님!!
-  //cellMap -> state 변수가 아님!!
-  searchParams
-) => {
-  /**********************Kakao api 세팅****************** */
-  //const mapRef = useRef(null); // 지도를 담을 div의 ref
-  //const mapInstanceRef = useRef(null); //생성한 map instance를 저장 -- const map = new window.kakao.maps.Map(container, options);
-  //const itemMarkersRef = useRef([]); // 지도내 표시된 마커 배열 저장
-  /***************side-panel 관련 상태변수들******************************** */
-  //const [isAsideVisible, setIsAsideVisible] = useState(false); // 지정한 side-panel 숨김여부 저장 state
-  /***************매물(item) 로딩 관련 상태변수들******************************** */
-  //const [stockList, setStockList] = useState(null); // spring 서버에서 받아오는 매물 List
+const StockPage = () => {
+  const {
+    mapRef,
+    mapInstanceRef,
+    itemMarkersRef,
+    isAsideVisible,
+    setIsAsideVisible,
+    stockList,
+    setStockList,
+    clickedStockItem,
+    setClickedStockItem,
+    searchKeyWord,
+    setSearchKeyWord,
+    searchKeyWordRef,
+    searchLocationCode,
+    setSearchLocationCode,
+    locationCodeRef,
+    searchStockType,
+    setSearchStockType,
+    searchStockTypeRef,
+    searchStockForm,
+    setSearchStockForm,
+    searchStockFormRef,
+    navigate,
+    //gridsize -> state 변수가 아님!!
+    //cellMap -> state 변수가 아님!!
+    searchParams,
+  } = useStockContext();
 
-  //const [clickedStockItem, setClickedStockItem] = useState(null); // 자세히 보기창에 띄울 매물
-  /*****************검색창 관련 상태변수들************************** */
-  /* searchKeyWord : 
-   검색창SearchBar내부 매물 이름을 검색하기 위한 키워드를 저장하는 상태변수 - 기본값 ""(빈 문자열) */
-  //const [searchKeyWord, setSearchKeyWord] = useState(""); //
-  //const searchKeyWordRef = useRef(searchKeyWord); //  **중요**꼭 상태 변수를 따로 useRef로 마련해주고(일종의 state변수의 pointer역할), 그걸 addEventListener에 넣어야 변수의 값이 아니라 변수 그 자체를 참조한다.
-  /* searchLoactionCode : 
-  검색창SearchBar내부 REGION_NO 검색조건을 저장하는 상태변수 - 기본값 -1(전체 매물 표시), 
-  00 - 두자릿수(ex. 11(서울특별시), 26(부산광역시))일경우는 해당 도의 전체 매물 조회.
-  00000 - 다섯자리수(ex.11110(서울특별시 종로구), 11260(서울특별시 중랑구))일 경우에는 해당 구 한정 매물 조회.*/
-  //const [searchLocationCode, setSearchLocationCode] = useState(-1);
-  //const locationCodeRef = useRef(searchLocationCode); //  **중요**
-  /*searchStockType : 
-  검색창 내 매물 판매 유형(매매:0, 전세:1, 월세:2)을 저장하는 상태변수 - 기본값 -1(전체 매물 선택)*/
-  //const [searchStockType, setSearchStockType] = useState(-1);
-  //const searchStockTypeRef = useRef(searchStockType); //  **중요**
-  /*searchStockForm : 
-  검색창 내 부동산 유형(아파트:1, 빌라:2, 오피스텔:3)을 저장하는 상태변수 - 기본값 -1(전체 매물 선택)*/
-  //const [searchStockForm, setSearchStockForm] = useState(-1);
-  //const searchStockFormRef = useRef(searchStockForm); //  **중요**
-
-  // 상세 디테일 페이지를 URL로 연결할 변수
-  //const navigate = useNavigate();
   /*******************마커 겹침 처리기능 관련 변수***************** */
   // ⚙️ 격자 셀의 크기를 설정 (화면 픽셀 기준)
   // 마커가 겹친다고 판단할 최소 거리보다 약간 큰 값이 좋습니다.
@@ -488,113 +462,220 @@ const StockPage = (
 
       return (
         <>
-          <div>
-            {/** detail 창닫기 버튼 */}
-            <button
-              style={{ float: "right" }}
-              onClick={() => setIsAsideVisible(false)}
-            >
-              X
-            </button>
-          </div>
-          <div></div>
-          <div className="stock-header">
-            <img
-              src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https://blog.kakaocdn.net/dn/bQwQwA/btrb1QwQwQw/1.jpg"
-              alt="아파트"
-              className="stock-img"
-            />
-            <div className="stock-title">
-              <div className="stock-name">
-                {item.stockName},{item.stockType}
-              </div>
-              <div className="stock-address">{item?.stockAddress}</div>
-            </div>
-          </div>
-          <div
-            className="stock-img-overview"
-            style={{
-              margin: "20px 0px",
-              padding: "20px 0px",
-              borderBottom: "1px solid #eee",
-            }}
-          >
-            <p>평면도</p>
-            <div>
+          <div className="stock-detail-panel">
+            {/* 상단 이미지 2장 (예시) */}
+            <div className="stock-detail-images">
               <img
-                src="https://www.apt2you.com/images/apt/apt2you/apt2you_apt_1.png"
-                alt="평면도"
-                className="plan-img"
-                style={{
-                  margin: "20px 0px",
-                  padding: "20px 0px",
-                }}
+                src={stockImgLeft}
+                alt="상세1"
+                className="stock-detail-mainimg"
+              />
+              <img
+                src={stockImgRight}
+                alt="상세2"
+                className="stock-detail-mainimg"
               />
             </div>
-          </div>
 
-          <div className="section">
-            <div className="section-title">기본정보</div>
-            <table>
-              <tbody>
-                <tr>
-                  <td>매물형태</td>
-                  <td>{stockForm}</td>
-                </tr>
-                <tr>
-                  <td>주소</td>
-                  <td>{item?.stockAddress}</td>
-                </tr>
+            <div className="sale-section-divider" />
 
-                <tr>
-                  <td>전용/공급 면적</td>
-                  <td>
-                    {item.exclusiveArea}㎡ / {item.supplyArea}㎡
-                  </td>
-                </tr>
-                <tr>
-                  <td>방/화장실 수</td>
-                  <td>
-                    {item.roomCount}개 / {item.bathCount}개
-                  </td>
-                </tr>
-                <tr>
-                  <td>방향</td>
-                  <td>{item.stockDirection}</td>
-                </tr>
-                <tr>
-                  <td>관리비</td>
-                  <td>{item.stockManageFee}</td>
-                </tr>
-                <tr>
-                  <td>입주가능일</td>
-                  <td>{item.ableDate}</td>
-                </tr>
-                <tr>
-                  <td>사용승인일</td>
-                  <td>{item.useApprovalDate}</td>
-                </tr>
-                <tr>
-                  <td>최초등록일</td>
-                  <td>{item.registDate}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div className="section">
-            <div className="section-title">상세정보</div>
-            <table>
-              <tbody>
-                <tr>
-                  <td>{item.stockDetail}</td>
-                </tr>
-              </tbody>
-            </table>
+            {/* Block 1: 매매/가격/찜 */}
+            <div className="stock-detail-info-block">
+              <div className="stock-detail-header">
+                <span className="stock-detail-type">
+                  {item.stockType === 0
+                    ? "매매 "
+                    : item.stockType === 1
+                    ? "전세 "
+                    : item.stockType === 2
+                    ? "월세 "
+                    : "기타 "}
+                </span>
+                <span className="stock-detail-price">
+                  {item.stockType === 0
+                    ? priceConvertToString(item.stockSellPrice)
+                    : item.stockType === 1
+                    ? priceConvertToString(item.stockSellPrice)
+                    : item.stockType === 2
+                    ? " " +
+                      priceConvertToString(item.stockSellPrice) +
+                      " / " +
+                      priceConvertToString(item.stockFeeMonth) +
+                      " "
+                    : "기타"}
+                </span>
+                <button className="stock-detail-like-btn" aria-label="찜하기">
+                  ♡
+                </button>
+              </div>
+              <div className="stock-detail-name">{item.stockName}</div>
+              <div className="stock-detail-desc">{item.stockInfo}</div>
+            </div>
 
-            <div></div>
-          </div>
-          <div className="section">
-            <div className="section-title">중개사무소 정보</div>
+            <div className="sale-section-divider" />
+
+            {/* Block 2: 평면도 */}
+            <div className="stock-detail-info-block">
+              <div className="stock-detail-plan">
+                <img src={floor} alt="평면도 이미지" />
+              </div>
+            </div>
+
+            <div className="sale-section-divider" />
+
+            {/* Block 3: 상세정보 */}
+            <div className="stock-detail-info-block">
+              <div className="stock-detail-section">
+                <div className="stock-detail-section-title">상세정보</div>
+                <table className="stock-detail-table">
+                  <tbody>
+                    <tr>
+                      <td>매물형태</td>
+                      <td>아파트</td>
+                    </tr>
+                    <tr>
+                      <td>주소</td>
+                      <td>서울시 서초구 반포동 2-12, 105동</td>
+                    </tr>
+                    <tr>
+                      <td>전용/공급면적</td>
+                      <td>84.99㎡ / 114.20㎡</td>
+                    </tr>
+                    <tr>
+                      <td>해당층/건물층</td>
+                      <td>3층/31층</td>
+                    </tr>
+                    <tr>
+                      <td>방/욕실 수</td>
+                      <td>3/2개</td>
+                    </tr>
+                    <tr>
+                      <td>방향</td>
+                      <td>남향</td>
+                    </tr>
+                    <tr>
+                      <td>관리비</td>
+                      <td>45만원</td>
+                    </tr>
+                    <tr>
+                      <td>입주가능일</td>
+                      <td>즉시 입주 (협의가능)</td>
+                    </tr>
+                    <tr>
+                      <td>사용승인일</td>
+                      <td>2016.08.30</td>
+                    </tr>
+                    <tr>
+                      <td>최초등록일</td>
+                      <td>2025.05.15</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="sale-section-divider" />
+
+            {/* Block 4: 상세설명 */}
+            <div className="stock-detail-info-block">
+              <div className="stock-detail-section">
+                <div className="stock-detail-section-title">상세설명</div>
+                <div className="stock-detail-description">
+                  서울 반포의 중심, 아크로리버파크!
+                  <br />
+                  한강의 아름다움을 온전히 누릴 수 있는 대단지!
+                  <br />
+                  '바른 부동산'이 고객님과 함께 하겠습니다.
+                  <br />
+                  <br />
+                  <b>1. 교통</b>
+                  <br />
+                  9호선 신반포역, 지하철 3, 7, 9호선 고속터미널역을 비롯 전국을
+                  연결하는 서울고속터미널, 센트럴시티터미널이 있어 서울 시내는
+                  물론 전국을 다니는데 불편함이 없는 지역입니다.
+                  <br />
+                  또한 반포대로 및 올림픽대로와 접해 있어 차량으로도 서울 및
+                  수도권 이동이 최적화된 지역입니다.
+                  <br />
+                  <br />
+                  <b>2. 생활/문화</b>
+                  <br />
+                  신세계백화점(강남점)을 필두로 파미에스테이션/서울 도보 이용이
+                  가능하며 뉴코아아울렛 등 대형 복합쇼핑시설이 모여있고,
+                  반포한강공원, 세빛섬, 서래섬, 서리풀공원 등 다양한 문화시설이
+                  인접해 있습니다.
+                  <br />
+                  반포종합운동장, 반포도서관, 반포종합사회복지관,
+                  반포종합사회복지관 등 다양한 생활편의시설이 인접해 있습니다.
+                  <br />
+                  또한 단지 내에는 피트니스센터, 실내골프연습장, 독서실,
+                  게스트하우스, 키즈카페, 멀티미디어룸, 셀프세차장, 골프장,
+                  헬스장 등 다양한 커뮤니티 시설이 마련되어 있습니다.
+                  <br />
+                  <br />
+                  <b>3. 교육 환경</b>
+                  <br />
+                  개원초(초등학교), 잠원초, 신반포초, 세화여중(사립),
+                  세화고(사립) 등 전통의 명문 학군이 인접해 있습니다.
+                  <br />
+                  또한 반포고, 세화고, 세화여고, 신반포중, 신반포초, 잠원초 등
+                  다양한 학교가 인접해 있습니다.
+                  <br />
+                  <br />
+                  <b>4. 최고의 가치 '아크로리버파크'</b>
+                  <br />
+                  - 스카이라운지
+                  <br />
+                  - 최고의 커뮤니티
+                  <br />
+                  - 우수한 채광과 한강을 한눈에 볼 수 있는 조망권
+                  <br />
+                  - 다양한 정원조성
+                  <br />
+                  - 광폭의 주차공간
+                  <br />
+                  - 티하우스, 키즈카페, 멀티미디어룸, 셀프세차장, 골프장, 헬스장
+                  등<br />
+                  <br />
+                  5. '바른 부동산'이 최고의 선택입니다.
+                </div>
+              </div>
+            </div>
+
+            <div className="sale-section-divider" />
+
+            {/* Block 5: 중개사무소 정보 */}
+            <div className="stock-detail-info-block stock-detail-office">
+              <div className="stock-detail-section">
+                <div className="stock-detail-section-title">
+                  중개사무소 정보
+                </div>
+                <table className="stock-detail-table">
+                  <tbody>
+                    <tr>
+                      <td>이름</td>
+                      <td>바른공인중개사사무소</td>
+                    </tr>
+                    <tr>
+                      <td>주소</td>
+                      <td>서울 서초구 반포대로 291 1층 155호</td>
+                    </tr>
+                    <tr>
+                      <td>대표</td>
+                      <td>김부동</td>
+                    </tr>
+                    <tr>
+                      <td>중개등록번호</td>
+                      <td>12345-1234-00123</td>
+                    </tr>
+                    <tr>
+                      <td>대표번호</td>
+                      <td>02-1234-1234</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </>
       );
@@ -615,64 +696,60 @@ const StockPage = (
         ) : (
           stockList?.map((item, index) => (
             <div
-              className="stock-title"
+              className="stock-item-list"
               onClick={() => handleItemClick(item, index)}
             >
-              <img src={saleThumbnail} alt="썸네일" className="stock-img" />
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "10px",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    gap: "10px",
-                  }}
-                >
-                  <div className="item-type">
-                    {item.stockType === 0
-                      ? "매매 "
-                      : item.stockType === 1
-                      ? "전세 "
-                      : item.stockType === 2
-                      ? "월세 "
-                      : "기타 "}
+              <div className="stock-header">
+                <img src={saleThumbnail} alt="썸네일" className="stock-img" />
+                <div>
+                  <div className="stock-item-price">
+                    <span className="item-type">
+                      {item.stockType === 0
+                        ? "매매 "
+                        : item.stockType === 1
+                        ? "전세 "
+                        : item.stockType === 2
+                        ? "월세 "
+                        : "기타 "}
+                    </span>
+                    <span>&nbsp;</span> {/* 띄어쓰기용 */}
+                    <span className="item-price">
+                      {item.stockType === 0
+                        ? priceConvertToString(item.stockSellPrice)
+                        : item.stockType === 1
+                        ? priceConvertToString(item.stockSellPrice)
+                        : item.stockType === 2
+                        ? " " +
+                          priceConvertToString(item.stockSellPrice) +
+                          " / " +
+                          priceConvertToString(item.stockFseeMonth) +
+                          " "
+                        : "기타"}
+                    </span>
                   </div>
-                  <div className="item-price">
-                    {item.stockType === 0
-                      ? priceConvertToString(item.stockSellPrice)
-                      : item.stockType === 1
-                      ? priceConvertToString(item.stockSellPrice)
-                      : item.stockType === 2
-                      ? " " +
-                        priceConvertToString(item.stockSellPrice) +
-                        " / " +
-                        priceConvertToString(item.stockFeeMonth) +
-                        " "
-                      : "기타"}
+
+                  <div className="stock-item-name">
+                    {/**매물 이름 */}
+                    {item.stockType} · {item.stockName}
+                  </div>
+
+                  <div className="stock-item-summary">
+                    {item.currentFloor}/{item.floorTotalCount}층<span> | </span>
+                    {item.exclusiveArea}㎡<span> | </span>관리비{" "}
+                    {item.stockManageFee / 10000}원
+                  </div>
+                  <div className="stock-item-info">
+                    {item.stockInfo.length > 16
+                      ? item.stockInfo.slice(0, 16) + ".."
+                      : item.stockInfo}
+                  </div>
+                  <div className="item-font-broker">
+                    <span>
+                      <img src={agent} alt="중개사 아이콘" />
+                    </span>
+                    {item.companyName}
                   </div>
                 </div>
-
-                <div className="item-name item-font-default">
-                  {/**매물 이름 */}
-                  {item.stockName}
-                </div>
-
-                <div className="item-font-default">
-                  {item.exclusiveArea}㎡ | {item.currentFloor}층/{" "}
-                  {/**여기 한글자 오타났었어요... */}
-                  {item.floorTotalCount}층 | 관리비{" "}
-                  {item.stockManageFee / 10000}만원
-                </div>
-                <div className="item-font-default">
-                  {/**매물 주소 */}
-                  {item.stockAddress}
-                </div>
-                <div className="item-font-broker"> ⌂ {item.companyName}</div>
               </div>
             </div>
           ))
@@ -720,11 +797,16 @@ const StockPage = (
         </aside>
 
         {/**detail */}
-        <aside className={`side-panel ${isAsideVisible ? "" : "hidden"}`}>
-          <button onClick={closeStockDetail}></button>
-          <StockItemDetail item={clickedStockItem} />{" "}
-          {/**매개변수로 클릭한 매물의 stock DTO를 매개변수로 전달 */}
-        </aside>
+        {isAsideVisible && (
+          <>
+            <aside className="stock-detail-panel detail-panel">
+              <StockItemDetail item={clickedStockItem} />
+            </aside>
+            <button className="stock-close-button" onClick={closeStockDetail}>
+              ✕
+            </button>
+          </>
+        )}
         <main className="map-area" ref={mapRef}>
           {/* 카카오 맵이 여기에 렌더링됩니다. */}
         </main>
