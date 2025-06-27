@@ -9,65 +9,61 @@ const AnnounceWrite = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  // 수정 모드 여부 및 공지사항 ID (location.state에서 받음)
-  const isEdit = !!location.state?.id;
+  // 수정 여부 및 postId
   const postId = location.state?.id;
+  const isEdit = !!postId;
 
-  // 제목과 내용 상태 관리
+  // 제목/내용 상태
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  // 관리자 여부 체크 (memberAuth가 문자열 "0"일 때 관리자)
+  // 관리자 여부
   const isAdmin = user && String(user.memberAuth) === "0";
 
-  // 로그인 및 관리자 권한 체크 - 페이지 접근 제어
+  // 권한 확인
   useEffect(() => {
     if (!user) {
       alert("로그인이 필요합니다.");
-      navigate("/login"); // 로그인 페이지로 이동
+      navigate("/login");
     } else if (!isAdmin) {
       alert("관리자만 접근할 수 있습니다.");
-      navigate("/announce"); // 공지사항 목록 페이지로 이동
+      navigate("/announce");
     }
   }, [user, isAdmin, navigate]);
 
-  // 수정 모드일 경우, location.state에 데이터 없으면 API 호출해서 초기값 세팅
+  // 수정일 경우 기존 데이터 가져오기
   useEffect(() => {
     if (isEdit) {
-      // location.state에 제목, 내용이 없으면 fetch
-      if (!location.state?.title || !location.state?.content) {
+      console.log("location.state:", location.state);
+      if (!location.state?.announceTitle || !location.state?.announce) {
         fetchPostDetail(postId)
           .then((data) => {
             setTitle(data.announceTitle || "");
             setContent(data.announce || "");
           })
           .catch(() => {
-            alert("공지사항 데이터를 불러오지 못했습니다.");
-            navigate("/announce"); // 오류 시 목록 페이지로 이동
+            alert("공지사항을 불러오지 못했습니다.");
+            navigate("/announce");
           });
       } else {
-        // location.state에 데이터 있으면 바로 세팅
-        setTitle(location.state.title);
-        setContent(location.state.content);
+        setTitle(location.state.announceTitle);
+        setContent(location.state.announce);
       }
     }
   }, [isEdit, postId, location.state, navigate]);
 
-  // 등록/수정 처리 함수
+  // 등록 또는 수정 요청
   const handleSubmit = async () => {
-    // 제목, 내용 빈 값 체크
     if (!title.trim() || !content.trim()) {
       alert("제목과 내용을 입력해주세요.");
       return;
     }
 
-    // 로그인 회원 번호 체크
     if (!user?.memberNo) {
-      alert("회원 정보가 올바르지 않습니다.");
+      alert("회원 정보가 없습니다.");
       return;
     }
 
-    // 서버에 보낼 데이터 구성 (키 이름은 서버 DTO에 맞게)
     const postData = {
       announceTitle: title,
       announce: content,
@@ -76,20 +72,17 @@ const AnnounceWrite = () => {
 
     try {
       if (isEdit) {
-        // 수정 API 호출
         await updatePost(postId, postData);
         alert("공지사항이 수정되었습니다.");
-        navigate(`/announce/detail/${postId}`); // 상세 페이지 이동
+        navigate(`/announce/detail/${postId}`);
       } else {
-        // 등록 API 호출
         const newPost = await createPost(postData);
         alert("공지사항이 등록되었습니다.");
-        // 새로 등록된 공지사항 번호로 상세 페이지 이동
         navigate(`/announce/detail/${newPost.announceNo || newPost.id}`);
       }
-    } catch (error) {
-      console.error("공지사항 등록/수정 실패:", error);
-      alert("오류가 발생했습니다.");
+    } catch (err) {
+      console.error("공지사항 등록/수정 실패:", err);
+      alert("작업에 실패했습니다.");
     }
   };
 
@@ -114,7 +107,7 @@ const AnnounceWrite = () => {
         placeholder="내용을 입력하세요"
       />
 
-      {/* 등록/수정 버튼 */}
+      {/* 버튼 */}
       <div className="announce-write-buttons">
         <button type="button" onClick={handleSubmit}>
           {isEdit ? "수정 완료" : "등록"}

@@ -1,4 +1,5 @@
-/* Inquiry.module.css */
+/* HelpMessage.module.css */
+
 .container {
   min-height: 100vh;
   background-color: #f9fafb; /* Tailwind gray-50 */
@@ -125,6 +126,9 @@
 .tableHeader > div:nth-child(5) {
   justify-content: end;
 } /* 답변 */
+.tableHeader > div:nth-child(6) {
+  /* 마지막 컬럼 (상세보기 버튼) */
+}
 
 .tableRow {
   padding: 1rem 1.5rem;
@@ -141,16 +145,19 @@
   background-color: #f9fafb;
 }
 
-.inquiryNumber {
+.helpMessagesNumber {
   font-weight: 500;
   color: #111827;
 }
 
-.inquiryContent {
+.helpMessagesContent {
   color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.inquiryDate {
+.helpMessagesDate {
   font-size: 0.875rem;
   color: #6b7280;
 }
@@ -187,6 +194,7 @@
   align-items: center;
   gap: 0.25rem;
   cursor: pointer;
+  justify-content: center;
 }
 
 .actionButton:hover {

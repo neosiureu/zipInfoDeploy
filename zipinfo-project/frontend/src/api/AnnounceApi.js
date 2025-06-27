@@ -56,8 +56,7 @@ export const fetchPostDetail = async (postId) => {
  */
 export const createPost = async (postData) => {
   try {
-    // POST 요청으로 공지사항 등록, 쿠키 포함
-    const response = await axios.post(BASE_URL, postData, {
+    const response = await axios.post("/api/announce/write", postData, {
       withCredentials: true,
     });
     return response.data;
@@ -75,10 +74,12 @@ export const createPost = async (postData) => {
  */
 export const updatePost = async (postId, postData) => {
   try {
-    // PUT 요청으로 공지사항 수정, 쿠키 포함
-    const response = await axios.put(`${BASE_URL}/${postId}`, postData, {
-      withCredentials: true,
-    });
+    // ✅ 수정된 URL 경로 반영
+    const response = await axios.put(
+      `/api/announce/edit/${postId}`, // 👈 변경된 edit 경로
+      postData,
+      { withCredentials: true }
+    );
     return response.data;
   } catch (error) {
     console.error("공지사항 수정 실패", error);
@@ -94,9 +95,13 @@ export const updatePost = async (postId, postData) => {
 export const deletePost = async (postId) => {
   try {
     // DELETE 요청으로 공지사항 삭제, 쿠키 포함
-    const response = await axios.delete(`${BASE_URL}/${postId}`, {
-      withCredentials: true,
-    });
+    const response = await axios.post(
+      "http://localhost:8080/api/announce/detail/delete",
+      { announceNo: postId },
+      {
+        withCredentials: true,
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("공지사항 삭제 실패", error);

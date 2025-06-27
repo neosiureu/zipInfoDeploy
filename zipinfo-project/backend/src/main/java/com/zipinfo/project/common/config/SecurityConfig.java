@@ -52,19 +52,27 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // 공지사항 등록/수정/삭제는 관리자만 가능
-                .requestMatchers(HttpMethod.POST, "/api/announce").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/announce/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/announce/**").hasRole("ADMIN")
+            	    // 공지사항 등록 (POST) 경로 수정
+            		.requestMatchers(HttpMethod.POST, "/api/announce").hasRole("ADMIN")
 
-                // 공지사항 조회는 모두 허용
-                .requestMatchers(HttpMethod.GET, "/api/announce/**").permitAll()
+            	    
+            	    // 공지사항 수정 (PUT) 경로 수정 (모든 write 하위 경로 포함)
+            	    .requestMatchers(HttpMethod.PUT, "/api/announce/write/**").hasRole("ADMIN")
+            	    
+            	    // 공지사항 삭제 (DELETE) 경로 수정 (detail 하위 경로 포함)
+            	    .requestMatchers(HttpMethod.DELETE, "/api/announce/detail/**").hasRole("ADMIN")
 
-                // 관리자 기타 경로 허용
-                .requestMatchers("/admin/**", "/testSock/**", "/chattingSock/**").permitAll()
+            	    
+            	    // 조회는 모두 허용
+            	    .requestMatchers(HttpMethod.GET, "/api/announce/**").permitAll()
+            	    
+            	    // 기타 허용 경로
+            	    .requestMatchers("/admin/**", "/testSock/**", "/chattingSock/**").permitAll()
+            	    
+            	    // 나머지 요청 허용
+            	    .anyRequest().permitAll()
+            	
 
-                // 나머지 모든 요청 허용
-                .anyRequest().permitAll()
             )
             // iframe 허용 (H2 콘솔 등)
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));

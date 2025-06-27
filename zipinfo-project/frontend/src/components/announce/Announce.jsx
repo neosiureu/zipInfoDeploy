@@ -110,7 +110,7 @@ const Announce = () => {
                       {post.announceTitle ?? "제목 없음"}
                     </div>
                     <div className="an-cell an-cell-author">
-                      {post.memberNickname ?? "작성자 없음"}
+                      {post.memberNickname ?? "관리자"}
                     </div>
                     <div className="an-cell an-cell-date">
                       {post.announceWriteDate

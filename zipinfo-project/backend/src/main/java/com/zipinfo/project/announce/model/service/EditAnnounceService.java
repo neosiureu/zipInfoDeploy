@@ -38,4 +38,11 @@ public interface EditAnnounceService {
      * @return 조회된 공지사항 객체, 없으면 null
      */
     Announce selectOne(int announceNo);
+
+	/** 
+	 * 기존 내용 가져오기
+	 * @param announceNo
+	 * @return
+	 */
+	Announce selectAnnounceByNo(int announceNo);
 }

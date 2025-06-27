@@ -3,7 +3,8 @@ package com.zipinfo.project.admin.model.service;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.admin.model.dto.BrokerApplicationDTO;
 import com.zipinfo.project.admin.model.mapper.ManagementMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,15 +14,23 @@ import java.util.List;
  * ManagementMapper를 통해 DB와 연동하여 회원 및 중개인 신청 관련 업무 수행
  */
 @Service
+@Slf4j
 public class ManagementServiceImpl implements ManagementService {
 
     // ManagementMapper 주입 (DAO 역할)
-    @Autowired
-    private ManagementMapper managementMapper;
+    private final ManagementMapper managementMapper;
+
+    /**
+     * 생성자 주입 방식으로 ManagementMapper 의존성 주입
+     * @param managementMapper 매퍼 인터페이스
+     */
+    public ManagementServiceImpl(ManagementMapper managementMapper) {
+        this.managementMapper = managementMapper;
+    }
 
     /**
      * 삭제되지 않은 전체 회원 목록 조회
-     * @return 회원 리스트
+     * @return 삭제되지 않은 회원 리스트 반환
      */
     @Override
     public List<Member> getAllMembers() {
@@ -29,8 +38,8 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     /**
-     * 삭제된 회원 목록 조회 (논리삭제 회원)
-     * @return 삭제 회원 리스트
+     * 논리 삭제된 회원 목록 조회
+     * @return 삭제된 회원 리스트 반환
      */
     @Override
     public List<Member> getDeletedMembers() {
@@ -39,22 +48,21 @@ public class ManagementServiceImpl implements ManagementService {
 
     /**
      * 중개인 권한 신청 목록 조회
-     * @return 중개인 신청 정보 리스트
+     * @return 중개인 신청 정보 리스트 반환
      */
     @Override
     public List<BrokerApplicationDTO> getBrokerApplications() {
-        System.out.println("getBrokerApplications 서비스 호출");
+        log.info("getBrokerApplications 서비스 호출");
         List<BrokerApplicationDTO> list = managementMapper.selectBrokerApplications();
-        System.out.println("조회된 신청 개수: " + list.size());
+        log.info("조회된 신청 개수: {}", list.size());
         return list;
     }
 
     /**
-     * 중개인 신청 상태 업데이트
-     * (현재는 사용하지 않거나, 필요에 따라 구현 가능)
+     * 중개인 신청 상태 업데이트 (사용하지 않거나 필요시 구현)
      * @param memberNo 회원 번호
      * @param status 신청 상태 문자열 ("승인", "거절" 등)
-     * @return 업데이트 성공 건수 (1 이상 성공)
+     * @return 업데이트 성공 건수 (1 이상이면 성공)
      */
     @Override
     public int updateBrokerApplicationStatus(Long memberNo, String status) {
@@ -71,13 +79,13 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public boolean approveBroker(BrokerApplicationDTO dto) {
         // 1. 회원 권한을 중개인(3)으로 변경
-    	int updated = managementMapper.updateMemberAuth((long) dto.getMemberNumber(), 3);
+        int updated = managementMapper.updateMemberAuth((long) dto.getMemberNumber(), 3);
         if (updated < 1) {
             return false;
         }
-        // 2. BROKER_INFO 테이블에 중개인 정보 저장 로직 구현 필요 (예: managementMapper.insertBrokerInfo(dto))
+        // 2. BROKER_INFO 테이블에 중개인 상세 정보 저장 로직 구현 필요 (예: managementMapper.insertBrokerInfo(dto))
         // 현재는 예시로 성공 처리만 함
-        // TODO: 중개인 정보 저장 매퍼 메서드 추가 후 호출
+        // TODO: 중개인 상세 정보 저장 매퍼 메서드 추가 후 호출 권장
         return true;
     }
 
@@ -94,7 +102,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     /**
-     * 회원 권한 변경
+     * 회원 권한 변경 처리
      * @param memberNo 회원 번호
      * @param authId 권한 ID (0: 관리자, 1: 일반회원, 2: 중개인 신청, 3: 중개인)
      * @return 업데이트 성공 건수 (1 이상 성공)
@@ -116,7 +124,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     /**
-     * 회원 삭제 (논리 삭제 처리)
+     * 회원 삭제 (논리 삭제) 처리
      * @param memberNo 회원 번호
      * @return 삭제 성공 건수 (1 이상 성공)
      */
@@ -126,7 +134,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     /**
-     * 논리 삭제된 회원 복원
+     * 논리 삭제된 회원 복원 처리
      * @param memberNo 회원 번호
      * @return 복원 성공 건수 (1 이상 성공)
      */
