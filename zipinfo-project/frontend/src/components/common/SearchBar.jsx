@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "../../css/common/SearchBar.css";
 import { axiosAPI } from "../../api/axiosAPI";
 import arrowDown from "../../assets/arrow-down.svg";
@@ -32,6 +32,9 @@ const SearchBar = ({
     setResidenceType(e.target.value);
     setSearchStockType(e.target.value);
   };
+
+  /***********select의 glow 애니메이션을 위한 ref 변수****************** */
+  const glowRef = useRef(null);
   /***************************queryString이 존재할때 상태변수 초기화 */
   const [searchParams] = useSearchParams();
   useEffect(() => {
@@ -145,6 +148,14 @@ const SearchBar = ({
     setSearchKeyWord("");
     setSearchStockForm(-1);
     setSearchStockType(-1);
+
+    const elements = document.querySelectorAll(".glow-target"); // 모든 .glow-target 속성을 가진 select문 요소들을 저장.
+    if (elements) {
+      elements.forEach((el) => {
+        el.classList.add("select-glow");
+        setTimeout(() => el.classList.remove("select-glow"), 200);
+      }); // 400ms동안 해당 glow 효과 유지.
+    }
   };
   return (
     <div className="searchbar-wrap">
@@ -163,7 +174,11 @@ const SearchBar = ({
 
         {/* 시/도 */}
         <div className="select-wrap">
-          <select value={sidoSelected} onChange={handleSidoChange}>
+          <select
+            className="glow-target"
+            value={sidoSelected}
+            onChange={handleSidoChange}
+          >
             <option value={-1}>전국</option>
             <option value={11}>서울특별시</option>
             <option value={26}>부산광역시</option>
@@ -190,7 +205,11 @@ const SearchBar = ({
 
         {/* 구/군 */}
         <div className="select-wrap">
-          <select value={sigunguSelected} onChange={handleSigunguChange}>
+          <select
+            className="glow-target"
+            value={sigunguSelected}
+            onChange={handleSigunguChange}
+          >
             {sigunguList?.length === 0 ? (
               <option value={-1} disabled>
                 시/도를 선택하세요
@@ -209,7 +228,11 @@ const SearchBar = ({
 
         {/* 매매/전세/월세 or 분양상태 */}
         <div className="select-wrap">
-          <select value={dealType} onChange={handleDealChange}>
+          <select
+            className="glow-target"
+            value={dealType}
+            onChange={handleDealChange}
+          >
             {showSearchType ? (
               <>
                 <option value="-1" disabled hidden>
@@ -236,7 +259,11 @@ const SearchBar = ({
 
         {/* 주거/매물형태 */}
         <div className="select-wrap">
-          <select value={residenceType} onChange={handleResidenceChange}>
+          <select
+            className="glow-target"
+            value={residenceType}
+            onChange={handleResidenceChange}
+          >
             <option value="-1" disabled hidden>
               주거/매물형태
             </option>
