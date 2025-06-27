@@ -374,8 +374,8 @@ const SalePage = () => {
                   </div>
                   <div className="sale-address">
                     {item.saleSupplyArea}㎡ |{" "}
-                    {item.saleAddress.length > 10
-                      ? `${item.saleAddress.slice(0, 10)}...`
+                    {item.saleAddress.length > 14
+                      ? `${item.saleAddress.slice(0, 14)}...`
                       : item.saleAddress}
                   </div>
                   <div className="sale-status">{status[item.saleStatus]}</div>
