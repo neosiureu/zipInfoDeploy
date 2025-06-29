@@ -1,4 +1,4 @@
-package com.zipinfo.project.email.model.service;
+package com.zipinfo.project.Email.model.service;
 
 import java.util.Map;
 

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.zipinfo.project.email.model.mapper.EmailMapper">
+<mapper namespace="com.zipinfo.project.Email.model.mapper.EmailMapper">
 
 
 <!-- 전달받은 파라미터 가 Map

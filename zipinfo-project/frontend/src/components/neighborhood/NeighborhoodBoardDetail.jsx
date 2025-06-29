@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useSearchParams } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoardDetail.css";
 import NeighborhoodCommentSection from "./NeighborhoodCommentSection";
-import { axiosAPI } from "../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosApi";
 const NeighborhoodBoardDetail = () => {
   const { boardNo } = useParams();
   const [searchParams] = useSearchParams();

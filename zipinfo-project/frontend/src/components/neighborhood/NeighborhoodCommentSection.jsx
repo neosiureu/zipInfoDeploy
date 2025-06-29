@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { MemberContext } from "../member/MemberContext";
-import { axiosAPI } from "../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosApi";
 import "../../css/neighborhood/NeighborhoodBoardComment.css";
 
 //NeighborhoodCommentSection  ────────(데이터/상태 총괄)
@@ -99,29 +99,31 @@ const CommentItem = ({ comment, loginMember, reload }) => {
             <p className="comment-content">{comment.commentContent}</p>
           )}
 
-          {/* 버튼 영역 */}
-          <div className="comment-btn-area">
-            {!edit && <button onClick={() => setReply((p) => !p)}>답글</button>}
-            {isMine && !edit && (
-              <>
-                <button
-                  onClick={() => {
-                    setEdit(true);
-                    setText(comment.commentContent);
-                  }}
-                >
-                  수정
-                </button>
-                <button onClick={remove}>삭제</button>
-              </>
-            )}
-            {edit && (
-              <>
-                <button onClick={update}>수정</button>
-                <button onClick={() => setEdit(false)}>취소</button>
-              </>
-            )}
-          </div>
+          {/* 버튼 영역: 답글 에디터가 켜져 있으면 숨김 */}
+          {!reply && (
+            <div className="comment-btn-area">
+              {!edit && <button onClick={() => setReply(true)}>답글</button>}
+              {isMine && !edit && (
+                <>
+                  <button
+                    onClick={() => {
+                      setEdit(true);
+                      setText(comment.commentContent);
+                    }}
+                  >
+                    수정
+                  </button>
+                  <button onClick={remove}>삭제</button>
+                </>
+              )}
+              {edit && (
+                <>
+                  <button onClick={update}>수정</button>
+                  <button onClick={() => setEdit(false)}>취소</button>
+                </>
+              )}
+            </div>
+          )}
 
           {/* 답글 작성창 */}
           {reply && (
