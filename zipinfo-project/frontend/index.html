@@ -3,26 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script
-      type="text/javascript"
-      src="//dapi.kakao.com/v2/maps/sdk.js?appkey=%VITE_KAKAOMAP_KEY%"
-    ></script>
-    <title>모든 집 정보가 다 있는 집인포</title>
+    <title>집인포</title>
+
+    <!-- Bootstrap CSS (Summernote-bs4 스타일링용) -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+    />
+    <!-- Summernote CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css"
+    />
   </head>
   <body>
     <div id="root"></div>
     <div id="naverIdLogin" style="display: none"></div>
 
+    <!-- jQuery (Summernote 필수) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap JS (Summernote-bs4에서 일부 스타일링 의존) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Summernote JS -->
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
+
+    <!-- 기타 SDKs -->
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
+
+    <!-- React 진입점 (가장 마지막에) -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
-<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
-<!-- jQuery (react-summernote 의존) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Popper.js (Bootstrap 툴팁/팝오버 의존) -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2/dist/umd/popper.min.js"></script>
-<!-- Bootstrap Bundle (툴팁/팝오버 + 기타 JS 포함) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Vite 번들 스크립트 -->
-<script type="module" src="/src/main.jsx"></script>
