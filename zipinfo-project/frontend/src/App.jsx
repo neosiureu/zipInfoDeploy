@@ -16,6 +16,8 @@ import AddStock from "./components/myPage/AddStock";
 import SawStock from "./components/myPage/SawStock";
 import LikeStock from "./components/myPage/LikeStock";
 import MyMessage from "./components/myPage/MyMessage";
+import SeeMyMessage from "./components/myPage/SeeMyMessage";
+import DetailMessage from "./components/myPage/DetailMessage";
 import MyPost from "./components/myPage/MyPost";
 import UpdatePassword from "./components/myPage/UpdatePassword";
 import WithDraw from "./components/myPage/WithDraw";
@@ -113,6 +115,11 @@ function App() {
               <Route path="myPage/sawStock" element={<SawStock />} />
               <Route path="myPage/likeStock" element={<LikeStock />} />
               <Route path="myPage/myMessage" element={<MyMessage />} />
+              <Route path="myPage/seeMyMessage" element={<SeeMyMessage />} />
+              <Route
+                path="myPage/detailMessage/:messageNo"
+                element={<DetailMessage />}
+              />
               <Route path="myPage/myPost" element={<MyPost />} />
               <Route
                 path="myPage/updatePassword"
