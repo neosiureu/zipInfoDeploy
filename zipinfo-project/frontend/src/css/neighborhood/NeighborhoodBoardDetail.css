@@ -89,80 +89,52 @@
 /* 버튼 영역 */
 .nb-detail-buttons {
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  padding-top: 30px;
+  justify-content: end;
+  gap: 14px;
+  padding-top: 32px;
   border-top: 1px solid #f0f0f0;
+  margin-top: 500px;
 }
-
 .nb-detail-btn {
-  padding: 10px 20px;
-  border: none;
+  min-width: 88px;
+  height: 44px;
+  padding: 0 24px;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 500;
+  border: none;
+  outline: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: none;
+  transition: background 0.15s, color 0.15s, border 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-
 .nb-detail-btn-edit {
-  background-color: #495cf8;
-  color: white;
+  background: #4256ec;
+  color: #fff;
+  border: none;
 }
-
 .nb-detail-btn-edit:hover {
-  background-color: #3b4ce6;
+  background: #2938c8;
 }
-
 .nb-detail-btn-delete {
-  background-color: #dc3545;
-  color: white;
+  background: #111;
+  color: #fff;
+  border: none;
 }
-
 .nb-detail-btn-delete:hover {
-  background-color: #c82333;
+  background: #222;
+  color: #fff;
 }
-
 .nb-detail-btn-list {
-  background-color: #6c757d;
-  color: white;
+  background: #fff;
+  color: #111;
+  border: 1.5px solid #e2e5ea;
 }
-
 .nb-detail-btn-list:hover {
-  background-color: #5a6268;
-}
-
-/* 반응형 */
-@media (max-width: 768px) {
-  .nb-detail-container {
-    padding: 10px;
-  }
-
-  .nb-detail-wrapper {
-    padding: 20px;
-  }
-
-  .nb-detail-title {
-    font-size: 20px;
-  }
-
-  .nb-detail-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-  }
-
-  .nb-detail-separator {
-    display: none;
-  }
-
-  .nb-detail-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .nb-detail-btn {
-    width: 100%;
-    max-width: 200px;
-  }
+  background: #f4f5fa;
+  color: #4256ec;
+  border-color: #4256ec;
 }

@@ -1,5 +1,4 @@
 // src/components/neighborhood/NeighborhoodFilters.jsx
-import React from "react";
 import arrowDown from "../../assets/arrow-down.svg";
 import { CITY, TOWN } from "../common/Gonggong";
 import "../../css/neighborhood/NeighborhoodBoard.css";

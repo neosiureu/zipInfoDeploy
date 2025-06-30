@@ -65,10 +65,6 @@ const CommentItem = ({ comment, loginMember, reload }) => {
       reload();
     }
   };
-  // 댓글이 삭제된 경우를 대비
-  // if (comment.commentDelFl == "Y") {
-  //   return <li className="comment-row">삭제된 댓글입니다</li>;
-  // }
 
   // 컴포넌트 내 댓글 랜더링 영역 => 댓글과 답글을 한번에 처리한다
   return (

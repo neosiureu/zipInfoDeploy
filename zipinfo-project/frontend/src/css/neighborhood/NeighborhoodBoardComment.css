@@ -8,8 +8,8 @@
 /* ───────── 루트 댓글 카드 ───────── */
 .comment-row {
   position: relative;
-  margin-bottom: 24px;        /* 카드 간격 */
-  padding: 20px 24px 40px;    /* 아래에 버튼 공간 확보 */
+  margin-bottom: 24px; /* 카드 간격 */
+  padding: 20px 24px 40px; /* 아래에 버튼 공간 확보 */
   border: 1px solid #ddd;
   border-radius: 6px;
   background: #fff;
@@ -43,6 +43,7 @@
 
 /* ─── 삭제된 댓글 메시지 ─── */
 .deleted-comment {
+  min-height: 90px;
   padding: 16px 0;
   text-align: center;
   font-style: italic;
@@ -75,8 +76,8 @@
 
 /* ───────── 모든 답글 (1단계 이상) ───────── */
 .child-comment {
-  margin: 16px 0 24px 32px;    /* 위/아래 간격 + 들여쓰기 */
-  padding: 16px 24px;          /* 카드 안쪽 여백 */
+  margin: 16px 0 24px 32px; /* 위/아래 간격 + 들여쓰기 */
+  padding: 16px 24px; /* 카드 안쪽 여백 */
   border: 1px solid #eee;
   border-radius: 4px;
   background: #fafafa;
@@ -107,13 +108,13 @@
 .comment-reply-area textarea {
   width: 100%;
   box-sizing: border-box;
-  min-height: 160px;           /* 높이를 두 배로 */
+  min-height: 90px; /* 높이를 두 배로 */
   padding: 10px 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
   font-family: inherit;
-  resize: none;                /* 크기 조절 금지 */
+  resize: none; /* 크기 조절 금지 */
 }
 /* 답글창 아래에 바로 ‘등록/취소’ 버튼을 띄우기 위해 static position */
 .comment-reply-area .comment-btn-area {
@@ -146,7 +147,7 @@
 }
 .nb-comment-form textarea {
   flex: 1;
-  min-height: 80px;
+  min-height: 90px;
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 4px;

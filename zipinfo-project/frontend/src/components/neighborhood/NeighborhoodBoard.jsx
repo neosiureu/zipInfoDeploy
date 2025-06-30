@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoard.css";
 import { useNavigate } from "react-router-dom";
 import { axiosAPI } from "../../api/axiosAPI";
 import NeighborhoodFilters from "./NeighborhoodFilters";
+import { MemberContext } from "../member/MemberContext";
 
 const NeighborhoodBoard = ({}) => {
   const [searchParams] = useSearchParams();
+  const { member } = useContext(MemberContext);
 
   const initCp = Number(searchParams.get("cp") ?? 1);
 
@@ -21,8 +23,6 @@ const NeighborhoodBoard = ({}) => {
   const [boardList, setBoardList] = useState([]);
 
   const [pagination, setPagination] = useState({});
-
-  const [loginMember, setLoginMember] = useState(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -267,10 +267,11 @@ const NeighborhoodBoard = ({}) => {
               ››
             </button>
           </div>
-
-          <button className="nb-write-btn" onClick={handleBoardWriteClick}>
-            글쓰기
-          </button>
+          {member ? (
+            <button className="nb-write-btn" onClick={handleBoardWriteClick}>
+              글쓰기
+            </button>
+          ) : null}
         </div>
       </div>
     </div>

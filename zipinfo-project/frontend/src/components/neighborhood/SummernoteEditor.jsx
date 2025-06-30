@@ -201,7 +201,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
         if ($editable.length) {
           $editable.animate({ scrollTop: $editable[0].scrollHeight }, 200);
         }
-      }, 100);
+      }, 1000);
     }
   };
 
@@ -618,6 +618,9 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
             setIsReady(true);
             isInitialized.current = true;
+            setTimeout(() => {
+              window.scrollTo(0, 0);
+            }, 200);
           },
         },
       });

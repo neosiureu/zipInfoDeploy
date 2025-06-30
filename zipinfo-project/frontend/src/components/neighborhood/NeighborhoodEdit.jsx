@@ -1,10 +1,17 @@
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  useNavigate,
+  useParams,
+  useSearchParams,
+  useLocation,
+} from "react-router-dom";
 import { axiosAPI } from "../../api/axiosAPI";
 import SummernoteEditor from "./SummernoteEditor";
 import { useEffect, useState } from "react";
 import NeighborhoodFilters from "./NeighborhoodFilters";
 
 const NeighborhoodEdit = () => {
+  const location = useLocation();
+  const { cityNo, townNo, boardSubject } = location.state || {};
   // 시도 선택 핸들러
   const handleCityChange = (e) => {
     setSelectedCity(e.target.value);
@@ -29,9 +36,15 @@ const NeighborhoodEdit = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const isEdit = Boolean(boardNo);
-  const [selectedCity, setSelectedCity] = useState(-1); // 선택된 시도 (e.target)
-  const [selectedTown, setSelectedTown] = useState(-1); // 선택된 시군구 (e.target)
-  const [selectedSubject, setSelectedSubject] = useState(-1); // 선택된 주제 (e.target)
+  const [selectedCity, setSelectedCity] = useState(
+    cityNo == undefined ? -1 : cityNo
+  ); // 선택된 시도 (e.target)
+  const [selectedTown, setSelectedTown] = useState(
+    townNo == undefined ? -1 : townNo
+  ); // 선택된 시군구 (e.target)
+  const [selectedSubject, setSelectedSubject] = useState(
+    boardSubject !== undefined ? boardSubject : -1
+  );
   const [searchKey, setSearchKey] = useState("t"); // 일단 t만하고 c는 내용 tc는 제목+내용 w는 작성자로 확장하자.
   const [searchQuery, setSearchQuery] = useState(""); //실제로 검색될 대상
 
