@@ -173,7 +173,14 @@ const Main = () => {
       </section>
 
       <div className="banner">
-        <img src={banner} alt="배너광고 이미지" />
+        <img
+          src={
+            localStorage.getItem("mainBannerUrl")
+              ? `http://localhost:8080${localStorage.getItem("mainBannerUrl")}`
+              : banner
+          }
+          alt="배너광고 이미지"
+        />
       </div>
 
       <section className="section-main">

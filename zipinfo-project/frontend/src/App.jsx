@@ -7,7 +7,7 @@ import ProtectedRoute from "./ProtectedRoute";
 
 import Main from "./components/Main";
 import SalePage from "./components/sale/SalePage";
-import StockPage from "./components/stock/StockPage"; // ContextProvider 생성하는 방향으로 리팩토링 중!
+import StockPage from "./components/stock/StockPage";
 import { StockProvider } from "./components/stock/StockContext";
 import MyInfo from "./components/myPage/MyInfo";
 import MyStock from "./components/myPage/MyStock";
@@ -37,8 +37,8 @@ import UpdateSale from "./components/admin/saleForm/UpdateSale";
 import DashBoard from "./components/admin/DashBoard";
 import Chart from "./components/admin/Chart";
 import Advertisement from "./components/admin/Advertisement";
-// 여기 HelpMessage 경로 수정
 import HelpMessage from "./components/admin/HelpMessage/HelpMessage";
+import Reply from "./components/admin/HelpMessage/Reply"; // ✅ 추가됨
 import Management from "./components/admin/Management/Management";
 import { AuthProvider } from "./components/admin/AuthContext";
 
@@ -80,7 +80,6 @@ function App() {
       window.Kakao.init(import.meta.env.VITE_KAKAO_JS_KEY);
       console.log("Kakao SDK 초기화", window.Kakao.isInitialized());
     }
-    // initNaver();
   }, []);
 
   return (
@@ -107,7 +106,6 @@ function App() {
               <Route path="gonggong" element={<Gonggong />} />
 
               {/* 마이페이지 */}
-
               <Route path="myPage" element={<MyInfo />} />
               <Route path="myPage/updateInfo" element={<UpdateInfo />} />
               <Route path="myPage/myStock" element={<MyStock />} />
@@ -127,7 +125,8 @@ function App() {
                 element={<UpdatePassword />}
               />
               <Route path="myPage/withDraw" element={<WithDraw />} />
-              {/*매물페이지*/}
+
+              {/* 매물페이지 */}
               <Route path="/stock/:stockNo" element={<StockPage />} />
               {/* 분양페이지 */}
               <Route path="/sale/:saleStockNo" element={<SalePage />} />
@@ -161,6 +160,8 @@ function App() {
               <Route path="chart" element={<Chart />} />
               <Route path="advertisement" element={<Advertisement />} />
               <Route path="helpMessage" element={<HelpMessage />} />
+              <Route path="help/reply/:messageNo" element={<Reply />} />{" "}
+              {/* ✅ 추가됨 */}
               <Route path="management" element={<Management />} />
               <Route path="list_sale" element={<ListSale />} />
               <Route path="add_sale" element={<AddSale />} />

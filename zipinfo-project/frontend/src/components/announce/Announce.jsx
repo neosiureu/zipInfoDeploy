@@ -8,7 +8,10 @@ const Announce = () => {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(0); // 현재 페이지 (0부터 시작)
   const [totalPages, setTotalPages] = useState(1); // 총 페이지 수
-  const [keyword, setKeyword] = useState(""); // 검색어 상태
+
+  // 검색 입력과 실제 검색 키워드 분리
+  const [searchInput, setSearchInput] = useState("");
+  const [keyword, setKeyword] = useState("");
 
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
@@ -27,9 +30,9 @@ const Announce = () => {
   }, [user, isAdmin]);
 
   // 공지사항 목록 불러오기 함수 (페이지 번호를 0부터 받음)
-  const loadPosts = async (page = 0) => {
+  const loadPosts = async (page = 0, searchKeyword = keyword) => {
     try {
-      const data = await fetchPosts(page, 10, keyword);
+      const data = await fetchPosts(page, 10, searchKeyword);
       console.log("공지사항 데이터:", data); // 데이터 형태 확인용
 
       setPosts(data.posts || []);
@@ -48,9 +51,15 @@ const Announce = () => {
     loadPosts(0);
   }, []);
 
-  // 검색 버튼 클릭 시 호출, 0페이지부터 다시 조회
+  // 검색 버튼 클릭 시 호출, 0페이지부터 다시 조회 및 keyword 상태 업데이트
   const handleSearch = () => {
-    loadPosts(0);
+    setKeyword(searchInput);
+    loadPosts(0, searchInput);
+  };
+
+  // 검색 입력값 변경 시
+  const handleInputChange = (e) => {
+    setSearchInput(e.target.value);
   };
 
   // 페이지 번호 버튼 렌더링 함수
@@ -61,7 +70,7 @@ const Announce = () => {
         <button
           key={i}
           className={`an-page-btn ${i === currentPage ? "an-page-active" : ""}`}
-          onClick={() => loadPosts(i)}
+          onClick={() => loadPosts(i, keyword)}
         >
           {(i + 1).toString().padStart(2, "0")}
         </button>
@@ -142,8 +151,8 @@ const Announce = () => {
             type="text"
             className="an-search-input"
             placeholder="검색어를 입력하세요"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+            value={searchInput}
+            onChange={handleInputChange}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
           <button className="an-search-btn" onClick={handleSearch}>
@@ -156,7 +165,7 @@ const Announce = () => {
           <div className="an-pagination">
             <button
               className="an-page-btn"
-              onClick={() => loadPosts(Math.max(0, currentPage - 1))}
+              onClick={() => loadPosts(Math.max(0, currentPage - 1), keyword)}
               disabled={currentPage === 0}
             >
               ‹
@@ -167,7 +176,7 @@ const Announce = () => {
             <button
               className="an-page-btn"
               onClick={() =>
-                loadPosts(Math.min(totalPages - 1, currentPage + 1))
+                loadPosts(Math.min(totalPages - 1, currentPage + 1), keyword)
               }
               disabled={currentPage === totalPages - 1}
             >
