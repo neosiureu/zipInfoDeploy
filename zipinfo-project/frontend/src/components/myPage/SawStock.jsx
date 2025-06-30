@@ -61,8 +61,8 @@ export default function MyStock() {
   };
 
   const sellYnLabel =  {
-    'N': '판매중',
-    'Y': '판매완료'
+    'N': '계약가능',
+    'Y': '계약완료'
   }
 
   const stockTypeLabel = {

@@ -3,7 +3,7 @@ import "../../css/myPage/MyStock.css";
 import StockMenu from "./StockMenu";
 import MiniMenu from "./MiniMenu";
 import { axiosAPI } from '../../api/axiosAPI';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Bookmark } from "lucide-react";
 
 export default function MyStock() {
@@ -65,8 +65,8 @@ export default function MyStock() {
   };
 
   const sellYnLabel =  {
-    'N': '판매중',
-    'Y': '판매완료'
+    'N': '계약가능',
+    'Y': '계약완료'
   }
 
   const stockTypeLabel = {
@@ -81,8 +81,17 @@ export default function MyStock() {
     3: '오피스텔',
   };
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialPage = parseInt(queryParams.get("cp")) || 1;
+
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const itemsPerPage = 8;
+
+  const handlePageChange = (page) => {
+  setCurrentPage(page);
+  nav(`/myPage/likeStock?cp=${page}`); // URL 업데이트
+  };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -199,7 +208,7 @@ export default function MyStock() {
 <div className="my-stock-pagination">
   {/* 맨 처음 페이지로 */}
   <button className='my-stock-page-prev'
-    onClick={() => setCurrentPage(1)}
+    onClick={() => handlePageChange(1)}
     disabled={currentPage === 1}
   >
     ‹‹
@@ -207,7 +216,7 @@ export default function MyStock() {
 
   {/* 이전 그룹 이동 */}
   <button className='my-stock-page-prev'
-    onClick={() => setCurrentPage(Math.max(1, startPage - 1))}
+    onClick={() => handlePageChange(Math.max(1, startPage - 1))}
     disabled={startPage === 1}
   >
     ‹
@@ -219,7 +228,7 @@ export default function MyStock() {
     return (
       <button
         key={page}
-        onClick={() => setCurrentPage(page)}
+        onClick={() => handlePageChange(page)}
         className={currentPage === page ? "active-page" : ""}
       >
         {page}
@@ -229,7 +238,7 @@ export default function MyStock() {
 
   {/* 다음 그룹 이동 */}
   <button className='my-stock-page-next'
-    onClick={() => setCurrentPage(endPage + 1)}
+    onClick={() => handlePageChange(endPage + 1)}
     disabled={endPage >= totalPages}
   >
     ›
@@ -237,7 +246,7 @@ export default function MyStock() {
 
   {/* 맨 마지막 페이지로 */}
   <button className='my-stock-page-next'
-    onClick={() => setCurrentPage(totalPages)}
+    onClick={() => handlePageChange(totalPages)}
     disabled={currentPage === totalPages}
   >
     ››

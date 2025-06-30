@@ -5,6 +5,7 @@ import MessageMenu from "./MessageMenu";
 import { useNavigate } from 'react-router-dom';
 import { axiosAPI } from '../../api/axiosAPI';
 import { Plus } from 'lucide-react';
+import axios from 'axios';
 
 
 export default function MyStock() {
@@ -13,6 +14,8 @@ export default function MyStock() {
     messageTitle: '',
     messageContent: '',
   });
+
+  const nav = useNavigate();
   
   const [messageFile, setMessageFile] = useState(null);
 
@@ -47,11 +50,15 @@ export default function MyStock() {
   };
 
   const handleSubmit = async (e) => {
-    const response = await axiosAPI.post('/myPage/sendMessage',message)
-    if(response.status === 200){
-      console.log(response.data);
-      alert('문의가 성공적으로 전송되었습니다.');
-    }
+          if(messageFile !== null){
+            const messageData = new FormData();
+            messageData.append("messageFile", messageFile);
+            messageData.append("messageTitle", message.messageTitle);
+            messageData.append("messageContent", message.messageContent);
+            const response = await axios.post("http://localhost:8080/myPage/sendMessage", messageData,{withCredentials: true});
+            if(response.status === 200){console.log("문의 전송 완료."); nav("/myPage/seeMyMessage")}
+            else{console.log("썸네일 업데이트 실패");}
+          }
   };
 
 
@@ -65,12 +72,12 @@ export default function MyStock() {
       <div className="my-message-contact-container">
       <div className="my-message-contact-title"><span className="my-message-span">zipInfo에 궁금하신 점을 문의해주세요.</span></div>
       <div className='my-message-title'>
-        <span className="my-message-span">문의내용과 답변은</span>
+        <span className="my-message-span">문의내용과 답변은 </span>
         <span className="my-message-span-blue">'문의내역'</span>
         <span className="my-message-span">에서 확인하실 수 있습니다.</span>
       </div>
       
-      <div className="my-message-contact-form" onSubmit={handleSubmit}>
+      <div className="my-message-contact-form">
         <div className="my-message-form-section">
             <div className="my-message-form-label">제목</div>
             <input
@@ -135,7 +142,7 @@ export default function MyStock() {
         </div>
 
       </div>
-        <button type="submit" className="my-message-submit-button">
+        <button type="submit" onClick={handleSubmit} className="my-message-submit-button">
           문의하기
         </button>
     </div>

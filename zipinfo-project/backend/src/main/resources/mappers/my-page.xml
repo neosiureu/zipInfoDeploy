@@ -303,12 +303,47 @@
 		WHERE STOCK_NO = #{stockNo}
 	</update>
 	
+	<select id="selectAuthMember">
+		SELECT MEMBER_NO FROM "MEMBER"
+		WHERE MEMBER_AUTH = 0
+	</select>
 	
+	<insert id="sendMessageFile">
+		INSERT INTO "MESSAGE_FILE"
+		VALUES(SEQ_FILE_NO.NEXTVAL, #{messageNo}, #{finalPath}, #{originalName}, #{rename})
+	</insert>
 	
+	<insert id="sendMessageContent">
+		INSERT INTO "HELP_MESSAGE"
+		VALUES(SEQ_MESSAGE_NO.NEXTVAL, #{messageTitle}, #{messageContent}, SYSDATE, 'N', 'N', 'N', #{senderNo}, #{receiverNo}, 'N',NULL)
+	</insert>
 	
+	<select id="getMessageNo">
+		SELECT MESSAGE_NO FROM "HELP_MESSAGE"
+		WHERE SENDER_NO = #{senderNo}
+		ORDER BY MESSAGE_NO DESC
+		FETCH FIRST 1 ROWS ONLY
+	</select>
 	
+	<select id="getMyMessage">
+		SELECT * FROM "HELP_MESSAGE"
+		WHERE SENDER_NO = #{memberNo}
+		ORDER BY MESSAGE_NO DESC
+	</select>
 	
+	<select id="getMessageContent">
+		SELECT * FROM "HELP_MESSAGE"
+		WHERE MESSAGE_NO = #{messageNo}
+	</select>
 	
+	<select id="getInquiredMessage">
+		SELECT * FROM "HELP_MESSAGE"
+		WHERE INQUIRED_NO = #{messageNo}
+	</select>
 	
+	<select id="getMessageFile">
+		SELECT * FROM "MESSAGE_FILE"
+		WHERE MESSAGE_NO = #{messageNo}
+	</select>
 	
 </mapper>
