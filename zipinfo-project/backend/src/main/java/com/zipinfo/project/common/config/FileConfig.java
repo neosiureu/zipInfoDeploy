@@ -48,12 +48,19 @@ public class FileConfig implements WebMvcConfigurer{
 	// --------------------------------------------------------
 
 
-	// 스터디 메인 이미지 관련 경로
+	// 매물 관련 경로
 	@Value("${my.stock.resource-handler}")
     private String resourceStockHandler;
 
     @Value("${my.stock.resource-location}")
     private String resourceStockLocation;
+    
+    // 문의 관련 경로
+	@Value("${my.message.resource-handler}")
+    private String resourceMessageHandler;
+
+    @Value("${my.message.resource-location}")
+    private String resourceMessageLocation;
 
 	
 //	// 요청 주소에 따라
@@ -81,6 +88,10 @@ public class FileConfig implements WebMvcConfigurer{
 		registry
 	    .addResourceHandler(resourceBoardHandler) // /images/boardImg/**
 	    .addResourceLocations(resourceBoardLocation); // file:///C:/uploadFiles/boardImg/
+    
+    registry
+		.addResourceHandler(resourceMessageHandler)
+		.addResourceLocations(resourceMessageLocation);
 
 	}
 	

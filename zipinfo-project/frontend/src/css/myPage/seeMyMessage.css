@@ -1,0 +1,136 @@
+.my-message-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  margin-top: 50px;
+  background-color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* 게시판 테이블 */
+.my-message-table {
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.my-message-header {
+  display: flex;
+  background-color: #f7f7fb;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.my-message-header-cell {
+  padding: 12px 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #767676;
+  text-align: center;
+}
+
+.my-message-header-number {
+  width: 50px;
+  flex-shrink: 0;
+}
+
+.my-message-header-title {
+  flex: 1;
+}
+
+.my-message-header-date {
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.my-message-header-views {
+  width: 100px;
+  flex-shrink: 0;
+}
+
+/* 게시글 행 */
+.my-message-row {
+  display: flex;
+  border-bottom: 1px solid #e9ecef;
+  background-color: white;
+}
+
+.my-message-row:last-child {
+  border-bottom: none;
+}
+
+.my-message-cell {
+  padding: 12px 8px;
+  font-size: 14px;
+  color: #111;
+  display: flex;
+  align-items: center;
+}
+
+.my-message-cell-author,
+.my-message-cell-date,
+.my-message-cell-views {
+  color: #767676;
+}
+
+.my-message-cell-number {
+  width: 50px;
+  flex-shrink: 0;
+  justify-content: center;
+}
+
+.my-message-cell-subject {
+  width: 130px;
+  flex-shrink: 0;
+  justify-content: center;
+  color: #999999;
+}
+
+.my-message-cell-title {
+  flex: 1;
+  /* justify-content: center; */
+  padding-left: 12px;
+
+  cursor: pointer;
+}
+
+.my-message-cell-date {
+  width: 100px;
+  flex-shrink: 0;
+  justify-content: center;
+}
+
+.my-message-cell-views {
+  width: 100px;
+  flex-shrink: 0;
+  justify-content: center;
+}
+
+.no-my-post {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.reply-n-status{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  color: white;
+  font-size: 12px;
+  margin-right: 10px;
+  width: 50px;
+}
+
+.reply-y-status{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: green;
+  color: white;
+  font-size: 12px;
+  margin-right: 10px;
+  width: 50px;
+}

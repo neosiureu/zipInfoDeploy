@@ -132,3 +132,68 @@
   justify-content: center;
   align-items: center;
 }
+
+.my-detail-message-form-section{
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  margin-bottom: 10px;
+  border-top: 1px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
+  height: 70px;
+}
+
+.my-detail-message-inquire{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
+  color: white;
+  width: 70px;
+  height: 30px;
+  margin-left: 20px;
+  margin-right: 20px;
+  font-size: 18px;
+}
+
+.my-detail-message-inquired{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: green;
+  color: white;
+  width: 70px;
+  height: 30px;
+  margin-left: 20px;
+  margin-right: 20px;
+  font-size: 18px;
+}
+
+.my-detail-message-title{
+  font-weight: 500;
+}
+
+.my-detail-message-content-area{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-top: 20px;
+  margin-left: 20px;
+  margin-bottom: 20px;
+  min-height: 100px;
+
+}
+
+.my-detail-message-form-textarea{
+  min-height: 100px;
+}
+
+.my-detail-message-content{
+  border-bottom:  1px solid #dee2e6;
+  margin-bottom: 20px;
+}
+
+.detail-file-tag{
+  margin-right: 10px;
+}

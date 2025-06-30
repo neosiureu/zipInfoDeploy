@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import "../../css/myPage/myPost.css";
+import "../../css/myPage/seeMyMessage.css";
 import "../../css/myPage/menu.css";
-import Menu from "./Menu";
-import { useLocation,useNavigate } from 'react-router-dom';
+import StockMenu from "./StockMenu";
+import MessageMenu from "./MessageMenu";
+import { useLocation, useNavigate } from 'react-router-dom';
 import { axiosAPI } from '../../api/axiosAPI';
+import { Check, X } from 'lucide-react';
 
 const MyPost = () => {
   const nav = useNavigate();
@@ -14,11 +16,11 @@ const MyPost = () => {
 
   const fetchProperties = async () => {
   try {
-    const response = await axiosAPI.get('/myPage/getMyPost');
+    const response = await axiosAPI.get('/myPage/getMyMessage');
     setPosts(response.data);
     console.log(response.data);
   } catch (err) {
-    console.error("매물 불러오기 실패:", err);
+    console.error("문의내역 불러오기 실패:", err);
   }finally {
     setLoading(false);
   }
@@ -31,9 +33,14 @@ const MyPost = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const initialPage = parseInt(queryParams.get("cp")) || 1;
-  
+
   const [currentPage, setCurrentPage] = useState(initialPage);
   const itemsPerPage = 10;
+
+  const handlePageChange = (page) => {
+  setCurrentPage(page);
+  nav(`/myPage/myPost?cp=${page}`); // URL 업데이트
+  };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -45,62 +52,50 @@ const MyPost = () => {
   const startPage = currentGroup * pageGroupSize + 1;
   const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
 
-  const handlePageChange = (page) => {
-  setCurrentPage(page);
-  nav(`/myPage/myPost?cp=${page}`); // URL 업데이트
-  };
-
-  const handleBoardClick = (item) => {
-    nav(`/neighborhoodBoard/detail/${item.boardNo}?cp=${currentPage}`);
+  const handleBoardClick = (e) => {
+    nav(`/myPage/detailMessage/${e.messageNo}?cp=${currentPage}`);
   };
 
   return (
     <div className="my-page">
         <div className="my-page-container">
       
-          <Menu/>
+          <StockMenu />
+          <MessageMenu />
 
-          <div className="my-page-board-container">
+          <div className="my-message-container">
       {/* 게시판 헤더 */}
-        <div className="nb-board-table">
-          <div className="nb-header">
-            <div className="nb-header-cell nb-header-number">번호</div>
-            <div className="nb-header-cell nb-header-subject">분류</div>
-            <div className="nb-header-cell nb-header-title">제목</div>
-            <div className="nb-header-cell nb-header-area">지역</div>
+        <div className="my-message-table">
+          <div className="my-message-header">
+            <div className="my-message-header-cell my-message-header-number">번호</div>
+            <div className="my-message-header-cell my-message-header-title">제목</div>
 
-            <div className="nb-header-cell nb-header-author">작성자</div>
-            <div className="nb-header-cell nb-header-date">날짜</div>
-            <div className="nb-header-cell nb-header-views">조회</div>
+            <div className="my-message-header-cell my-message-header-date">날짜</div>
           </div>
 
-          {currentPosts.length!==0? currentPosts.map((item, index) => (
-            <div key={index} className="nb-row">
-              <div className="nb-cell nb-cell-number">{item.boardNo}</div>
-              <div className="nb-cell nb-cell-subject">
-                {item.boardSubject === "Q"
-                  ? "질문답변"
-                  : item.boardSubject === "R"
-                  ? "리뷰"
-                  : "자유"}
-              </div>
+          {currentPosts.length!==0? currentPosts.map((item, index) => {
+            const displayNumber = posts.length - (indexOfFirstItem + index);
+            return (
+            <div key={index} className="my-message-row">
+              <div className="my-message-cell my-message-cell-number">{displayNumber}</div>
               <div
-                className="nb-cell nb-cell-title"
+                className="my-message-cell my-message-cell-title"
                 onClick={() => handleBoardClick(item)} // 클릭 이벤트로 상세화면으로 이동하게
                 style={{ cursor: "pointer" }}
               >
-                {item.boardTitle}
+                {item.replyYn !== 'Y' ? (
+                  <>
+                    <span className='reply-n-status'>답변대기 </span>{item.messageTitle}
+                  </>
+                ) : (
+                  <>
+                    <span className='reply-y-status'>답변완료 </span>{item.messageTitle}
+                  </>
+                )}
               </div>
-              <div className="nb-cell nb-cell-area">
-                {item.cityName} {">"} {item.townName}
-              </div>
-              <div className="nb-cell nb-cell-author">
-                {item.memberNickName}
-              </div>
-              <div className="nb-cell nb-cell-date">{item.boardWriteDate}</div>
-              <div className="nb-cell nb-cell-views">{item.readCount}</div>
+              <div className="my-message-cell my-message-cell-date">{item.messageWriteDate}</div>
             </div>
-          )): <div className='no-my-post'>작성한 게시글이 없습니다.</div>}
+          )}): <div className='no-my-post'>작성한 문의글이 없습니다.</div>}
           </div>
           <div className="my-stock-pagination">
 

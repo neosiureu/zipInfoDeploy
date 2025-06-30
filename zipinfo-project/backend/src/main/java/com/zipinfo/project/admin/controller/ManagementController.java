@@ -64,7 +64,7 @@ public class ManagementController {
      */
     @PostMapping("/broker-applications/{memberNo}/approve")
     public ResponseEntity<String> approveBrokerApplication(
-            @PathVariable Long memberNo,
+            @PathVariable("memberNo") Long memberNo,
             @RequestBody BrokerApplicationDTO dto) {
 
         dto.setMemberNumber(memberNo.intValue());
@@ -81,7 +81,7 @@ public class ManagementController {
      * PUT /admin/management/broker-applications/{memberNo}/reject
      */
     @PutMapping("/broker-applications/{memberNo}/reject")
-    public ResponseEntity<String> rejectBrokerApplication(@PathVariable Long memberNo) {
+    public ResponseEntity<String> rejectBrokerApplication(@PathVariable("memberNo") Long memberNo) {
 
         boolean success = managementService.rejectBroker(memberNo.intValue());
         if (success) {
@@ -97,7 +97,7 @@ public class ManagementController {
      */
     @PutMapping("/members/{memberNo}/role")
     public ResponseEntity<String> updateMemberRole(
-            @PathVariable Long memberNo,
+            @PathVariable("memberNo") Long memberNo,
             @RequestParam("authId") int authId) {
 
         int result = managementService.updateMemberAuth(memberNo, authId);
@@ -108,23 +108,6 @@ public class ManagementController {
         }
     }
 
-    /**
-     * 회원 차단 및 차단 해제
-     * PUT /admin/management/members/{memberNo}/block?block=true|false
-     * @param memberNo 회원 번호
-     * @param block true: 차단, false: 차단 해제
-     */
-    @PutMapping("/members/{memberNo}/block")
-    public ResponseEntity<String> toggleBlockMember(
-            @PathVariable Long memberNo,
-            @RequestParam boolean block) {
-
-        int result = managementService.toggleBlockMember(memberNo, block);
-        if (result > 0) {
-            return ResponseEntity.ok(block ? "회원이 차단되었습니다." : "회원 차단 해제되었습니다.");
-        }
-        return ResponseEntity.badRequest().body("회원 차단 변경 실패");
-    }
 
     /**
      * 회원 삭제 (논리 삭제)
@@ -132,12 +115,13 @@ public class ManagementController {
      * @param memberNo 회원 번호
      */
     @DeleteMapping("/members/{memberNo}")
-    public ResponseEntity<String> deleteMember(@PathVariable Long memberNo) {
+    public ResponseEntity<String> deleteMember(@PathVariable("memberNo") Long memberNo) {
         int result = managementService.deleteMember(memberNo);
         if (result > 0) {
-            return ResponseEntity.ok("회원이 삭제되었습니다.");
+            return ResponseEntity.ok("삭제 성공");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 실패");
         }
-        return ResponseEntity.badRequest().body("회원 삭제 실패");
     }
 
     /**
@@ -146,11 +130,15 @@ public class ManagementController {
      * @param memberNo 회원 번호
      */
     @PutMapping("/members/{memberNo}/restore")
-    public ResponseEntity<String> restoreMember(@PathVariable Long memberNo) {
+    public ResponseEntity<?> restoreMember(@PathVariable("memberNo") Long memberNo) {
+        System.out.println("복원 요청 memberNo = " + memberNo);
         int result = managementService.restoreMember(memberNo);
+        System.out.println("복원 결과 = " + result);
         if (result > 0) {
             return ResponseEntity.ok("회원이 복원되었습니다.");
         }
         return ResponseEntity.badRequest().body("회원 복원 실패");
     }
+
+
 }

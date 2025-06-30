@@ -43,6 +43,9 @@ public class Stock {
     private List<String> imgOriginNames;
     private List<String> imgUrls;
     
-    private String companyName;//중개사이름
-    
+    private String companyName;//사무소이름
+    private String companyLocation;//사무소주소
+    private String presidentName;//대표명
+    private String brokerNo; // 중개등록번호
+    private String presidentPhone; // 대표번호
 }

@@ -140,6 +140,11 @@ public class ManagementServiceImpl implements ManagementService {
      */
     @Override
     public int restoreMember(Long memberNo) {
-        return managementMapper.restoreMember(memberNo);
+        try {
+            return managementMapper.restoreMember(memberNo);
+        } catch (Exception e) {
+            log.error("회원 복원 중 오류 발생: memberNo={}, error={}", memberNo, e.getMessage(), e);
+            throw e;  // 또는 적절히 예외 처리 후 반환
+        }
     }
 }

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.zipinfo.project.admin.model.dto.HelpMessage;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.myPage.model.service.MyPageService;
 import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
@@ -48,7 +49,6 @@ public class MyPageController {
 			
 			Member member = service.getMemberInfo(loginMember);
 			
-			System.out.println(member);
 			
 			
 			if (member.getCompanyLocation() != null) {
@@ -75,7 +75,6 @@ public class MyPageController {
 
 			}
 			
-			System.out.println(member);
 			
 			return ResponseEntity.status(HttpStatus.OK) // 200
 				   .body(member); 
@@ -442,6 +441,105 @@ public class MyPageController {
 			
 			return ResponseEntity.status(HttpStatus.OK) // 200
 					.body(result); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
+	
+	@PostMapping(value = "sendMessage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<Object> sendMessage(HttpSession session, @RequestParam("messageTitle") String messageTitle,@RequestParam("messageContent") String messageContent, @RequestParam("messageFile") MultipartFile messageFile){
+		
+		try {
+			
+			Member loginMember = (Member)session.getAttribute("loginMember"); 
+			
+			int memberNo = loginMember.getMemberNo();
+			
+			HelpMessage message = new HelpMessage();
+			
+			message.setMessageContent(messageContent);
+			
+			message.setMessageTitle(messageTitle);
+			
+			message.setSenderNo(memberNo);
+			
+			int result = service.sendMessage(messageFile, message);
+		
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(result); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+		
+	}
+	
+	@GetMapping("getMyMessage")
+	public ResponseEntity<Object> getMyMessage(HttpSession session){
+		try {
+			
+			Member loginMember = (Member)session.getAttribute("loginMember");
+			
+			int memberNo = loginMember.getMemberNo();
+			
+			List<HelpMessage> message = service.getMyMessage(memberNo);
+			
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(message); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
+	
+	@PostMapping("getMessageContent")
+	public ResponseEntity<Object> getMessageContent(@RequestBody HelpMessage message){
+		try {
+
+			int messageNo = message.getMessageNo();
+			
+			HelpMessage messageResult = service.getMessageContent(messageNo);
+			
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(messageResult); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
+	
+	@PostMapping("getInquiredMessage")
+	public ResponseEntity<Object> getInquiredMessage(@RequestBody HelpMessage message){
+		try {
+			
+			int messageNo = message.getMessageNo();
+			
+			HelpMessage messageResult = service.getInquiredMessage(messageNo);
+			
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(messageResult); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
+	
+	@PostMapping("getMessageFile")
+	public ResponseEntity<Object> getMessageFile(@RequestBody HelpMessage message){
+		try {
+			
+			int messageNo = message.getMessageNo();
+			
+			HelpMessage fileResult = service.getMessageFile(messageNo);
+			
+			System.out.println("응애"+fileResult);
+			
+			if (fileResult == null) {
+			    return ResponseEntity.status(HttpStatus.OK).body(null);
+			} else {
+			    return ResponseEntity.status(HttpStatus.OK).body(fileResult);
+			}
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("불러오는 중 예외 발생 : " + e.getMessage());

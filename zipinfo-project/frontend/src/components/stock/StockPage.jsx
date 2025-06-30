@@ -8,6 +8,7 @@ import warning from "../../assets/circle_warning.svg"; // 미검색 결과 아�
 import saleThumbnail from "../../assets/sale-page-thumbnail.svg"; // 썸네일 이미지 추가
 import stockImgLeft from "../../assets/main-thumbnail-01.svg";
 import stockImgRight from "../../assets/main-thumbnail-02.svg";
+
 import {
   useNavigate,
   useLocation,
@@ -508,7 +509,7 @@ const StockPage = () => {
                     : "기타"}
                 </span>
                 <button className="stock-detail-like-btn" aria-label="찜하기">
-                  ♡
+                  ☆
                 </button>
               </div>
               <div className="stock-detail-name">{item.stockName}</div>
@@ -534,43 +535,49 @@ const StockPage = () => {
                   <tbody>
                     <tr>
                       <td>매물형태</td>
-                      <td>아파트</td>
+                      <td>{stockFormMap[item.stockForm]}</td>
                     </tr>
                     <tr>
                       <td>주소</td>
-                      <td>서울시 서초구 반포동 2-12, 105동</td>
+                      <td>{item.stockAddress}</td>
                     </tr>
                     <tr>
                       <td>전용/공급면적</td>
-                      <td>84.99㎡ / 114.20㎡</td>
+                      <td>
+                        {item.exclusiveArea}㎡ / {item.supplyArea}㎡
+                      </td>
                     </tr>
                     <tr>
                       <td>해당층/건물층</td>
-                      <td>3층/31층</td>
+                      <td>
+                        {item.currentFloor} / {item.floorTotalCount}층
+                      </td>
                     </tr>
                     <tr>
                       <td>방/욕실 수</td>
-                      <td>3/2개</td>
+                      <td>
+                        {item.roomCount} / {item.bathCount}개
+                      </td>
                     </tr>
                     <tr>
                       <td>방향</td>
-                      <td>남향</td>
+                      <td>{item.stockDirection}</td>
                     </tr>
                     <tr>
                       <td>관리비</td>
-                      <td>45만원</td>
+                      <td>{item.stockManageFee}</td>
                     </tr>
                     <tr>
                       <td>입주가능일</td>
-                      <td>즉시 입주 (협의가능)</td>
+                      <td>{item.ableDate}</td>
                     </tr>
                     <tr>
                       <td>사용승인일</td>
-                      <td>2016.08.30</td>
+                      <td>{item.useApprovalDate}</td>
                     </tr>
                     <tr>
                       <td>최초등록일</td>
-                      <td>2025.05.15</td>
+                      <td>{item.registDate}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -584,63 +591,7 @@ const StockPage = () => {
               <div className="stock-detail-section">
                 <div className="stock-detail-section-title">상세설명</div>
                 <div className="stock-detail-description">
-                  서울 반포의 중심, 아크로리버파크!
-                  <br />
-                  한강의 아름다움을 온전히 누릴 수 있는 대단지!
-                  <br />
-                  '바른 부동산'이 고객님과 함께 하겠습니다.
-                  <br />
-                  <br />
-                  <b>1. 교통</b>
-                  <br />
-                  9호선 신반포역, 지하철 3, 7, 9호선 고속터미널역을 비롯 전국을
-                  연결하는 서울고속터미널, 센트럴시티터미널이 있어 서울 시내는
-                  물론 전국을 다니는데 불편함이 없는 지역입니다.
-                  <br />
-                  또한 반포대로 및 올림픽대로와 접해 있어 차량으로도 서울 및
-                  수도권 이동이 최적화된 지역입니다.
-                  <br />
-                  <br />
-                  <b>2. 생활/문화</b>
-                  <br />
-                  신세계백화점(강남점)을 필두로 파미에스테이션/서울 도보 이용이
-                  가능하며 뉴코아아울렛 등 대형 복합쇼핑시설이 모여있고,
-                  반포한강공원, 세빛섬, 서래섬, 서리풀공원 등 다양한 문화시설이
-                  인접해 있습니다.
-                  <br />
-                  반포종합운동장, 반포도서관, 반포종합사회복지관,
-                  반포종합사회복지관 등 다양한 생활편의시설이 인접해 있습니다.
-                  <br />
-                  또한 단지 내에는 피트니스센터, 실내골프연습장, 독서실,
-                  게스트하우스, 키즈카페, 멀티미디어룸, 셀프세차장, 골프장,
-                  헬스장 등 다양한 커뮤니티 시설이 마련되어 있습니다.
-                  <br />
-                  <br />
-                  <b>3. 교육 환경</b>
-                  <br />
-                  개원초(초등학교), 잠원초, 신반포초, 세화여중(사립),
-                  세화고(사립) 등 전통의 명문 학군이 인접해 있습니다.
-                  <br />
-                  또한 반포고, 세화고, 세화여고, 신반포중, 신반포초, 잠원초 등
-                  다양한 학교가 인접해 있습니다.
-                  <br />
-                  <br />
-                  <b>4. 최고의 가치 '아크로리버파크'</b>
-                  <br />
-                  - 스카이라운지
-                  <br />
-                  - 최고의 커뮤니티
-                  <br />
-                  - 우수한 채광과 한강을 한눈에 볼 수 있는 조망권
-                  <br />
-                  - 다양한 정원조성
-                  <br />
-                  - 광폭의 주차공간
-                  <br />
-                  - 티하우스, 키즈카페, 멀티미디어룸, 셀프세차장, 골프장, 헬스장
-                  등<br />
-                  <br />
-                  5. '바른 부동산'이 최고의 선택입니다.
+                  {item.stockDetail}
                 </div>
               </div>
             </div>
@@ -657,23 +608,23 @@ const StockPage = () => {
                   <tbody>
                     <tr>
                       <td>이름</td>
-                      <td>바른공인중개사사무소</td>
+                      <td>{item.companyName}</td>
                     </tr>
                     <tr>
                       <td>주소</td>
-                      <td>서울 서초구 반포대로 291 1층 155호</td>
+                      <td>{item.companyLocation}</td>
                     </tr>
                     <tr>
                       <td>대표</td>
-                      <td>김부동</td>
+                      <td>{item.presidentName}</td>
                     </tr>
                     <tr>
                       <td>중개등록번호</td>
-                      <td>12345-1234-00123</td>
+                      <td>{item.brokerNo}</td>
                     </tr>
                     <tr>
                       <td>대표번호</td>
-                      <td>02-1234-1234</td>
+                      <td>{item.presidentPhone}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -684,6 +635,7 @@ const StockPage = () => {
       );
     }
   };
+
   const StockList = ({ stockList }) => {
     return (
       <section className="item-list">
@@ -725,7 +677,7 @@ const StockPage = () => {
                         ? " " +
                           priceConvertToString(item.stockSellPrice) +
                           " / " +
-                          priceConvertToString(item.stockFseeMonth) +
+                          priceConvertToString(item.stockFeeMonth) +
                           " "
                         : "기타"}
                     </span>
@@ -733,13 +685,15 @@ const StockPage = () => {
 
                   <div className="stock-item-name">
                     {/**매물 이름 */}
-                    {item.stockType} · {item.stockName}
+                    {item.stockForm} · {item.stockName}
                   </div>
 
                   <div className="stock-item-summary">
                     {item.currentFloor}/{item.floorTotalCount}층<span> | </span>
                     {item.exclusiveArea}㎡<span> | </span>관리비{" "}
-                    {item.stockManageFee  / 10000}원
+
+                    {item.stockManageFee / 10000}원
+
                   </div>
                   <div className="stock-item-info">
                     {item.stockInfo.length > 16
@@ -753,7 +707,6 @@ const StockPage = () => {
                     {item.companyName}
                   </div>
                 </div>
-
               </div>
             </div>
           ))

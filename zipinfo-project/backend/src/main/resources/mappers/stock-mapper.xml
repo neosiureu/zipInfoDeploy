@@ -35,7 +35,11 @@
 	  <!-- 좌표 (STOCK_COORD 테이블에서 가져온 값이라고 가정) -->
 	  <result property="lat" column="LAT"/>
 	  <result property="lng" column="LNG"/>
-	  <result property="companyName" column="COMPANY_NAME"></result>
+	  <result property="companyName" column="COMPANY_NAME"/>
+	  <result property="companyLocation" column="COMPANY_LOCATION"/>
+	  <result property="presidentName" column="PRESIDENT_NAME"/>
+	  <result property="brokerNo" column="BROKER_NO"/>
+	  <result property="presidentPhone" column="PRESIDENT_PHONE"/>
 	</resultMap>
 	<resultMap id="coordsMap"  type="com.zipinfo.project.stock.model.dto.CoordsStatInfo">
 	  <result property="latCenter" column="latCenter"/>
@@ -81,7 +85,7 @@
 			    </if>
 			</where>)
 			 i ON c.stockNo = i.STOCK_NO
-			 INNER JOIN (SELECT COMPANY_NAME, MEMBER_NO FROM BROKER_INFO) b ON i.MEMBER_NO = b.MEMBER_NO
+			 INNER JOIN (SELECT MEMBER_NO, COMPANY_NAME, COMPANY_LOCATION, PRESIDENT_NAME, BROKER_NO, PRESIDENT_PHONE FROM BROKER_INFO) b ON i.MEMBER_NO = b.MEMBER_NO
 	</select>
 	<select id="selectSigunguFullName">
 		SELECT TOWN_NAME FROM BOARD_TOWN
@@ -139,7 +143,7 @@
 			            SELECT * FROM STOCK_INFO
 			        ) i ON c.stockNo = i.STOCK_NO
 			        INNER JOIN (
-			            SELECT COMPANY_NAME, MEMBER_NO FROM BROKER_INFO
+			            SELECT MEMBER_NO, COMPANY_NAME, COMPANY_LOCATION, PRESIDENT_NAME , BROKER_NO, PRESIDENT_PHONE FROM BROKER_INFO
 			        ) b ON i.MEMBER_NO = b.MEMBER_NO
 			        ORDER BY i.REGIST_DATE ASC
 			    )

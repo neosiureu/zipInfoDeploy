@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.zipinfo.project.admin.model.dto.HelpMessage;
 import com.zipinfo.project.common.utility.Utility;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.myPage.model.mapper.MyPageMapper;
@@ -37,6 +38,12 @@ public class MyPageServiceImpl implements MyPageService{
 	
 	@Value("${my.stock.folder-path}")
 	private String stockFolderPath;
+	
+	@Value("${my.message.web-path}")
+	private String messageWebPath;
+	
+	@Value("${my.message.folder-path}")
+	private String messageFolderPath;
 	
 	@Override
 	public Member getMemberInfo(Member loginMember) {
@@ -219,7 +226,6 @@ public class MyPageServiceImpl implements MyPageService{
 	public int updateTumbImg(MultipartFile stockImg, int stockNo) {
 		
 		try {
-			System.out.println(stockImg);
 			
 			String finalPath = null;
 			
@@ -241,7 +247,6 @@ public class MyPageServiceImpl implements MyPageService{
 				
 			int result = mapper.updateTumbImg(originalName, rename, finalPath, stockNo);
 			
-			System.out.println(result);
 			
 			return result;
 		} catch (Exception e) {
@@ -254,7 +259,6 @@ public class MyPageServiceImpl implements MyPageService{
 	public int updateBalanceImg(MultipartFile stockImg, int stockNo) {
 		
 		try {
-			System.out.println(stockImg);
 			
 			String finalPath = null;
 			
@@ -276,7 +280,6 @@ public class MyPageServiceImpl implements MyPageService{
 				
 			int result = mapper.updateBalanceImg(originalName, rename, finalPath, stockNo);
 			
-			System.out.println(result);
 			
 			return result;
 		} catch (Exception e) {
@@ -306,10 +309,8 @@ public class MyPageServiceImpl implements MyPageService{
 	            saveFile.getParentFile().mkdirs();
 	            file.transferTo(saveFile);
 
-	            System.out.println("으럇"+stockNo);
 	            String finalPath = stockWebPath + rename;
 	            int stockOrder = i + 2;
-	            System.out.println("으럇"+stockOrder);
 	            int updateResult = mapper.updateStockImg(originalName, rename, finalPath, stockNo, stockOrder);
 	            if (updateResult == 1) result++;
 	        }
@@ -420,4 +421,76 @@ public class MyPageServiceImpl implements MyPageService{
 		return result;
 	}
 	
+	@Override
+	public int sendMessage(MultipartFile messageFile, HelpMessage message) {
+		
+		try {
+			
+			String finalPath = null;
+			
+			String originalName = null;
+			String rename = null;
+			
+			MultipartFile file = messageFile;
+				
+			originalName = file.getOriginalFilename();
+			rename = Utility.fileRename(originalName);
+			File saveFile = new File(messageFolderPath, rename);
+			
+			// 디렉토리가 없으면 생성
+			saveFile.getParentFile().mkdirs();
+				
+			// /myPage/stock/변경된 파일명
+			finalPath = messageWebPath + rename;
+			file.transferTo(saveFile);
+			
+			List<HelpMessage> selectAuthMember = mapper.selectAuthMember();
+			
+			int sendResult = 0;
+			
+			for(HelpMessage messageINfo : selectAuthMember) {
+				int authMember = messageINfo.getMemberNo();
+				message.setReceiverNo(authMember);
+				int contentResult = mapper.sendMessageContent(message);
+				if(contentResult != 1) {
+					System.out.println("메세지 전송 실패");
+					return 0;
+				}
+				int messageNo = mapper.getMessageNo(message.getSenderNo());
+				int result = mapper.sendMessageFile(originalName, rename, finalPath, messageNo);
+				if(result == 1) sendResult++;
+			}
+			
+			if(sendResult != selectAuthMember.size()) {
+				System.out.println("모든 메세지 전송이 성공적으로 이루어지지 않았습니다.");
+			}
+			
+			
+			return sendResult;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
+		
+	}
+	
+	@Override
+	public List<HelpMessage> getMyMessage(int memberNo) {
+		return mapper.getMyMessage(memberNo);
+	}
+	
+	@Override
+	public HelpMessage getMessageContent(int messageNo) {
+		return mapper.getMessageContent(messageNo);
+	}
+	
+	@Override
+	public HelpMessage getInquiredMessage(int messageNo) {
+		return mapper.getInquiredMessage(messageNo);
+	}
+	
+	@Override
+	public HelpMessage getMessageFile(int messageNo) {
+		return mapper.getMessageFile(messageNo);
+	}
 }
