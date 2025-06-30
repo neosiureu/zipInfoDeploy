@@ -1,4 +1,3 @@
-// src/components/neighborhood/NeighborhoodFilters.jsx
 import arrowDown from "../../assets/arrow-down.svg";
 import { CITY, TOWN } from "../common/Gonggong";
 import "../../css/neighborhood/NeighborhoodBoard.css";

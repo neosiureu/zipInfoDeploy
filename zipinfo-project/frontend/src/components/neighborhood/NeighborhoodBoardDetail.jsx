@@ -120,7 +120,6 @@ const NeighborhoodBoardDetail = () => {
             목록보기
           </button>
         </div>
-        <br></br>
         <NeighborhoodCommentSection boardNo={boardNo} />
       </div>
     </div>

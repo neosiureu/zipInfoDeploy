@@ -98,11 +98,15 @@ const NeighborhoodEdit = () => {
       setLoading(true);
 
       if (isEdit) {
-        const { data: result } = await axiosAPI.put("/editBoard", {
-          boardNo,
+        const params = {
+          boardNo: boardNo,
           boardTitle: title.trim(),
           boardContent: content,
-        });
+          cityNo: selectedCity, // 시도 코드 (숫자)
+          townNo: selectedTown, // 시군구 코드 (숫자)
+          boardSubject: selectedSubject, // 주제 코드 (QRE중 하나)
+        };
+        const { data: result } = await axiosAPI.put("/editBoard", params);
 
         if (result > 0) {
           alert("글이 수정되었습니다");

@@ -41,7 +41,7 @@ import DashBoard from "./components/admin/DashBoard";
 import Chart from "./components/admin/Chart";
 import Advertisement from "./components/admin/Advertisement";
 import HelpMessage from "./components/admin/HelpMessage/HelpMessage";
-import Reply from "./components/admin/HelpMessage/Reply"; // ✅ 추가됨
+import Reply from "./components/admin/HelpMessage/Reply"; 
 import Management from "./components/admin/Management/Management";
 import { AuthProvider } from "./components/admin/AuthContext";
 
@@ -158,7 +158,6 @@ function App() {
               <Route path="advertisement" element={<Advertisement />} />
               <Route path="helpMessage" element={<HelpMessage />} />
               <Route path="help/reply/:messageNo" element={<Reply />} />{" "}
-              {/* ✅ 추가됨 */}
               <Route path="management" element={<Management />} />
               <Route path="list_sale" element={<ListSale />} />
               <Route path="add_sale" element={<AddSale />} />

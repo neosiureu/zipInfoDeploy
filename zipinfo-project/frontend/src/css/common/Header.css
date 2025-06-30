@@ -121,3 +121,12 @@ a {
   background: none;
   border: none;
 }
+
+header.Header-navbar .Header-menu li,
+header.Header-navbar .Header-menu li a {
+  color: #111 !important;
+}
+header.Header-navbar .Header-menu li:hover,
+header.Header-navbar .Header-menu li a:hover {
+  color: #495cf8 !important;
+}

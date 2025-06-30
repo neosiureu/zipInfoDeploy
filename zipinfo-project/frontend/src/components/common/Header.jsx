@@ -3,7 +3,8 @@ import { useContext } from "react";
 import logo from "../../assets/logo.svg";
 import "../../css/common/Header.css";
 import { MemberContext } from "../member/MemberContext";
-import { axiosAPI } from "../../api/axiosApi";
+import { axiosAPI } from "./../../api/axiosAPI";
+
 const naverLogout = () => {
   return new Promise((resolve) => {
     try {
@@ -57,13 +58,13 @@ const Header = () => {
   };
 
   const handleNavMyStock = () => {
-    if(localStorage.getItem("loginMember") === null){
+    if (localStorage.getItem("loginMember") === null) {
       alert("로그인 후 이용하시길 바랍니다.");
       return;
     }
 
     navigate("/myPage/myStock");
-  }
+  };
 
   return (
     <header className="Header-navbar">
@@ -86,9 +87,7 @@ const Header = () => {
           <li>
             <Link to="/neighborhoodBoard">우리동네</Link>
           </li>
-          <li onClick={handleNavMyStock}>
-            관심목록
-          </li>
+          <li onClick={handleNavMyStock}>관심목록</li>
           {member?.memberAuth == 0 ? (
             <>
               <li>

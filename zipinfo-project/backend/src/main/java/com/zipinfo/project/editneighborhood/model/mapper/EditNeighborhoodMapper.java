@@ -9,6 +9,8 @@ public interface EditNeighborhoodMapper {
 
 
 	int boardInsert(Neighborhood inputBoard);
+
+	int boardUpdate(Neighborhood inputBoard);
 	
 
 }
