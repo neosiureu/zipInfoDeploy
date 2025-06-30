@@ -36,7 +36,6 @@ const CommentItem = ({ comment, loginMember, reload }) => {
       setReply(false);
       setText("");
       reload();
-      // alert("답글이 등록되었습니다.");
     } else {
       alert("답글 등록 실패!");
     }
@@ -66,10 +65,6 @@ const CommentItem = ({ comment, loginMember, reload }) => {
       reload();
     }
   };
-  // 댓글이 삭제된 경우를 대비
-  // if (comment.commentDelFl == "Y") {
-  //   return <li className="comment-row">삭제된 댓글입니다</li>;
-  // }
 
   // 컴포넌트 내 댓글 랜더링 영역 => 댓글과 답글을 한번에 처리한다
   return (
@@ -99,29 +94,31 @@ const CommentItem = ({ comment, loginMember, reload }) => {
             <p className="comment-content">{comment.commentContent}</p>
           )}
 
-          {/* 버튼 영역 */}
-          <div className="comment-btn-area">
-            {!edit && <button onClick={() => setReply((p) => !p)}>답글</button>}
-            {isMine && !edit && (
-              <>
-                <button
-                  onClick={() => {
-                    setEdit(true);
-                    setText(comment.commentContent);
-                  }}
-                >
-                  수정
-                </button>
-                <button onClick={remove}>삭제</button>
-              </>
-            )}
-            {edit && (
-              <>
-                <button onClick={update}>수정</button>
-                <button onClick={() => setEdit(false)}>취소</button>
-              </>
-            )}
-          </div>
+          {/* 버튼 영역: 답글 에디터가 켜져 있으면 숨김 */}
+          {!reply && (
+            <div className="comment-btn-area">
+              {!edit && <button onClick={() => setReply(true)}>답글</button>}
+              {isMine && !edit && (
+                <>
+                  <button
+                    onClick={() => {
+                      setEdit(true);
+                      setText(comment.commentContent);
+                    }}
+                  >
+                    수정
+                  </button>
+                  <button onClick={remove}>삭제</button>
+                </>
+              )}
+              {edit && (
+                <>
+                  <button onClick={update}>수정</button>
+                  <button onClick={() => setEdit(false)}>취소</button>
+                </>
+              )}
+            </div>
+          )}
 
           {/* 답글 작성창 */}
           {reply && (

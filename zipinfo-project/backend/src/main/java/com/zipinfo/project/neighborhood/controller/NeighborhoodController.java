@@ -161,15 +161,12 @@ public class NeighborhoodController {
 /* --------------- 쿠키를 이용한 조회 수 증가 끝 -------------------------*/
 			// 조회 결과가 있는 경우
 			
-		}	
+		}
+		
+		log.info("최종적으로 보낼 것"+board);
 		return ResponseEntity.ok(board);
 	}
 	
 
-	@GetMapping("/boardComment")
-	public ResponseEntity<Object> boardComment(){
-		
-		return null;
-
-	}
+	
 }
