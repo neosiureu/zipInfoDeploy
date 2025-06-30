@@ -121,14 +121,3 @@ a {
   background: none;
   border: none;
 }
-
-.Header-menu li a,
-.Header-navbar-right a,
-.Header-navbar-right button {
-  /* 링크•버튼 기본 밑줄, 아웃라인 제거 */
-  text-decoration: none;
-  outline: none;
-  box-shadow: none;
-  border-bottom: none;
-  -webkit-tap-highlight-color: transparent;
-}

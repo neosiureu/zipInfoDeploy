@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoard.css";
 import { useNavigate } from "react-router-dom";
-import { axiosAPI } from "../../api/axiosApi";
+import { axiosAPI } from "../../api/axiosAPI";
 import NeighborhoodFilters from "./NeighborhoodFilters";
 
 const NeighborhoodBoard = ({}) => {
@@ -21,8 +21,6 @@ const NeighborhoodBoard = ({}) => {
   const [boardList, setBoardList] = useState([]);
 
   const [pagination, setPagination] = useState({});
-
-  const [boardName, setBoardName] = useState("게시판");
 
   const [loginMember, setLoginMember] = useState(null);
 

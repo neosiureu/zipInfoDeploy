@@ -1,4 +1,4 @@
-package com.zipinfo.project.Email.model.service;
+package com.zipinfo.project.email.model.service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import com.zipinfo.project.Email.model.mapper.EmailMapper;
+import com.zipinfo.project.email.model.mapper.EmailMapper;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

@@ -25,6 +25,7 @@ public class Neighborhood {
 	private String cityName;
 	private int townNo;
 	private int cityNo;
+	private int boardCode;
 
     private List<Comment> commentList; // 임시 주석
 }

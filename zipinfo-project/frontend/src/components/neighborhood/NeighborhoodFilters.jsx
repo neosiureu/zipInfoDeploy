@@ -19,7 +19,7 @@ export default function NeighborhoodFilters({
 
   return (
     <div className="nb-filters">
-      <div className="select-wrap">
+      <div className="nb-select-wrap">
         <select
           className="nb-select"
           value={selectedCity}

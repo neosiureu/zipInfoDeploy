@@ -23,6 +23,12 @@ public class FileConfig implements WebMvcConfigurer{
 	// 스프링 구성을 커스터마이징하고 확장하기 위한 메서드를 제공함
 	// 주로 웹 애플리케이션의 설정을 조정하거나 추가하는데 사용됨
 	
+	@Value("${my.board.resource-handler}")
+	private String resourceBoardHandler;
+
+	@Value("${my.board.resource-location}")
+	private String resourceBoardLocation;
+	
 	// 파일 업로드 임계값
 	@Value("${spring.servlet.multipart.file-size-threshold}") // 롬복이 아니라 spring에서 가져오는 어노테이션
 	private long fileSizeThreshold; // 52428800
@@ -71,6 +77,10 @@ public class FileConfig implements WebMvcConfigurer{
 		registry
 		.addResourceHandler(resourceStockHandler) // /myPage/stock/**
 		.addResourceLocations(resourceStockLocation); // file:///C:/uploadFiles/stock/
+		
+		registry
+	    .addResourceHandler(resourceBoardHandler) // /images/boardImg/**
+	    .addResourceLocations(resourceBoardLocation); // file:///C:/uploadFiles/boardImg/
 
 	}
 	

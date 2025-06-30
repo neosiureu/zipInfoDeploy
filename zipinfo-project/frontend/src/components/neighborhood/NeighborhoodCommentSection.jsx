@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { MemberContext } from "../member/MemberContext";
-import { axiosAPI } from "../../api/axiosApi";
+import { axiosAPI } from "../../api/axiosAPI";
 import "../../css/neighborhood/NeighborhoodBoardComment.css";
 
 //NeighborhoodCommentSection  ────────(데이터/상태 총괄)
@@ -36,7 +36,6 @@ const CommentItem = ({ comment, loginMember, reload }) => {
       setReply(false);
       setText("");
       reload();
-      // alert("답글이 등록되었습니다.");
     } else {
       alert("답글 등록 실패!");
     }

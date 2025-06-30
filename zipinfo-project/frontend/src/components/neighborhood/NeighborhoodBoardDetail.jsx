@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoardDetail.css";
 import NeighborhoodCommentSection from "./NeighborhoodCommentSection";
-import { axiosAPI } from "../../api/axiosApi";
+import { axiosAPI } from "../../api/axiosAPI";
 const NeighborhoodBoardDetail = () => {
   const { boardNo } = useParams();
   const [searchParams] = useSearchParams();
@@ -49,34 +49,38 @@ const NeighborhoodBoardDetail = () => {
     boardWriteDate,
     readCount,
     boardContent,
+    cityNo,
+    townNo,
+    boardSubject,
   } = post;
 
   return (
     <div className="nb-detail-container">
       <div className="nb-detail-wrapper">
         <div className="nb-detail-header">
-          <h1 className="nb-detail-title">{boardTitle}</h1>
-          <div className="nb-detail-meta">
-            <span className="nb-detail-author">작성자 : {memberNickName}</span>
-            <span className="nb-detail-separator">|</span>
-            <span className="nb-detail-date">등록일 : {boardWriteDate}</span>
-            <span className="nb-detail-separator">|</span>
-            <span className="nb-detail-views">조회수 : {readCount}</span>
+          <div className="nb-detail-sigungu">
+            <h5 className="nb-detail-sigungu">
+              {cityNo} {">"} {townNo} {">"} {boardSubject}
+            </h5>
+
+            <h1 className="nb-detail-title">{boardTitle}</h1>
+            <div className="nb-detail-meta">
+              <span className="nb-detail-author">
+                작성자 : {memberNickName}
+              </span>
+              <span className="nb-detail-separator">|</span>
+              <span className="nb-detail-date">등록일 : {boardWriteDate}</span>
+              <span className="nb-detail-separator">|</span>
+              <span className="nb-detail-views">조회수 : {readCount}</span>
+            </div>
           </div>
         </div>
 
         <div className="nb-detail-content">
-          {/* <div className="nb-detail-image">
-            <img
-              src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=400&fit=crop"
-              alt="게시글 이미지"
-            />
-          </div> */}
-          <div className="nb-detail-text">
-            {boardContent.split("\n\n").map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
-          </div>
+          <div
+            className="nb-detail-text"
+            dangerouslySetInnerHTML={{ __html: boardContent }}
+          />
         </div>
 
         <div className="nb-detail-buttons">
