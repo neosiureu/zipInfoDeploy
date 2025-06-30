@@ -1,0 +1,85 @@
+.map_wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#category {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#category div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+#category div:hover {
+  background-color: #f1f3f5;
+}
+
+#category div.on {
+  background-color: #3182f6;
+  color: white;
+  font-weight: bold;
+}
+
+.category_bg {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-size: 200% 200%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* 아이콘 예시 (이미지 또는 컬러) */
+
+.category_bg.none {
+  background-image: url("https://cdn-icons-png.flaticon.com/512/1828/1828778.png");
+  background-size: cover;
+}
+.category_bg.bank {
+  background-image: url("https://cdn-icons-png.flaticon.com/512/190/190411.png");
+  background-size: cover;
+}
+
+.category_bg.mart {
+  background-image: url("https://cdn-icons-png.flaticon.com/512/1046/1046741.png");
+  background-size: cover;
+}
+
+.category_bg.pharmacy {
+  background-image: url("https://cdn-icons-png.flaticon.com/512/1450/1450331.png");
+  background-size: cover;
+}
+
+.category_bg.oil {
+  background-image: url("https://cdn-icons-png.flaticon.com/512/2830/2830316.png");
+  background-size: cover;
+}
+
+.category_bg.cafe {
+  background-image: url("https://cdn-icons-png.flaticon.com/512/556/556784.png");
+  background-size: cover;
+}
+
+.category_bg.store {
+  background-image: url("https://cdn-icons-png.flaticon.com/512/891/891462.png");
+  background-size: cover;
+}
