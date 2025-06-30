@@ -7,8 +7,9 @@ import ProtectedRoute from "./ProtectedRoute";
 
 import Main from "./components/Main";
 import SalePage from "./components/sale/SalePage";
-import StockPage from "./components/stock/StockPage"; // ContextProvider 생성하는 방향으로 리팩토링 중!
-import { StockProvider } from "./components/stock/StockContext";
+//import StockPageCopy from "./components/stock/StockPageCopy"; // ContextProvider 생성하는 방향으로 리팩토링 중!
+//import { StockProvider } from "./components/stock/StockContext";
+import StockProviderWrapper from "./components/stock/StockProviderWrapper";
 import MyInfo from "./components/myPage/MyInfo";
 import MyStock from "./components/myPage/MyStock";
 import UpdateMyStock from "./components/myPage/UpdateMyStock";
@@ -90,14 +91,7 @@ function App() {
             <Route path="/" element={<Layout />}>
               <Route index element={<Main />} />
               <Route path="sale" element={<SalePage />} />
-              <Route
-                path="stock"
-                element={
-                  <StockProvider>
-                    <StockPage />
-                  </StockProvider>
-                }
-              />
+              <Route path="stock" element={<StockProviderWrapper />} />
 
               <Route path="login" element={<MemberLogin />} />
               <Route path="signUp" element={<MemberSignup />} />
@@ -120,7 +114,7 @@ function App() {
               />
               <Route path="myPage/withDraw" element={<WithDraw />} />
               {/*매물페이지*/}
-              <Route path="/stock/:stockNo" element={<StockPage />} />
+              <Route path="stock/:stockNo" element={<StockProviderWrapper />} />
               {/* 분양페이지 */}
               <Route path="/sale/:saleStockNo" element={<SalePage />} />
 

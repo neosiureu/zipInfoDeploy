@@ -15,7 +15,9 @@ import {
   useParams,
 } from "react-router-dom";
 import { useStockContext } from "./StockContext";
-const StockPage = () => {
+import InfraMark from "./infraMark";
+
+const StockPageCopy = () => {
   const {
     mapRef,
     mapInstanceRef,
@@ -188,13 +190,13 @@ const StockPage = () => {
     if (window.kakao && window.kakao.maps) {
       const container = mapRef.current; // 지도를 표시할 div
       const options = {
-        center: new window.kakao.maps.LatLng(37.5451, 127.0425), // 아크로서울포레스트아파트 대략적인 위도, 경도
-        level: 3, // 지도의 확대 레벨
+        center: new window.kakao.maps.LatLng(37.567937, 126.983001), // KH종로지원 대략적인 위도, 경도
+        level: 7, // 지도의 확대 레벨
       };
       const map = new window.kakao.maps.Map(container, options);
       mapInstanceRef.current = map; // ✅ map 저장
       //화면을 움직였을떄 서버에 itemList를 요청하는 addListener
-      window.kakao.maps.event.addListener(map, "bounds_changed", async () => {
+      window.kakao.maps.event.addListener(map, "idle", async () => {
         // "bounds_changed는 마우스를 떼지 않아도 요청이 가기떄문에, 서버에 가는 요청의 개수가 너무 많음. "idle"을 쓰면 마우스가 떼어지면 요청을 보내게 수정함.
         const bounds = map.getBounds();
         const sw = bounds.getSouthWest();
@@ -722,7 +724,7 @@ const StockPage = () => {
                         ? " " +
                           priceConvertToString(item.stockSellPrice) +
                           " / " +
-                          priceConvertToString(item.stockFseeMonth) +
+                          priceConvertToString(item.stockFeeMonth) +
                           " "
                         : "기타"}
                     </span>
@@ -807,6 +809,7 @@ const StockPage = () => {
             </button>
           </>
         )}
+        <InfraMark mapInstanceRef={mapInstanceRef} />
         <main className="map-area" ref={mapRef}>
           {/* 카카오 맵이 여기에 렌더링됩니다. */}
         </main>
@@ -815,7 +818,7 @@ const StockPage = () => {
   );
 };
 
-export default StockPage;
+export default StockPageCopy;
 
 /* priceConvertToString()
   int형인 price를 한글 String으로 보기좋게 바꿈 (억 만 천 단위로 )

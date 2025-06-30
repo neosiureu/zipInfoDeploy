@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 const StockContext = createContext();
 
-export const StockProvider = ({ children }) => {
+export const StockProvider = ({ children, searchParams, navigate }) => {
   /**********************Kakao api 세팅****************** */
   const mapRef = useRef(null); // 지도를 담을 div의 ref
   const mapInstanceRef = useRef(null); //생성한 map instance를 저장 -- const map = new window.kakao.maps.Map(container, options);
@@ -41,7 +41,7 @@ export const StockProvider = ({ children }) => {
   const searchStockFormRef = useRef(searchStockForm); //  **중요**
 
   // 상세 디테일 페이지를 URL로 연결할 변수
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); --> 챗지피티가 이거 쓰지말래!!
   /*******************마커 겹침 처리기능 관련 변수***************** */
   // ⚙️ 격자 셀의 크기를 설정 (화면 픽셀 기준)
   // 마커가 겹친다고 판단할 최소 거리보다 약간 큰 값이 좋습니다.
@@ -51,7 +51,7 @@ export const StockProvider = ({ children }) => {
   // 키: "셀X,셀Y", 값: 그 셀에 속한 마커들의 정보 배열
   const cellMap = {};
   /****************QueryString 기능 구현을 위한 변수******************************************** */
-  const [searchParams] = useSearchParams();
+  //const [searchParams] = useSearchParams(); --> 챗지피티가 이거 쓰지말래!!
 
   return (
     <StockContext.Provider
