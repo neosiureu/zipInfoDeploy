@@ -95,9 +95,7 @@ const BrokerApplications = () => {
   const handleReject = async (memberNumber) => {
     try {
       await axios.put(
-        `${BASE_URL}/admin/management/broker-applications/${memberNumber}/status`,
-        null,
-        { params: { status: "거절됨" } }
+        `${BASE_URL}/admin/management/broker-applications/${memberNumber}/reject`
       );
       await axios.put(
         `${BASE_URL}/admin/management/members/${memberNumber}/role`,
@@ -207,18 +205,18 @@ const BrokerApplications = () => {
                     <button
                       onClick={() => handleReject(app.memberNumber)}
                       disabled={app.applicationStatus === "거절됨"}
-                      className={`flex items-center gap-1 px-3 py-1 rounded ${
+                      className={`reject-button ${
                         app.applicationStatus === "거절됨"
-                          ? "bg-gray-200 cursor-not-allowed"
-                          : "bg-white hover:bg-gray-100 border border-gray-400"
+                          ? "rejected"
+                          : "active"
                       }`}
                     >
                       <XCircle size={18} color="red" strokeWidth={2} />
                       <span
-                        className={`font-semibold ${
+                        className={`reject-label ${
                           app.applicationStatus === "거절됨"
-                            ? "text-gray-500"
-                            : "text-black"
+                            ? "text-disabled"
+                            : "text-active"
                         }`}
                       >
                         {app.applicationStatus === "거절됨"

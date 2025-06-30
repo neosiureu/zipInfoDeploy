@@ -1,133 +1,133 @@
-import React, { useState } from "react";
+// src/components/admin/HelpMessage/Reply.jsx
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 import "../../../css/admin/HelpMessage/Reply.css";
+import { axiosAPI } from "./../../../api/axiosApi";
 
 const Reply = () => {
-  const [formData, setFormData] = useState({
-    category: "",
-    title: "",
-    content: "",
-    tags: "",
-  });
+  const { messageNo } = useParams();
+  const navigate = useNavigate();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const [message, setMessage] = useState(null); // 문의 상세
+  const [reply, setReply] = useState(""); // 답변 내용
+  const [loading, setLoading] = useState(true);
+
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const receiverNo = queryParams.get("senderNo");
+
+  const messageNumber = parseInt(messageNo);
+
+  // 문의 상세 불러오기
+  useEffect(() => {
+    const fetchMessage = async () => {
+      try {
+        setLoading(true);
+        const res = await axiosAPI.get(
+          `/api/help/detail?messageNo=${messageNumber}`
+        );
+        setMessage(res.data);
+        setReply(res.data.replyContent || "");
+      } catch (err) {
+        console.error("문의 불러오기 실패:", err);
+        alert("문의 상세를 불러오는데 실패했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMessage();
+  }, [messageNo]);
+
+  // 답변 제출
+  const handleSubmit = async (e) => {
+    try {
+      await axiosAPI.post("/api/help/reply", {
+        messageContent: reply,
+        receiverNo: parseInt(receiverNo),
+        inquiredNo: parseInt(messageNo),
+      });
+      alert("답변이 등록되었습니다.");
+      navigate("/admin/helpMessage"); // 답변 후 목록 페이지로 이동
+    } catch (err) {
+      console.error("답변 등록 실패:", err);
+      alert("답변 등록 중 오류가 발생했습니다.");
+    }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("제출된 데이터:", formData);
-    // 여기에 제출 로직 추가
-  };
+  if (loading) {
+    return <div className="form-container">로딩 중...</div>;
+  }
 
-  const handleAddTag = () => {
-    // 태그 추가 로직
-    console.log("태그 추가");
-  };
-
-  const handleDownload = () => {
-    // 다운로드 로직
-    console.log("다운로드");
-  };
-
-  const handleClose = () => {
-    // 닫기 로직
-    console.log("닫기");
-  };
+  if (!message) {
+    return <div className="form-container">문의 정보를 찾을 수 없습니다.</div>;
+  }
 
   return (
     <div className="form-container">
       <div className="form-header">
-        <h2 className="form-title">게시글 작성하기</h2>
+        <h2 className="form-title">문의 상세 및 답변</h2>
       </div>
 
-      <form onSubmit={handleSubmit} className="form-content">
+      <div className="form-content">
+        {/* 제목 */}
         <div className="form-group">
-          <label className="form-label">카테고리</label>
-          <select
-            name="category"
-            value={formData.category}
-            onChange={handleInputChange}
-            className="form-select"
-          >
-            <option value="">카테고리를 선택하세요</option>
-            <option value="notice">공지사항</option>
-            <option value="general">일반</option>
-            <option value="question">질문</option>
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">제목 입력</label>
-          <div className="title-input-container">
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              placeholder="제목을 입력하세요"
-              className="form-input"
-            />
-            <div className="title-actions">
-              <button
-                type="button"
-                onClick={handleAddTag}
-                className="action-btn"
-              >
-                +
-              </button>
-              <span className="action-text">태그 추가 하기</span>
-              <button
-                type="button"
-                onClick={handleDownload}
-                className="action-btn"
-              >
-                ↓
-              </button>
-              <button
-                type="button"
-                onClick={handleClose}
-                className="action-btn"
-              >
-                ×
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">내용 입력</label>
-          <textarea
-            name="content"
-            value={formData.content}
-            onChange={handleInputChange}
-            placeholder="내용을 입력하세요"
-            className="form-textarea"
-            rows="10"
+          <label className="form-label">제목</label>
+          <input
+            type="text"
+            value={message.messageTitle}
+            readOnly
+            className="form-input"
           />
         </div>
 
+        {/* 문의 내용 */}
         <div className="form-group">
-          <label className="form-label">태그</label>
+          <label className="form-label">문의 내용</label>
           <textarea
-            name="tags"
-            value={formData.tags}
-            onChange={handleInputChange}
-            placeholder="태그를 입력하세요"
-            className="form-textarea small"
-            rows="3"
+            value={message.messageContent}
+            readOnly
+            className="form-textarea"
+            rows={8}
+          />
+        </div>
+
+        {/* 첨부 파일 */}
+        {message.attachmentUrl && (
+          <div className="form-group">
+            <label className="form-label">첨부 파일</label>
+            <a
+              href={message.attachmentUrl}
+              download
+              className="download-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              첨부파일 다운로드
+            </a>
+          </div>
+        )}
+
+        {/* 답변 작성 */}
+        <div className="form-group">
+          <label className="form-label">답변 작성</label>
+          <textarea
+            name="reply"
+            value={reply}
+            onChange={(e) => setReply(e.target.value)}
+            placeholder="답변을 입력하세요"
+            className="form-textarea"
+            rows={10}
+            required
           />
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="submit-btn">
-            업로드
+          <button onClick={() => handleSubmit()} className="submit-btn">
+            답변 하기
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

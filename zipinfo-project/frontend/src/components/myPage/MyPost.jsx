@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import "../../css/myPage/myPost.css";
 import "../../css/myPage/menu.css";
 import Menu from "./Menu";
-import { useNavigate } from 'react-router-dom';
+import { useLocation,useNavigate } from 'react-router-dom';
 import { axiosAPI } from '../../api/axiosAPI';
 
 const MyPost = () => {
@@ -28,7 +28,11 @@ const MyPost = () => {
     fetchProperties();
   }, []);
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialPage = parseInt(queryParams.get("cp")) || 1;
+  
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const itemsPerPage = 10;
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -40,6 +44,11 @@ const MyPost = () => {
   const currentGroup = Math.floor((currentPage - 1) / pageGroupSize);
   const startPage = currentGroup * pageGroupSize + 1;
   const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
+
+  const handlePageChange = (page) => {
+  setCurrentPage(page);
+  nav(`/myPage/myPost?cp=${page}`); // URL 업데이트
+  };
 
   const handleBoardClick = (item) => {
     nav(`/neighborhoodBoard/detail/${item.boardNo}?cp=${currentPage}`);
@@ -97,7 +106,7 @@ const MyPost = () => {
 
             <button
               className='my-stock-page-prev'
-              onClick={() => setCurrentPage(1)}
+              onClick={() => handlePageChange(1)}
               disabled={currentPage === 1}
             >
               ‹‹
@@ -108,9 +117,9 @@ const MyPost = () => {
               className='my-stock-page-prev'
               onClick={() => {
                 if (startPage === 1) {
-                  setCurrentPage(1);
+                  handlePageChange(1);
                 } else {
-                  setCurrentPage(startPage - 1);
+                  handlePageChange(startPage - 1);
                 }
               }}
               disabled={currentPage === 1}
@@ -124,7 +133,7 @@ const MyPost = () => {
               return (
                 <button
                   key={page}
-                  onClick={() => setCurrentPage(page)}
+                  onClick={() => handlePageChange(page)}
                   className={currentPage === page ? "active-page" : ""}
                 >
                   {page}
@@ -137,9 +146,9 @@ const MyPost = () => {
               className='my-stock-page-next'
               onClick={() => {
                 if (endPage >= totalPages) {
-                  setCurrentPage(totalPages);
+                  handlePageChange(totalPages);
                 } else {
-                  setCurrentPage(endPage + 1);
+                  handlePageChange(endPage + 1);
                 }
               }}
               disabled={currentPage === totalPages}
@@ -150,7 +159,7 @@ const MyPost = () => {
             {/* 맨 마지막 페이지로 */}
             <button
               className='my-stock-page-next'
-              onClick={() => setCurrentPage(totalPages)}
+              onClick={() => handlePageChange(totalPages)}
               disabled={currentPage === totalPages}
             >
               ››

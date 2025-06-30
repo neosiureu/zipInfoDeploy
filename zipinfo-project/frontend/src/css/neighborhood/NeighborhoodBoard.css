@@ -32,12 +32,14 @@
   outline: none;
 }
 
-.select-wrap {
+.select-wrap,
+.nb-select-wrap {
   position: relative;
   display: inline-block;
 }
 
-.select-wrap select {
+.select-wrap select,
+.nb-select-wrap select {
   height: 36px;
   min-width: 120px;
   padding: 0 16px 0 10px;
@@ -51,7 +53,8 @@
   background-size: 16px 16px;
 }
 
-.select-wrap .arrow-icon {
+.select-wrap .arrow-icon,
+.nb-select-wrap .arrow-icon {
   position: absolute;
   right: 10px;
   top: 50%;

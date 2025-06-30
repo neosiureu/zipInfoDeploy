@@ -60,7 +60,7 @@
 
 .my-message-content{
   display: flex;
-  height: 200px;
+  /* height: 200px; */
 
 }
 
@@ -107,12 +107,13 @@
   justify-content: center;
   align-items: center;
   min-width: 80px;
-  height: 200px;
   font-weight: 500;
   color: #333;
   font-size: 14px;
   background-color: #F7F7FB;
   margin-right: 10px;
+
+  align-self: stretch;
 }
 
 .my-message-form-input {
@@ -138,11 +139,14 @@
 
 .my-message-textarea-container {
   flex: 1;
+  display: flex;          
+  align-items: stretch;   
 }
 
 .my-message-form-textarea {
   width: 98.85%;
-  height: 200px;
+  min-height: 200px;
+  height: 100%;
   padding: 12px 16px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -213,4 +217,12 @@
 
 .my-page-stock-image-add-btn{
   margin: 10px 0;
+}
+
+.my-message-inquired-content {
+  display: flex;
+  align-items: stretch;
+  align-content: stretch;
+  padding-bottom: 10px;
+  flex-direction: column;
 }

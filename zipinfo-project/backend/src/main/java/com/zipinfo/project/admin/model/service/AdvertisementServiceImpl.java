@@ -2,96 +2,65 @@ package com.zipinfo.project.admin.model.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.zipinfo.project.admin.model.dto.Advertisement;
-
 @Service
 public class AdvertisementServiceImpl implements AdvertisementService {
 
-    // 임시 저장소 (DB 대신)
-    private final List<Advertisement> adList = new ArrayList<>();
-    private int idSequence = 1;
+    // 업로드 폴더 절대 경로 (윈도우 환경 기준)
+    private final String uploadDir = "C:/uploadFiles/ad";
 
-    // 실제 파일 저장 폴더 경로 (환경에 맞게 수정)
-    private final String uploadDir = "C:/upload/advertisements/"; 
-
-    @Override
-    public Advertisement registerAd(Advertisement ad) {
-        ad.setId(idSequence++);
-        adList.add(ad);
-        return ad;
-    }
-
-    @Override
-    public List<Advertisement> getAllAds() {
-        return adList;
-    }
-
-    @Override
-    public Advertisement updateAd(Advertisement ad) {
-        Optional<Advertisement> existingAdOpt = adList.stream()
-                .filter(a -> a.getId() == ad.getId())
-                .findFirst();
-
-        if(existingAdOpt.isPresent()) {
-            Advertisement existingAd = existingAdOpt.get();
-            existingAd.setTitle(ad.getTitle());
-            existingAd.setContent(ad.getContent());
-            existingAd.setStartDate(ad.getStartDate());
-            existingAd.setEndDate(ad.getEndDate());
-            existingAd.setImageUrl(ad.getImageUrl());
-            existingAd.setAuthor(ad.getAuthor());
-            existingAd.setMain(ad.isMain());
-            return existingAd;
-        }
-        return null;
-    }
-
-    @Override
-    public boolean deleteAd(int adId) {
-        return adList.removeIf(ad -> ad.getId() == adId);
-    }
-
+    /**
+     * 서버에 파일 저장 후 클라이언트에서 접근 가능한 경로 문자열 반환
+     * @param file - 업로드된 MultipartFile
+     * @return 저장된 파일의 웹 접근 경로 (예: "/uploads/uuid_파일명.jpg")
+     */
     @Override
     public String saveFile(MultipartFile file) {
-        if (file.isEmpty()) {
-            throw new RuntimeException("업로드할 파일이 없습니다.");
-        }
-
         try {
-            String originalFilename = file.getOriginalFilename();
-            String ext = "";
+            File uploadPath = new File(uploadDir);
+            if (!uploadPath.exists()) uploadPath.mkdirs();
 
-            if (originalFilename != null && originalFilename.contains(".")) {
-                ext = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
+            String originalName = file.getOriginalFilename();
+            if (originalName == null) throw new RuntimeException("파일명 없음");
 
-            // UUID로 고유한 파일명 생성
-            String savedFilename = UUID.randomUUID().toString() + ext;
+            String uniqueFilename = UUID.randomUUID() + "_" + originalName;
 
-            // 저장 폴더가 없으면 생성
-            File dir = new File(uploadDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
+            File dest = new File(uploadPath, uniqueFilename);
 
-            // 파일 저장
-            Files.copy(file.getInputStream(), Paths.get(uploadDir + savedFilename));
+            file.transferTo(dest);
 
-            // 파일 접근용 URL 반환 (환경에 맞게 수정)
-            return "/uploads/advertisements/" + savedFilename;
+            return "/uploads/" + uniqueFilename;
 
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException("파일 저장 실패", e);
+        }
+    }
+
+    /**
+     * 서버에 저장된 파일 삭제
+     * @param filePath - 클라이언트가 사용하는 파일 경로 (예: "/uploads/uuid_파일명.jpg")
+     * @return 삭제 성공 여부
+     */
+    @Override
+    public boolean deleteFile(String filePath) {
+        try {
+            // filePath에서 실제 파일명만 추출
+            String filename = Paths.get(filePath).getFileName().toString();
+
+            // 실제 저장된 파일 경로 조합
+            File file = new File(uploadDir, filename);
+
+            // 파일 존재 여부 확인 후 삭제 수행
+            return file.exists() && file.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

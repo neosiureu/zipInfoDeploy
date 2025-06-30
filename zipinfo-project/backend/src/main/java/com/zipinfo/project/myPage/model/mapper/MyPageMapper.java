@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.zipinfo.project.admin.model.dto.HelpMessage;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
 import com.zipinfo.project.stock.model.dto.Stock;
@@ -96,6 +97,25 @@ public interface MyPageMapper {
 	int updateSellN(Stock stock);
 
 	int updateSellY(Stock stock);
+
+	int sendMessageFile(@Param("originalName") String originalName,
+            @Param("rename") String rename,
+            @Param("finalPath") String finalPath,
+            @Param("messageNo") int messageNo);
+
+	int sendMessageContent(HelpMessage message);
+
+	List<HelpMessage> selectAuthMember();
+
+	int getMessageNo(int senderNo);
+
+	List<HelpMessage> getMyMessage(int memberNo);
+
+	HelpMessage getMessageContent(int messageNo);
+
+	HelpMessage getInquiredMessage(int messageNo);
+
+	HelpMessage getMessageFile(int messageNo);
 
 
 }

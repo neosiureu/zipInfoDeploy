@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoard.css";
-import arrowDown from "../../assets/arrow-down.svg";
-import { CITY, TOWN } from "../common/Gonggong";
 import { useNavigate } from "react-router-dom";
 import { axiosAPI } from "../../api/axiosAPI";
+import NeighborhoodFilters from "./NeighborhoodFilters";
+import { MemberContext } from "../member/MemberContext";
 
 const NeighborhoodBoard = ({}) => {
   const [searchParams] = useSearchParams();
+  const { member } = useContext(MemberContext);
 
   const initCp = Number(searchParams.get("cp") ?? 1);
 
@@ -22,10 +23,6 @@ const NeighborhoodBoard = ({}) => {
   const [boardList, setBoardList] = useState([]);
 
   const [pagination, setPagination] = useState({});
-
-  const [boardName, setBoardName] = useState("게시판");
-
-  const [loginMember, setLoginMember] = useState(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -133,11 +130,11 @@ const NeighborhoodBoard = ({}) => {
     boardData();
   }, [currentPage, searchKey, searchQuery]);
 
-  // 선택된 시도에 해당하는 시군구만 필터링
-  const filteredTowns =
-    selectedCity !== -1
-      ? TOWN.filter((town) => town.code === parseInt(selectedCity))
-      : [];
+  // // 선택된 시도에 해당하는 시군구만 필터링
+  // const filteredTowns =
+  //   selectedCity !== -1
+  //     ? TOWN.filter((town) => town.code === parseInt(selectedCity))
+  //     : [];
 
   // 시도 선택 핸들러
   const handleCityChange = (e) => {
@@ -160,63 +157,15 @@ const NeighborhoodBoard = ({}) => {
       <div className="nb-board-wrapper">
         <h1 className="nb-title">우리동네</h1>
         {/* 여기에 검색 영역을 넣으라는 말인듯 */}
-        <div className="nb-filters">
-          <div className="select-wrap">
-            <select
-              className="nb-select"
-              value={selectedCity}
-              onChange={handleCityChange}
-            >
-              <option value={-1}>시/도</option>
-              {CITY.map((city) => (
-                <option key={city.code} value={city.code}>
-                  {city.name}
-                </option>
-              ))}
-            </select>
-            <img
-              className="arrow-icon"
-              src={arrowDown}
-              alt="아래 화살표 아이콘을 통한 select 화면"
-            />
-          </div>
-
-          <div className="select-wrap">
-            <select
-              className="nb-select"
-              value={selectedTown}
-              onChange={handleTownChange}
-              disabled={selectedCity === -1}
-            >
-              <option value={-1}>시/군/구</option>
-              {filteredTowns.map((town) => (
-                <option key={town.fullcode} value={town.fullcode}>
-                  {town.name}
-                </option>
-              ))}
-            </select>
-
-            <img
-              className="arrow-icon"
-              src={arrowDown}
-              alt="아래 화살표 아이콘을 통한 select 화면"
-            />
-          </div>
-
-          <div className="select-wrap">
-            <select
-              className="nb-select nb-select-wide"
-              value={selectedSubject}
-              onChange={handleSubjectChange}
-            >
-              <option value={-1}>주제 분류</option>
-              <option value="Q">질문</option>
-              <option value="R">리뷰</option>
-              <option value="E">기타</option>
-            </select>
-            <img className="arrow-icon" src={arrowDown} alt="아래 아이콘" />
-          </div>
-        </div>
+        {/* 공통 필터 컴포넌트 */}
+        <NeighborhoodFilters
+          selectedCity={selectedCity}
+          selectedTown={selectedTown}
+          selectedSubject={selectedSubject}
+          onCityChange={handleCityChange}
+          onTownChange={handleTownChange}
+          onSubjectChange={handleSubjectChange}
+        />
         {/* <div className="nb-search">
           <input
             type="text"
@@ -318,10 +267,11 @@ const NeighborhoodBoard = ({}) => {
               ››
             </button>
           </div>
-
-          <button className="nb-write-btn" onClick={handleBoardWriteClick}>
-            글쓰기
-          </button>
+          {member ? (
+            <button className="nb-write-btn" onClick={handleBoardWriteClick}>
+              글쓰기
+            </button>
+          ) : null}
         </div>
       </div>
     </div>

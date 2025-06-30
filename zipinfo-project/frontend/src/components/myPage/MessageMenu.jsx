@@ -10,11 +10,14 @@ export default function Menu(){
     const tabs = [
       {label: "문의하기", path: "/myPage/myMessage"},
       {label: "문의 내역", path: "/myPage/seeMyMessage"},
-
     ];
     
     const getInitialTab = () => {
-      const currentTab = tabs.find(tab => tab.path === location.pathname);
+      if (location.pathname.startsWith("/myPage/detailMessage")) {
+        return "문의 내역"; // 직접 지정
+      }
+
+      const currentTab = tabs.find(tab => location.pathname.startsWith(tab.path));
       return currentTab ? currentTab.label : "문의하기";
     };
 
@@ -22,7 +25,12 @@ export default function Menu(){
   
 
     useEffect(() => {
-      const currentTab = tabs.find(tab => tab.path === location.pathname);
+      if (location.pathname.startsWith("/myPage/detailMessage")) {
+        setActiveTab("문의 내역");
+        return;
+      }
+
+      const currentTab = tabs.find(tab => location.pathname.startsWith(tab.path));
       if (currentTab) {
         setActiveTab(currentTab.label);
       }

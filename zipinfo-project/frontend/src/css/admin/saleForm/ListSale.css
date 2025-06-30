@@ -70,6 +70,22 @@
   color: #1e40af;
 }
 
+/* 수정 버튼 */
+.ls-edit-btn {
+  background-color: #3b82f6;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: none;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.ls-edit-btn:hover {
+  background-color: #2563eb;
+}
+
 /* 삭제 버튼 */
 .ls-delete-btn {
   background-color: gray;
@@ -97,11 +113,12 @@
 .ls-btn-wrapper {
   display: flex;
   justify-content: center;
+  margin-bottom: 48px;
 }
 
 /* 등록 버튼 */
 .ls-add-btn {
-  background-color: blue;
+  background-color: #111;
   color: white;
   font-weight: 600;
   font-size: 16px;

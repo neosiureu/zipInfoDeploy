@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zipinfo.project.editneighborhood.model.mapper.EditNeighborhoodMapper">
+	<insert id="boardInsert" parameterType="com.zipinfo.project.neighborhood.model.dto.Neighborhood">
+		<selectKey order="BEFORE" resultType="int" keyProperty="boardNo">
+			SELECT SEQ_BOARD.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO "BOARD"
+		VALUES(#{boardNo},
+		#{boardTitle},
+		#{boardContent},
+		DEFAULT, 
+        DEFAULT, 
+        DEFAULT, 
+		#{memberNo},
+		#{townNo},
+		#{boardSubject})
+	</insert>
+</mapper>
