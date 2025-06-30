@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import styles from "../../../css/admin/HelpMessage/HelpMessage.module.css";
 
 const HelpMessage = () => {
@@ -9,6 +10,8 @@ const HelpMessage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+
+  const navigate = useNavigate(); // ✅ 추가
 
   const fetchHelpMessages = async (showRefreshSpinner = false) => {
     try {
@@ -81,9 +84,9 @@ const HelpMessage = () => {
     return pages;
   };
 
+  // 상세 보기 클릭 시 라우팅
   const handleHelpMessageClick = (msg) => {
-    // 상세 페이지 이동 혹은 모달 열기 등 향후 구현
-    console.log("문의 상세보기:", msg);
+    navigate(`/admin/help/reply/${msg.messageNo}?senderNo=${msg.senderNo}`);
   };
 
   if (loading) {
@@ -133,7 +136,7 @@ const HelpMessage = () => {
           }`}
           onClick={() => setActiveTab("sent")}
         >
-          보낸 문의 ({activeTab === "sent" ? helpMessages.length : 0})
+          문의 답변 ({activeTab === "sent" ? helpMessages.length : 0})
         </button>
       </div>
 
