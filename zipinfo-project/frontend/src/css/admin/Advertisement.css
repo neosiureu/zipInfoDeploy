@@ -105,7 +105,7 @@
 }
 
 .admin-ad-add {
-  background-color: blue;
+  background-color: #111;
   color: white;
   font-weight: 600;
   font-size: 16px;
@@ -114,6 +114,7 @@
   transition: all 0.2s ease-in-out;
   border: none;
   cursor: pointer;
+  margin-bottom: 48px;
 }
 
 /* 스크롤바 */

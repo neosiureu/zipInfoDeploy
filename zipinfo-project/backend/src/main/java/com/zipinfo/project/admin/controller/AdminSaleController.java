@@ -22,7 +22,7 @@ public class AdminSaleController {
     @Autowired
     private AdminSaleService service;
 
-    /** 관리자 분양 매물 전체 조회
+    /** 관리자 분양 정보 전체 조회
      * @return
      */
     @GetMapping("selectSaleList")
@@ -36,7 +36,7 @@ public class AdminSaleController {
         }
     }
 
-    /** 관리자 분양 매물 등록 (로그인된 관리자만 가능)
+    /** 관리자 분양 정보 등록 (로그인된 관리자만 가능)
      * @param session
      * @param sale
      * @param thumbnailImages
@@ -72,6 +72,68 @@ public class AdminSaleController {
             return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("매물 등록 중 오류 발생: " + e.getMessage());
+        }
+    }
+    
+    /** 관리자 매물 상세 조회(수정용)
+     * @param id
+     * @return
+     */
+    @GetMapping("/updateSale/{id}")
+    public ResponseEntity<Sale> getSaleById(@PathVariable("id") Long id) {
+        try {
+            Sale sale = service.getSaleById(id);
+            if (sale != null) {
+                return ResponseEntity.ok(sale);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    /** 관리자 분양 정보 수정
+     * @param session
+     * @param id
+     * @param sale
+     * @param thumbnailImages
+     * @param floorImages
+     * @return
+     */
+    @PutMapping(value = "/updateSale/{id}", consumes = "multipart/form-data")
+    public ResponseEntity<String> updateSale(
+        HttpSession session,
+        @PathVariable("id") Long id,
+        @RequestPart("saleData") Sale sale,
+        @RequestPart(value = "thumbnailImages", required = false) List<MultipartFile> thumbnailImages,
+        @RequestPart(value = "floorImages", required = false) List<MultipartFile> floorImages
+    ) {
+        // 로그인 여부 및 권한 확인
+        Member loginMember = (Member) session.getAttribute("loginMember");
+
+        if (loginMember == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+
+        if (loginMember.getMemberAuth() != 0) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("관리자 권한이 없습니다.");
+        }
+
+        try {
+        	sale.setSaleStockNo(id.intValue()); // 수정할 매물 번호 설정
+            sale.setMemberNo(loginMember.getMemberNo()); // 로그인한 관리자 정보 설정
+
+            service.updateSale(sale, thumbnailImages, floorImages);
+
+            return ResponseEntity.ok("수정 완료");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("매물 수정 중 오류 발생: " + e.getMessage());
         }
     }
 }

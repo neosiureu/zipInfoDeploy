@@ -28,6 +28,10 @@ const ListSale = () => {
     setSaleList((prev) => prev.filter((sale) => sale.saleStockNo !== id));
   };
 
+  const handleEdit = (id) => {
+    navigate(`/admin/edit_sale/${id}`);
+  };
+
   const handleAdd = () => {
     navigate("/admin/add_sale");
   };
@@ -66,6 +70,7 @@ const ListSale = () => {
               <th>매물명</th>
               <th>작성자</th>
               <th>작성일</th>
+              <th>수정</th>
               <th>삭제</th>
             </tr>
           </thead>
@@ -88,6 +93,14 @@ const ListSale = () => {
                   <td>{formatDate(sale.announcementDate)}</td>
                   <td>
                     <button
+                      className="ls-edit-btn"
+                      onClick={() => handleEdit(sale.saleStockNo)}
+                    >
+                      수정
+                    </button>
+                  </td>
+                  <td>
+                    <button
                       className="ls-delete-btn"
                       onClick={() => handleDelete(sale.saleStockNo)}
                     >
@@ -98,7 +111,7 @@ const ListSale = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="ls-empty">
+                <td colSpan="7" className="ls-empty">
                   등록된 매물이 없습니다.
                 </td>
               </tr>

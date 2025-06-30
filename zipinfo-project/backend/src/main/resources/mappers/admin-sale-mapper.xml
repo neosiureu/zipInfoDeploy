@@ -36,87 +36,174 @@
 
   <!-- 관리자 분양 매물 등록 -->
   <insert id="addSale" useGeneratedKeys="true" keyProperty="saleStockNo">
-  <selectKey keyProperty="saleStockNo" resultType="int" order="BEFORE">
-    SELECT SEQ_SALE_INFO.NEXTVAL FROM DUAL
-  </selectKey>
-  INSERT INTO SALE_INFO (
-    SALE_STOCK_NO,
-    MEMBER_NO,
-    SALE_STOCK_FORM,
-    SALE_STOCK_NAME,
-    SALE_PRICE,
-    SALE_STATUS,
-    SALE_ADDRESS,
-    SCALE,
-    APPLICATION_START_DATE,
-    APPLICATION_END_DATE,
-    ANNOUNCEMENT_DATE,
-    COMPANY,
-    CONTACT_INFO,
-    ACQUISITION_TAX,
-    SALE_SUPPLY_AREA,
-    SALE_EXCLUSIVE_AREA,
-    SALE_ROOM_COUNT,
-    SALE_BATHROOM_COUNT,
-    DEPOSIT,
-    MIDDLE_PAYMENT,
-    BALANCE_PAYMENT,
-    REGION_NO
-  ) VALUES (
-    #{saleStockNo}, #{memberNo},
-    #{saleStockForm},
-    #{saleStockName},
-    #{salePrice},
-    #{saleStatus},
-    #{saleAddress},
-    #{scale},
-    #{applicationStartDate},
-    #{applicationEndDate},
-    #{announcementDate},
-    #{company},
-    #{contactInfo},
-    #{acquisitionTax},
-    #{saleSupplyArea},
-    #{saleExclusiveArea},
-    #{saleRoomCount},
-    #{saleBathroomCount},
-    #{deposit},
-    #{middlePayment},
-    #{balancePayment},
-    #{regionNo}
-  )
+    <selectKey keyProperty="saleStockNo" resultType="int" order="BEFORE">
+      SELECT SEQ_SALE_INFO.NEXTVAL FROM DUAL
+    </selectKey>
+    INSERT INTO SALE_INFO (
+      SALE_STOCK_NO,
+      MEMBER_NO,
+      SALE_STOCK_FORM,
+      SALE_STOCK_NAME,
+      SALE_PRICE,
+      SALE_STATUS,
+      SALE_ADDRESS,
+      SCALE,
+      APPLICATION_START_DATE,
+      APPLICATION_END_DATE,
+      ANNOUNCEMENT_DATE,
+      COMPANY,
+      CONTACT_INFO,
+      ACQUISITION_TAX,
+      SALE_SUPPLY_AREA,
+      SALE_EXCLUSIVE_AREA,
+      SALE_ROOM_COUNT,
+      SALE_BATHROOM_COUNT,
+      DEPOSIT,
+      MIDDLE_PAYMENT,
+      BALANCE_PAYMENT,
+      REGION_NO
+    ) VALUES (
+      #{saleStockNo}, #{memberNo},
+      #{saleStockForm},
+      #{saleStockName},
+      #{salePrice},
+      #{saleStatus},
+      #{saleAddress},
+      #{scale},
+      #{applicationStartDate},
+      #{applicationEndDate},
+      #{announcementDate},
+      #{company},
+      #{contactInfo},
+      #{acquisitionTax},
+      #{saleSupplyArea},
+      #{saleExclusiveArea},
+      #{saleRoomCount},
+      #{saleBathroomCount},
+      #{deposit},
+      #{middlePayment},
+      #{balancePayment},
+      #{regionNo}
+    )
   </insert>
 
   <!-- 이미지 등록 -->
   <insert id="addSaleImage">
-  INSERT INTO SALE_IMG (
-    SALE_IMG_NO,
-    SALE_STOCK_NO,
-    SALE_IMG_URL,
-    SALE_IMG_ORDER,
-    SALE_ORIGIN_NAME,
-    SALE_RENAME
-  ) VALUES (
-    SEQ_SALE_IMG.NEXTVAL,
-    #{saleStockNo},
-    #{imageUrl},
-    #{imageOrder},
-    #{originName},
-    #{rename}
-  )
+    INSERT INTO SALE_IMG (
+      SALE_IMG_NO,
+      SALE_STOCK_NO,
+      SALE_IMG_URL,
+      SALE_IMG_ORDER,
+      SALE_ORIGIN_NAME,
+      SALE_RENAME
+    ) VALUES (
+      SEQ_SALE_IMG.NEXTVAL,
+      #{saleStockNo},
+      #{imageUrl},
+      #{imageOrder},
+      #{originName},
+      #{rename}
+    )
   </insert>
-  
+
   <!-- 좌표 저장 -->
   <insert id="addSaleCoord">
-  INSERT INTO SALE_COORD (
-    SALE_STOCK_NO,
-    LAT,
-    LNG
-  ) VALUES (
-    #{saleStockNo},
-    #{lat},
-    #{lng}
-  )
+    INSERT INTO SALE_COORD (
+      SALE_STOCK_NO,
+      LAT,
+      LNG
+    ) VALUES (
+      #{saleStockNo},
+      #{lat},
+      #{lng}
+    )
   </insert>
+
+  <!-- 관리자 매물 상세 조회 -->
+  <select id="selectSaleById" resultType="com.zipinfo.project.sale.model.dto.Sale">
+    SELECT
+      SALE_STOCK_NO,
+      MEMBER_NO,
+      SALE_STOCK_FORM,
+      SALE_STOCK_NAME,
+      SALE_PRICE,
+      SALE_STATUS,
+      SALE_ADDRESS,
+      SCALE,
+      TO_CHAR(APPLICATION_START_DATE, 'YYYY-MM-DD') AS APPLICATION_START_DATE,
+      TO_CHAR(APPLICATION_END_DATE, 'YYYY-MM-DD') AS APPLICATION_END_DATE,
+      TO_CHAR(ANNOUNCEMENT_DATE, 'YYYY-MM-DD') AS ANNOUNCEMENT_DATE,
+      COMPANY,
+      CONTACT_INFO,
+      ACQUISITION_TAX,
+      SALE_SUPPLY_AREA,
+      SALE_EXCLUSIVE_AREA,
+      SALE_ROOM_COUNT,
+      SALE_BATHROOM_COUNT,
+      DEPOSIT,
+      MIDDLE_PAYMENT,
+      BALANCE_PAYMENT,
+      REGION_NO,
+      LAT,
+      LNG
+    FROM SALE_INFO
+	LEFT JOIN SALE_COORD USING (SALE_STOCK_NO)
+    WHERE SALE_STOCK_NO = #{id}
+  </select>
+
+  <!-- 기존 이미지 목록 조회 -->
+  <select id="selectSaleImages" resultType="map">
+    SELECT
+      SALE_IMG_URL,
+      SALE_IMG_ORDER,
+      SALE_ORIGIN_NAME,
+      SALE_RENAME
+    FROM SALE_IMG
+    WHERE SALE_STOCK_NO = #{saleNo}
+    ORDER BY SALE_IMG_ORDER
+  </select>
+
+  <!-- 이미지 rename 목록 조회 (덮어쓰기용) -->
+  <select id="selectImageRenamesByType" resultType="string">
+    SELECT SALE_RENAME
+    FROM SALE_IMG
+    WHERE SALE_STOCK_NO = #{saleNo}
+      AND SALE_IMG_URL LIKE '%/' || #{type} || '/%'
+    ORDER BY SALE_IMG_ORDER
+  </select>
+
+  <!-- 관리자 분양 정보 수정 -->
+  <update id="updateSale" parameterType="com.zipinfo.project.sale.model.dto.Sale">
+    UPDATE SALE_INFO
+    SET
+      SALE_STOCK_FORM = #{saleStockForm},
+      SALE_STOCK_NAME = #{saleStockName},
+      SALE_PRICE = #{salePrice},
+      SALE_STATUS = #{saleStatus},
+      SALE_ADDRESS = #{saleAddress},
+      SCALE = #{scale},
+      APPLICATION_START_DATE = #{applicationStartDate},
+      APPLICATION_END_DATE = #{applicationEndDate},
+      ANNOUNCEMENT_DATE = #{announcementDate},
+      COMPANY = #{company},
+      CONTACT_INFO = #{contactInfo},
+      ACQUISITION_TAX = #{acquisitionTax},
+      SALE_SUPPLY_AREA = #{saleSupplyArea},
+      SALE_EXCLUSIVE_AREA = #{saleExclusiveArea},
+      SALE_ROOM_COUNT = #{saleRoomCount},
+      SALE_BATHROOM_COUNT = #{saleBathroomCount},
+      DEPOSIT = #{deposit},
+      MIDDLE_PAYMENT = #{middlePayment},
+      BALANCE_PAYMENT = #{balancePayment},
+      REGION_NO = #{regionNo}
+    WHERE SALE_STOCK_NO = #{saleStockNo}
+  </update>
+
+  <!-- 분양 좌표 수정 -->
+  <update id="updateSaleCoord">
+    UPDATE SALE_COORD
+    SET LAT = #{lat}, LNG = #{lng}
+    WHERE SALE_STOCK_NO = #{saleNo}
+  </update>
 
 </mapper>

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.zipinfo.project.admin.model.dto.HelpMessage;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
 import com.zipinfo.project.stock.model.dto.Stock;
@@ -55,6 +56,16 @@ public interface MyPageService {
 	int likeStock(Stock stock);
 
 	int updateSellYn(Stock stock);
+
+	int sendMessage(MultipartFile messageFile, HelpMessage message);
+
+	List<HelpMessage> getMyMessage(int memberNo);
+
+	HelpMessage getMessageContent(int messageNo);
+
+	HelpMessage getInquiredMessage(int messageNo);
+
+	HelpMessage getMessageFile(int messageNo);
 
 
 }
