@@ -288,7 +288,7 @@
 .stock-close-button {
   position: absolute;
   top: 12px;
-  left: calc(448px * 2 + 12px); /* 패널 2개 너비 + 여백 */
+  left: calc(460px * 2 + 12px); /* 패널 2개 너비 + 여백 */
   z-index: 20;
   width: 36px;
   height: 36px;

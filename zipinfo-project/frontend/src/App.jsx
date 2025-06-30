@@ -31,6 +31,7 @@ import LoginHandler from "./components/member/MemberLogin";
 
 import AddSale from "./components/admin/saleForm/AddSale";
 import ListSale from "./components/admin/saleForm/ListSale";
+import UpdateSale from "./components/admin/saleForm/UpdateSale";
 import DashBoard from "./components/admin/DashBoard";
 import Chart from "./components/admin/Chart";
 import Advertisement from "./components/admin/Advertisement";
@@ -156,6 +157,7 @@ function App() {
               <Route path="management" element={<Management />} />
               <Route path="list_sale" element={<ListSale />} />
               <Route path="add_sale" element={<AddSale />} />
+              <Route path="edit_sale/:id" element={<UpdateSale />} />
             </Route>
 
             <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />
