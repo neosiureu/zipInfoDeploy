@@ -1,0 +1,144 @@
+.up-register-form {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 48px;
+  background: #fff;
+}
+
+.up-form-section {
+  margin-bottom: 48px;
+}
+
+.up-section-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  margin-top: 24px;
+}
+
+.up-form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.up-form-label {
+  width: 160px;
+  font-size: 16px;
+  color: #111;
+  font-weight: 500;
+  margin-right: 10px;
+}
+
+.up-form-label.required:after {
+  content: " *";
+  color: #ff0000;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.up-form-input,
+.up-form-row input[type="text"],
+.up-form-row select {
+  flex: 1;
+  height: 44px;
+  border: 1px solid #dbdbdd;
+  border-radius: 4px;
+  padding: 0 16px;
+  font-size: 14px;
+  background: #fafbfc;
+  transition: border 0.2s;
+}
+
+.up-form-row input[type="date"] {
+  font-size: 14px !important;
+  font-family: inherit;
+  color: #767676;
+}
+
+.up-form-input:focus {
+  outline: none;
+}
+
+.up-radio-group {
+  display: flex;
+  gap: 30px;
+}
+
+.up-radio-group label {
+  color: #767676;
+  font-weight: 400;
+  font-size: 15px;
+}
+
+input[type="radio"] {
+  accent-color: #3b5bdb;
+  margin-right: 6px;
+}
+
+.up-adress-btn {
+  background: #111;
+  color: #fff;
+  border-radius: 4px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.up-file-desc {
+  color: #888;
+  font-size: 13px;
+  margin-top: 6px;
+  margin-left: 10px;
+  line-height: 1.5;
+}
+
+.up-submit-row {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.up-submit-btn {
+  background: #495cf8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 18px 0;
+  width: 340px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.up-submit-btn:hover {
+  background: #2541a2;
+}
+
+.up-submit-row {
+  text-align: center;
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.up-cancel-btn {
+  background: #f1f1f7;
+  color: #495cf8;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 18px 0;
+  width: 160px;
+  border: none;
+  cursor: pointer;
+}
+
+.up-file-existing {
+  font-size: 12px;
+  color: #767676;
+  margin-top: 4px;
+}
