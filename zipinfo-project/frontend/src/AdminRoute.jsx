@@ -9,10 +9,12 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
 
-    if (!member && !alerted.current) {
-      alerted.current = true; // 플래그 설정
-      alert("로그인 후 이용해주세요");
-      navigate("/login", { replace: true });
+    if (member && !alerted.current) {
+      if(member.memberAuth !== 0){
+        alerted.current = true; // 플래그 설정
+        alert("관리자 권한이 없습니다.");
+        navigate("/", { replace: true });
+      }
     }
   }, [member, navigate]);
 

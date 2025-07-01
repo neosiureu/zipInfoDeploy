@@ -3,7 +3,7 @@ import { useContext } from "react";
 import logo from "../../assets/logo.svg";
 import "../../css/common/Header.css";
 import { MemberContext } from "../member/MemberContext";
-import { axiosAPI } from "./../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosAPI";
 
 const naverLogout = () => {
   return new Promise((resolve) => {

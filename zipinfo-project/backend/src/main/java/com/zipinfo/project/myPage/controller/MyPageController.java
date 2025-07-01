@@ -90,7 +90,6 @@ public class MyPageController {
 	public ResponseEntity<Object> updateInfo(HttpSession session, @RequestBody Member member){
 		
 		try {
-			
 			Member loginMember = (Member)session.getAttribute("loginMember");
 
 			int result = service.updateInfo(loginMember,member);
