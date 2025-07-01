@@ -204,7 +204,7 @@ const SearchBar = ({
         </div>
 
         {/* 구/군 */}
-        <div className="select-wrap">
+        <div className="search-select-wrap">
           <select
             className="glow-target"
             value={sigunguSelected}
@@ -227,7 +227,7 @@ const SearchBar = ({
         </div>
 
         {/* 매매/전세/월세 or 분양상태 */}
-        <div className="select-wrap">
+        <div className="search-select-wrap">
           <select
             className="glow-target"
             value={dealType}
@@ -258,7 +258,7 @@ const SearchBar = ({
         </div>
 
         {/* 주거/매물형태 */}
-        <div className="select-wrap">
+        <div className="search-select-wrap">
           <select
             className="glow-target"
             value={residenceType}

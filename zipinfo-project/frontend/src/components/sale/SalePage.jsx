@@ -308,7 +308,7 @@ const SalePage = () => {
                   <td>취득세</td>
                   <td>
                     {item.acquisitionTax
-                      ? `${formatPrice(item.acquisitionTax)}만원`
+                      ? `${formatPrice(item.acquisitionTax)}`
                       : "-"}
                   </td>
                 </tr>
@@ -398,8 +398,8 @@ const SalePage = () => {
                   </div>
                   <div className="sale-address">
                     {item.saleSupplyArea}㎡ |{" "}
-                    {item.saleAddress.length > 14
-                      ? `${item.saleAddress.slice(0, 14)}...`
+                    {item.saleAddress.length > 12
+                      ? `${item.saleAddress.slice(0, 12)}...`
                       : item.saleAddress}
                   </div>
                   <div className="sale-status">{status[item.saleStatus]}</div>
@@ -415,17 +415,17 @@ const SalePage = () => {
 
   return (
     <>
-      {/* 필요한 함수 props를 SearchBar에 전달 */}
+      {/* 오류 수정: 필요한 함수 props를 SearchBar에 전달 */}
       <SearchBar
-        showSearchType={false} // 분양용은 false
+        showSearchType={false}
         searchKeyWord={searchKeyWord}
         setSearchKeyWord={setSearchKeyWord}
         searchLocationCode={searchLocationCode}
         setSearchLocationCode={setSearchLocationCode}
-        searchStockForm={searchSaleStockForm}
-        setSearchStockForm={setSearchSaleStockForm}
-        searchStockType={searchSaleStatus}
-        setSearchStockType={setSearchSaleStatus}
+        searchStockForm={searchSaleStatus}
+        setSearchStockForm={setSaleStatus}
+        searchStockType={searchSaleType}
+        setSearchStockType={setSearchSaleType}
       />
       <div className="container">
         <aside className="sale-side-panel">

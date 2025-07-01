@@ -106,13 +106,12 @@
 /* 게시글 행 */
 .an-row {
   display: flex;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid #dbdbdb;
   background-color: white;
   grid-column: 1 / -1;
   text-align: center;
   justify-content: center;
   align-items: center;
-  height: 60px;
   color: #767676;
 }
 

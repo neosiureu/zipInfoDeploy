@@ -44,7 +44,14 @@ const Main = () => {
       const resp = await axiosAPI.post("/stock/itemOnMain", {});
       setStockList(resp.data);
     };
+
+    const loadSale = async () => {
+      const resp = await axiosAPI.get("/sale/selectSaleList");
+      setSaleList(resp.data);
+    };
+
     loadStock();
+    loadSale();
   }, []);
 
   const StockSample = () => {
@@ -113,15 +120,29 @@ const Main = () => {
   };
 
   const showSales = () => {
-    return stockList.map((item) => (
-      <div className="card-sale">
+    return saleList.map((item) => (
+      <div
+        className="card-sale"
+        key={item.saleStockNo}
+        onClick={() => navigate(`/sale/${item.saleStockNo}`)}
+      >
         <img src={saleMain02} alt="분양 썸네일 이미지" />
-        <div className="card-title">아파트 · {item.saleStockName}</div>
+        <div className="card-title">
+          {item.saleStockForm === 1
+            ? "아파트"
+            : item.saleStockForm === 2
+            ? "빌라"
+            : item.saleStockForm === 3
+            ? "오피스텔"
+            : "기타"}{" "}
+          · {item.saleStockName}
+        </div>
         <div className="card-price">
-          <span>분양가</span> {item.saleStockPrice}
+          <span style={{ color: "blue" }}>분양가</span>{" "}
+          <strong>{formatPrice(item.salePrice)}</strong>
         </div>
         <div className="card-adress">{item.saleAddress}</div>
-        <div className="card-area">62.04㎡ ~ 82.05㎡</div>
+        <div className="card-area">{item.saleSupplyArea}㎡</div>
       </div>
     ));
   };
@@ -197,52 +218,15 @@ const Main = () => {
         </div>
         <div className="card-list">{StockSample()}</div>
 
-        <div className="sale">
+        <section className="sale">
           <div className="section-header">
             <h2>분양 소식을 빠르게 접해보세요</h2>
-            <button className="more-btn">모두 보기</button>
+            <button className="more-btn" onClick={() => navigate("/sale")}>
+              모두 보기
+            </button>
           </div>
-          <div className="card-list">
-            <div className="card-sale">
-              <img src={saleMain01} alt="분양 썸네일 이미지" />
-              <div className="card-title">
-                아파트 · 에스아이팰리스올림픽공원
-              </div>
-              <div className="card-price">
-                <span>분양가</span> 10억 9,000 ~ 11억 4,000
-              </div>
-              <div className="card-adress">서울시 강동구 성내동 459-3</div>
-              <div className="card-area">70.02㎡</div>
-            </div>
-            <div className="card-sale">
-              <img src={saleMain02} alt="분양 썸네일 이미지" />
-              <div className="card-title">아파트 · 한신더휴하이엔에듀포레</div>
-              <div className="card-price">
-                <span>분양가</span> 5억 ~ 6억 8,950
-              </div>
-              <div className="card-adress">서울시 금천구 시흥동 220-2</div>
-              <div className="card-area">62.04㎡ ~ 82.05㎡</div>
-            </div>
-            <div className="card-sale">
-              <img src={saleMain03} alt="분양 썸네일 이미지" />
-              <div className="card-title">아파트 · 교산푸르지오더퍼스트</div>
-              <div className="card-price">
-                <span>분양가</span> 4억 6,778 ~ 5억 7,167
-              </div>
-              <div className="card-adress">경기도 하남시 천현동 130번지</div>
-              <div className="card-area">73.60㎡ ~ 85.12㎡</div>
-            </div>
-            <div className="card-sale">
-              <img src={saleMain04} alt="분양 썸네일 이미지" />
-              <div className="card-title">아파트 · 월드메르디앙올림픽파크</div>
-              <div className="card-price blue">
-                <span>분양가</span> 8억 2,000 ~ 18억 6,900
-              </div>
-              <div className="card-adress">서울시 강동구 둔촌동 435-5</div>
-              <div className="card-area">70.67㎡ ~ 77.57㎡</div>
-            </div>
-          </div>
-        </div>
+          <div className="card-list">{showSales()}</div>
+        </section>
       </section>
     </main>
   );

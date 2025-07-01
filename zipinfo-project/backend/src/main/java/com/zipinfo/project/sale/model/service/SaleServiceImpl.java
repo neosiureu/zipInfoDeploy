@@ -21,8 +21,8 @@ public class SaleServiceImpl implements SaleService {
 	@Autowired
 	private SaleMapper mapper;
 	
-	/**
-	 * 좌표와 함께 분양 매물 조회 서비스
+	/** 좌표와 함께 분양 매물 조회 서비스
+	 *
 	 */
 	@Override
 	public List<Sale> getSaleListInRange(SaleSearchRequest result) {
@@ -40,11 +40,20 @@ public class SaleServiceImpl implements SaleService {
 		
 	}
 	
-	/**
-	 * 단일 분양 매물 조회 서비스
+	/** 분양 정보 전체 조회
+	 *
+	 */
+	@Override
+    public List<Sale> selectSaleList() {
+        return mapper.selectSaleList();
+    }
+	
+	/** 단일 분양 매물 조회 서비스
+	 * 
 	 */
 	@Override
 	public Sale selectSaleDetail(int saleStockNo) {
 		return mapper.selectSaleDetail(saleStockNo);
 	}
+
 }
