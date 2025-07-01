@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 public class Sale {
 	private int saleStockNo;						// 매물번호
 	private int memberNo;           				// 회원번호
+	private String memberEmail;  					// 회원 이메일
 	private int saleStockForm;      				// 매물형태
 	private String saleStockName;      				// 매물명
 	private int salePrice;          				// 분양가
@@ -37,6 +38,7 @@ public class Sale {
 	private int middlePayment;      				// 중도금
 	private int balancePayment;     				// 잔금
 	private int regionNo;							// 법정동 코드
+	private String regDate;							// 등록일
 	
 	// SALE_COORD에서 추가
 	private double lat;
@@ -49,6 +51,7 @@ public class Sale {
 	public List<Map<String, Object>> getImageList() {
 	    return imageList;
 	}
+	
 	public void setImageList(List<Map<String, Object>> imageList) {
 	    this.imageList = imageList;
 	}

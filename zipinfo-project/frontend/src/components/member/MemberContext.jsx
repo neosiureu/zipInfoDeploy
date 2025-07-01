@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import { axiosAPI } from "../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosApi";
 import { useLocation } from "react-router-dom";
 export const MemberContext = createContext();
 // Context는 React에서 컴포넌트 계층 구조(트리)를 통해 데이터를 효율적으로

@@ -15,6 +15,8 @@ const ListSale = () => {
     const fetchData = async () => {
       try {
         const response = await axiosAPI.get("/admin/selectSaleList");
+        console.log("서버에서 받아온 분양 매물 목록:", response.data);
+
         setSaleList(response.data);
       } catch (error) {
         console.error("분양 매물 목록 불러오기 실패:", error);
@@ -24,8 +26,20 @@ const ListSale = () => {
     fetchData();
   }, []);
 
-  const handleDelete = (id) => {
-    setSaleList((prev) => prev.filter((sale) => sale.saleStockNo !== id));
+  const handleDelete = async (id) => {
+    if (!window.confirm("정말로 이 매물을 삭제하시겠습니까?")) return;
+
+    try {
+      await axiosAPI.delete(`/admin/deleteSale/${id}`, {
+        withCredentials: true,
+      });
+
+      alert("삭제가 완료되었습니다.");
+      setSaleList((prev) => prev.filter((sale) => sale.saleStockNo !== id));
+    } catch (error) {
+      console.error("매물 삭제 실패:", error);
+      alert("삭제 중 오류가 발생했습니다.");
+    }
   };
 
   const handleEdit = (id) => {
@@ -89,8 +103,8 @@ const ListSale = () => {
                       {sale.saleStockName}
                     </Link>
                   </td>
-                  <td>{sale.company}</td>
-                  <td>{formatDate(sale.announcementDate)}</td>
+                  <td>{sale.memberEmail}</td>
+                  <td>{formatDate(sale.regDate)}</td>
                   <td>
                     <button
                       className="ls-edit-btn"

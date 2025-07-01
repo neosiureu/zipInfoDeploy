@@ -57,13 +57,13 @@ const Header = () => {
   };
 
   const handleNavMyStock = () => {
-    if(localStorage.getItem("loginMember") === null){
+    if (localStorage.getItem("loginMember") === null) {
       alert("로그인 후 이용하시길 바랍니다.");
       return;
     }
 
     navigate("/myPage/myStock");
-  }
+  };
 
   return (
     <header className="Header-navbar">
@@ -86,9 +86,7 @@ const Header = () => {
           <li>
             <Link to="/neighborhoodBoard">우리동네</Link>
           </li>
-          <li onClick={handleNavMyStock}>
-            관심목록
-          </li>
+          <li onClick={handleNavMyStock}>관심목록</li>
           {member?.memberAuth == 0 ? (
             <>
               <li>
@@ -105,7 +103,7 @@ const Header = () => {
             member.memberAuth == 0 ? (
               <>
                 <li id="admin-page" className="Header-admin-page">
-                  <Link to="/admin">관리자 페이지로 이동</Link>
+                  <Link to="/admin">관리자 페이지</Link>
                 </li>
                 <li id="logout-btn">
                   <button className="Header-logout-btn" onClick={handleLogout}>

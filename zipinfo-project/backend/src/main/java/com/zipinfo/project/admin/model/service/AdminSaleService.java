@@ -31,4 +31,10 @@ public interface AdminSaleService {
 	 */
 	void updateSale(Sale sale, List<MultipartFile> thumbnailImages, List<MultipartFile> floorImages);
 
+	/** 관리자 분양 정보 삭제
+	 * @param id
+	 * @throws Exception
+	 */
+	void deleteSale(int id) throws Exception;
+
 }
