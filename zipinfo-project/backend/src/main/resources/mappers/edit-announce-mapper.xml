@@ -9,49 +9,50 @@
         공지사항 게시글 등록
         - useGeneratedKeys="true": DB에서 생성한 키를 자동으로 매핑
         - keyProperty="announceNo": 생성된 키를 DTO의 announceNo 필드에 저장
+        - jdbcType=NVARCHAR 지정하여 LONG 관련 Oracle 오류 방지
     -->
-  <insert id="insertAnnounce" parameterType="com.zipinfo.project.announce.model.dto.Announce" useGeneratedKeys="true" keyProperty="announceNo" keyColumn="ANNOUNCE_NO">
-		 INSERT INTO ANNOUNCE (
-		  ANNOUNCE_NO,
-		  ANNOUNCE_TITLE,
-		  ANNOUNCE,
-		  ANNOUNCE_WRITE_DATE,
-		  ANNOUNCE_READ_COUNT,
-		  ANNOUNCE_DEL_FL,
-		  MEMBER_NO
-		)
-		VALUES (
-		  SEQ_ANNOUNCE.NEXTVAL,  
-		  #{announceTitle},
-		  #{announce},
-		  SYSDATE,
-		  0,
-		  'N',
-		  #{memberNo}
-		)
-
-</insert>
+   <insert id="insertAnnounce" parameterType="com.zipinfo.project.announce.model.dto.Announce" useGeneratedKeys="true" keyProperty="announceNo" keyColumn="ANNOUNCE_NO">
+    INSERT INTO ANNOUNCE (
+        ANNOUNCE_NO,
+        ANNOUNCE_TITLE,
+        ANNOUNCE,
+        ANNOUNCE_WRITE_DATE,
+        ANNOUNCE_READ_COUNT,
+        ANNOUNCE_DEL_FL,
+        MEMBER_NO
+    ) VALUES (
+        SEQ_ANNOUNCE.NEXTVAL,
+        #{announceTitle},
+        #{announce, jdbcType=CLOB},
+        SYSDATE,
+        0,
+        'N',
+        #{memberNo}
+    )
+	</insert>
 
 
     <!--
         공지사항 게시글 수정
         - 본인 게시글만 수정 가능하도록 MEMBER_NO 조건 포함
         - 삭제되지 않은 게시글만 수정 가능
+        - jdbcType=NVARCHAR 지정하여 Oracle LONG 관련 오류 예방
     -->
     <update id="updateAnnounce" parameterType="com.zipinfo.project.announce.model.dto.Announce">
-        UPDATE ANNOUNCE
-        SET
-            ANNOUNCE_TITLE = #{announceTitle},
-            ANNOUNCE = #{announce}
-        WHERE ANNOUNCE_NO = #{announceNo}
-          AND MEMBER_NO = #{memberNo}
-          AND ANNOUNCE_DEL_FL = 'N'
-    </update>
+    UPDATE ANNOUNCE
+    SET
+        ANNOUNCE_TITLE = #{announceTitle},
+       ANNOUNCE = #{announce}
+    	WHERE ANNOUNCE_NO = #{announceNo}
+      AND MEMBER_NO = #{memberNo}
+      AND ANNOUNCE_DEL_FL = 'N'
+</update>
+
 
     <!--
         공지사항 게시글 삭제 (논리 삭제)
         - announceNo만 파라미터로 받음
-        - 삭제 플래그를 Y로 변경
+        - 삭제 플래그를 'Y'로 변경
         - 회원번호 조건은 서비스나 컨트롤러에서 처리할 것 권장
     -->
     <update id="deleteAnnounce" parameterType="int">
@@ -64,6 +65,7 @@
     <!--
         공지사항 단일 조회
         - 삭제되지 않은 게시글만 조회
+        - 조회 결과를 DTO 필드명과 매핑
     -->
     <select id="selectAnnounce" resultType="com.zipinfo.project.announce.model.dto.Announce" parameterType="int">
         SELECT

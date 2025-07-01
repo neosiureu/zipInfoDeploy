@@ -19,4 +19,25 @@
 		#{townNo},
 		#{boardSubject})
 	</insert>
+	
+	
+	
+	<update id="boardUpdate">
+		UPDATE "BOARD" SET
+		BOARD_TITLE = #{boardTitle},
+		BOARD_CONTENT = #{boardContent},
+		BOARD_SUBJECT= #{boardSubject},
+		TOWN_NO = #{townNo}
+		WHERE  BOARD_NO = #{boardNo}
+		AND MEMBER_NO = #{memberNo}
+	</update>
+	
+	
+	<update id="boardDelete">
+		UPDATE "BOARD" SET
+		BOARD_DEL_FL = 'Y'
+		WHERE  BOARD_NO = #{boardNo}
+		AND MEMBER_NO = #{memberNo}
+	</update>
+
 </mapper>

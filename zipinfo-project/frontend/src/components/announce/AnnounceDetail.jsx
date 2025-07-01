@@ -68,7 +68,10 @@ const AnnounceDetail = () => {
       </div>
 
       {/* 본문 내용 */}
-      <div className="an-detail-content">{post.announce || post.content}</div>
+      <div
+        className="an-detail-content"
+        dangerouslySetInnerHTML={{ __html: post.announce || post.content }}
+      ></div>
 
       {/* 버튼들 한 줄로 정렬 */}
       <div className="an-detail-buttons">

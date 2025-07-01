@@ -22,4 +22,11 @@ public interface NeighborhoodMapper {
 
 	int selectReadCount(int boardNo);
 
+
+	int deleteLike(Map<String, Object> map);
+
+	int insertLike(Map<String, Object> map);
+
+	int selectBoardLike(Object object);
+
 }

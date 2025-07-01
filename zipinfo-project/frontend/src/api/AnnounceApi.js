@@ -108,3 +108,21 @@ export const deletePost = async (postId) => {
     throw error;
   }
 };
+
+/*
+ * 이미지 등록
+ */
+export const uploadImage = async (imageFile) => {
+  const formData = new FormData();
+  formData.append("image", imageFile);
+  try {
+    const response = await axios.post(`${BASE_URL}/uploadImage`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    });
+    return response.data; // 이미지 URL 문자열
+  } catch (error) {
+    console.error("이미지 업로드 실패", error);
+    throw error;
+  }
+};

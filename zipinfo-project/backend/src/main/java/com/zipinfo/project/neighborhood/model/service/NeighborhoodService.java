@@ -18,4 +18,7 @@ public interface NeighborhoodService {
 
 	int updateReadCount(int boardNo);
 
+
+	int like(Map<String, Object> paramMap);
+
 }

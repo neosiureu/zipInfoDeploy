@@ -21,11 +21,17 @@ public class WebConfig implements WebMvcConfigurer {
  // WebConfig 예시
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String uploadPath = "file:///C:/uploadFiles/ad/";
+        // 기존 동네 이미지 매핑 유지
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(uploadPath);
+                .addResourceLocations("file:///C:/uploadFiles/boardImg/");
+
+        // 공지사항 이미지 매핑 추가
+        registry.addResourceHandler("/images/announceImg/**")
+                .addResourceLocations("file:///C:/uploadFiles/announceImg/");
+        
+        // 광고 배너 이미지
+        registry.addResourceHandler("/images/advertiseImg/**")
+        .addResourceLocations("file:///C:/uploadFiles/advertiseImg/");
     }
-
-
 
 }

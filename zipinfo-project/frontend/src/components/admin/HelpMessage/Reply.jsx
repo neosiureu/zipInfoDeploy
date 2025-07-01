@@ -93,17 +93,17 @@ const Reply = () => {
         </div>
 
         {/* 첨부 파일 */}
-        {message.attachmentUrl && (
+        {message.fileUrl && (
           <div className="form-group">
             <label className="form-label">첨부 파일</label>
             <a
-              href={message.attachmentUrl}
-              download
+              href={message.fileUrl}
+              download={message.fileOriginName}
               className="download-link"
               target="_blank"
               rel="noopener noreferrer"
             >
-              첨부파일 다운로드
+              {message.fileOriginName || "첨부파일 다운로드"}
             </a>
           </div>
         )}

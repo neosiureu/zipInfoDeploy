@@ -71,5 +71,32 @@
 	  SET READ_FL = 'Y'
 	  WHERE MESSAGE_NO = #{messageNo}
 	</update>
+	
+	<!-- 답변 등록 시 해당 문의글 REPLY_YN = 'Y'로 변경 -->
+	<update id="updateReplyYn" parameterType="int">
+	  UPDATE HELP_MESSAGE
+	  SET REPLY_YN = 'Y'
+	  WHERE MESSAGE_NO = #{messageNo}
+	</update>
+	
+	<!-- 관리자가 보낸 메시지 제외 -->
+	<select id="selectUnansweredMessages" resultType="com.zipinfo.project.admin.model.dto.HelpMessage">
+  SELECT * FROM HELP_MESSAGE
+  WHERE SENDER_NO != #{adminId}
+    AND REPLY_YN = 'N'
+    AND USER_DEL_FL = 'N'
+    AND ADMIN_DEL_FL = 'N'
+  ORDER BY MESSAGE_NO DESC
+</select>
+
+<!-- [보낸 문의] → [문의 답변] 메뉴: REPLY_YN = 'Y' 인 문의글만 출력 -->
+<select id="selectAnsweredMessagesByUser" parameterType="int" resultType="com.zipinfo.project.admin.model.dto.HelpMessage">
+  SELECT * FROM HELP_MESSAGE
+  WHERE SENDER_NO = #{userNo}
+    AND REPLY_YN = 'Y'
+    AND USER_DEL_FL = 'N'
+  ORDER BY MESSAGE_NO DESC
+</select>
+
 
 </mapper>

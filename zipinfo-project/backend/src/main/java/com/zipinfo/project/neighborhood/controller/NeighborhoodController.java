@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -74,7 +76,6 @@ public class NeighborhoodController {
 	    
 	    response.put("boardList", map.get("boardList"));
 	    response.put("pagination", map.get("pagination"));
-	     log.debug("프론트단으로 보낼 response 내용"+response);
 	    return ResponseEntity.ok(response);
 	}
 	
@@ -87,12 +88,9 @@ public class NeighborhoodController {
 			HttpServletRequest req, 
 			HttpServletResponse resp) {
 		
-		log.debug("디테일을 위한 컨트롤러단에 도달했습니다"+ boardNo+loginMember);
-		int boardCode=1;
 
 
 		Map<String, Integer> map = new HashMap<>();
-		map.put("boardCode", boardCode);
 		map.put("boardNo", boardNo);
 
 		if (loginMember != null) {
@@ -163,10 +161,20 @@ public class NeighborhoodController {
 			
 		}
 		
-		log.info("최종적으로 보낼 것"+board);
 		return ResponseEntity.ok(board);
 	}
 	
-
+	@PostMapping("/like")
+	public ResponseEntity<Object> like(@RequestBody Map<String, Object> paramMap , @SessionAttribute(value = "loginMember", required = false) Member loginMember){
+		
+		paramMap.put("memberNo", loginMember.getMemberNo());
+		log.info("현재 파라미터 맵에 들어있는 정보"+paramMap);
+		
+		int like= neighborhoodService.like(paramMap);
+		if(like!=1) return null;
+		
+		return ResponseEntity.ok(like);
+	}			
+			
 	
 }

@@ -61,6 +61,13 @@ public class FileConfig implements WebMvcConfigurer{
 
     @Value("${my.message.resource-location}")
     private String resourceMessageLocation;
+    
+    // 공지 관련 경로
+	@Value("${my.announce.resource-handler}")
+    private String resourceAnnounceHandler;
+
+    @Value("${my.announce.resource-location}")
+    private String resourceAnnounceLocation;
 
 	
 //	// 요청 주소에 따라
@@ -89,9 +96,13 @@ public class FileConfig implements WebMvcConfigurer{
 	    .addResourceHandler(resourceBoardHandler) // /images/boardImg/**
 	    .addResourceLocations(resourceBoardLocation); // file:///C:/uploadFiles/boardImg/
     
-    registry
+		registry
 		.addResourceHandler(resourceMessageHandler)
 		.addResourceLocations(resourceMessageLocation);
+		
+		registry
+		.addResourceHandler(resourceAnnounceHandler)
+		.addResourceLocations(resourceAnnounceLocation);
 
 	}
 	
