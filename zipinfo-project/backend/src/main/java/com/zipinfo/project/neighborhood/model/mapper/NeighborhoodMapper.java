@@ -29,4 +29,6 @@ public interface NeighborhoodMapper {
 
 	int selectBoardLike(Object object);
 
+	Map<String, Object> getSearchList(Map<String, Object> searchMap);
+
 }

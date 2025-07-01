@@ -26,6 +26,7 @@ public class Neighborhood {
 	private int townNo;
 	private int cityNo;
 	private int boardCode;
+	private int likeCount;
 
     private List<Comment> commentList; // 임시 주석
 }

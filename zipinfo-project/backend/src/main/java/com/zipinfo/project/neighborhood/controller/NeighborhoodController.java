@@ -61,8 +61,17 @@ public class NeighborhoodController {
 	
 	    
 	    if(hasSearch) {
-	    	map = neighborhoodService.getSearchList(cp, key, query, city, town, subject);
-	    	// 후에 구현하기로 한다.
+	    	Map <String,Object> searchMap = new HashMap<>();
+	    	searchMap.put("cp", cp);
+	    	searchMap.put("key", key);
+	    	searchMap.put("query", query);
+	    	searchMap.put("city", city);
+	    	searchMap.put("town", town);
+	    	searchMap.put("subject", subject);
+
+	    	log.debug("서치 맵"+searchMap);
+	    	map = neighborhoodService.getSearchList(searchMap);
+	    	// 이제 피할수 없으니 구현하기로 한다.
 
 	    }
 	 // 위 조건 중 하나라도 만족한다면 검색이 아닌 것이다.
