@@ -10,4 +10,7 @@ public interface EditneighborhoodService {
 
 	int boardUpdate(Neighborhood inputBoard);
 
+
+	int boardDelete(Neighborhood inputBoard);
+
 }

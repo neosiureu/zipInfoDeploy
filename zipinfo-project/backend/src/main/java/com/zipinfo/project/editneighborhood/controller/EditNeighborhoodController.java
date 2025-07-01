@@ -1,5 +1,7 @@
 package com.zipinfo.project.editneighborhood.controller;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,9 +37,8 @@ public class EditNeighborhoodController {
 	private String boardFolderPath;
 	private final EditneighborhoodService editneighborhoodService;
 
-	/**
+	/** 이주원
 	 * 게시글 작성
-	 * 
 	 * @param boardCode   : 어떤 게시판에 작성할 글인지 구분 (1/2/3..)
 	 * @param inputBoard  : 입력된 값(제목, 내용) 세팅되어있음 (커맨드 객체)
 	 * @param loginMember : 로그인한 회원 번호를 얻어오는 용도(세션에 등록되어있음)
@@ -63,10 +64,37 @@ public class EditNeighborhoodController {
 		return boardNo;
 	}
 
-	/**
+	/** 이주원
+	 * 게시글 삭제
+	 * @param inputBoard  : 입력된 값(제목, 내용) 세팅되어있음 (커맨드 객체)
+	 * @param loginMember : 로그인한 회원 번호를 얻어오는 용도(세션에 등록되어있음)
+	 * @throws Exception
+	 */
+	@DeleteMapping("{boardNo}")
+	public int boardDelete(@PathVariable("boardNo") int boardNo, @SessionAttribute("loginMember") Member loginMember)
+			throws Exception {
+
+		
+		Neighborhood inputBoard = new Neighborhood();
+		inputBoard.setBoardNo(boardNo);
+		inputBoard.setMemberNo(loginMember.getMemberNo());
+		
+		
+		log.info("내 닉네임은"+loginMember.getMemberNickname()+"입니다");
+
+		
+		System.out.println("서버에서 받은 삭제해야 할 우리동네게시판 보드는: " + boardNo);
+
+		int deleted = editneighborhoodService.boardDelete(inputBoard);
+		log.info("삭제된 열의 개수" + deleted);
+
+
+		return deleted;
+	}
+	
+	
+	/** 이주원
 	 * 게시글 수정
-	 * 
-	 * @param boardCode   : 어떤 게시판에 작성할 글인지 구분 (1/2/3..)
 	 * @param inputBoard  : 입력된 값(제목, 내용) 세팅되어있음 (커맨드 객체)
 	 * @param loginMember : 로그인한 회원 번호를 얻어오는 용도(세션에 등록되어있음)
 	 * @throws Exception
@@ -90,6 +118,7 @@ public class EditNeighborhoodController {
 
 		return boardNo;
 	}
+	
 
 	@PostMapping("/uploadImage")
 	@ResponseBody

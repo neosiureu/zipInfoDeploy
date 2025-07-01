@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.zipinfo.project.editneighborhood.model.mapper.EditNeighborhoodMapper;
 import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
@@ -18,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-
+@Transactional (rollbackFor = Exception.class)
 @Slf4j
 public class EditneighborhoodServiceImpl implements EditneighborhoodService {
 	@Value("${my.board.web-path}")
@@ -95,5 +96,15 @@ public class EditneighborhoodServiceImpl implements EditneighborhoodService {
 		int result= editNeighborhoodMapper.boardUpdate(inputBoard);
 		return result;
 	}
+
+
+	@Override
+	public int boardDelete(Neighborhood inputBoard) {
+		
+		return editNeighborhoodMapper.boardDelete(inputBoard);
+	}
+
+
+	
 	
 }

@@ -110,8 +110,9 @@ const NeighborhoodEdit = () => {
 
         if (result > 0) {
           alert("글이 수정되었습니다");
+          navigate(`/neighborhoodBoard/detail/${boardNo}?cp=${cp}`);
         } else {
-          alert("글 수정 실패");
+          alert("글 수정 실패. 본인의 게시글이 아닙니다!");
           return; // 실패시 페이지 이동 막기
         }
       } else {
@@ -126,13 +127,12 @@ const NeighborhoodEdit = () => {
 
         if (result > 0) {
           alert("글이 등록되었습니다");
-          navigate(`/neighborhoodBoard?cp=${cp}`); // 성공시에 이동
+          navigate(`/neighborhoodBoard?cp=${cp}`); // 성공시에 리스트 페이지로 이동
         } else {
           alert("글 등록 실패");
           return; // 실패시  중단
         }
       }
-      navigate(`/neighborhoodBoard?cp=${cp}`);
     } catch (error) {
       console.error(" 저장 오류:", error);
       alert("저장 중 오류가 발생했습니다.");
@@ -234,7 +234,7 @@ const NeighborhoodEdit = () => {
               cursor: loading ? "not-allowed" : "pointer",
             }}
           >
-            {loading ? "저장 중..." : isEdit ? "수정 완료" : "등록"}
+            {loading ? "저장 중..." : isEdit ? "수정 완료" : "글 등록"}
           </button>
         </div>
       </form>

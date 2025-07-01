@@ -3,7 +3,8 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.zipinfo.project.neighborhood.model.mapper.NeighborhoodMapper">
+<mapper
+	namespace="com.zipinfo.project.neighborhood.model.mapper.NeighborhoodMapper">
 	<!-- 게시글 수 조회 -->
 	<select id="getListCount">
 		SELECT COUNT(*)
@@ -25,10 +26,9 @@
 		M.MEMBER_NICKNAME,
 		B.READ_COUNT,
 		B.BOARD_CONTENT,
-		B.BOARD_SUBJECT AS boardSubject,
-		B.MEMBER_NO AS
-		memberNo,
-		B.TOWN_NO AS townNo,
+		B.BOARD_SUBJECT,
+		B.MEMBER_NO ,
+		B.TOWN_NO,
 		M.MEMBER_NICKNAME,
 
 		(
@@ -37,28 +37,33 @@
 		FROM "COMMENT" C
 		JOIN "COMMENT_LIKE" CL ON CL.COMMENT_NO
 		= C.COMMENT_NO
-		WHERE C.BOARD_NO = B.BOARD_NO
+		WHERE C.BOARD_NO
+		= B.BOARD_NO
 		AND C.COMMENT_DEL_FL = 'N'
 		) AS COMMENT_COUNT,
 
-		(SELECT COUNT(*)
+		(SELECT
+		COUNT(*)
 		FROM "LIKE" L
 		WHERE L.BOARD_NO =
 		B.BOARD_NO) AS LIKE_COUNT,
 
 		(SELECT BT.TOWN_NAME
 		FROM "BOARD_TOWN" BT
-		WHERE BT.TOWN_NO = B.TOWN_NO) AS TOWN_NAME,
+		WHERE BT.TOWN_NO = B.TOWN_NO)
+		AS TOWN_NAME,
 
 		(SELECT BC.CITY_NAME
 		FROM
 		"BOARD_CITY" BC
-		WHERE BC.CITY_NO = (
+		WHERE BC.CITY_NO =
+		(
 		SELECT BT.CITY_NO
 		FROM "BOARD_TOWN"
 		BT
 		WHERE BT.TOWN_NO = B.TOWN_NO
-		)) AS CITY_NAME,
+		)) AS
+		CITY_NAME,
 		(SELECT BC.CITY_NO
 		FROM
 		"BOARD_CITY" BC
@@ -67,7 +72,8 @@
 
 		FROM "BOARD_TOWN"
 		BT
-		WHERE BT.TOWN_NO = B.TOWN_NO)) AS CITY_NO,
+		WHERE BT.TOWN_NO = B.TOWN_NO)) AS
+		CITY_NO,
         <![CDATA[
         CASE 
           WHEN SYSDATE - B.BOARD_WRITE_DATE < 1/24/60  THEN FLOOR((SYSDATE - B.BOARD_WRITE_DATE)*24*60*60) || '초 전'
@@ -109,57 +115,62 @@
 
 	<!-- 게시글 상세 -->
 
-<select id="selectOne"
-        parameterType="map"
-        resultMap="board_rm">
-  SELECT
-      B.BOARD_NO,
-      B.BOARD_TITLE,
-      B.BOARD_CONTENT,
-      B.READ_COUNT,
-      B.MEMBER_NO,
-      M.MEMBER_NICKNAME,
-      M.MEMBER_IMG,
-      TO_CHAR(B.BOARD_WRITE_DATE,
-              'YYYY"년" MM"월" DD"일" HH24:MI:SS') AS BOARD_WRITE_DATE,
+	<select id="selectOne" parameterType="map" resultMap="board_rm">
+		SELECT
+		B.BOARD_NO,
+		B.BOARD_TITLE,
+		B.BOARD_CONTENT,
+		B.READ_COUNT,
+		B.MEMBER_NO,
+		M.MEMBER_NICKNAME,
+		M.MEMBER_IMG,
+		TO_CHAR(B.BOARD_WRITE_DATE,
+		'YYYY"년" MM"월" DD"일" HH24:MI:SS')
+		AS BOARD_WRITE_DATE,
 
-      /* 좋아요 수 */
-      ( SELECT COUNT(*)
-        FROM "LIKE"
-        WHERE BOARD_NO = #{boardNo} ) AS LIKE_COUNT,
+		/* 좋아요 수 */
+		( SELECT COUNT(*)
+		FROM "LIKE"
+		WHERE BOARD_NO = #{boardNo} )
+		AS LIKE_COUNT,
 
-      /* 특정 회원의 좋아요 여부 */
-      ( SELECT COUNT(*)
-        FROM "LIKE"
-        WHERE BOARD_NO = #{boardNo}
-          AND MEMBER_NO = #{memberNo} ) AS LIKE_CHECK,
+		/* 특정 회원의 좋아요 여부 */
+		( SELECT COUNT(*)
+		FROM "LIKE"
+		WHERE BOARD_NO = #{boardNo}
+		AND MEMBER_NO = #{memberNo} )
+		AS LIKE_CHECK,
 
-      /* 시군구 FK */
-      B.TOWN_NO,
+		/* 시군구 FK */
+		B.TOWN_NO,
 
-      /* 군·구명 */
-      ( SELECT BT.TOWN_NAME
-        FROM   "BOARD_TOWN" BT
-        WHERE  BT.TOWN_NO = B.TOWN_NO ) AS TOWN_NAME,
+		/* 군·구명 */
+		( SELECT BT.TOWN_NAME
+		FROM "BOARD_TOWN" BT
+		WHERE BT.TOWN_NO = B.TOWN_NO )
+		AS TOWN_NAME,
 
-      /* 시·도 번호 */
-      ( SELECT BT.CITY_NO
-        FROM   "BOARD_TOWN" BT
-        WHERE  BT.TOWN_NO = B.TOWN_NO ) AS CITY_NO,
+		/* 시·도 번호 */
+		( SELECT BT.CITY_NO
+		FROM "BOARD_TOWN" BT
+		WHERE BT.TOWN_NO = B.TOWN_NO )
+		AS CITY_NO,
 
-      /* 시·도 이름 */
-      ( SELECT BC.CITY_NAME
-        FROM   "BOARD_CITY" BC
-        JOIN   "BOARD_TOWN" BT ON BC.CITY_NO = BT.CITY_NO
-        WHERE  BT.TOWN_NO = B.TOWN_NO ) AS CITY_NAME
-        ,B.BOARD_SUBJECT
-  FROM   "BOARD"  B
-  JOIN   "MEMBER" M ON B.MEMBER_NO = M.MEMBER_NO
-  WHERE  B.BOARD_DEL_FL  = 'N'
-    AND  M.MEMBER_DEL_FL = 'N'
-    AND  B.BOARD_NO      = #{boardNo}
+		/* 시·도 이름 */
+		( SELECT BC.CITY_NAME
+		FROM "BOARD_CITY" BC
+		JOIN "BOARD_TOWN" BT ON BC.CITY_NO = BT.CITY_NO
+		WHERE BT.TOWN_NO = B.TOWN_NO )
+		AS CITY_NAME
 
-</select>
+		,B.BOARD_SUBJECT
+		FROM "BOARD" B
+		JOIN "MEMBER" M ON B.MEMBER_NO = M.MEMBER_NO
+		WHERE B.BOARD_DEL_FL = 'N'
+		AND M.MEMBER_DEL_FL = 'N'
+		AND B.BOARD_NO = #{boardNo}
+
+	</select>
 
 
 	<!-- 댓글 트리 -->
@@ -170,7 +181,8 @@
 		SELECT COMMENT_NO,
 		COMMENT_CONTENT,
 		TO_CHAR(COMMENT_DATE,'YYYY"년" MM"월" DD"일" HH24"시" MI"분" SS"초"')
-		AS COMMENT_DATE,
+		AS
+		COMMENT_DATE,
 		BOARD_NO,
 		MEMBER_NO,
 		MEMBER_NICKNAME,
@@ -178,19 +190,24 @@
 		COMMENT_PARENT_NO,
 		COMMENT_DEL_FL
 		FROM "COMMENT"
-		JOIN MEMBER USING (MEMBER_NO)
+		JOIN MEMBER USING
+		(MEMBER_NO)
 		WHERE BOARD_NO = #{boardNo}
 		) C
 		WHERE COMMENT_DEL_FL = 'N'
-		OR 0 != (
+		OR
+		0 != (
 		SELECT COUNT(*)
 		FROM "COMMENT" SUB
-		WHERE SUB.COMMENT_PARENT_NO = C.COMMENT_NO
+		WHERE SUB.COMMENT_PARENT_NO =
+		C.COMMENT_NO
 		AND COMMENT_DEL_FL = 'N'
 		)
-		START WITH COMMENT_PARENT_NO IS NULL
+		START WITH COMMENT_PARENT_NO IS
+		NULL
 		CONNECT BY PRIOR COMMENT_NO = COMMENT_PARENT_NO
-		ORDER SIBLINGS BY COMMENT_NO
+		ORDER SIBLINGS BY
+		COMMENT_NO
 	</select>
 
 
@@ -199,7 +216,8 @@
 	<update id="updateReadCount">
 		UPDATE "BOARD"
 		SET READ_COUNT = READ_COUNT + 1
-		WHERE BOARD_NO = #{boardNo}
+		WHERE
+		BOARD_NO = #{boardNo}
 	</update>
 
 
@@ -208,6 +226,25 @@
 	<select id="selectReadCount">
 		SELECT READ_COUNT
 		FROM "BOARD"
+		WHERE BOARD_NO =
+		#{boardNo}
+	</select>
+	
+	
+	<!-- 좋아요 해제 -->
+	<delete id="deleteLike">
+		DELETE FROM "LIKE"
+		WHERE MEMBER_NO = #{memberNo}
+		AND BOARD_NO = #{boardNo}
+	</delete>
+	<!-- 좋아요 체크 -->
+	<insert id="insertLike">
+			INSERT INTO "LIKE"
+		VALUES(#{memberNo}, #{boardNo})
+	</insert>
+	<!-- 총 좋아요 수 조회-->
+	<select id="selectBoardLike">
+			SELECT COUNT(*) FROM "LIKE"
 		WHERE BOARD_NO = #{boardNo}
 	</select>
 
