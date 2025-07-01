@@ -161,7 +161,7 @@ const Advertisement = () => {
                 <td>{index + 1}</td>
                 <td>
                   <img
-                    src={ad.imageUrl}
+                    src={`http://localhost:8080${ad.imageUrl}`} // ✅ 절대 경로로 변경
                     alt={`광고 이미지 ${index + 1}`}
                     style={{ width: "100px", height: "auto" }}
                   />

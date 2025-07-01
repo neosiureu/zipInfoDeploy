@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class AdvertisementServiceImpl implements AdvertisementService {
 
     // 업로드 폴더 절대 경로 (윈도우 환경 기준)
-    private final String uploadDir = "C:/uploadFiles/ad";
+	private final String uploadDir = "C:/uploadFiles/advertiseImg";
 
     /**
      * 서버에 파일 저장 후 클라이언트에서 접근 가능한 경로 문자열 반환
@@ -34,7 +34,8 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
             file.transferTo(dest);
 
-            return "/uploads/" + uniqueFilename;
+            return "/images/advertiseImg/" + uniqueFilename;
+
 
         } catch (IOException e) {
             e.printStackTrace();

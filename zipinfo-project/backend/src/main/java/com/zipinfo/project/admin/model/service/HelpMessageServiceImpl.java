@@ -71,9 +71,35 @@ public class HelpMessageServiceImpl implements HelpMessageService {
         
         // 현재는 문의글에 답변 내용과 답변일자를 UPDATE하는 기존 방식
         int result = helpMessageMapper.insertReply(message);
-
+        int updateResult = helpMessageMapper.updateReplyYn(message.getInquiredNo());
         
 
-        return result > 0;
+        return result > 0 && updateResult > 0;
     }
+    
+    /**
+     * 관리자가 문의내용 확인했을 경우 DB에 해당 문의글 READ_FL 'Y'로 변경
+     */
+    @Override
+    @Transactional
+    public boolean markMessageAsRead(int messageNo) {
+        return helpMessageMapper.updateReadFlag(messageNo) > 0;
+    }
+
+    @Override
+    public List<HelpMessage> getUnansweredMessages(int adminId) {
+        return helpMessageMapper.selectUnansweredMessages(adminId);
+    }
+
+    @Override
+    public List<HelpMessage> getAnsweredMessagesByUser(int userNo) {
+        return helpMessageMapper.selectAnsweredMessagesByUser(userNo);
+    }
+
+	@Override
+	public boolean updateReadFlag(int messageNo) {
+		
+		return false;
+	}
 }
+    

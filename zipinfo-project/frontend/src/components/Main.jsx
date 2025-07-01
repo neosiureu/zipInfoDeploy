@@ -25,13 +25,20 @@ import { useState, useEffect } from "react";
 import { axiosAPI } from "../api/axiosApi";
 
 import { formatPrice } from "../components/common/priceConvert";
+
 const Main = () => {
   const navigate = useNavigate();
 
-  const [stockList, setStockList] = useState([]); // 대문에서 보여줄 spring 서버에서 받아오는 매물 List
-  const [saleList, setSaleList] = useState([]); // 대문에서 보여줄 spring 서버에서 받아오는 매물 List
+  const [stockList, setStockList] = useState([]);
+  const [saleList, setSaleList] = useState([]);
 
-  // 페이지가 로딩되면 서버에서 실거래가 매물, 분양 매물 load
+  // 배너 URL 처리
+  const bannerPath = localStorage.getItem("mainBannerUrl");
+  const fullBannerUrl =
+    bannerPath && bannerPath.includes("/images/advertiseImg/")
+      ? `http://localhost:8080${bannerPath}`
+      : banner;
+
   useEffect(() => {
     const loadStock = async () => {
       const resp = await axiosAPI.post("/stock/itemOnMain", {});
@@ -39,7 +46,7 @@ const Main = () => {
     };
     loadStock();
   }, []);
-  //**************************************매매 목록 Element
+
   const StockSample = () => {
     return stockList.map((item, index) => (
       <div className="card" key={item.stockNo}>
@@ -104,7 +111,7 @@ const Main = () => {
       </div>
     ));
   };
-  //***********************************분양 목록 Element
+
   const showSales = () => {
     return stockList.map((item) => (
       <div className="card-sale">
@@ -173,18 +180,10 @@ const Main = () => {
       </section>
 
       <div className="banner">
-        <img
-          src={
-            localStorage.getItem("mainBannerUrl")
-              ? `http://localhost:8080${localStorage.getItem("mainBannerUrl")}`
-              : banner
-          }
-          alt="배너광고 이미지"
-        />
+        <img src={fullBannerUrl} alt="배너광고 이미지" />
       </div>
 
       <section className="section-main">
-        {/* 인기 단지 */}
         <div className="section-header">
           <h2>최근 올라온 신규 매물을 확인해보세요</h2>
           <button
@@ -196,11 +195,8 @@ const Main = () => {
             모두 보기
           </button>
         </div>
-        <div className="card-list">
-          <StockSample />
-        </div>
+        <div className="card-list">{StockSample()}</div>
 
-        {/* 분양 소식 */}
         <div className="sale">
           <div className="section-header">
             <h2>분양 소식을 빠르게 접해보세요</h2>

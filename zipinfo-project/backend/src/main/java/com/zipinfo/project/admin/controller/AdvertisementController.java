@@ -77,4 +77,38 @@ public class AdvertisementController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("광고를 찾을 수 없습니다.");
         }
     }
+    
+    /** 광고 수정 삭제
+     * @param adId
+     * @param newFile
+     * @return
+     */
+    @PutMapping("/edit/{adId}")
+    public ResponseEntity<String> editAd(@PathVariable int adId, @RequestParam("file") MultipartFile newFile) {
+        Advertisement target = adList.stream()
+                .filter(ad -> ad.getId() == adId)
+                .findFirst()
+                .orElse(null);
+
+        if (target == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("광고를 찾을 수 없습니다.");
+        }
+
+        try {
+            // 기존 파일 삭제
+            advertisementService.deleteFile(target.getImageUrl());
+
+            // 새 파일 저장
+            String newFilePath = advertisementService.saveFile(newFile);
+
+            // 리스트 내 광고 정보 수정
+            target.setImageUrl(newFilePath);
+
+            return ResponseEntity.ok("광고가 수정되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("광고 수정 실패");
+        }
+    }
+
 }

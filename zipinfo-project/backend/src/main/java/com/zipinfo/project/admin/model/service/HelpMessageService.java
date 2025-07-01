@@ -25,4 +25,16 @@ public interface HelpMessageService {
      * @return 성공 시 true, 실패 시 false 반환
      */
     boolean saveReply(HelpMessage message);
+
+	/** 관리자가 문의내용 확인했을 경우 DB에 해당 문의글 READ_FL 'Y'로 변경
+	 * @param messageNo
+	 * @return
+	 */
+	boolean markMessageAsRead(int messageNo);
+
+	List<HelpMessage> getUnansweredMessages(int adminId);
+
+	List<HelpMessage> getAnsweredMessagesByUser(int userNo);
+
+	boolean updateReadFlag(int messageNo);
 }
