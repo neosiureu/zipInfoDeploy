@@ -2,11 +2,13 @@
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 
 import Layout from "./components/common/Layout";
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useRef } from "react";
 import ProtectedRoute from "./ProtectedRoute";
 
 import Main from "./components/Main";
 import SalePage from "./components/sale/SalePage";
+
+import "./App.css"
 
 //import StockPageCopy from "./components/stock/StockPageCopy"; // ContextProvider 생성하는 방향으로 리팩토링 중!
 //import { StockProvider } from "./components/stock/StockContext";
@@ -55,6 +57,10 @@ import NeighborhoodDetail from "./components/neighborhood/NeighborhoodBoardDetai
 import Gonggong from "./components/common/Gonggong";
 import NaverCallback from "./components/auth/NaverCallback";
 import NeighborhoodEdit from "./components/neighborhood/NeighborhoodEdit";
+import SockJS from "sockjs-client";
+import { Stomp } from "@stomp/stompjs";
+import { ToastContainer, toast } from "react-toastify";
+
 
 function MessageListener() {
   const { setMember } = useContext(MemberContext);
@@ -77,6 +83,42 @@ function MessageListener() {
   return null;
 }
 
+function GlobalWebSocketListener() {
+  const stompClientRef = useRef(null);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const socket = new SockJS("http://localhost:8080/ws");
+    const client = Stomp.over(socket);
+    client.connect({}, () => {
+      client.subscribe("/topic/notice", (message) => {
+        toast.info(  <div className="toast-announce-container">
+        <div className="toast-announce-title">공지 알림!</div>
+          <div className="toast-announce-con">
+            <div className="toast-announce-body">{message.body}</div>
+            <button className="toast-announce-button" onClick={() => navigate("/announce")}>확인하기</button>
+          </div>
+        </div>,{
+          position: "bottom-right",
+          autoClose: 10000,
+          className: "custom-toast",
+          icon:false,
+        });
+      });
+    });
+    stompClientRef.current = client;
+
+    return () => {
+      if (stompClientRef.current?.connected) {
+        stompClientRef.current.disconnect();
+      }
+    };
+  }, []);
+
+  return null; // 렌더링하지 않음
+}
+
 function App() {
   useEffect(() => {
     if (window.Kakao && !window.Kakao.isInitialized()) {
@@ -90,6 +132,7 @@ function App() {
       <BrowserRouter>
         <MemberProvider>
           <MessageListener />
+          <GlobalWebSocketListener />
           <Routes>
             {/* 공통 사용자 레이아웃 */}
             <Route path="/" element={<Layout />}>
@@ -131,8 +174,9 @@ function App() {
               {/* 공지사항 (Announce) */}
               <Route path="announce" element={<Announce />} />
               <Route path="announce/detail/:id" element={<AnnounceDetail />} />
-              <Route path="announce/write" element={<AnnounceWrite />} />
-              <Route path="announce/edit/:id" element={<AnnounceWrite />} />
+
+              <Route path="announce/write" element={<ProtectedRoute><AdminRoute><AnnounceWrite /></AdminRoute></ProtectedRoute>} />
+              <Route path="announce/edit/:id" element={<ProtectedRoute><AdminRoute><AnnounceWrite /></AdminRoute></ProtectedRoute>} />
 
               {/* 우리동네 게시판 */}
               <Route path="neighborhoodBoard" element={<NeighborhoodBoard />} />
@@ -151,22 +195,23 @@ function App() {
             </Route>
 
             {/* 관리자 페이지 - DashBoard 레이아웃 하위 중첩 라우팅 */}
-            <Route path="/admin/*" element={<DashBoard />}>
-              <Route index element={<Chart />} />
-              <Route path="dashboard" element={<Chart />} />
-              <Route path="chart" element={<Chart />} />
-              <Route path="advertisement" element={<Advertisement />} />
-              <Route path="helpMessage" element={<HelpMessage />} />
-              <Route path="help/reply/:messageNo" element={<Reply />} />{" "}
-              <Route path="management" element={<Management />} />
-              <Route path="list_sale" element={<ListSale />} />
-              <Route path="add_sale" element={<AddSale />} />
-              <Route path="edit_sale/:id" element={<UpdateSale />} />
+            <Route path="admin/*" element={<ProtectedRoute><AdminRoute><DashBoard /></AdminRoute></ProtectedRoute>}>
+              <Route index element={<ProtectedRoute><AdminRoute><Chart /></AdminRoute></ProtectedRoute>} />
+              <Route path="dashboard" element={<ProtectedRoute><AdminRoute><Chart /></AdminRoute></ProtectedRoute>} />
+              <Route path="chart" element={<ProtectedRoute><AdminRoute><Chart /></AdminRoute></ProtectedRoute>} />
+              <Route path="advertisement" element={<ProtectedRoute><AdminRoute><Advertisement /></AdminRoute></ProtectedRoute>} />
+              <Route path="helpMessage" element={<ProtectedRoute><AdminRoute><HelpMessage /></AdminRoute></ProtectedRoute>} />
+              <Route path="help/reply/:messageNo" element={<ProtectedRoute><AdminRoute><Reply /></AdminRoute></ProtectedRoute>} />{" "}
+              <Route path="management" element={<ProtectedRoute><AdminRoute><Management /></AdminRoute></ProtectedRoute>} />
+              <Route path="list_sale" element={<ProtectedRoute><AdminRoute><ListSale /></AdminRoute></ProtectedRoute>} />
+              <Route path="add_sale" element={<ProtectedRoute><AdminRoute><AddSale /></AdminRoute></ProtectedRoute>} />
+              <Route path="edit_sale/:id" element={<ProtectedRoute><AdminRoute><UpdateSale /></AdminRoute></ProtectedRoute>} />
             </Route>
 
             <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />
             <Route path="/oauth2/naver/redirect" element={<NaverCallback />} />
           </Routes>
+          <ToastContainer />
         </MemberProvider>
       </BrowserRouter>
     </AuthProvider>
