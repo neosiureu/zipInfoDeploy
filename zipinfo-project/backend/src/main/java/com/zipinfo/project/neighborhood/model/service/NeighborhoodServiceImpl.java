@@ -50,16 +50,6 @@ public class NeighborhoodServiceImpl implements NeighborhoodService {
 	}
 
 
-	
-
-	
-	@Override
-	public Map<String, Object> getSearchList(int cp, String key, String query, String city, String town,
-			String subject) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 
 
 
@@ -102,6 +92,17 @@ public class NeighborhoodServiceImpl implements NeighborhoodService {
 		}
 
 		return -1;
+	}
+
+
+
+
+
+
+	@Override
+	public Map<String, Object> getSearchList(Map<String, Object> searchMap) {
+		log.debug("서치맵의 내용"+searchMap);
+		return mapper.getSearchList(searchMap);
 	}
 
 	

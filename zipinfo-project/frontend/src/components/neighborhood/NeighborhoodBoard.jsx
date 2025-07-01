@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoard.css";
 import { useNavigate } from "react-router-dom";
@@ -7,17 +7,25 @@ import NeighborhoodFilters from "./NeighborhoodFilters";
 import { MemberContext } from "../member/MemberContext";
 
 const NeighborhoodBoard = ({}) => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { member } = useContext(MemberContext);
 
   const initCp = Number(searchParams.get("cp") ?? 1);
 
   const [currentPage, setCurrentPage] = useState(initCp); // cp를 관리해서 뒤로가기 시 유지시키기 위함
-  const [selectedCity, setSelectedCity] = useState(-1); // 선택된 시도 (e.target)
-  const [selectedTown, setSelectedTown] = useState(-1); // 선택된 시군구 (e.target)
-  const [selectedSubject, setSelectedSubject] = useState(-1); // 선택된 주제 (e.target)
+  const [selectedCity, setSelectedCity] = useState(
+    searchParams.get("city") || -1
+  ); // 선택된 시도 (e.target)
+  const [selectedTown, setSelectedTown] = useState(
+    searchParams.get("town") || -1
+  ); // 선택된 시군구 (e.target)
+  const [selectedSubject, setSelectedSubject] = useState(
+    searchParams.get("subject") || -1
+  ); // 선택된 주제 (e.target)
   const [searchKey, setSearchKey] = useState("t"); // 일단 t만하고 c는 내용 tc는 제목+내용 w는 작성자로 확장하자.
-  const [searchQuery, setSearchQuery] = useState(""); //실제로 검색될 대상
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("query") || ""
+  ); //실제로 검색될 대상
 
   //--------------서버(DB)에서 받을 데이터에 대하여--------------//
   const [boardList, setBoardList] = useState([]);
@@ -68,7 +76,7 @@ const NeighborhoodBoard = ({}) => {
     setCurrentPage(page);
     const params = new URLSearchParams(searchParams);
     params.set("cp", page);
-    navigate(`/neighborhoodBoard?${params}`);
+    // navigate(`/neighborhoodBoard?${params}`);
   };
 
   // 서버에서 온 board객체에 대해 boardNo가 넘어올거니까 그에 따라 상세페이지로 이동
@@ -107,8 +115,14 @@ const NeighborhoodBoard = ({}) => {
       if (searchQuery.trim()) {
         params.append("key", searchKey);
         params.append("query", searchQuery);
+      }
+      if (selectedCity !== -1) {
         params.append("city", selectedCity);
+      }
+      if (selectedTown !== -1) {
         params.append("town", selectedTown);
+      }
+      if (selectedSubject !== -1) {
         params.append("subject", selectedSubject);
       }
 
@@ -128,7 +142,14 @@ const NeighborhoodBoard = ({}) => {
 
   useEffect(() => {
     boardData();
-  }, [currentPage, searchKey, searchQuery]);
+  }, [
+    currentPage,
+    searchKey,
+    searchQuery,
+    selectedCity,
+    selectedTown,
+    selectedSubject,
+  ]); // 진짜 검색의 로직
 
   // // 선택된 시도에 해당하는 시군구만 필터링
   // const filteredTowns =
@@ -137,14 +158,16 @@ const NeighborhoodBoard = ({}) => {
   //     : [];
 
   // 시도 선택 핸들러
-  const handleCityChange = (e) => {
+  const handleCityChange = async (e) => {
     setSelectedCity(e.target.value);
     setSelectedTown(-1); // 시도 변경시 시군구 초기화
+    setCurrentPage(1);
   };
 
   // 시군구 선택 핸들러
   const handleTownChange = (e) => {
     setSelectedTown(e.target.value);
+    setCurrentPage(1);
   };
 
   // 주제 선택 핸들러
@@ -152,6 +175,64 @@ const NeighborhoodBoard = ({}) => {
     setSelectedSubject(e.target.value);
   };
 
+  const updateUrlParams = useCallback(() => {
+    setSearchParams(
+      (prev) => {
+        const newParams = new URLSearchParams(prev);
+        // 현재 페이지를 서치 파라미터에 넘긴다
+        newParams.set("cp", currentPage);
+        // 검색 관련
+        // 쿼리가 있는경우와 없는 경우
+        if (searchQuery.trim()) {
+          newParams.set("query", searchQuery);
+        } else {
+          newParams.delete("query");
+        }
+        if (selectedCity !== -1) {
+          newParams.set("city", selectedCity);
+        } else {
+          newParams.delete("city");
+        }
+        if (selectedTown !== -1) {
+          newParams.set("town", selectedTown);
+        } else {
+          newParams.delete("town");
+        }
+
+        if (selectedSubject !== -1) {
+          newParams.set("subject", selectedSubject);
+        } else {
+          newParams.delete("subject");
+        }
+        return newParams;
+      },
+      { replace: true } // 뒤로가기방지가 ux적으로 맞을듯
+    );
+  });
+
+  useEffect(() => {
+    if (currentPage !== 1) {
+      boardData();
+      updateUrlParams();
+    }
+    // cp는 따로 무조건 검색할때마다 1페이지로 향해야 한다
+    // 가령 3페이지를 보고있다가 부산을 검색하면 부산만의 1페이지로 가야 논리적으로 맞을듯
+  }, [
+    currentPage,
+    searchKey,
+    searchQuery,
+    searchKey,
+    selectedCity,
+    selectedTown,
+    selectedSubject,
+  ]);
+
+  useEffect(() => {
+    if (currentPage !== 1) setCurrentPage(1);
+    else {
+      updateUrlParams();
+    }
+  }, [searchKey, searchQuery, selectedCity, selectedSubject, selectedTown]);
   return (
     <div className="nb-container">
       <div className="nb-board-wrapper">
@@ -186,6 +267,7 @@ const NeighborhoodBoard = ({}) => {
             <div className="nb-header-cell nb-header-area">지역</div>
 
             <div className="nb-header-cell nb-header-author">작성자</div>
+            {/* <div className="nb-header-cell nb-header-author">좋아요</div> */}
             <div className="nb-header-cell nb-header-date">날짜</div>
             <div className="nb-header-cell nb-header-views">조회</div>
           </div>
@@ -214,6 +296,7 @@ const NeighborhoodBoard = ({}) => {
                 {item.memberNickName}
               </div>
               <div className="nb-cell nb-cell-date">{item.boardWriteDate}</div>
+              {/* <div className="nb-cell nb-cell-date">{item.like}</div> */}
               <div className="nb-cell nb-cell-views">{item.readCount}</div>
             </div>
           ))}
