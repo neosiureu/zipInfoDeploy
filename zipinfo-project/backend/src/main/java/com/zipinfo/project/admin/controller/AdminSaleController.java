@@ -136,4 +136,31 @@ public class AdminSaleController {
                 .body("매물 수정 중 오류 발생: " + e.getMessage());
         }
     }
+    
+    /** 관리자 분양 정보 삭제
+     * @param id
+     * @param session
+     * @return
+     */
+    @DeleteMapping("/deleteSale/{id}")
+    public ResponseEntity<String> deleteSale(@PathVariable("id") Long id, HttpSession session) {
+        Member loginMember = (Member) session.getAttribute("loginMember");
+
+        if (loginMember == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+
+        if (loginMember.getMemberAuth() != 0) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("관리자 권한이 없습니다.");
+        }
+
+        try {
+            service.deleteSale(id.intValue());
+            return ResponseEntity.ok("삭제 완료");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 중 오류 발생");
+        }
+    }
+
 }

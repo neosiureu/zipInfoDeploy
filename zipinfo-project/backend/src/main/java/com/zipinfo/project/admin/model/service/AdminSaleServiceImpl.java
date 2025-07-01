@@ -18,6 +18,9 @@ import com.zipinfo.project.sale.model.dto.Sale;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 
+ */
 @Service
 @Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
@@ -178,4 +181,19 @@ public class AdminSaleServiceImpl implements AdminSaleService {
         }
     }
    
+    /** 관리자 분양 정보 삭제
+     *
+     */
+    @Override
+    public void deleteSale(int id) throws Exception {
+        // 1. SALE_IMG 삭제
+        mapper.deleteSaleImages(id);
+
+        // 2. SALE_COORD 삭제
+        mapper.deleteSaleCoord(id);
+
+        // 3. SALE_INFO 삭제
+        mapper.deleteSale(id);
+    }
+
 }

@@ -104,7 +104,7 @@ const Header = () => {
             member.memberAuth == 0 ? (
               <>
                 <li id="admin-page" className="Header-admin-page">
-                  <Link to="/admin">관리자 페이지로 이동</Link>
+                  <Link to="/admin">관리자 페이지</Link>
                 </li>
                 <li id="logout-btn">
                   <button className="Header-logout-btn" onClick={handleLogout}>

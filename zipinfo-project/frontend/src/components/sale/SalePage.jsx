@@ -38,18 +38,25 @@ const SalePage = () => {
     if (!price || isNaN(price)) return "";
 
     const num = Number(price);
-    const billion = Math.floor(num / 100000000);
-    const million = Math.floor((num % 100000000) / 10000);
+    const billion = Math.floor(num / 100000000); // 억
+    const tenThousand = Math.floor((num % 100000000) / 10000); // 만
 
-    if (billion > 0 && million > 0) return `${billion}억 ${million}`;
+    if (billion > 0 && tenThousand > 0)
+      return `${billion}억 ${tenThousand}만원`;
     if (billion > 0) return `${billion}억`;
-    if (million > 0) return `${million}`;
-    return num.toLocaleString();
+    if (tenThousand > 0) return `${tenThousand}만원`;
+    return `${num.toLocaleString()}원`; // 1만 미만일 경우
+  };
+
+  // 분양가가 0이거나 잘못된 값이면 0으로 처리
+  const calculateRate = (amount, total) => {
+    if (!total || total <= 0) return 0;
+    return Math.floor((amount / total) * 100); // 소수점 버림
   };
 
   // 날짜 데이터 변환 함수
   const formatDate = (dateString) => {
-    if (!dateString) return "";
+    if (!dateString) return "-";
     const date = new Date(dateString);
     return date.toISOString().slice(0, 10); // 'YYYY-MM-DD'
   };
@@ -98,6 +105,7 @@ const SalePage = () => {
           });
           if (resp.status === 200) {
             setStockList(resp.data);
+
             updateMarker();
           }
         } catch (error) {
@@ -242,17 +250,20 @@ const SalePage = () => {
               <tbody>
                 <tr>
                   <td>분양주소</td>
-                  <td>{item.saleAddress}</td>
+                  <td>{item.saleAddress || "-"}</td>
                 </tr>
                 <tr>
                   <td>규모</td>
-                  <td>{item.scale}</td>
+                  <td>{item.scale || "-"}</td>
                 </tr>
                 <tr>
                   <td>청약접수</td>
                   <td>
-                    {formatDate(item.applicationStartDate)} ~{" "}
-                    {formatDate(item.applicationEndDate)}
+                    {item.applicationStartDate && item.applicationEndDate
+                      ? `${formatDate(
+                          item.applicationStartDate
+                        )} ~ ${formatDate(item.applicationEndDate)}`
+                      : "-"}
                   </td>
                 </tr>
                 <tr>
@@ -261,11 +272,11 @@ const SalePage = () => {
                 </tr>
                 <tr>
                   <td>건설사</td>
-                  <td>{item.company}</td>
+                  <td>{item.company || "-"}</td>
                 </tr>
                 <tr>
                   <td>분양문의</td>
-                  <td>{item.contactInfo}</td>
+                  <td>{item.contactInfo || "-"}</td>
                 </tr>
               </tbody>
             </table>
@@ -291,11 +302,15 @@ const SalePage = () => {
               <tbody>
                 <tr>
                   <td>분양가</td>
-                  <td>{formatPrice(item.salePrice)}만원</td>
+                  <td>{formatPrice(item.salePrice)}</td>
                 </tr>
                 <tr>
                   <td>취득세</td>
-                  <td>{formatPrice(item.acquisitionTax)}만원</td>
+                  <td>
+                    {item.acquisitionTax
+                      ? `${formatPrice(item.acquisitionTax)}만원`
+                      : "-"}
+                  </td>
                 </tr>
                 <tr>
                   <td>공급면적</td>
@@ -326,15 +341,24 @@ const SalePage = () => {
               <tbody>
                 <tr>
                   <td>계약금</td>
-                  <td>1억 1,000만원 / 10%</td>
+                  <td>
+                    {formatPrice(item.deposit)} /{" "}
+                    {calculateRate(item.deposit, item.salePrice)}%
+                  </td>
                 </tr>
                 <tr>
                   <td>중도금</td>
-                  <td>3억 2,000만원 / 60%</td>
+                  <td>
+                    {formatPrice(item.middlePayment)} /{" "}
+                    {calculateRate(item.middlePayment, item.salePrice)}%
+                  </td>
                 </tr>
                 <tr>
                   <td>잔금</td>
-                  <td>5억 6,000만원 / 30%</td>
+                  <td>
+                    {formatPrice(item.balancePayment)} /{" "}
+                    {calculateRate(item.balancePayment, item.salePrice)}%
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -391,17 +415,17 @@ const SalePage = () => {
 
   return (
     <>
-      {/* 오류 수정: 필요한 함수 props를 SearchBar에 전달 */}
+      {/* 필요한 함수 props를 SearchBar에 전달 */}
       <SearchBar
-        showSearchType={false}
+        showSearchType={false} // 분양용은 false
         searchKeyWord={searchKeyWord}
         setSearchKeyWord={setSearchKeyWord}
         searchLocationCode={searchLocationCode}
         setSearchLocationCode={setSearchLocationCode}
-        searchStockForm={searchSaleStatus}
-        setSearchStockForm={setSaleStatus}
-        searchStockType={searchSaleType}
-        setSearchStockType={setSearchSaleType}
+        searchStockForm={searchSaleStockForm}
+        setSearchStockForm={setSearchSaleStockForm}
+        searchStockType={searchSaleStatus}
+        setSearchStockType={setSearchSaleStatus}
       />
       <div className="container">
         <aside className="sale-side-panel">

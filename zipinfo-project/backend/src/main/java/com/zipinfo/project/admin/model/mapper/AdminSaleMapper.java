@@ -86,4 +86,19 @@ public interface AdminSaleMapper {
     List<String> selectImageRenamesByType(@Param("saleNo") Long saleNo,
                                           @Param("type") String type);
 
+    /** 관리자 분양 정보 이미지 삭제
+     * @param saleStockNo
+     */
+    void deleteSaleImages(@Param("saleStockNo") int saleStockNo);
+
+    /** 관리자 분양 정보 좌표 삭제
+     * @param saleStockNo
+     */
+    void deleteSaleCoord(@Param("saleStockNo") int saleStockNo);
+
+    /** 관리자 분양 정보 최종 삭제
+     * @param id
+     */
+    void deleteSale(@Param("id") int id);
+
 }

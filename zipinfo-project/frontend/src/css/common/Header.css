@@ -50,6 +50,7 @@ a {
 
 .Header-signup-btn:hover,
 .Header-my-page:hover,
+.Header-admin-page:hover,
 .Header-logout-btn:hover,
 .Header-menu li:hover {
   color: #495cf8;
@@ -108,7 +109,7 @@ a {
   cursor: pointer;
   color: #111;
   list-style: none;
-  padding: 10px 12px;
+  padding: 12px 12px;
 }
 
 .Header-logout-btn {
