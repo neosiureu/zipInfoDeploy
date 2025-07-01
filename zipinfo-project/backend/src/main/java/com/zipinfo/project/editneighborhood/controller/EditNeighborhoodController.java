@@ -35,6 +35,7 @@ public class EditNeighborhoodController {
 
 	@Value("${my.board.folder-path}")
 	private String boardFolderPath;
+	
 	private final EditneighborhoodService editneighborhoodService;
 
 	/** 이주원
