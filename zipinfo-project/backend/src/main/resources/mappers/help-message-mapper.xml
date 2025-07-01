@@ -9,30 +9,7 @@
     조건: 사용자/관리자 삭제되지 않은 문의만 조회 
     결과 매핑: HelpMessage DTO
   -->
-  <select id="selectAllMessages" resultType="com.zipinfo.project.admin.model.dto.HelpMessage">
-    SELECT 
-      MESSAGE_NO,
-      MESSAGE_TITLE,
-      MESSAGE_CONTENT,
-      MESSAGE_WRITE_DATE,
-      MESSAGE_READ_FL,
-      USER_DEL_FL,
-      ADMIN_DEL_FL,
-      SENDER_NO,
-      RECEIVER_NO,
-      INQUIRED_NO
-    FROM HELP_MESSAGE
-    WHERE USER_DEL_FL = 'N' AND ADMIN_DEL_FL = 'N'
-    ORDER BY MESSAGE_NO DESC
-  </select>
-
-  <!-- 
-    특정 문의 상세 조회 
-    파라미터: messageNo (문의글 번호)
-    결과 매핑: HelpMessage DTO
-  -->
-  <!-- 특정 메시지 상세 조회 -->
-<select id="selectMessageById" parameterType="Integer" resultType="com.zipinfo.project.admin.model.dto.HelpMessage">
+	  <select id="selectAllMessages" parameterType="int" resultType="com.zipinfo.project.admin.model.dto.HelpMessage">
   SELECT 
     MESSAGE_NO,
     MESSAGE_TITLE,
@@ -42,8 +19,31 @@
     USER_DEL_FL,
     ADMIN_DEL_FL,
     SENDER_NO,
-    RECEIVER_NO,
-    INQUIRED_NO
+    RECEIVER_NO
+  FROM HELP_MESSAGE
+  WHERE USER_DEL_FL = 'N' 
+  ORDER BY MESSAGE_NO DESC
+</select>
+
+
+
+  <!-- 
+    특정 문의 상세 조회 
+    파라미터: messageNo (문의글 번호)
+    결과 매핑: HelpMessage DTO
+  -->
+  <!-- 특정 메시지 상세 조회 -->
+	<select id="selectMessageById" parameterType="Integer" resultType="com.zipinfo.project.admin.model.dto.HelpMessage">
+  SELECT 
+    MESSAGE_NO,
+    MESSAGE_TITLE,
+    MESSAGE_CONTENT,
+    MESSAGE_WRITE_DATE,
+    MESSAGE_READ_FL,
+    USER_DEL_FL,
+    ADMIN_DEL_FL,
+    SENDER_NO,
+    RECEIVER_NO
   FROM HELP_MESSAGE
   WHERE MESSAGE_NO = #{messageNo}
 </select>
@@ -57,20 +57,49 @@
     parameterType: map 또는 @Param("messageNo", "replyContent") 방식
     반환값: 업데이트된 행 수 (성공 시 1)
   -->
-  
-  <insert id="insertReply">
-  	INSERT INTO "HELP_MESSAGE"
-  	VALUES(SEQ_MESSAGE_NO.NEXTVAL,1,#{messageContent},SYSDATE, 'N','N','N', #{senderNo}, #{receiverNo},'N', #{inquiredNo})
-  </insert>
+	  <insert id="insertReply" parameterType="com.zipinfo.project.admin.model.dto.HelpMessage">
+	  INSERT INTO HELP_MESSAGE
+	  (
+	    MESSAGE_NO,
+	    MESSAGE_TITLE,
+	    MESSAGE_CONTENT,
+	    MESSAGE_WRITE_DATE,
+	    MESSAGE_READ_FL,
+	    USER_DEL_FL,
+	    ADMIN_DEL_FL,
+	    REPLY_YN,
+	    SENDER_NO,
+	    RECEIVER_NO,
+	    INQUIRED_NO
+	  )
+	  VALUES
+	  (
+	    SEQ_MESSAGE_NO.NEXTVAL,
+	    '답변',                 <!-- 답변 제목 -->
+	    #{messageContent},       <!-- 답변 내용 -->
+	    SYSDATE,
+	    'N',                    <!-- 읽음 여부 초기값 -->
+	    'N',                    <!-- 사용자 삭제 여부 -->
+	    'N',                    <!-- 관리자 삭제 여부 -->
+	    'Y',                    <!-- 답변 레코드는 REPLY_YN = 'Y' -->
+	    #{senderNo},             <!-- 답변 작성자 -->
+	    #{receiverNo},           <!-- 답변 받는 대상 -->
+	    #{inquiredNo}            <!-- 원본 문의글 번호 -->
+	  )
+	</insert>
+
+
 
 <!-- 관리자가 문의내용 확인했을 경우 DB에 해당 문의글 READ_FL 'Y'로 변경
 
  -->
 	<update id="updateReadFlag" parameterType="int">
 	  UPDATE HELP_MESSAGE
-	  SET READ_FL = 'Y'
+	  SET MESSAGE_READ_FL = 'Y'
 	  WHERE MESSAGE_NO = #{messageNo}
 	</update>
+
+
 	
 	<!-- 답변 등록 시 해당 문의글 REPLY_YN = 'Y'로 변경 -->
 	<update id="updateReplyYn" parameterType="int">
