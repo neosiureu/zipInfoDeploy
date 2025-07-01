@@ -18,5 +18,10 @@ public interface SaleService {
 	 * @return
 	 */
 	Sale selectSaleDetail(int saleStockNo);
+
+	/** 분양 정보 전체 조회
+	 * @return
+	 */
+	List<Sale> selectSaleList();
 	
 }

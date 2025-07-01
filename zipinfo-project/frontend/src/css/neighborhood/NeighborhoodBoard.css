@@ -128,7 +128,7 @@
 /* 게시글 행 */
 .nb-row {
   display: flex;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid #dbdbdb;
   background-color: white;
 }
 
@@ -251,6 +251,6 @@
   font-weight: 500;
 }
 
-.member-location-select{
+.member-location-select {
   border-radius: 5px;
 }

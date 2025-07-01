@@ -3,11 +3,11 @@ import axios from "axios";
 import "../../../css/admin/saleForm/addSale.css";
 import { useNavigate } from "react-router-dom";
 
-// 매물 형태와 분양 상태를 숫자로 매핑
+// 매물 형태 및 상태를 숫자로 매핑
 const typeMap = { 아파트: 1, 빌라: 2, 오피스텔: 3 };
 const statusMap = { 분양중: 1, 분양예정: 2, 분양완료: 3 };
 
-// 초기 상태 정의
+// 초기 상태값 설정
 const initialState = {
   type: "아파트",
   name: "",
@@ -38,40 +38,24 @@ const initialState = {
 };
 
 const AddSale = () => {
-  const [form, setForm] = useState(initialState); // 폼 입력 상태 관리
+  const [form, setForm] = useState(initialState); // 폼 데이터 상태
   const [submitStatus, setSubmitStatus] = useState(""); // 등록 상태 메시지
-  const [availableInterimRates, setAvailableInterimRates] = useState([]); // 중도금 선택 옵션
-  const [thumbnailImages, setThumbnailImages] = useState([]); // 썸네일 이미지 파일들
-  const [floorImages, setFloorImages] = useState([]); // 평면도 이미지 파일들
+  const [availableInterimRates, setAvailableInterimRates] = useState([]); // 중도금 비율 선택 옵션
+  const [thumbnailImages, setThumbnailImages] = useState([]); // 썸네일 이미지
+  const [floorImages, setFloorImages] = useState([]); // 평면도 이미지
 
-  const formatWithComma = (val) => val.replace(/\B(?=(\d{3})+(?!\d))/g, ","); // 숫자에 콤마 포맷 적용
+  const formatWithComma = (val) => val.replace(/\B(?=(\d{3})+(?!\d))/g, ","); // 1000단위 콤마 추가
   const removeComma = (val) => val.replace(/,/g, ""); // 콤마 제거
 
   const navigate = useNavigate();
 
+  // 총 분양가 계산 (억 단위는 필수, 만원 단위는 선택)
   const totalPrice =
     (Number(removeComma(form.price1)) * 10000 +
-      Number(removeComma(form.price2))) *
+      (form.price2 ? Number(removeComma(form.price2)) : 0)) *
     10000;
 
-  // 주소를 통해 위도/경도 좌표 조회 (Kakao API)
-  const getCoordsByAddress = async (address) => {
-    const response = await axios.get(
-      `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(
-        address
-      )}`,
-      {
-        headers: {
-          Authorization: `KakaoAK ${import.meta.env.VITE_KAKAO_REST_API_KEY}`,
-        },
-      }
-    );
-    const result = response.data.documents[0];
-    if (!result) throw new Error("주소에 해당하는 위치가 없습니다.");
-    return { lat: result.y, lng: result.x };
-  };
-
-  // 계약금 비율에 따라 중도금 선택 가능 범위 조정
+  // 계약금이 변경될 때 중도금 비율 옵션 및 유효성 재설정
   useEffect(() => {
     const contract = parseInt(form.contractRate) || 0;
     const options = [];
@@ -89,7 +73,7 @@ const AddSale = () => {
     }
   }, [form.contractRate]);
 
-  // 계약금, 중도금, 잔금 금액 자동 계산 및 표시
+  // 계약금, 중도금, 잔금 금액 계산
   useEffect(() => {
     const contract = parseInt(form.contractRate) || 0;
     const interim = parseInt(form.interimRate) || 0;
@@ -97,8 +81,8 @@ const AddSale = () => {
     if (balance < 0) balance = 0;
 
     const toKoreanCurrency = (amount) => {
-      const billion = Math.floor(amount / 100000000); // 억
-      const million = Math.floor((amount % 100000000) / 10000); // 만 단위
+      const billion = Math.floor(amount / 100000000);
+      const million = Math.floor((amount % 100000000) / 10000);
 
       if (billion > 0 && million > 0)
         return `${billion}억 ${million.toLocaleString()}만원`;
@@ -126,21 +110,22 @@ const AddSale = () => {
     }));
   }, [form.contractRate, form.interimRate, totalPrice]);
 
-  // 일반 입력 처리 및 유효성 검사
+  // 입력 필드 유효성 검사 및 콤마 처리
   const handleChange = (e) => {
     const { name, value } = e.target;
     const onlyNumber = /^[0-9]*$/;
     const onlyDecimal = /^[0-9]*\.?[0-9]*$/;
     const phonePattern = /^[0-9\-]*$/;
 
+    // 필드별 최대 길이 설정
     const fieldMaxLength = {
       name: 15,
       scale: 30,
       builder: 10,
       contact: 13,
       tax: 12,
-      supplyArea: 5,
-      exclusiveArea: 5,
+      supplyArea: 6,
+      exclusiveArea: 6,
       rooms: 2,
       baths: 2,
       price1: 3,
@@ -157,6 +142,7 @@ const AddSale = () => {
     )
       return;
 
+    // 금액 관련 입력일 경우 콤마 처리
     if (["price1", "price2", "tax"].includes(name)) {
       const numeric = removeComma(value);
       if (!onlyNumber.test(numeric)) return;
@@ -209,7 +195,6 @@ const AddSale = () => {
       !form.address ||
       !form.contact ||
       !form.price1 ||
-      !form.price2 ||
       !form.contractRate ||
       !form.supplyArea ||
       !form.exclusiveArea ||
@@ -218,6 +203,22 @@ const AddSale = () => {
     ) {
       alert("필수 항목을 모두 입력해주세요.");
       return;
+    }
+
+    // 날짜 비교
+    if (form.startDate && form.endDate) {
+      const start = new Date(form.startDate);
+      const end = new Date(form.endDate);
+
+      if (isNaN(start) || isNaN(end)) {
+        alert("날짜 형식이 잘못되었습니다.");
+        return;
+      }
+
+      if (end <= start) {
+        alert("청약 종료일은 시작일보다 이후 날짜여야 합니다.");
+        return;
+      }
     }
 
     try {
@@ -554,7 +555,7 @@ const AddSale = () => {
             <input
               type="text"
               name="price2"
-              placeholder="(단위: 만원)"
+              placeholder="(단위: 만원, 선택 입력)"
               className="sale-form-input"
               value={form.price2}
               onChange={handleChange}

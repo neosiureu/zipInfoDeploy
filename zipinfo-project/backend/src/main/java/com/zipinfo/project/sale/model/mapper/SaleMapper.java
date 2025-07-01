@@ -30,6 +30,11 @@ public interface SaleMapper {
 			@Param("locationCode") int locationCode,
 			@Param("saleStatus") int saleStatus,
 			@Param("saleType") int saleType);
+	
+    /** 분양 정보 전체 조회
+     * @return
+     */
+    List<Sale> selectSaleList();
 
 	/** 단일 분양 매물 조회
 	 * @param saleStockNo

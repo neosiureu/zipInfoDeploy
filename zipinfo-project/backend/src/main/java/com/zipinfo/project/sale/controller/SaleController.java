@@ -66,6 +66,20 @@ public class SaleController {
 	    
 	}
 	
+	/** 분양 정보 전체 조회
+     * @return
+     */
+    @GetMapping("selectSaleList")
+    public ResponseEntity<List<Sale>> selectSaleList() {
+        try {
+            List<Sale> saleList = service.selectSaleList();
+            return ResponseEntity.ok(saleList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+	
 	/** 단일 분양 매물 조회하기
 	 * @param saleStockNo
 	 * @return
@@ -88,6 +102,5 @@ public class SaleController {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 	    }
 	}
-	
 	
 }

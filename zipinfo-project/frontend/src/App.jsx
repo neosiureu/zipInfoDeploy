@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Layout from "./components/common/Layout";
 import React, { useEffect, useContext, useRef } from "react";
 import ProtectedRoute from "./ProtectedRoute";
+import AdminRoute from "./AdminRoute";
 
 import Main from "./components/Main";
 import SalePage from "./components/sale/SalePage";
@@ -43,7 +44,7 @@ import DashBoard from "./components/admin/DashBoard";
 import Chart from "./components/admin/Chart";
 import Advertisement from "./components/admin/Advertisement";
 import HelpMessage from "./components/admin/HelpMessage/HelpMessage";
-import Reply from "./components/admin/HelpMessage/Reply";
+import Reply from "./components/admin/HelpMessage/Reply"; 
 import Management from "./components/admin/Management/Management";
 import { AuthProvider } from "./components/admin/AuthContext";
 
@@ -57,10 +58,10 @@ import NeighborhoodDetail from "./components/neighborhood/NeighborhoodBoardDetai
 import Gonggong from "./components/common/Gonggong";
 import NaverCallback from "./components/auth/NaverCallback";
 import NeighborhoodEdit from "./components/neighborhood/NeighborhoodEdit";
+
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
 import { ToastContainer, toast } from "react-toastify";
-
 
 function MessageListener() {
   const { setMember } = useContext(MemberContext);
@@ -145,25 +146,25 @@ function App() {
               <Route path="gonggong" element={<Gonggong />} />
 
               {/* 마이페이지 */}
-              <Route path="myPage" element={<MyInfo />} />
-              <Route path="myPage/updateInfo" element={<UpdateInfo />} />
-              <Route path="myPage/myStock" element={<MyStock />} />
-              <Route path="myPage/updateMyStock" element={<UpdateMyStock />} />
-              <Route path="myPage/addStock" element={<AddStock />} />
-              <Route path="myPage/sawStock" element={<SawStock />} />
-              <Route path="myPage/likeStock" element={<LikeStock />} />
-              <Route path="myPage/myMessage" element={<MyMessage />} />
-              <Route path="myPage/seeMyMessage" element={<SeeMyMessage />} />
+              <Route path="myPage" element={<ProtectedRoute><MyInfo /></ProtectedRoute>} />
+              <Route path="myPage/updateInfo" element={<ProtectedRoute><UpdateInfo /></ProtectedRoute>} />
+              <Route path="myPage/myStock" element={<ProtectedRoute><MyStock /></ProtectedRoute>} />
+              <Route path="myPage/updateMyStock" element={<ProtectedRoute><UpdateMyStock /></ProtectedRoute>} />
+              <Route path="myPage/addStock" element={<ProtectedRoute><AddStock /></ProtectedRoute>} />
+              <Route path="myPage/sawStock" element={<ProtectedRoute><SawStock /></ProtectedRoute>} />
+              <Route path="myPage/likeStock" element={<ProtectedRoute><LikeStock /></ProtectedRoute>} />
+              <Route path="myPage/myMessage" element={<ProtectedRoute><MyMessage /></ProtectedRoute>} />
+              <Route path="myPage/seeMyMessage" element={<ProtectedRoute><SeeMyMessage /></ProtectedRoute>} />
               <Route
                 path="myPage/detailMessage/:messageNo"
-                element={<DetailMessage />}
+                element={<ProtectedRoute><DetailMessage /></ProtectedRoute>}
               />
-              <Route path="myPage/myPost" element={<MyPost />} />
+              <Route path="myPage/myPost" element={<ProtectedRoute><MyPost /></ProtectedRoute>} />
               <Route
                 path="myPage/updatePassword"
-                element={<UpdatePassword />}
+                element={<ProtectedRoute><UpdatePassword /></ProtectedRoute>}
               />
-              <Route path="myPage/withDraw" element={<WithDraw />} />
+              <Route path="myPage/withDraw" element={<ProtectedRoute><WithDraw /></ProtectedRoute>} />
 
               {/*매물페이지*/}
               <Route path="stock/:stockNo" element={<StockProviderWrapper />} />
@@ -174,7 +175,6 @@ function App() {
               {/* 공지사항 (Announce) */}
               <Route path="announce" element={<Announce />} />
               <Route path="announce/detail/:id" element={<AnnounceDetail />} />
-
               <Route path="announce/write" element={<ProtectedRoute><AdminRoute><AnnounceWrite /></AdminRoute></ProtectedRoute>} />
               <Route path="announce/edit/:id" element={<ProtectedRoute><AdminRoute><AnnounceWrite /></AdminRoute></ProtectedRoute>} />
 

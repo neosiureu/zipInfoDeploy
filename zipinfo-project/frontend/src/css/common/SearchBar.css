@@ -65,7 +65,7 @@
   appearance: none; /* 브라우저 기본 화살표 제거 */
   -webkit-appearance: none;
   -moz-appearance: none;
-  padding-right: 40px;
+  padding-right: 60px;
 }
 
 .search-select-wrap .arrow-icon {
