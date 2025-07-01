@@ -10,7 +10,6 @@ public interface NeighborhoodService {
 	Map<String, Object> getBoardList(int cp, String key, String query);
 
 
-	Map<String, Object> getSearchList(int cp, String key, String query, String city, String town, String subject);
 
 
 	Neighborhood selectOne(Map<String, Integer> map);
@@ -20,5 +19,8 @@ public interface NeighborhoodService {
 
 
 	int like(Map<String, Object> paramMap);
+
+
+	Map<String, Object> getSearchList(Map<String, Object> searchMap);
 
 }

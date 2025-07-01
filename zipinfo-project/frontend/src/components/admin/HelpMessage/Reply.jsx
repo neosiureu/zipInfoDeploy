@@ -27,7 +27,15 @@ const Reply = () => {
         const res = await axiosAPI.get(
           `/api/help/detail?messageNo=${messageNumber}`
         );
+        console.log(
+          "첨부파일 URL:",
+          res.data.fileUrl,
+          "파일명:",
+          res.data.fileOriginName
+        );
+        console.log("문의 내용 HTML:", res.data.messageContent); // 🔍 이거 꼭 확인!
         setMessage(res.data);
+        console.log("문의 내용 HTML:", res.data.messageContent);
         setReply(res.data.replyContent || "");
       } catch (err) {
         console.error("문의 불러오기 실패:", err);
@@ -81,14 +89,17 @@ const Reply = () => {
           />
         </div>
 
-        {/* 문의 내용 */}
+        {/* 문의 내용 출력 */}
         <div className="form-group">
           <label className="form-label">문의 내용</label>
-          <textarea
-            value={message.messageContent}
-            readOnly
+          <div
             className="form-textarea"
-            rows={8}
+            style={{
+              whiteSpace: "pre-wrap",
+              border: "1px solid #ccc",
+              padding: "1rem",
+            }}
+            dangerouslySetInnerHTML={{ __html: message.messageContent }}
           />
         </div>
 
@@ -97,13 +108,12 @@ const Reply = () => {
           <div className="form-group">
             <label className="form-label">첨부 파일</label>
             <a
-              href={message.fileUrl}
-              download={message.fileOriginName}
+              href={message.fileUrl || "#"}
+              download={message.fileOriginName || "파일명없음"}
               className="download-link"
-              target="_blank"
               rel="noopener noreferrer"
             >
-              {message.fileOriginName || "첨부파일 다운로드"}
+              {message.fileOriginName || "업로드된 파일"}
             </a>
           </div>
         )}
