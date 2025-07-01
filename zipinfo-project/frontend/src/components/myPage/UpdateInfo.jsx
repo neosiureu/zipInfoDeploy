@@ -3,12 +3,74 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Menu from "./Menu";
 import { axiosAPI } from '../../api/axiosAPI';
+import MemberLocationFilter from '../member/MemberLocationFilter';
+import { CITY, TOWN } from "../common/Gonggong";
+
 
 const UpdateInfo = () => {
   const nav = useNavigate();
 
   const location = useLocation();
   const { user } = location.state || {}; // 안전하게 fallback 처리
+
+  const [updateUser, setUpdateUser] = useState(user || {});
+
+  const [postcode, setPostcode] = useState(
+    updateUser.stockAddress?.split("^^^")[0] || ""
+  );
+  const [address, setAddress] = useState(
+    updateUser.stockAddress?.split("^^^")[1] || ""
+  );
+  const [detailAddress, setDetailAddress] = useState(
+    updateUser.stockAddress?.split("^^^")[2] || ""
+  );
+
+  const cityNo = user.memberLocation !== null? parseInt(String(user.memberLocation).substring(0, 2)):null;
+  const townNo = user.memberLocation !== null? user.memberLocation:null;
+
+  useEffect(() => {
+  if (townNo && String(townNo).length === 5) {
+    // 시군구(fullcode)까지 전달된 경우
+    const town = TOWN.find((t) => t.fullcode === String(townNo));
+    if (town) {
+      setSelectedCity(town.code);
+      setSelectedTown(town.fullcode);
+    }
+    } else if (cityNo && String(cityNo).length === 2) {
+    // 시도만 전달된 경우
+    setSelectedCity(Number(cityNo));
+    setSelectedTown(-1); // 초기화
+    }
+  }, [cityNo, townNo]);
+
+  const handleCityChange = (e) => {
+    const location = e.target.value;
+    console.log(updateUser);
+    setSelectedCity(location);
+    setUpdateUser((prev) => ({
+      ...prev,
+      memberLocation: location,  
+    }));
+    setSelectedTown(-1); // 시도 변경시 시군구 초기화
+  };
+  // 시군구 선택 핸들러
+  const handleTownChange = (e) => {
+    const location = e.target.value;
+    setSelectedTown(location);
+    setUpdateUser((prev) => ({
+      ...prev,
+      memberLocation: location,  
+    }));
+  };
+
+  const [selectedCity, setSelectedCity] = useState(
+    cityNo == undefined ? -1 : cityNo
+  ); // 선택된 시도 (e.target)
+  const [selectedTown, setSelectedTown] = useState(
+    townNo == undefined ? -1 : townNo
+  ); // 선택된 시군구 (e.target)
+
+
 
   const memberAuth = user.memberAuth;
 
@@ -32,7 +94,6 @@ const UpdateInfo = () => {
   brokerNoCheck: "중개등록번호"
   };
 
-  const [updateUser, setUpdateUser] = useState(user || {});
 
   const [testNickname, setTestNickname] = useState("한글,영어,숫자로만 2~10글자");
 
@@ -222,6 +283,8 @@ const UpdateInfo = () => {
     }
   };
 
+
+
   async function updateInfo() {
 
     try {
@@ -239,8 +302,19 @@ const UpdateInfo = () => {
         return;
       }
 
+    const updatedData = {
+      ...updateUser,
+      companyLocation: [updateUser.postcode, updateUser.address, updateUser.detailAddress].join("^^^"),
+      memberLocation:
+        parseInt(selectedTown) === -1 && parseInt(selectedCity) === -1
+          ? 0
+          : parseInt(selectedTown) === -1
+          ? selectedCity
+          : selectedTown,
+    };
 
-      const response = await axiosAPI.post("/myPage/updateInfo", updateUser
+
+      const response = await axiosAPI.post("/myPage/updateInfo", updatedData
       );
 
       if (response.status === 200) {
@@ -293,7 +367,12 @@ const UpdateInfo = () => {
 
             <div className="my-page-info-field">
               <label className="my-page-info-label">선호 지역</label>
-              <div className="my-page-info-value">{updateUser.memberLocation != null ? updateUser.memberLocation:'선호지역을 설정하지 않았습니다.'}</div>
+              <MemberLocationFilter
+                selectedCity={selectedCity}
+                selectedTown={selectedTown}
+                onCityChange={handleCityChange}
+                onTownChange={handleTownChange}
+              />
             </div>
 
             {/* Phone */}
@@ -305,7 +384,7 @@ const UpdateInfo = () => {
             {/* Address */}
             <div className="my-page-info-field">
               <label className="my-page-info-label">사무소 주소</label>
-              <div class="my-page-address-wrap">
+              <div className="my-page-address-wrap">
               <input id="postcode" onChange={handleUserInfo} name='postcode' value={updateUser.postcode} className="my-page-address-input" placeholder='우편번호' readOnly/>
               <button
                   type="button"

@@ -21,15 +21,15 @@ const AnnounceWrite = () => {
   const isAdmin = user && String(user.memberAuth) === "0";
 
   // 권한 확인
-  useEffect(() => {
-    if (!user) {
-      alert("로그인이 필요합니다.");
-      navigate("/login");
-    } else if (!isAdmin) {
-      alert("관리자만 접근할 수 있습니다.");
-      navigate("/announce");
-    }
-  }, [user, isAdmin, navigate]);
+  // useEffect(() => {
+  //   if (!user) {
+  //     alert("로그인이 필요합니다.");
+  //     navigate("/login");
+  //   } else if (!isAdmin) {
+  //     alert("관리자만 접근할 수 있습니다.");
+  //     navigate("/announce");
+  //   }
+  // }, [user, isAdmin, navigate]);
 
   // 수정일 경우 기존 데이터 가져오기
   useEffect(() => {

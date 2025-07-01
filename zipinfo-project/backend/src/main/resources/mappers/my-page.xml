@@ -15,7 +15,8 @@
 
 	<update id="updateNormalInfo">
 		UPDATE "MEMBER" SET
-		MEMBER_NICKNAME = #{memberNickname}
+		MEMBER_NICKNAME = #{memberNickname},
+		MEMBER_LOCATION = #{memberLocation}
 		WHERE MEMBER_NO = #{memberNo}
 	</update>
 

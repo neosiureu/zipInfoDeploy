@@ -63,7 +63,7 @@ public class MyPageServiceImpl implements MyPageService{
 			Member compareInfo = mapper.compareInfo(member);
 			
 			if(!compareInfo.getCompanyName().equals(member.getCompanyName()) || 
-				!compareInfo.getCompanyName().equals(member.getCompanyLocation()) ||
+				!compareInfo.getCompanyLocation().equals(member.getCompanyLocation()) ||
 				!compareInfo.getPresidentName().equals(member.getPresidentName()) ||
 				!compareInfo.getPresidentPhone().equals(member.getPresidentPhone()) ||
 				!compareInfo.getBrokerNo().equals(member.getBrokerNo())) {

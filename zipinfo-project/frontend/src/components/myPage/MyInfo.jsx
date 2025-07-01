@@ -4,11 +4,31 @@ import "../../css/myPage/menu.css";
 import { useNavigate } from "react-router-dom";
 import { axiosAPI } from "../../api/axiosAPI";
 import Menu from "./Menu";
+import { CITY, TOWN } from "../common/Gonggong";
 
 
 const MyPage = () => {
   const nav = useNavigate();
   const [user, setUser] = useState([]);
+
+const getLocationName = (locationCode) => {
+  if (!locationCode) return null;
+
+  const codeStr = locationCode.toString();
+
+  if (codeStr.length === 2) {
+    const city = CITY.find((c) => String(c.code) === codeStr);
+    return city ? city.name : null;
+  }
+
+  if (codeStr.length === 5) {
+    const town = TOWN.find((t) => String(t.fullcode) === codeStr);
+    const city = CITY.find((c) => String(c.code) === String(town?.code));
+    return town && city ? `${city.name} ${town.name}` : null;
+  }
+
+  return null;
+};
 
   async function getMemberInfo() {
     try {
@@ -59,7 +79,7 @@ const MyPage = () => {
             
             <div className="my-page-info-field">
               <label className="my-page-info-label">선호 지역</label>
-              <div className="my-page-info-value">{user.memberLocation != null ? user.memberLocation:'선호지역을 설정하지 않았습니다.'}</div>
+              <div className="my-page-info-value">{user.memberLocation != null ? getLocationName(user.memberLocation):'선호지역을 설정하지 않았습니다.'}</div>
             </div>
 
             {/* Phone */}
@@ -128,7 +148,7 @@ const MyPage = () => {
             
             <div className="my-page-info-field">
               <label className="my-page-info-label">선호 지역</label>
-              <div className="my-page-info-value">{user.memberLocation != null ? user.memberLocation:'선호지역을 설정하지 않았습니다.'}</div>
+              <div className="my-page-info-value">{user.memberLocation != null ? getLocationName(user.memberLocation):'선호지역을 설정하지 않았습니다.'}</div>
             </div>
 
             {/* Edit Button */}

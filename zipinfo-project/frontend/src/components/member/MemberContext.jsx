@@ -10,7 +10,10 @@ export const MemberContext = createContext();
 export const MemberProvider = ({ children }) => {
   // 상태값, 함수
   // 전역적으로 현재 로그인한 회원의 정보를 기억(상태)
-  const [member, setMember] = useState(null);
+  const [member, setMember] = useState(() => {
+  const stored = localStorage.getItem("loginMember");
+  return stored ? JSON.parse(stored) : null;
+});
   const location = useLocation();
   const skipFetch =
     location.pathname.startsWith("/login") ||
