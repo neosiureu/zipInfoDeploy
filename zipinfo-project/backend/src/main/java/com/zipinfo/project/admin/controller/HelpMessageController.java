@@ -68,4 +68,25 @@ public class HelpMessageController {
         // 답변 등록 성공 시 OK 메시지 반환
         return ResponseEntity.ok("답변 등록 성공");
     }
+    
+    /** 관리자가 문의내용 확인했을 경우 DB에 해당 문의글 READ_FL 'Y'로 변경
+     * @param messageNo
+     * @return
+     */
+    @PatchMapping("/message/read/{messageNo}")
+    public ResponseEntity<?> updateReadFlag(@PathVariable int messageNo) {
+        boolean result = helpMessageService.updateReadFlag(messageNo);
+        return result ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+    }
+
+    @GetMapping("/unanswered")
+    public List<HelpMessage> getUnanswered(@RequestParam("adminId") int adminId) {
+        return helpMessageService.getUnansweredMessages(adminId);
+    }
+
+    @GetMapping("/answered")
+    public List<HelpMessage> getAnswered(@RequestParam("userNo") int userNo) {
+        return helpMessageService.getAnsweredMessagesByUser(userNo);
+    }
+
 }

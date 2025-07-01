@@ -11,7 +11,7 @@ const HelpMessage = () => {
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  const navigate = useNavigate(); // ✅ 추가
+  const navigate = useNavigate();
 
   const fetchHelpMessages = async (showRefreshSpinner = false) => {
     try {
@@ -22,7 +22,20 @@ const HelpMessage = () => {
       }
       setError(null);
 
-      const response = await axios.get("/api/help/list");
+      const currentAdminId = 1; // 관리자로 로그인한 ID를 여기에 넣어야 합니다.
+
+      const url =
+        activeTab === "received"
+          ? "/api/help/unanswered"
+          : "/api/help/answered";
+
+      const params =
+        activeTab === "received"
+          ? { adminId: currentAdminId }
+          : { userNo: currentAdminId };
+
+      const response = await axios.get(url, { params });
+
       setHelpMessages(response.data);
     } catch (err) {
       setError(
@@ -84,8 +97,12 @@ const HelpMessage = () => {
     return pages;
   };
 
-  // 상세 보기 클릭 시 라우팅
-  const handleHelpMessageClick = (msg) => {
+  const handleHelpMessageClick = async (msg) => {
+    try {
+      await axios.patch(`/api/help/message/read/${msg.messageNo}`);
+    } catch (e) {
+      console.warn("읽음 처리 실패", e);
+    }
     navigate(`/admin/help/reply/${msg.messageNo}?senderNo=${msg.senderNo}`);
   };
 
@@ -101,7 +118,6 @@ const HelpMessage = () => {
 
   return (
     <div className={styles.container}>
-      {/* 헤더 */}
       <div className={styles.header}>
         <h1 className={styles.title}>부동산 문의 관리</h1>
         <button
@@ -113,14 +129,12 @@ const HelpMessage = () => {
         </button>
       </div>
 
-      {/* 에러 메시지 */}
       {error && (
         <div className={styles.errorContainer}>
           <div className={styles.errorText}>{error}</div>
         </div>
       )}
 
-      {/* 탭 */}
       <div className={styles.tabContainer}>
         <button
           className={`${styles.tab} ${
@@ -128,7 +142,7 @@ const HelpMessage = () => {
           }`}
           onClick={() => setActiveTab("received")}
         >
-          받은 문의 ({activeTab === "received" ? helpMessages.length : 0})
+          받은 문의
         </button>
         <button
           className={`${styles.tab} ${
@@ -136,11 +150,10 @@ const HelpMessage = () => {
           }`}
           onClick={() => setActiveTab("sent")}
         >
-          문의 답변 ({activeTab === "sent" ? helpMessages.length : 0})
+          문의 답변
         </button>
       </div>
 
-      {/* 테이블 */}
       <div className={styles.tableContainer}>
         <div className={styles.tableHeader}>
           <div>번호</div>
@@ -182,7 +195,6 @@ const HelpMessage = () => {
         )}
       </div>
 
-      {/* 페이지네이션 */}
       {totalPages > 1 && (
         <div className={styles.pagination}>
           <button

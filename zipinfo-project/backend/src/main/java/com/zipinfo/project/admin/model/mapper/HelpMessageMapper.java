@@ -32,4 +32,32 @@ public interface HelpMessageMapper {
      * @return 업데이트 성공 시 1 이상의 값 반환, 실패 시 0 반환
      */
 	int insertReply(HelpMessage message);
+	
+	/** 관리자가 문의내용 확인했을 경우 DB에 해당 문의글 READ_FL 'Y'로 변경
+	 * @param messageNo
+	 * @return
+	 */
+	int updateReadFlag(int messageNo);
+	
+	/** 답변 등록 시 해당 문의글 REPLY_YN = 'Y'로 변경
+	 * @param messageNo
+	 * @return
+	 */
+	int updateReplyYn(int messageNo);
+
+	/** 관리자 보낸 메시지 제외
+	 * @param adminId
+	 * @return
+	 */
+	List<HelpMessage> selectUnansweredMessages(@Param("adminId") int adminId);
+	
+	
+	/** [보낸 문의] → [문의 답변] 메뉴: REPLY_YN = 'Y' 인 문의글만 출력
+	 * @param userNo
+	 * @return
+	 */
+	List<HelpMessage> selectAnsweredMessagesByUser(int userNo);
+
+
+
 }
