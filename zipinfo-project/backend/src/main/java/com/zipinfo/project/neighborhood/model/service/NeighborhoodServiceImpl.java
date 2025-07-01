@@ -84,6 +84,26 @@ public class NeighborhoodServiceImpl implements NeighborhoodService {
 		return -1;
 	}
 
+
+
+
+
+	@Override
+	public int like(Map<String, Object> map) {
+		int result = 0;
+		log.debug("좋아요 상태"+map.get("liked"));
+		if ((Boolean) map.get("liked") == true) {
+			result = mapper.deleteLike(map);
+		} else {
+			result = mapper.insertLike(map);
+		}
+		if (result > 0) {
+			return mapper.selectBoardLike(map.get("boardNo"));
+		}
+
+		return -1;
+	}
+
 	
 	
 	

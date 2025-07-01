@@ -6,4 +6,11 @@ public interface EditneighborhoodService {
 
 	int boardInsert(Neighborhood inputBoard);
 
+	String processImagesInContent(String boardContent) throws Exception;
+
+	int boardUpdate(Neighborhood inputBoard);
+
+
+	int boardDelete(Neighborhood inputBoard);
+
 }

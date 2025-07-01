@@ -1,22 +1,53 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoardDetail.css";
 import NeighborhoodCommentSection from "./NeighborhoodCommentSection";
 import { axiosAPI } from "../../api/axiosAPI";
 import { CITY, TOWN } from "../common/Gonggong";
+import { MemberContext } from "../member/MemberContext";
+import { Heart } from "lucide-react";
 
 const NeighborhoodBoardDetail = () => {
+  const [board, setBoard] = useState([{}]);
+
+  const { member } = useContext(MemberContext);
   const { boardNo } = useParams();
   const [searchParams] = useSearchParams();
   const cp = Number(searchParams.get("cp") ?? 1);
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const loginMemberNo = member?.memberNo;
+  const [like, setLike] = useState(new Set());
 
   // 이 글에 들어온 프론트 경로: navigate(`/neighborhoodBoard/detail/${item.boardNo}`);
   // 이 글에서 서버로 보낼 url 주소: /board/detail/boardNo
 
-  // 목록보기, 수정, 삭제버튼을 각각 눌렀을 때 행동으로 아직은 구현하지 않음
+  const handleBoardLike = async (boardNo) => {
+    if (member == null) {
+      alert("로그인 후 이용해주세요!");
+      return;
+    }
+    const isCurrentlyLiked = like.has(boardNo);
+
+    setLike((prev) => {
+      const updated = new Set(prev);
+      if (updated.has(boardNo)) {
+        updated.delete(boardNo); // 찜 해제
+      } else {
+        updated.add(boardNo); // 찜 추가
+      }
+      return updated;
+    });
+    try {
+      const { data: totalLike } = await axiosAPI.post("/board/like", {
+        boardNo: boardNo,
+        liked: isCurrentlyLiked,
+      });
+    } catch (err) {
+      console.error("찜 상태 변경 실패:", err);
+    }
+  };
 
   const handleBoardUpdateClick = () => {
     navigate(`/neighborhoodBoard/edit/${boardNo}${cp ? `?cp=${cp}` : ""}`, {
@@ -28,9 +59,18 @@ const NeighborhoodBoardDetail = () => {
     });
   };
 
-  const handleDelete = useNavigate(() => {
-    navigate(`/neighborhoodBoard?cp=${cp}`);
-  }, []);
+  const handleBoardDeleteClick = async (boardNo) => {
+    const { data: result } = await axiosAPI.delete(`/editBoard/${boardNo}`);
+    if (result > 0) {
+      if (confirm("글을 삭제하시겠습니까?")) {
+        alert("글이 삭제되었습니다");
+      }
+      navigate(`/neighborhoodBoard?cp=${cp}`);
+    } else {
+      alert("글 삭제 실패. 본인의 게시글이 아닙니다!");
+      return; // 실패시 페이지 이동 막기
+    }
+  };
 
   function getCityName(cityCode) {
     const city = CITY.find((c) => String(c.code) === String(cityCode));
@@ -52,8 +92,10 @@ const NeighborhoodBoardDetail = () => {
       setLoading(true);
       axiosAPI
         .get("board/neighborhoodDetail", { params: { boardNo } })
-        .then(({ data }) => setPost(data))
-        .catch(() => console.log("불러오기 실패"))
+        .then(({ data }) => {
+          setPost(data);
+          setBoard(data); // board 상태에 data를 set하는 과정
+        })
         .finally(() => setLoading(false));
     }
   }, [boardNo]);
@@ -75,6 +117,7 @@ const NeighborhoodBoardDetail = () => {
     cityNo,
     townNo,
     boardSubject,
+    memberNo,
   } = post;
 
   return (
@@ -82,7 +125,7 @@ const NeighborhoodBoardDetail = () => {
       <div className="nb-detail-wrapper">
         <div className="nb-detail-header">
           <div className="nb-detail-sigungu">
-            <h5 className="nb-detail-sigungu">
+            <h5 className="nb-detail-sigungu-detail">
               {getCityName(cityNo)} {">"} {getTownName(townNo)} {">"}{" "}
               {subjectMap[boardSubject] || boardSubject}
             </h5>
@@ -92,10 +135,26 @@ const NeighborhoodBoardDetail = () => {
               <span className="nb-detail-author">
                 작성자 : {memberNickName}
               </span>
+
               <span className="nb-detail-separator">|</span>
               <span className="nb-detail-date">등록일 : {boardWriteDate}</span>
               <span className="nb-detail-separator">|</span>
               <span className="nb-detail-views">조회수 : {readCount}</span>
+              <span
+                onClick={(e) => {
+                  e.stopPropagation(); // nav 방지
+                  handleBoardLike(board.boardNo);
+                }}
+              >
+                <Heart
+                  size={20}
+                  stroke="pink" // 분홍 테두리
+                  fill={like.has(board.boardNo) ? "red" : "transparent"}
+                  className={`like-board ${
+                    like.has(board.boardNo) ? "active" : ""
+                  }`}
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -106,13 +165,23 @@ const NeighborhoodBoardDetail = () => {
           />
         </div>
         <div className="nb-detail-buttons">
-          <button
-            className="nb-detail-btn nb-detail-btn-edit"
-            onClick={handleBoardUpdateClick}
-          >
-            수정
-          </button>
-          <button className="nb-detail-btn nb-detail-btn-delete">삭제</button>
+          {loginMemberNo == memberNo ? (
+            <>
+              <button
+                className="nb-detail-btn nb-detail-btn-edit"
+                onClick={handleBoardUpdateClick}
+              >
+                수정
+              </button>
+              <button
+                className="nb-detail-btn nb-detail-btn-delete"
+                onClick={() => handleBoardDeleteClick(boardNo)}
+              >
+                삭제
+              </button>
+            </>
+          ) : null}
+
           <button
             className="nb-detail-btn nb-detail-btn-list"
             onClick={() => navigate(`/neighborhoodBoard?cp=${cp}`)}
@@ -120,7 +189,6 @@ const NeighborhoodBoardDetail = () => {
             목록보기
           </button>
         </div>
-        <br></br>
         <NeighborhoodCommentSection boardNo={boardNo} />
       </div>
     </div>
