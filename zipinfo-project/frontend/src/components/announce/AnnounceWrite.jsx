@@ -77,6 +77,9 @@ export default function AnnounceWrite() {
         alert("공지사항이 등록되었습니다.");
       }
 
+      await axios.post("http://localhost:8080/announce");
+
+
       // 완료 후 공지사항 목록 페이지로 이동
       navigate("/announce");
     } catch (error) {
