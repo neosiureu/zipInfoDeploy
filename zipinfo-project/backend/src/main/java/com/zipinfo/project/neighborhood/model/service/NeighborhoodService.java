@@ -21,6 +21,10 @@ public interface NeighborhoodService {
 	int like(Map<String, Object> paramMap);
 
 
-	Map<String, Object> getSearchList(Map<String, Object> searchMap);
+	Map<String, Object> getSearchList(Map<String, Object> searchMap, int cp);
+
+
+
+
 
 }

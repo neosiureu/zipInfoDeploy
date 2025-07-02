@@ -84,10 +84,10 @@ public class EditNeighborhoodController {
 		log.info("내 닉네임은"+loginMember.getMemberNickname()+"입니다");
 
 		
-		System.out.println("서버에서 받은 삭제해야 할 우리동네게시판 보드는: " + boardNo);
+//		System.out.println("서버에서 받은 삭제해야 할 우리동네게시판 보드는: " + boardNo);
 
 		int deleted = editneighborhoodService.boardDelete(inputBoard);
-		log.info("삭제된 열의 개수" + deleted);
+//		log.info("삭제된 열의 개수" + deleted);
 
 
 		return deleted;
@@ -112,10 +112,10 @@ public class EditNeighborhoodController {
 		String processedContent = editneighborhoodService.processImagesInContent(inputBoard.getBoardContent());
 		inputBoard.setBoardContent(processedContent);
 
-		System.out.println("서버에서 받은 수정해야 할 우리동네게시판 보드는: " + inputBoard);
+//		System.out.println("서버에서 받은 수정해야 할 우리동네게시판 보드는: " + inputBoard);
 
 		int boardNo = editneighborhoodService.boardUpdate(inputBoard);
-		log.info("수정의 결과" + boardNo);
+//		log.info("수정의 결과" + boardNo);
 
 		return boardNo;
 	}

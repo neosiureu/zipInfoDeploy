@@ -14,19 +14,20 @@ const NeighborhoodBoard = ({}) => {
 
   const [currentPage, setCurrentPage] = useState(initCp); // cp를 관리해서 뒤로가기 시 유지시키기 위함
   const [selectedCity, setSelectedCity] = useState(
-    searchParams.get("city") || -1
+    searchParams.get("cityNo") || "-1"
   ); // 선택된 시도 (e.target)
   const [selectedTown, setSelectedTown] = useState(
-    searchParams.get("town") || -1
+    searchParams.get("townNo") || "-1"
   ); // 선택된 시군구 (e.target)
   const [selectedSubject, setSelectedSubject] = useState(
-    searchParams.get("subject") || -1
+    searchParams.get("boardsubject") || "-1"
   ); // 선택된 주제 (e.target)
   const [searchKey, setSearchKey] = useState("t"); // 일단 t만하고 c는 내용 tc는 제목+내용 w는 작성자로 확장하자.
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get("query") || ""
   ); //실제로 검색될 대상
 
+  const [likeCount, setLikeCount] = useState(0);
   //--------------서버(DB)에서 받을 데이터에 대하여--------------//
   const [boardList, setBoardList] = useState([]);
 
@@ -116,14 +117,14 @@ const NeighborhoodBoard = ({}) => {
         params.append("key", searchKey);
         params.append("query", searchQuery);
       }
-      if (selectedCity !== -1) {
-        params.append("city", selectedCity);
+      if (selectedCity !== "-1") {
+        params.append("cityNo", selectedCity);
       }
-      if (selectedTown !== -1) {
-        params.append("town", selectedTown);
+      if (selectedTown !== "-1") {
+        params.append("townNo", selectedTown);
       }
-      if (selectedSubject !== -1) {
-        params.append("subject", selectedSubject);
+      if (selectedSubject !== "-1") {
+        params.append("boardSubject", selectedSubject);
       }
 
       // 2) API 호출
@@ -159,20 +160,78 @@ const NeighborhoodBoard = ({}) => {
 
   // 시도 선택 핸들러
   const handleCityChange = async (e) => {
-    setSelectedCity(e.target.value);
-    setSelectedTown(-1); // 시도 변경시 시군구 초기화
+    const newCity = e.target.value;
+    setSelectedCity(newCity);
+    setSelectedTown("-1"); // 시도 변경시 시군구 초기화
     setCurrentPage(1);
+
+    // URL 파라미터 즉시 업데이트
+    setSearchParams(
+      (prev) => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set("cp", 1);
+
+        if (newCity !== "-1") {
+          newParams.set("cityNo", newCity);
+        } else {
+          newParams.delete("cityNo");
+        }
+
+        // 시도 변경시 townNo도 제거
+        newParams.delete("townNo");
+
+        return newParams;
+      },
+      { replace: true }
+    );
   };
 
   // 시군구 선택 핸들러
   const handleTownChange = (e) => {
-    setSelectedTown(e.target.value);
+    const newTown = e.target.value;
+    setSelectedTown(newTown);
     setCurrentPage(1);
+
+    // URL 파라미터 즉시 업데이트
+    setSearchParams(
+      (prev) => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set("cp", 1);
+
+        if (newTown !== "-1") {
+          newParams.set("townNo", newTown);
+        } else {
+          newParams.delete("townNo"); // -1일 때 파라미터 제거
+        }
+
+        return newParams;
+      },
+      { replace: true }
+    );
   };
 
   // 주제 선택 핸들러
   const handleSubjectChange = (e) => {
-    setSelectedSubject(e.target.value);
+    const newSubject = e.target.value;
+    setSelectedSubject(newSubject);
+    setCurrentPage(1);
+
+    // URL 파라미터 즉시 업데이트
+    setSearchParams(
+      (prev) => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set("cp", 1);
+
+        if (newSubject !== "-1") {
+          newParams.set("boardsubject", newSubject);
+        } else {
+          newParams.delete("boardsubject"); // -1일 때 파라미터 제거
+        }
+
+        return newParams;
+      },
+      { replace: true }
+    );
   };
 
   const updateUrlParams = useCallback(() => {
@@ -188,21 +247,21 @@ const NeighborhoodBoard = ({}) => {
         } else {
           newParams.delete("query");
         }
-        if (selectedCity !== -1) {
-          newParams.set("city", selectedCity);
+        if (selectedCity !== "-1") {
+          newParams.set("cityNo", selectedCity);
         } else {
-          newParams.delete("city");
+          newParams.delete("cityNo");
         }
-        if (selectedTown !== -1) {
-          newParams.set("town", selectedTown);
+        if (selectedTown !== "-1") {
+          newParams.set("townNo", selectedTown);
         } else {
-          newParams.delete("town");
+          newParams.delete("townNo");
         }
 
-        if (selectedSubject !== -1) {
-          newParams.set("subject", selectedSubject);
+        if (selectedSubject !== "-1") {
+          newParams.set("boardsubject", selectedSubject);
         } else {
-          newParams.delete("subject");
+          newParams.delete("boardsubject");
         }
         return newParams;
       },
@@ -247,60 +306,60 @@ const NeighborhoodBoard = ({}) => {
           onTownChange={handleTownChange}
           onSubjectChange={handleSubjectChange}
         />
-        {/* <div className="nb-search">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="검색어를 입력하세요"
-          />
-          <button className="nb-search-btn" onClick={handleSearch}>
-            검색
-          </button>
-        </div> */}
 
-        <div className="nb-board-table">
-          <div className="nb-header">
-            <div className="nb-header-cell nb-header-number">번호</div>
-            <div className="nb-header-cell nb-header-subject">분류</div>
-            <div className="nb-header-cell nb-header-title">제목</div>
-            <div className="nb-header-cell nb-header-area">지역</div>
-
-            <div className="nb-header-cell nb-header-author">작성자</div>
-            {/* <div className="nb-header-cell nb-header-author">좋아요</div> */}
-            <div className="nb-header-cell nb-header-date">날짜</div>
-            <div className="nb-header-cell nb-header-views">조회</div>
-          </div>
-
-          {boardList.map((item, index) => (
-            <div key={index} className="nb-row">
-              <div className="nb-cell nb-cell-number">{item.boardNo}</div>
-              <div className="nb-cell nb-cell-subject">
-                {item.boardSubject === "Q"
-                  ? "질문답변"
-                  : item.boardSubject === "R"
-                  ? "리뷰"
-                  : "자유"}
-              </div>
-              <div
-                className="nb-cell nb-cell-title"
-                onClick={() => handleBoardClick(item)} // 클릭 이벤트로 상세화면으로 이동하게
-                style={{ cursor: "pointer" }}
-              >
-                {item.boardTitle}
-              </div>
-              <div className="nb-cell nb-cell-area">
-                {item.cityName} {">"} {item.townName}
-              </div>
-              <div className="nb-cell nb-cell-author">
-                {item.memberNickName}
-              </div>
-              <div className="nb-cell nb-cell-date">{item.boardWriteDate}</div>
-              {/* <div className="nb-cell nb-cell-date">{item.like}</div> */}
-              <div className="nb-cell nb-cell-views">{item.readCount}</div>
-            </div>
-          ))}
-        </div>
+        <table className="nb-board-table">
+          <thead>
+            <tr className="nb-header">
+              <th className="nb-header-number">번호</th>
+              <th className="nb-header-subject">분류</th>
+              <th className="nb-header-title">제목</th>
+              <th className="nb-header-area">지역</th>
+              <th className="nb-header-author">작성자</th>
+              <th className="nb-header-likes">좋아요</th>
+              <th className="nb-header-date">날짜</th>
+              <th className="nb-header-views">조회</th>
+            </tr>
+          </thead>
+          <tbody>
+            {boardList.length === 0 ? (
+              <tr>
+                <td
+                  colSpan="8"
+                  style={{ textAlign: "center", padding: "12px" }}
+                >
+                  게시글이 없습니다.
+                </td>
+              </tr>
+            ) : (
+              boardList.map((item, index) => (
+                <tr key={index} className="nb-row">
+                  <td className="nb-cell-number">{item.boardNo}</td>
+                  <td className="nb-cell-subject">
+                    {item.boardSubject === "Q"
+                      ? "질문답변"
+                      : item.boardSubject === "R"
+                      ? "리뷰"
+                      : "자유"}
+                  </td>
+                  <td
+                    className="nb-cell-title"
+                    onClick={() => handleBoardClick(item)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {item.boardTitle}
+                  </td>
+                  <td className="nb-cell-area">
+                    {item.cityName} {">"} {item.townName}
+                  </td>
+                  <td className="nb-cell-author">{item.memberNickName}</td>
+                  <td className="nb-cell-likes">{item.likeCount}</td>
+                  <td className="nb-cell-date">{item.boardWriteDate}</td>
+                  <td className="nb-cell-views">{item.readCount}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
 
         <div className="nb-pagination-container">
           <div className="nb-pagination">
@@ -356,6 +415,17 @@ const NeighborhoodBoard = ({}) => {
             </button>
           ) : null}
         </div>
+      </div>
+      <div className="nb-search">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="검색어를 입력하세요"
+        />
+        <button className="nb-search-btn" onClick={handleSearch}>
+          검색
+        </button>
       </div>
     </div>
   );
