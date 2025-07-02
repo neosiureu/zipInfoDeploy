@@ -27,26 +27,29 @@
 </select>
 
   <!-- 특정 문의 상세 조회 -->
-  <select id="selectMessageById">
+  <select id="selectMessageById" >
   SELECT 
-    hm.MESSAGE_NO,
-    hm.MESSAGE_TITLE,
-    hm.MESSAGE_CONTENT,
-    hm.MESSAGE_WRITE_DATE,
-    hm.MESSAGE_READ_FL,
-    hm.USER_DEL_FL,
-    hm.ADMIN_DEL_FL,
-    hm.SENDER_NO,
-    hm.RECEIVER_NO,
-    hm.REPLY_YN,
-    mf.FILE_NO,
-    mf.FILE_URL,
-    mf.FILE_ORIGIN_NAME,
-    mf.FILE_RENAME
+    hm.MESSAGE_NO AS messageNo,
+    hm.MESSAGE_TITLE AS messageTitle,
+    hm.MESSAGE_CONTENT AS messageContent,
+    TO_CHAR(hm.MESSAGE_WRITE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS messageWriteDate,
+    hm.MESSAGE_READ_FL AS messageReadFl,
+    hm.USER_DEL_FL AS userDelFl,
+    hm.ADMIN_DEL_FL AS adminDelFl,
+    hm.SENDER_NO AS senderNo,
+    hm.RECEIVER_NO AS receiverNo,
+    hm.REPLY_YN AS replyYn,
+    mf.FILE_NO AS fileNo,
+    mf.FILE_URL AS fileUrl,
+    mf.FILE_ORIGIN_NAME AS fileOriginName,
+    mf.FILE_RENAME AS fileRename,
+    m.MEMBER_NICKNAME AS memberNickname
   FROM HELP_MESSAGE hm
   LEFT JOIN MESSAGE_FILE mf ON hm.MESSAGE_NO = mf.MESSAGE_NO
+  LEFT JOIN MEMBER m ON hm.SENDER_NO = m.MEMBER_NO
   WHERE hm.MESSAGE_NO = #{messageNo}
 </select>
+
 
 
 
@@ -167,30 +170,39 @@
   
   <!-- 함께 조회 -->
   <!-- 관리자가 특정 사용자에게 보낸 답변 리스트 조회 -->
-<select id="selectRepliesByAdminToUser" resultType="com.zipinfo.project.admin.model.dto.HelpMessage">
+<select id="selectRepliesByAdminToUser" >
     SELECT 
-      MESSAGE_NO,
-      MESSAGE_TITLE,
-      MESSAGE_CONTENT,
-      MESSAGE_WRITE_DATE,
-      MESSAGE_READ_FL,
-      USER_DEL_FL,
-      ADMIN_DEL_FL,
-      SENDER_NO,
-      RECEIVER_NO,
-      REPLY_YN,
-      NULL AS FILE_NO,
-      NULL AS FILE_URL,
-      NULL AS FILE_ORIGIN_NAME,
-      NULL AS FILE_RENAME
-    FROM HELP_MESSAGE
-    WHERE SENDER_NO = #{adminNo}
-      AND RECEIVER_NO = #{userNo}
-      AND REPLY_YN = 'Y'
-      AND USER_DEL_FL = 'N'
-      AND ADMIN_DEL_FL = 'N'
-    ORDER BY MESSAGE_WRITE_DATE DESC
+      hm.MESSAGE_NO,
+      hm.MESSAGE_TITLE,
+      hm.MESSAGE_CONTENT,
+      TO_CHAR(hm.MESSAGE_WRITE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS MESSAGE_WRITE_DATE,
+      hm.MESSAGE_READ_FL,
+      hm.USER_DEL_FL,
+      hm.ADMIN_DEL_FL,
+      hm.SENDER_NO,
+      hm.RECEIVER_NO,
+      hm.REPLY_YN,
+      mf.FILE_NO,
+      mf.FILE_URL,
+      mf.FILE_ORIGIN_NAME,
+      mf.FILE_RENAME
+    FROM HELP_MESSAGE hm
+    LEFT JOIN MESSAGE_FILE mf ON hm.MESSAGE_NO = mf.MESSAGE_NO
+    WHERE hm.SENDER_NO = #{adminNo}
+      AND hm.RECEIVER_NO = #{userNo}
+      AND hm.REPLY_YN = 'Y'
+      AND hm.USER_DEL_FL = 'N'
+      AND hm.ADMIN_DEL_FL = 'N'
+    ORDER BY hm.MESSAGE_WRITE_DATE DESC
 </select>
+
+<!-- 수정 추가 -->
+<update id="updateReplyContent">
+    UPDATE HELP_MESSAGE
+    SET MESSAGE_CONTENT = #{messageContent}
+    WHERE MESSAGE_NO = #{messageNo}
+      AND REPLY_YN = 'Y'
+</update>
 
   
 

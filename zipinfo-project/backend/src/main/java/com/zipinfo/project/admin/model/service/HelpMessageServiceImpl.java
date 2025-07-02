@@ -71,7 +71,8 @@ public class HelpMessageServiceImpl implements HelpMessageService {
     }
 
     @Override
-    public List<HelpMessage> getRepliesByAdminToUser(int adminNo, int userNo) {
-        return helpMessageMapper.selectRepliesByAdminToUser(adminNo, userNo);
+    public boolean updateReplyContent(int messageNo, String newContent) {
+        int affected = helpMessageMapper.updateReplyContent(messageNo, newContent);
+        return affected > 0;
     }
 }

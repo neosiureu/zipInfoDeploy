@@ -46,7 +46,13 @@ public interface HelpMessageService {
 
 	boolean updateReadFlag(int messageNo);
 
-	List<HelpMessage> getRepliesByAdminToUser(int adminNo, int userNo);
+	/** 수정
+	 * @param messageNo
+	 * @param newContent
+	 * @return
+	 */
+	boolean updateReplyContent(int messageNo, String newContent);
+
 
 	
 

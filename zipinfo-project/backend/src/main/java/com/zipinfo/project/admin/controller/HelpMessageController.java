@@ -44,23 +44,14 @@ public class HelpMessageController {
     }
 
     @GetMapping("/reply")
-    public ResponseEntity<?> getInquiryAndReplies(@RequestParam("messageNo") int messageNo) {
+    public ResponseEntity<?> getInquiryReply(@RequestParam("messageNo") int messageNo) {
         try {
-            HelpMessage inquiry = helpMessageService.getHelpMessageById(messageNo);
-            if (inquiry == null) {
+            HelpMessage reply = helpMessageService.getHelpMessageById(messageNo);
+            if (reply == null) {
                 return ResponseEntity.notFound().build();
             }
 
-            int adminNo = 1; // 관리자 번호, 필요하면 세션 등에서 가져올 것
-            int userNo = inquiry.getSenderNo();
-
-            List<HelpMessage> replies = helpMessageService.getRepliesByAdminToUser(adminNo, userNo);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("inquiry", inquiry);
-            response.put("replies", replies);
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(reply);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,6 +59,8 @@ public class HelpMessageController {
                     .body("서버 오류 발생: " + e.getMessage());
         }
     }
+
+    
 
 
 
