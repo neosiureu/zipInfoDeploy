@@ -87,9 +87,12 @@ function MessageListener() {
 function GlobalWebSocketListener() {
   const stompClientRef = useRef(null);
 
+  const { member } = useContext(MemberContext);
+
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log(member);
     const socket = new SockJS("http://localhost:8080/ws");
     const client = Stomp.over(socket);
     client.connect({}, () => {
@@ -107,6 +110,19 @@ function GlobalWebSocketListener() {
           icon:false,
         });
       });
+      client.subscribe(`/topic/region/${member.memberLocation}`, (message)=> {
+        toast.info(
+          <div>
+            <strong>관심 지역에 새 글이 등록되었습니다</strong>
+            <div>{message.body}</div>
+          </div>,{
+          position: "bottom-right",
+          autoClose: 10000,
+          className: "custom-toast",
+          icon:false,
+        }
+        );
+      });
     });
     stompClientRef.current = client;
 
@@ -115,7 +131,7 @@ function GlobalWebSocketListener() {
         stompClientRef.current.disconnect();
       }
     };
-  }, []);
+  }, [member]);
 
   return null; // 렌더링하지 않음
 }
@@ -211,7 +227,7 @@ function App() {
             <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />
             <Route path="/oauth2/naver/redirect" element={<NaverCallback />} />
           </Routes>
-          <ToastContainer />
+          <ToastContainer  position="top-center" icon={false} autoClose={3000}  />
         </MemberProvider>
       </BrowserRouter>
     </AuthProvider>

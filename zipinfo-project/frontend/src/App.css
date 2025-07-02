@@ -37,3 +37,10 @@
   color: white;
   border-radius: 10px;
 }
+/* --------------------------------------------------------------------- */
+
+.Toastify__toast--success {
+  background-color: #e0f7e9;
+  color: #1a8f5c;
+  border-left: 5px solid #1a8f5c;
+}

@@ -6,8 +6,10 @@ import {
 } from "react-router-dom";
 import { axiosAPI } from "../../api/axiosApi";
 import SummernoteEditor from "./SummernoteEditor";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import NeighborhoodFilters from "./NeighborhoodFilters";
+import axios from "axios";
+import { MemberContext } from "../member/MemberContext";
 
 const NeighborhoodEdit = () => {
   const location = useLocation();
@@ -30,6 +32,8 @@ const NeighborhoodEdit = () => {
   const { boardNo } = useParams();
   const [searchParams] = useSearchParams();
   const cp = Number(searchParams.get("cp") ?? 1);
+
+  const { member } = useContext(MemberContext);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -127,6 +131,7 @@ const NeighborhoodEdit = () => {
 
         if (result > 0) {
           alert("글이 등록되었습니다");
+          await axiosAPI.post("/neighbor/insert", {memberLocation:selectedTown});
           navigate(`/neighborhoodBoard?cp=${cp}`); // 성공시에 리스트 페이지로 이동
         } else {
           alert("글 등록 실패");

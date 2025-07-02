@@ -5,6 +5,7 @@ import Menu from "./Menu";
 import { useNavigate } from 'react-router-dom';
 import { axiosAPI } from '../../api/axiosAPI';
 import { MemberContext } from '../member/MemberContext';
+import { toast } from 'react-toastify';
 
 const PasswordChange = () => {
   const nav = useNavigate();
@@ -27,12 +28,12 @@ const PasswordChange = () => {
 
     try {
       if(password.trim().length === 0){
-        alert('비밀번호를 입력하세요.');
+        tost.error('비밀번호를 입력하세요.');
         return;
       }
 
       if(!agreed){
-        alert('약관에 동의해주세요.');
+        toast.error('약관에 동의해주세요.');
         return;
       }
 
@@ -42,13 +43,13 @@ const PasswordChange = () => {
         const resp = await axiosAPI.get("/myPage/withDraw"
         );
         if(resp.status === 200 && resp.data === 1){
-          alert('회원 탈퇴가 완료되었습니다.');
+          toast.success('회원 탈퇴가 완료되었습니다.');
           setMember(null);
           localStorage.removeItem("loginMember");
           nav("/");
         }
       }else{
-          alert('비밀번호가 일치하지 않습니다.');
+          toast.error('비밀번호가 일치하지 않습니다.');
           setPassword("");
         }
       

@@ -4,6 +4,7 @@ import "../../css/myPage/menu.css";
 import Menu from "./Menu";
 import { useNavigate } from 'react-router-dom';
 import { axiosAPI } from '../../api/axiosAPI';
+import { toast } from 'react-toastify';
 
 const PasswordChange = () => {
   const nav = useNavigate();
@@ -72,7 +73,7 @@ const PasswordChange = () => {
     try {
       if(password.newPassword !== password.confirmPassword){
         
-        alert('새 비밀번호가 일치하지 않습니다.');
+        toast.error('새 비밀번호가 일치하지 않습니다.');
 
         setPassword({
           currentPassword: '',
@@ -89,11 +90,11 @@ const PasswordChange = () => {
         const resp = await axiosAPI.post("/myPage/updatePassword", {memberPw : password.newPassword}
         );
         if(resp.status === 200){
-          alert('비밀번호 변경이 완료되었습니다.');
+          toast.success('비밀번호 변경이 완료되었습니다.');
           nav("/myPage")
         }
       }else{
-          alert('현재 비밀번호가 일치하지 않습니다.');
+          toast.error('현재 비밀번호가 일치하지 않습니다.');
           setPassword({
             currentPassword: '',
             newPassword: '',
@@ -101,7 +102,7 @@ const PasswordChange = () => {
           });
         }
     } catch (error) {
-      alert(error);
+      toast.error(error);
     }
 
   };

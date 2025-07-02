@@ -4,6 +4,7 @@ import "../../css/member/MemberLogin.css";
 import { MemberContext } from "../member/MemberContext";
 import NaverCallback from "../auth/NaverCallback";
 import { data, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function openNaverPopup() {
   const url = new URL("https://nid.naver.com/oauth2.0/authorize");
@@ -65,18 +66,17 @@ export default function MemberLogin() {
       localStorage.setItem("loginMember", JSON.stringify(loginMember));
       setMember(loginMember);
 
-      alert(`${loginMember.memberNickname}님 반갑습니다!`);
       if (loginMember.memberAuth == 2) {
-        alert(`당신은 중개사 자격이 없는 중개자입니다. `);
+        toast.error(`당신은 중개사 자격이 없는 중개자입니다. `);
       }
 
       navigate("/"); //router 사용하여 메인페이지로 이동
     } catch (err) {
       if (err.response?.status === 401) {
-        alert("이메일 또는 비밀번호가 다릅니다.");
+        toast.error("이메일 또는 비밀번호가 다릅니다.");
       } else {
         console.error(err);
-        alert("로그인 중 오류가 발생했습니다!!");
+        toast.error("로그인 중 오류가 발생했습니다!!");
       }
     }
   };
@@ -105,19 +105,18 @@ export default function MemberLogin() {
           const { data: member } = await axiosAPI.post("/oauth/kakao", {
             code: authObj.access_token,
           });
-          alert(`${member.memberNickname}님, 환영합니다!`);
 
           localStorage.setItem("loginMember", JSON.stringify(member));
           setMember(member);
           navigate("/");
         } catch (err) {
           console.error("카카오 로그인 처리 중 에러", err);
-          alert("로그인 중 오류가 발생했습니다.");
+          toast.error("로그인 중 오류가 발생했습니다.");
         }
       },
       fail: (err) => {
         console.error("카카오 로그인 실패", err);
-        alert("로그인에 실패했습니다.");
+        toast.error("로그인에 실패했습니다.");
       },
     });
   };
@@ -137,7 +136,6 @@ export default function MemberLogin() {
           localStorage.setItem("loginMember", JSON.stringify(member));
           setMember(member);
           navigate("/");
-          alert(`${member.memberNickname}님, 환영합니다!`);
         });
     };
     window.addEventListener("message", listener, { once: true });

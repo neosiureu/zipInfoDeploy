@@ -7,6 +7,7 @@ import MiniMenu from "./MiniMenu";
 import { axiosAPI } from "../../api/axiosAPI";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function AddStock() {
   const [formData, setFormData] = useState({
@@ -134,7 +135,7 @@ export default function AddStock() {
           regionNo: admCdNo,
         }));
       } else {
-        alert("검색 결과 없음");
+        toast.error("검색 결과 없음");
       }
 
       // 정리
@@ -187,7 +188,7 @@ export default function AddStock() {
             lng: x,
           }));
         } else {
-          alert("좌표를 찾을 수 없습니다.");
+          toast.error("좌표를 찾을 수 없습니다.");
           setFormData((prev) => ({
             ...prev,
             lat: 0,
@@ -435,23 +436,23 @@ export default function AddStock() {
       for (const [key, value] of Object.entries(checkData)) {
         if (!value) {
           const label = keyToLabel[key] || key;
-          alert(`${label} 올바르지 않습니다.`);
+          toast.error(`${label} 올바르지 않습니다.`);
           return;
         }
       }
 
       if (stockTumbImg === null) {
-        alert("썸네일 이미지를 넣어주세요.");
+        toast.error("썸네일 이미지를 넣어주세요.");
         return;
       }
 
       if (balanceImg === null) {
-        alert("평형 이미지를 넣어주세요.");
+        toast.error("평형 이미지를 넣어주세요.");
         return;
       }
 
       if (stockImg.length == 0) {
-        alert("매물 사진을 넣어주세요.");
+        toast.error("매물 사진을 넣어주세요.");
         return;
       }
 
@@ -478,7 +479,6 @@ export default function AddStock() {
       );
 
       if (response.status === 200) {
-        console.log("기본 정보 등록 완료");
 
         const imageForm = new FormData();
         combinedImages.forEach((file) => imageForm.append("stockImg", file));
@@ -490,7 +490,7 @@ export default function AddStock() {
         );
 
         if (imgResp.status === 200) {
-          alert("매물 등록이 완료되었습니다.");
+          toast.success("매물 등록이 완료되었습니다.");
           nav("/myPage");
         }
       }
