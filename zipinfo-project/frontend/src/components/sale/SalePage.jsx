@@ -123,7 +123,7 @@ const SalePage = () => {
           params: { saleStockNo },
         });
         if (res.status === 200) {
-          const data = res.data; // ← 변수 선언
+          const data = res.data;
           setClickedStockItem(data);
           setIsAsideVisible(true);
 
@@ -288,7 +288,11 @@ const SalePage = () => {
           <div className="sale-section-line" />
           <div className="sale-section-content">
             <div className="sale-plan-section">
-              <img src={floor} alt="평면도" className="plan-img" />
+              <img
+                src={`http://localhost:8080${item.floorplanUrl}`}
+                alt="평면도"
+                className="sale-floorplan"
+              />
             </div>
           </div>
         </div>
@@ -388,7 +392,11 @@ const SalePage = () => {
               onClick={() => handleItemClick(item)}
             >
               <div className="sale-header">
-                <img src={saleThumbnail} alt="썸네일" className="sale-img" />
+                <img
+                  src={`http://localhost:8080${item.thumbnailUrl}`}
+                  alt="썸네일"
+                  className="sale-img"
+                />
                 <div className="sale-title">
                   <div className="sale-name">
                     {stockFormMap[item.saleStockForm]} ·{" "}
