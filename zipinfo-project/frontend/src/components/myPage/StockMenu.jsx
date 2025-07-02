@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { MemberContext } from "../member/MemberContext";
 
 export default function Menu(){
 
     const nav = useNavigate();
 
     const location = useLocation();
+
+    const {member} = useContext(MemberContext);
 
     const tabs = [
       {label: "내 정보", path: "/myPage"},
@@ -60,11 +63,20 @@ useEffect(() => {
                     key={tab.label}
                     onClick={() => {
                       setActiveTab(tab.label);
-                      nav(tab.path);
-                    }}
-                    className={`my-page-tab-button ${
-                      activeTab === tab.label ? "active" : "inactive"
-                    }`}
+
+                      if (tab.label === "관심 매물") {
+                        if (member.memberAuth !== 3) {
+                          nav("/myPage/sawStock");
+                        } else {
+                          nav("/myPage/myStock");
+                        }
+                      } else {
+                        nav(tab.path);
+                      }
+                      }}
+                      className={`my-page-tab-button ${
+                        activeTab === tab.label ? "active" : "inactive"
+                      }`}
                   >
                     {tab.label}
                   </button>

@@ -1,11 +1,18 @@
 package com.zipinfo.project.admin.model.service;
 
+import java.util.List;
+
 import org.springframework.web.multipart.MultipartFile;
+
+import com.zipinfo.project.admin.model.dto.Advertisement;
 
 public interface AdvertisementService {
     // 파일 저장: 업로드된 파일을 서버에 저장하고 저장 경로를 반환
-    String saveFile(MultipartFile file);
+    int saveFile(MultipartFile file, int memberNo);
 
-    // 파일 삭제: 이미지 경로를 받아 해당 파일을 삭제
-    boolean deleteFile(String filePath);
+	List<Advertisement> getAdList();
+
+	int updateMain(int adNo);
+
+	int deleteAd(int adNo);
 }

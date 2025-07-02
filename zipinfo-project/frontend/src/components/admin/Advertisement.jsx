@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../../css/admin/Advertisement.css";
+import { toast } from "react-toastify";
 
 const Advertisement = () => {
   // 🔒 고정된 관리자 정보
@@ -14,19 +15,20 @@ const Advertisement = () => {
   const [selectedFile, setSelectedFile] = useState(null);
 
   // 컴포넌트 마운트 시 서버에서 광고 리스트 불러오기
+  const fetchAds = async () => {
+    try {
+      const resp = await axios.get(
+        "http://localhost:8080/advertisement/list"
+      );
+      // 서버에서 받아오는 데이터가 아래 형태라 가정
+      // [{ id, imageUrl, author, isMain }, ...]
+      setAds(resp.data);
+    } catch (error) {
+      console.error("광고 리스트 불러오기 실패", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchAds = async () => {
-      try {
-        const resp = await axios.get(
-          "http://localhost:8080/advertisement/list"
-        );
-        // 서버에서 받아오는 데이터가 아래 형태라 가정
-        // [{ id, imageUrl, author, isMain }, ...]
-        setAds(resp.data);
-      } catch (error) {
-        console.error("광고 리스트 불러오기 실패", error);
-      }
-    };
 
     fetchAds();
   }, []);
@@ -40,10 +42,19 @@ const Advertisement = () => {
 
   // ✅ 광고 업로드 핸들러 (서버에 파일 저장 요청)
   const handleAdUpload = async () => {
+    const maxFileSize = 10 * 1024 * 1024;
+
     if (!selectedFile) {
       alert("업로드할 파일을 선택해주세요.");
+      setSelectedFile(null);
       return;
     }
+
+    if (selectedFile.size > maxFileSize) {
+        toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+        setSelectedFile(null);
+        return;
+      }
 
     try {
       const formData = new FormData();
@@ -53,25 +64,12 @@ const Advertisement = () => {
       const response = await axios.post(
         "http://localhost:8080/advertisement/register",
         formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        {withCredentials: true}
       );
 
-      const imageUrl = response.data; // 서버에서 반환한 이미지 접근 URL
-
-      // 📌 고유 ID 생성 (Date.now + Math.random)
-      const newAd = {
-        id: Date.now() + Math.random(),
-        imageUrl,
-        author: adminName,
-        isMain: false, // 기본 메인 등록 안 된 상태
-      };
-
-      // 기존 광고 리스트에 새 광고 추가
-      setAds((prev) => [...prev, newAd]);
+      if(response.status === 200){
+        fetchAds();
+      }
       setSelectedFile(null);
       alert("이미지가 성공적으로 업로드되었습니다.");
     } catch (error) {
@@ -81,44 +79,26 @@ const Advertisement = () => {
   };
 
   // ✅ 광고 메인 등록/해제 토글
-  const handleToggleMain = (id) => {
-    setAds((prev) => {
-      // 한 번에 하나만 메인 등록 되도록 모두 false 처리 후 선택한 광고만 토글
-      const updatedAds = prev.map((ad) => {
-        if (ad.id === id) {
-          return { ...ad, isMain: !ad.isMain };
-        } else {
-          return { ...ad, isMain: false };
-        }
-      });
+  const handleToggleMain = async (adNo) => {
+      const response = await axios.post(
+        "http://localhost:8080/advertisement/updateMain",
+        {adNo:parseInt(adNo)},
+        {withCredentials: true}
+      );
 
-      // 메인 등록된 광고가 있으면 localStorage에 저장, 없으면 삭제
-      const mainAd = updatedAds.find((ad) => ad.isMain);
-      if (mainAd) {
-        localStorage.setItem("mainBannerUrl", mainAd.imageUrl);
-      } else {
-        localStorage.removeItem("mainBannerUrl");
-      }
+      fetchAds();
 
-      return updatedAds;
-    });
   };
 
   // ✅ 광고 삭제 (클라이언트 상태에서만 삭제)
-  const handleDelete = (id) => {
-    setAds((prev) => {
-      const filteredAds = prev.filter((ad) => ad.id !== id);
+  const handleDelete = async (adNo) => {
+      const response = await axios.post(
+        "http://localhost:8080/advertisement/delete",
+        {adNo:parseInt(adNo)},
+        {withCredentials: true}
+      );
 
-      // 삭제 후 메인으로 등록된 광고가 있으면 localStorage 갱신, 없으면 삭제
-      const mainAd = filteredAds.find((ad) => ad.isMain);
-      if (mainAd) {
-        localStorage.setItem("mainBannerUrl", mainAd.imageUrl);
-      } else {
-        localStorage.removeItem("mainBannerUrl");
-      }
-
-      return filteredAds;
-    });
+      fetchAds();
   };
 
   return (
@@ -161,26 +141,26 @@ const Advertisement = () => {
                 <td>{index + 1}</td>
                 <td>
                   <img
-                    src={`http://localhost:8080${ad.imageUrl}`} // ✅ 절대 경로로 변경
+                    src={`http://localhost:8080${ad.adImgUrl}`} // ✅ 절대 경로로 변경
                     alt={`광고 이미지 ${index + 1}`}
                     style={{ width: "100px", height: "auto" }}
                   />
                 </td>
-                <td>{ad.author}</td>
+                <td>{ad.memberNickname}</td>
                 <td>
                   <button
                     className={`admin-ad-btn ${
-                      ad.isMain ? "admin-ad-green" : "admin-ad-blue"
+                      ad.adMain ? "admin-ad-green" : "admin-ad-blue"
                     }`}
-                    onClick={() => handleToggleMain(ad.id)}
+                    onClick={() => handleToggleMain(ad.adNo)}
                   >
-                    {ad.isMain ? "등록됨" : "등록"}
+                    {ad.adMain ? "등록됨" : "등록"}
                   </button>
                 </td>
                 <td>
                   <button
                     className="admin-ad-btn admin-ad-red"
-                    onClick={() => handleDelete(ad.id)}
+                    onClick={() => handleDelete(ad.adNo)}
                   >
                     삭제
                   </button>
@@ -193,7 +173,7 @@ const Advertisement = () => {
 
       {/* 📤 이미지 업로드 영역 */}
       <div className="admin-ad-upload">
-        <input type="file" onChange={handleFileChange} />
+        <input type="file" accept="image/*" onChange={handleFileChange} />
       </div>
 
       {/* 🔘 업로드 버튼 */}

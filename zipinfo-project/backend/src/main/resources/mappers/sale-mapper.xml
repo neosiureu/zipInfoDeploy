@@ -29,15 +29,21 @@
 	  <result property="middlePayment" column="MIDDLE_PAYMENT"/>
 	  <result property="balancePayment" column="BALANCE_PAYMENT"/>
 	  <result property="regionNo" column="REGION_NO"/>
+	  <result property="thumbnailUrl" column="THUMBNAIL_URL"/>
+	  <result property="floorplanUrl" column="FLOORPLAN_URL"/>
 	  
 	  <!-- 좌표 (SALE_COORD 테이블에서 가져온 값이라고 가정) -->
 	  <result property="lat" column="LAT"/>
 	  <result property="lng" column="LNG"/>
 	</resultMap>
 	
-	<!-- 좌표와 함께 분양 매물 조회 -->
+	<!-- 좌표와 함께 분양 매물 조회 + 썸네일/평면도 이미지 포함 -->
 	<select id="selectSaleInRange" resultMap="saleMap">
-	  SELECT coord.*, info.*
+	  SELECT 
+	    coord.*, 
+	    info.*, 
+	    thumb.SALE_IMG_URL AS THUMBNAIL_URL,
+	    floor.SALE_IMG_URL AS FLOORPLAN_URL
 	  FROM (
 	    SELECT SALE_STOCK_NO, LAT, LNG
 	    FROM SALE_COORD
@@ -47,6 +53,19 @@
 	      AND LNG &lt; #{neLng}
 	  ) coord
 	  INNER JOIN SALE_INFO info ON coord.SALE_STOCK_NO = info.SALE_STOCK_NO
+	
+	  LEFT JOIN (
+	    SELECT SALE_STOCK_NO, SALE_IMG_URL
+	    FROM SALE_IMG
+	    WHERE SALE_IMG_ORDER = 1
+	  ) thumb ON info.SALE_STOCK_NO = thumb.SALE_STOCK_NO
+	
+	  LEFT JOIN (
+	    SELECT SALE_STOCK_NO, SALE_IMG_URL
+	    FROM SALE_IMG
+	    WHERE SALE_IMG_ORDER = 2
+	  ) floor ON info.SALE_STOCK_NO = floor.SALE_STOCK_NO
+	
 	  WHERE (#{searchKeyWord} IS NULL OR info.SALE_STOCK_NAME LIKE '%' || #{searchKeyWord} || '%')
 	    AND (#{locationCode} = -1 OR info.REGION_NO = #{locationCode})
 	    AND (#{saleStatus} = -1 OR info.SALE_STATUS = #{saleStatus})
@@ -92,9 +111,25 @@
 	
 	<!-- 단일 매물 조회 -->
 	<select id="selectSaleDetail" resultMap="saleMap">
-	  SELECT COORD.*, INFO.*
+	  SELECT 
+	    COORD.*, 
+	    INFO.*,
+	    M.MEMBER_EMAIL,
+	    THUMB.SALE_IMG_URL AS THUMBNAIL_URL,
+	    FLOOR.SALE_IMG_URL AS FLOORPLAN_URL
 	  FROM SALE_INFO INFO
 	  LEFT JOIN SALE_COORD COORD ON INFO.SALE_STOCK_NO = COORD.SALE_STOCK_NO
+	  LEFT JOIN MEMBER M ON INFO.MEMBER_NO = M.MEMBER_NO
+	  LEFT JOIN (
+	    SELECT SALE_STOCK_NO, SALE_IMG_URL
+	    FROM SALE_IMG
+	    WHERE SALE_IMG_ORDER = 1
+	  ) THUMB ON INFO.SALE_STOCK_NO = THUMB.SALE_STOCK_NO
+	  LEFT JOIN (
+	    SELECT SALE_STOCK_NO, SALE_IMG_URL
+	    FROM SALE_IMG
+	    WHERE SALE_IMG_ORDER = 2
+	  ) FLOOR ON INFO.SALE_STOCK_NO = FLOOR.SALE_STOCK_NO
 	  WHERE INFO.SALE_STOCK_NO = #{saleStockNo}
 	</select>
 	

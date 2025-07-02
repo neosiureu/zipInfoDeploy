@@ -39,6 +39,8 @@ public class Sale {
 	private int balancePayment;     				// 잔금
 	private int regionNo;							// 법정동 코드
 	private String regDate;							// 등록일
+	private String thumbnailUrl;  					// SALE_IMG_ORDER = 1
+	private String floorplanUrl;  					// SALE_IMG_ORDER = 2
 	
 	// SALE_COORD에서 추가
 	private double lat;

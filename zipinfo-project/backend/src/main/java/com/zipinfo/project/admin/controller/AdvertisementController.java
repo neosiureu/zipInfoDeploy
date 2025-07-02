@@ -10,18 +10,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.zipinfo.project.admin.model.dto.Advertisement;
 import com.zipinfo.project.admin.model.service.AdvertisementService;
+import com.zipinfo.project.member.model.dto.Member;
+import com.zipinfo.project.myPage.controller.MyPageController;
+import com.zipinfo.project.myPage.model.service.MyPageService;
+
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@Slf4j
+@SessionAttributes({"loginMember"})
 @RestController
 @RequestMapping("/advertisement")
 public class AdvertisementController {
 
     private final AdvertisementService advertisementService;
-
-    // 서버 메모리 내에서 광고를 관리하는 리스트
-    private final List<Advertisement> adList = new CopyOnWriteArrayList<>();
-    private final AtomicInteger adIdGenerator = new AtomicInteger(1); // 고유 ID 생성기
 
     public AdvertisementController(AdvertisementService advertisementService) {
         this.advertisementService = advertisementService;
@@ -31,17 +36,16 @@ public class AdvertisementController {
      * 파일 저장 + 메모리 리스트에 광고 추가 (DB 저장 없음)
      */
     @PostMapping("/register")
-    public ResponseEntity<String> registerAd(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Object> registerAd(HttpSession session, @RequestParam("file") MultipartFile file) {
         try {
-            String savedFilePath = advertisementService.saveFile(file);
+        	
+			Member loginMember = (Member)session.getAttribute("loginMember");
+			
+			int memberNo = loginMember.getMemberNo();
+			
+            int result = advertisementService.saveFile(file, memberNo);
 
-            Advertisement newAd = new Advertisement();
-            newAd.setId(adIdGenerator.getAndIncrement());
-            newAd.setImageUrl(savedFilePath);
-
-            adList.add(newAd);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedFilePath);
+            return ResponseEntity.status(HttpStatus.OK).body(result);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 저장 실패");
@@ -49,66 +53,49 @@ public class AdvertisementController {
     }
 
 
-
-
     /**
      * 등록된 광고 리스트 반환
      */
     @GetMapping("/list")
     public ResponseEntity<List<Advertisement>> getAdList() {
-        return ResponseEntity.ok(adList);
+    	List<Advertisement> adList = advertisementService.getAdList();
+    	
+        return ResponseEntity.status(HttpStatus.OK) 
+				   .body(adList); 
     }
+    
+    @PostMapping("updateMain")
+    public ResponseEntity<Object> updateMain(@RequestBody Advertisement ad){
+    	try {
+    		int adNo = ad.getAdNo();
+    		
+    		int result = advertisementService.updateMain(adNo);
+    		
+    		return ResponseEntity.status(HttpStatus.OK).body(result); 
+			
+		} catch (Exception e) {
+			 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		                .body("메인 광고 설정 실패: " + e.getMessage());
+		}
+    }
+    
 
     /**
      * 광고 삭제 (메모리 리스트 제거 + 실제 이미지 파일 삭제)
      */
-    @DeleteMapping("/delete/{adId}")
-    public ResponseEntity<String> deleteAd(@PathVariable int adId) {
-        Advertisement target = adList.stream()
-                .filter(ad -> ad.getId() == adId)
-                .findFirst()
-                .orElse(null);
-
-        if (target != null) {
-            adList.remove(target);
-            boolean deleted = advertisementService.deleteFile(target.getImageUrl());
-            return ResponseEntity.ok(deleted ? "삭제 성공" : "파일 삭제 실패");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("광고를 찾을 수 없습니다.");
-        }
-    }
-    
-    /** 광고 수정 삭제
-     * @param adId
-     * @param newFile
-     * @return
-     */
-    @PutMapping("/edit/{adId}")
-    public ResponseEntity<String> editAd(@PathVariable int adId, @RequestParam("file") MultipartFile newFile) {
-        Advertisement target = adList.stream()
-                .filter(ad -> ad.getId() == adId)
-                .findFirst()
-                .orElse(null);
-
-        if (target == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("광고를 찾을 수 없습니다.");
-        }
-
-        try {
-            // 기존 파일 삭제
-            advertisementService.deleteFile(target.getImageUrl());
-
-            // 새 파일 저장
-            String newFilePath = advertisementService.saveFile(newFile);
-
-            // 리스트 내 광고 정보 수정
-            target.setImageUrl(newFilePath);
-
-            return ResponseEntity.ok("광고가 수정되었습니다.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("광고 수정 실패");
-        }
+    @PostMapping("/delete")
+    public ResponseEntity<Object> deleteAd(@RequestBody Advertisement ad) {
+    	try {
+    		int adNo = ad.getAdNo();
+    		
+    		int result = advertisementService.deleteAd(adNo);
+    		
+    		return ResponseEntity.status(HttpStatus.OK).body(result); 
+			
+		} catch (Exception e) {
+			 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		                .body("메인 광고 설정 실패: " + e.getMessage());
+		}
     }
 
 }

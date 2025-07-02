@@ -8,12 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Advertisement {
-    private int id;              // 광고 ID (PK)
-    private String title;        // 광고 제목
-    private String content;      // 광고 내용
-    private String startDate;    // 광고 시작일 (YYYY-MM-DD)
-    private String endDate;      // 광고 종료일 (YYYY-MM-DD)
-    private String imageUrl;     // 광고 이미지 URL (서버 저장 경로)
-    private String author;       // 작성자
-    private boolean main;      // 메인 등록 여부
+    private int adNo;              // 광고 번호
+    private int memberNo;
+    private String adImgUrl;    // 광고 이미지 경로
+    private String adOriginName;      // 원본명
+    private String adRename;       // 변경명
+    private boolean adMain;      // 메인 등록 여부
 }

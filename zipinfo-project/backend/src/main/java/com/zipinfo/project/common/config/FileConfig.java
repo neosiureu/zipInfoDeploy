@@ -68,6 +68,13 @@ public class FileConfig implements WebMvcConfigurer{
 
     @Value("${my.announce.resource-location}")
     private String resourceAnnounceLocation;
+    
+    // 광고 관련 경로
+    @Value("${my.advertise.resource-handler}")
+    private String resourceAdvertiseHandler;
+    
+    @Value("${my.advertise.resource-location}")
+    private String resourceAdvertiseLocation;
 
 	
 //	// 요청 주소에 따라
@@ -103,6 +110,10 @@ public class FileConfig implements WebMvcConfigurer{
 		registry
 		.addResourceHandler(resourceAnnounceHandler)
 		.addResourceLocations(resourceAnnounceLocation);
+		
+		registry
+		.addResourceHandler(resourceAdvertiseHandler)
+		.addResourceLocations(resourceAdvertiseLocation);
 
 	}
 	

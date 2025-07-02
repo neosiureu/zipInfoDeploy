@@ -109,20 +109,49 @@ export default function AddStock() {
   const handleBenefitClick = () => balanceInputRef.current.click();
   const handleClick = () => inputRef.current.click();
 
+  const maxFileSize = 10 * 1024 * 1024;
+  const maxFilesSize = 10 * 1024 * 1024;
+
   // 파일 선택되면 상태에 추가
   const handleTumbChange = (e) => {
     const file = e.target.files[0];
     setStockTumbImg(file);
+
+    if (file.size > maxFileSize) {
+        toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+        setStockTumbImg(null);
+        return;
+    }
   };
 
   const handleChange = (e) => {
-    const files = Array.from(e.target.files);
-    setStockImg((prev) => [...prev, ...files]);
+    const filess = Array.from(e.target.files);
+
+    const file = e.target.files[0];
+
+    if (file.size > maxFileSize) {
+        toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+        return;
+    }
+
+    const totalSize = [...stockImg, ...filess].reduce((acc, file) => acc + file.size, 0);
+    if (totalSize > maxFilesSize) {
+      toast.error("모든 파일의 합이 30MB를 초과합니다.");
+      return;
+    }
+    
+    setStockImg((prev) => [...prev, ...filess]);
   };
 
   const handleBalanceChange = (e) => {
     const file = e.target.files[0];
     setBalanceImg(file);
+
+    if (file.size > maxFileSize) {
+        toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+        setStockTumbImg(null);
+        return;
+    }
   };
 
   const combinedImages = [
@@ -517,7 +546,7 @@ export default function AddStock() {
           if (balanceImgResp.status === 200) {
             console.log("평형 이미지 업데이트 완료.");
           } else {
-            console.log("썸네일 업데이트 실패");
+            console.log("평형 이미지 업데이트 실패");
           }
         }
 
@@ -924,11 +953,10 @@ export default function AddStock() {
                   )}
                 </ul>
                 <p className="my-page-stock-image-upload-desc">
-                  이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는
-                  다음과 같습니다.
+                  이미지 파일의 크기는 10MB를 넘으면 안됩니다.
                 </p>
                 <p className="my-page-stock-image-upload-desc">
-                  공유할 이미지는 최대로 첨부할 수 있습니다
+                  공유할 이미지는 1개만 첨부할 수 있습니다
                 </p>
               </div>
 
@@ -961,11 +989,10 @@ export default function AddStock() {
                   )}
                 </ul>
                 <p className="my-page-stock-image-upload-desc">
-                  이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는
-                  다음과 같습니다.
+                  이미지 파일의 크기는 10MB를 넘으면 안됩니다.
                 </p>
                 <p className="my-page-stock-image-upload-desc">
-                  공유할 이미지는 최대로 첨부할 수 있습니다
+                  공유할 이미지는 1개만 첨부할 수 있습니다
                 </p>
               </div>
 
@@ -1002,11 +1029,10 @@ export default function AddStock() {
                       ))}
                 </ul>
                 <p className="my-page-stock-image-upload-desc">
-                  이미지 파일의 크기는 5MB를 넘으면 안되고 권장되는 크기는
-                  다음과 같습니다.
+                  이미지 파일의 크기는 10MB를 넘으면 안됩니다.
                 </p>
                 <p className="my-page-stock-image-upload-desc">
-                  공유할 이미지는 최대로 첨부할 수 있습니다
+                  공유할 이미지는 30MB까지 첨부할 수 있습니다
                 </p>
               </div>
             </div>
