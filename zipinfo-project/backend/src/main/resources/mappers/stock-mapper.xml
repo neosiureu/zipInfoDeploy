@@ -31,7 +31,9 @@
 	  <result property="stockAddress" column="STOCK_ADDRESS"/>
 	  <result property="regionNo" column="REGION_NO"/>
 	  <result property="sellYn" column="SELL_YN"/>
-	
+		<result property = "imgUrl" column="IMG_URL"/>
+		<result property = "imgOriginName" column="IMG_ORIGIN_NAME"/>
+		<result property = "imgOrder" column="IMG_ORDER"/>
 	  <!-- 좌표 (STOCK_COORD 테이블에서 가져온 값이라고 가정) -->
 	  <result property="lat" column="LAT"/>
 	  <result property="lng" column="LNG"/>
@@ -86,6 +88,7 @@
 			</where>)
 			 i ON c.stockNo = i.STOCK_NO
 			 LEFT JOIN (SELECT MEMBER_NO, COMPANY_NAME, COMPANY_LOCATION, PRESIDENT_NAME, BROKER_NO, PRESIDENT_PHONE FROM BROKER_INFO) b ON i.MEMBER_NO = b.MEMBER_NO
+			 <!--LEFT JOIN (SELECT IMG_NO, STOCK_NO, IMG_ORDER, IMG_URL, IMG_ORIGIN_NAME, IMG_RENAME FROM STOCK_IMG) m ON i.STOCK_NO = m.STOCK_NO-->
 	</select>
 	<select id="selectSigunguFullName">
 		SELECT TOWN_NAME FROM BOARD_TOWN
