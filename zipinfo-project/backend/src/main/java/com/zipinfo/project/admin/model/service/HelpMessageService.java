@@ -45,4 +45,10 @@ public interface HelpMessageService {
 	List<HelpMessage> getAnsweredMessagesByUser(int userNo);
 
 	boolean updateReadFlag(int messageNo);
+
+	List<HelpMessage> getRepliesByAdminToUser(int adminNo, int userNo);
+
+	
+
+	
 }

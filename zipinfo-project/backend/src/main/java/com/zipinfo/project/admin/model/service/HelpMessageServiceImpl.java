@@ -70,4 +70,8 @@ public class HelpMessageServiceImpl implements HelpMessageService {
         return markMessageAsRead(messageNo);
     }
 
+    @Override
+    public List<HelpMessage> getRepliesByAdminToUser(int adminNo, int userNo) {
+        return helpMessageMapper.selectRepliesByAdminToUser(adminNo, userNo);
+    }
 }

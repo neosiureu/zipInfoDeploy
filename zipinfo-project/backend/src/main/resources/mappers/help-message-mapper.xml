@@ -27,9 +27,8 @@
 </select>
 
   <!-- 특정 문의 상세 조회 -->
-    <!-- 특정 문의 상세 조회 (첨부파일 필드 포함) -->
   <select id="selectMessageById">
-    SELECT 
+  SELECT 
     hm.MESSAGE_NO,
     hm.MESSAGE_TITLE,
     hm.MESSAGE_CONTENT,
@@ -40,14 +39,16 @@
     hm.SENDER_NO,
     hm.RECEIVER_NO,
     hm.REPLY_YN,
-    hf.FILE_NO,
-    hf.FILE_URL,
-    hf.FILE_ORIGIN_NAME,
-    hf.FILE_RENAME
-	  FROM HELP_MESSAGE hm
-	  LEFT JOIN MESSAGE_FILE hf ON hm.MESSAGE_NO = hf.MESSAGE_NO
-	  WHERE hm.MESSAGE_NO = #{messageNo}
-	</select>
+    mf.FILE_NO,
+    mf.FILE_URL,
+    mf.FILE_ORIGIN_NAME,
+    mf.FILE_RENAME
+  FROM HELP_MESSAGE hm
+  LEFT JOIN MESSAGE_FILE mf ON hm.MESSAGE_NO = mf.MESSAGE_NO
+  WHERE hm.MESSAGE_NO = #{messageNo}
+</select>
+
+
 
 
 
@@ -96,52 +97,60 @@
 
   <!-- 미답변 메시지 목록 (관리자가 보낸 것 제외) -->
   <select id="selectUnansweredMessages">
-    SELECT 
-    MESSAGE_NO,
-    MESSAGE_TITLE,
-    MESSAGE_CONTENT,
-    MESSAGE_WRITE_DATE,
-    MESSAGE_READ_FL,
-    USER_DEL_FL,
-    ADMIN_DEL_FL,
-    SENDER_NO,
-    RECEIVER_NO,
-    REPLY_YN,
+  SELECT 
+    hm.MESSAGE_NO,
+    hm.MESSAGE_TITLE,
+    hm.MESSAGE_CONTENT,
+    hm.MESSAGE_WRITE_DATE,
+    hm.MESSAGE_READ_FL,
+    hm.USER_DEL_FL,
+    hm.ADMIN_DEL_FL,
+    hm.SENDER_NO,
+    hm.RECEIVER_NO,
+    hm.REPLY_YN,
     NULL AS FILE_NO,
     NULL AS FILE_URL,
     NULL AS FILE_ORIGIN_NAME,
-    NULL AS FILE_RENAME
-  FROM HELP_MESSAGE
-  WHERE SENDER_NO != #{adminId}
-    AND REPLY_YN = 'N'
-    AND USER_DEL_FL = 'N'
-    AND ADMIN_DEL_FL = 'N'
-  ORDER BY MESSAGE_NO DESC
+    NULL AS FILE_RENAME,
+    m.MEMBER_NICKNAME AS memberNickname
+  FROM HELP_MESSAGE hm
+  LEFT JOIN MEMBER m ON hm.SENDER_NO = m.MEMBER_NO
+  WHERE hm.SENDER_NO != #{adminId}
+    AND hm.REPLY_YN = 'N'
+    AND hm.USER_DEL_FL = 'N'
+    AND hm.ADMIN_DEL_FL = 'N'
+  ORDER BY hm.MESSAGE_NO DESC
 </select>
+
 
   <!-- 답변 완료된 메시지 (보낸 문의 중) -->
   <select id="selectAnsweredMessagesByUser">
   SELECT 
-    MESSAGE_NO,
-    MESSAGE_TITLE,
-    MESSAGE_CONTENT,
-    MESSAGE_WRITE_DATE,
-    MESSAGE_READ_FL,
-    USER_DEL_FL,
-    ADMIN_DEL_FL,
-    SENDER_NO,
-    RECEIVER_NO,
-    REPLY_YN,
-    NULL AS FILE_NO,
-    NULL AS FILE_URL,
-    NULL AS FILE_ORIGIN_NAME,
-    NULL AS FILE_RENAME
-  FROM HELP_MESSAGE
-  WHERE SENDER_NO = #{userNo}
-    AND REPLY_YN = 'Y'
-    AND USER_DEL_FL = 'N'
-  ORDER BY MESSAGE_NO DESC
+    hm.MESSAGE_NO,
+    hm.MESSAGE_TITLE,
+    hm.MESSAGE_CONTENT,
+    hm.MESSAGE_WRITE_DATE,
+    hm.MESSAGE_READ_FL,
+    hm.USER_DEL_FL,
+    hm.ADMIN_DEL_FL,
+    hm.SENDER_NO,
+    hm.RECEIVER_NO,
+    hm.REPLY_YN,
+    mf.FILE_NO,
+    mf.FILE_URL,
+    mf.FILE_ORIGIN_NAME,
+    mf.FILE_RENAME,
+    m.MEMBER_NICKNAME AS memberNickname
+  FROM HELP_MESSAGE hm
+  LEFT JOIN MEMBER m ON hm.SENDER_NO = m.MEMBER_NO
+  LEFT JOIN MESSAGE_FILE mf ON hm.MESSAGE_NO = mf.MESSAGE_NO
+  WHERE hm.INQUIRED_NO IS NOT NULL
+    AND hm.SENDER_NO = #{userNo}
+    AND hm.USER_DEL_FL = 'N'
+    AND hm.ADMIN_DEL_FL = 'N'
+  ORDER BY hm.MESSAGE_WRITE_DATE DESC
 </select>
+
 
 
   <!-- 첨부파일 조회 -->
@@ -155,5 +164,34 @@
     FROM MESSAGE_FILE
     WHERE MESSAGE_NO = #{messageNo}
   </select>
+  
+  <!-- 함께 조회 -->
+  <!-- 관리자가 특정 사용자에게 보낸 답변 리스트 조회 -->
+<select id="selectRepliesByAdminToUser" resultType="com.zipinfo.project.admin.model.dto.HelpMessage">
+    SELECT 
+      MESSAGE_NO,
+      MESSAGE_TITLE,
+      MESSAGE_CONTENT,
+      MESSAGE_WRITE_DATE,
+      MESSAGE_READ_FL,
+      USER_DEL_FL,
+      ADMIN_DEL_FL,
+      SENDER_NO,
+      RECEIVER_NO,
+      REPLY_YN,
+      NULL AS FILE_NO,
+      NULL AS FILE_URL,
+      NULL AS FILE_ORIGIN_NAME,
+      NULL AS FILE_RENAME
+    FROM HELP_MESSAGE
+    WHERE SENDER_NO = #{adminNo}
+      AND RECEIVER_NO = #{userNo}
+      AND REPLY_YN = 'Y'
+      AND USER_DEL_FL = 'N'
+      AND ADMIN_DEL_FL = 'N'
+    ORDER BY MESSAGE_WRITE_DATE DESC
+</select>
+
+  
 
 </mapper>

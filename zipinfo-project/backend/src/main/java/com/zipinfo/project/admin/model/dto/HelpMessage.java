@@ -27,4 +27,5 @@ public class HelpMessage {
     private String fileRename;
     
     private MultipartFile messageFile;
+    private String memberNickname;
 }

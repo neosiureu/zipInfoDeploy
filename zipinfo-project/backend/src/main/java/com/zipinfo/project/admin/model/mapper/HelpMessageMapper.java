@@ -1,6 +1,7 @@
 package com.zipinfo.project.admin.model.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -58,6 +59,9 @@ public interface HelpMessageMapper {
 	 */
 	List<HelpMessage> selectAnsweredMessagesByUser(int userNo);
 
+	 // 문의 + 답변 함께 조회
 	
+	List<HelpMessage> selectRepliesByAdminToUser(int adminNo, int userNo);
 
+	
 }

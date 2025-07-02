@@ -1,14 +1,16 @@
 package com.zipinfo.project.admin.controller;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -18,55 +20,48 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriUtils;
 
 import com.zipinfo.project.admin.model.dto.HelpMessage;
 import com.zipinfo.project.admin.model.service.HelpMessageService;
 import com.zipinfo.project.member.model.dto.Member;
 
-import java.net.URLEncoder;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-
 
 @RestController
 @RequestMapping("/api/help")
 @RequiredArgsConstructor
 public class HelpMessageController {
 
-    // HelpMessageService 주입
     private final HelpMessageService helpMessageService;
-    
-    // application.properties (config.properties)에서 문의 파일 저장 폴더 경로 주입
+
     @Value("${my.message.folder-path}")
     private String messageFolderPath;
 
-    /**
-     * 전체 문의 목록 조회 API
-     * GET /api/help/list
-     * @return 문의글 리스트를 JSON 형태로 반환
-     */
     @GetMapping("/list")
     public ResponseEntity<List<HelpMessage>> getAllMessages() {
         return ResponseEntity.ok(helpMessageService.getAllMessages());
     }
 
-    /**
-     * 특정 문의글 상세 조회 API (첨부파일 포함)
-     * GET /api/help/reply?messageNo=xxx
-     */
     @GetMapping("/reply")
-    public ResponseEntity<Object> getHelpMessageReply(@RequestParam("messageNo") int messageNo) {
+    public ResponseEntity<?> getInquiryAndReplies(@RequestParam("messageNo") int messageNo) {
         try {
-            HelpMessage msg = helpMessageService.getHelpMessageById(messageNo);
-            if (msg == null) {
+            HelpMessage inquiry = helpMessageService.getHelpMessageById(messageNo);
+            if (inquiry == null) {
                 return ResponseEntity.notFound().build();
             }
-            return ResponseEntity.ok(msg);
+
+            int adminNo = 1; // 관리자 번호, 필요하면 세션 등에서 가져올 것
+            int userNo = inquiry.getSenderNo();
+
+            List<HelpMessage> replies = helpMessageService.getRepliesByAdminToUser(adminNo, userNo);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("inquiry", inquiry);
+            response.put("replies", replies);
+
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -75,32 +70,20 @@ public class HelpMessageController {
     }
 
 
-    /**
-     * 문의글에 답변 등록 API
-     * POST /api/help/reply/{messageNo}
-     * @param messageNo 답변할 문의글 번호 (PathVariable)
-     * @param replyDto 요청 본문에 담긴 답변 내용 DTO (JSON)
-     * @return 성공 시 200 OK, 실패 시 500 Internal Server Error와 메시지 반환
-     */
+
+
     @PostMapping("/reply")
     public ResponseEntity<?> postReply(HttpSession session, @RequestBody HelpMessage message) {
-    	Member loginMember = (Member)session.getAttribute("loginMember");
-    	
-    	message.setSenderNo(loginMember.getMemberNo());
-    	
+        Member loginMember = (Member) session.getAttribute("loginMember");
+        message.setSenderNo(loginMember.getMemberNo());
+
         boolean success = helpMessageService.saveReply(message);
         if (!success) {
-            // 답변 등록 실패 시 500 에러 반환
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("답변 등록 실패");
         }
-        // 답변 등록 성공 시 OK 메시지 반환
         return ResponseEntity.ok("답변 등록 성공");
     }
-    
-    /** 관리자가 문의내용 확인했을 경우 DB에 해당 문의글 READ_FL 'Y'로 변경
-     * @param messageNo
-     * @return
-     */
+
     @PatchMapping("/message/read/{messageNo}")
     public ResponseEntity<?> updateReadFlag(@PathVariable("messageNo") int messageNo) {
         boolean result = helpMessageService.updateReadFlag(messageNo);
@@ -113,15 +96,11 @@ public class HelpMessageController {
     }
 
     @GetMapping("/answered")
-    public List<HelpMessage> getAnswered(@RequestParam("userNo") int userNo) {
+    public List<HelpMessage> getAnsweredMessages(@RequestParam(name = "userNo") int userNo) {
         return helpMessageService.getAnsweredMessagesByUser(userNo);
     }
 
-    
-    /** 파일 다운로드
-     * @param messageNo
-     * @return
-     */
+
     @GetMapping("/message/messageFile/{filename:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable("filename") String filename) {
         try {
@@ -133,16 +112,12 @@ public class HelpMessageController {
             }
 
             return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-                .body(resource);
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .body(resource);
 
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-
-
 }
-
