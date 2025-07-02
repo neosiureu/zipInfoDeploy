@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-// import '../../css/myPage/myInfo.css';
+import '../../css/myPage/myInfo.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Menu from "./Menu";
 import { axiosAPI } from '../../api/axiosAPI';
@@ -459,7 +459,12 @@ const UpdateInfo = () => {
 
             <div className="my-page-info-field">
               <label className="my-page-info-label">선호 지역</label>
-              <div className="my-page-info-value">{updateUser.memberLocation != null ? updateUser.memberLocation:'선호지역을 설정하지 않았습니다.'}</div>
+              <MemberLocationFilter
+                selectedCity={selectedCity}
+                selectedTown={selectedTown}
+                onCityChange={handleCityChange}
+                onTownChange={handleTownChange}
+              />
             </div>            
 
                       {/* Edit Button */}

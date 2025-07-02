@@ -79,7 +79,7 @@ const getLocationName = (locationCode) => {
             
             <div className="my-page-info-field">
               <label className="my-page-info-label">선호 지역</label>
-              <div className="my-page-info-value">{user.memberLocation != null ? getLocationName(user.memberLocation):'선호지역을 설정하지 않았습니다.'}</div>
+              <div className="my-page-info-value">{user.memberLocation !== 0 ? getLocationName(user.memberLocation):'선호지역을 설정하지 않았습니다.'}</div>
             </div>
 
             {/* Phone */}
@@ -148,7 +148,7 @@ const getLocationName = (locationCode) => {
             
             <div className="my-page-info-field">
               <label className="my-page-info-label">선호 지역</label>
-              <div className="my-page-info-value">{user.memberLocation != null ? getLocationName(user.memberLocation):'선호지역을 설정하지 않았습니다.'}</div>
+              <div className="my-page-info-value">{user.memberLocation !== 0 ? getLocationName(user.memberLocation):'선호지역을 설정하지 않았습니다.'}</div>
             </div>
 
             {/* Edit Button */}

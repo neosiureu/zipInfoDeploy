@@ -60,48 +60,61 @@ const MyPost = () => {
       
           <Menu/>
 
-          <div className="my-page-board-container">
       {/* 게시판 헤더 */}
-        <div className="nb-board-table">
-          <div className="nb-header">
-            <div className="nb-header-cell nb-header-number">번호</div>
-            <div className="nb-header-cell nb-header-subject">분류</div>
-            <div className="nb-header-cell nb-header-title">제목</div>
-            <div className="nb-header-cell nb-header-area">지역</div>
-
-            <div className="nb-header-cell nb-header-author">작성자</div>
-            <div className="nb-header-cell nb-header-date">날짜</div>
-            <div className="nb-header-cell nb-header-views">조회</div>
-          </div>
-
-          {currentPosts.length!==0? currentPosts.map((item, index) => (
-            <div key={index} className="nb-row">
-              <div className="nb-cell nb-cell-number">{item.boardNo}</div>
-              <div className="nb-cell nb-cell-subject">
-                {item.boardSubject === "Q"
-                  ? "질문답변"
-                  : item.boardSubject === "R"
-                  ? "리뷰"
-                  : "자유"}
-              </div>
-              <div
-                className="nb-cell nb-cell-title"
-                onClick={() => handleBoardClick(item)} // 클릭 이벤트로 상세화면으로 이동하게
-                style={{ cursor: "pointer" }}
-              >
-                {item.boardTitle}
-              </div>
-              <div className="nb-cell nb-cell-area">
-                {item.cityName} {">"} {item.townName}
-              </div>
-              <div className="nb-cell nb-cell-author">
-                {item.memberNickName}
-              </div>
-              <div className="nb-cell nb-cell-date">{item.boardWriteDate}</div>
-              <div className="nb-cell nb-cell-views">{item.readCount}</div>
-            </div>
-          )): <div className='no-my-post'>작성한 게시글이 없습니다.</div>}
-          </div>
+        <div>
+        <table className="nb-board-table">
+          <thead>
+            <tr className="nb-header">
+              <th className="nb-header-number">번호</th>
+              <th className="nb-header-subject">분류</th>
+              <th className="nb-header-title">제목</th>
+              <th className="nb-header-area">지역</th>
+              <th className="nb-header-author">작성자</th>
+              <th className="nb-header-likes">좋아요</th>
+              <th className="nb-header-date">날짜</th>
+              <th className="nb-header-views">조회</th>
+            </tr>
+          </thead>
+          <tbody>
+            {posts.length === 0 ? (
+              <tr>
+                <td
+                  colSpan="8"
+                  style={{ textAlign: "center", padding: "12px" }}
+                >
+                  게시글이 없습니다.
+                </td>
+              </tr>
+            ) : (
+              currentPosts.map((item, index) => (
+                <tr key={index} className="nb-row">
+                  <td className="nb-cell-number">{item.boardNo}</td>
+                  <td className="nb-cell-subject">
+                    {item.boardSubject === "Q"
+                      ? "질문답변"
+                      : item.boardSubject === "R"
+                      ? "리뷰"
+                      : "자유"}
+                  </td>
+                  <td
+                    className="nb-cell-title"
+                    onClick={() => handleBoardClick(item)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {item.boardTitle}
+                  </td>
+                  <td className="nb-cell-area">
+                    {item.cityName} {">"} {item.townName}
+                  </td>
+                  <td className="nb-cell-author">{item.memberNickName}</td>
+                  <td className="nb-cell-likes">{item.likeCount}</td>
+                  <td className="nb-cell-date">{item.boardWriteDate}</td>
+                  <td className="nb-cell-views">{item.readCount}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
           <div className="my-stock-pagination">
 
             <button
