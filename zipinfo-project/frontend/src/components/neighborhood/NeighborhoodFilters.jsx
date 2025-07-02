@@ -11,7 +11,7 @@ export default function NeighborhoodFilters({
   onSubjectChange,
 }) {
   const townsForCity =
-    selectedCity === -1
+    selectedCity === "-1"
       ? []
       : TOWN.filter((t) => t.code === Number(selectedCity));
 
@@ -23,7 +23,7 @@ export default function NeighborhoodFilters({
           value={selectedCity}
           onChange={onCityChange}
         >
-          <option value={-1}>시/도</option>
+          <option value={"-1"}>시/도</option>
           {CITY.map((c) => (
             <option key={c.code} value={c.code}>
               {c.name}
@@ -38,9 +38,9 @@ export default function NeighborhoodFilters({
           className="nb-select"
           value={selectedTown}
           onChange={onTownChange}
-          disabled={selectedCity === -1}
+          disabled={selectedCity === "-1"}
         >
-          <option value={-1}>시/군/구</option>
+          <option value={"-1"}>시/군/구</option>
           {townsForCity.map((t) => (
             <option key={t.fullcode} value={t.fullcode}>
               {t.name}
@@ -56,7 +56,7 @@ export default function NeighborhoodFilters({
           value={selectedSubject}
           onChange={onSubjectChange}
         >
-          <option value={-1}>주제 분류</option>
+          <option value={"-1"}>주제 분류</option>
           <option value="Q">질문</option>
           <option value="R">리뷰</option>
           <option value="E">기타</option>

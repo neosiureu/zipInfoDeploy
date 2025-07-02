@@ -32,8 +32,16 @@ public interface HelpMessageService {
 	 */
 	boolean markMessageAsRead(int messageNo);
 
+	/** 답변 안한 문의 내용
+	 * @param adminId
+	 * @return
+	 */
 	List<HelpMessage> getUnansweredMessages(int adminId);
 
+	/** 답변한 문의 내용
+	 * @param userNo
+	 * @return
+	 */
 	List<HelpMessage> getAnsweredMessagesByUser(int userNo);
 
 	boolean updateReadFlag(int messageNo);

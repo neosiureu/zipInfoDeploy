@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { axiosAPI } from '../../api/axiosAPI';
 import { Plus } from 'lucide-react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 
 export default function MyStock() {
@@ -33,7 +34,7 @@ export default function MyStock() {
   }
 
   if (file.size > maxFileSize) {
-    alert("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+    toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
     setMessageFile(null);
     e.target.value = null; // input 초기화 (같은 파일 다시 선택 가능하게)
     return;

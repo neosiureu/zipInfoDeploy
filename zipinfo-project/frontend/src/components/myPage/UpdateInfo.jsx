@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 // import '../../css/myPage/myInfo.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Menu from "./Menu";
 import { axiosAPI } from '../../api/axiosAPI';
 import MemberLocationFilter from '../member/MemberLocationFilter';
 import { CITY, TOWN } from "../common/Gonggong";
+import { toast } from 'react-toastify';
+import { MemberContext } from '../member/MemberContext';
 
 
 const UpdateInfo = () => {
   const nav = useNavigate();
+
+  const {setMember} = useContext(MemberContext)
 
   const location = useLocation();
   const { user } = location.state || {}; // 안전하게 fallback 처리
@@ -292,7 +296,7 @@ const UpdateInfo = () => {
       for (const [key, value] of Object.entries(infoCheck)) {
         if (!value) {
           const label = keyToLabel[key]|| key;
-          alert(`${label} 값이 올바르지 않습니다.`);
+          toast.error(`${label} 값이 올바르지 않습니다.`);
           return; 
         }
       }
@@ -318,15 +322,15 @@ const UpdateInfo = () => {
       );
 
       if (response.status === 200) {
-        alert(
+        setMember(updatedData);
+        toast.success(
           '수정이 완료되었습니다.'
         );
       }
 
       nav("/myPage")
     } catch (error) {
-      alert(error);
-      // 409, 500 일 때 응답 받은 body 내용이 반영되어 alert 출력할 수 있게 한다
+      toast.error("수정이 실패하였습니다.");
     }
 
   }

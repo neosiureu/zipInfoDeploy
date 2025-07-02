@@ -448,12 +448,12 @@ export default function MemberSignUp() {
   // 닉네임 유효성 검사
   const validateNickname = (inputNickname) => {
     if (inputNickname.trim().length === 0) {
-      updateMessage("nickMessage", "한글,영어,숫자로만 2~10글자", "");
+      updateMessage("nickMessage", "한글,영어,숫자로만 2~8글자", "");
       updateCheckObj("memberNickname", false);
       return;
     }
 
-    const regExp = /^[가-힣\w\d]{2,10}$/;
+    const regExp = /^[가-힣\w\d]{2,8}$/;
 
     if (!regExp.test(inputNickname)) {
       updateMessage("nickMessage", "유효하지 않은 닉네임 형식입니다", "error");

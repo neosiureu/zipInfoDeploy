@@ -20,7 +20,7 @@ public class Member {
 	private String memberName;
 	private int memberAuth;
 	private String accessToken;
-	private String memberLocation;  // 관심 주소 => DB저장용
+	private int memberLocation;  // 관심 주소 => DB저장용
 
 
 	

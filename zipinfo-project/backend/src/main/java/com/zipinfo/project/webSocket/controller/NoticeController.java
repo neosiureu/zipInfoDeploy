@@ -4,18 +4,46 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttributes;
+
+import com.zipinfo.project.member.model.dto.Member;
+
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequiredArgsConstructor
+@SessionAttributes({"loginMember"})
 public class NoticeController {
 
     private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("/announce")
-    public void postAnnouncement() {
+    public void announceToast() {
         // 예시: 공지 등록 로직 생략 후 바로 broadcast
         messagingTemplate.convertAndSend("/topic/notice", "새 공지가 등록되었습니다!");
+    }
+    
+    @PostMapping("/neighbor/insert")
+    public void boardToast(HttpSession session, @RequestBody Member member) {
+    	Member loginMember = (Member)session.getAttribute("loginMember");
+    	
+    	int memberLocation = loginMember.getMemberLocation();
+    	
+    	int length = String.valueOf(memberLocation).length();
+    	
+    	int boardLocation = member.getMemberLocation();
+    	
+    	int sliceLocation = boardLocation / 1000;
+    	
+    	System.out.println("흐흐"+length+boardLocation+ loginMember);
+    	
+    	if(length == 5) {
+    		messagingTemplate.convertAndSend("/topic/region/"+boardLocation, "우리동네 게시판에서 확인하세요!");
+    	}else if(length == 2) {
+    		messagingTemplate.convertAndSend("/topic/region/"+sliceLocation, "우리동네 게시판에서 확인하세요!");
+    	}
     }
 
     // 클라이언트가 보낼 경우 사용

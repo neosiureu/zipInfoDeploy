@@ -1,11 +1,14 @@
 package com.zipinfo.project.admin.controller;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriUtils;
 
 import com.zipinfo.project.admin.model.dto.HelpMessage;
 import com.zipinfo.project.admin.model.service.HelpMessageService;
@@ -52,32 +56,23 @@ public class HelpMessageController {
     }
 
     /**
-     * 특정 문의글 상세 조회 API
-     * GET /api/help/detail/{messageNo}
-     * @param messageNo 조회할 문의글 번호 (PathVariable)
-     * @return 해당 문의글 정보 또는 404 Not Found 반환
+     * 특정 문의글 상세 조회 API (첨부파일 포함)
+     * GET /api/help/reply?messageNo=xxx
      */
-    @GetMapping("/detail")
-    public ResponseEntity<Object> getHelpMessageDetail(@RequestParam("messageNo") int messageNo) {
+    @GetMapping("/reply")
+    public ResponseEntity<Object> getHelpMessageReply(@RequestParam("messageNo") int messageNo) {
         try {
             HelpMessage msg = helpMessageService.getHelpMessageById(messageNo);
             if (msg == null) {
                 return ResponseEntity.notFound().build();
             }
-
-            // DB에 파일명 없으면, 예를 들어 메시지 번호로 파일명 규칙 만들어서 세팅(예시)
-            // 실제로는 파일명 관리 로직에 따라 다름
-            String assumedFileRename = "message_" + messageNo + ".dat";  // 예: message_17.dat 등
-            msg.setFileUrl("/api/help/file/" + assumedFileRename);
-
             return ResponseEntity.ok(msg);
-
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("서버 오류 발생: " + e.getMessage());
         }
     }
-
 
 
     /**
@@ -127,21 +122,19 @@ public class HelpMessageController {
      * @param messageNo
      * @return
      */
-    @GetMapping("/file/{fileName:.+}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
+    @GetMapping("/message/messageFile/{filename:.+}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable("filename") String filename) {
         try {
-            Path filePath = Paths.get(messageFolderPath).resolve(fileName).normalize();
+            Path filePath = Paths.get(messageFolderPath).resolve(filename).normalize();
             Resource resource = new UrlResource(filePath.toUri());
 
             if (!resource.exists() || !resource.isReadable()) {
                 return ResponseEntity.notFound().build();
             }
 
-            String encodedFilename = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
-
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFilename + "\"")
-                    .body(resource);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(resource);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -149,8 +142,7 @@ public class HelpMessageController {
         }
     }
 
+
+
 }
-
-
-    
 

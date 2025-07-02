@@ -120,13 +120,34 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.download-link {
-  display: inline-block;
-  margin-top: 6px;
-  color: #007bff;
-  text-decoration: underline;
-  font-weight: 500;
+/* 첨부 파일 영역 스타일 */
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: block;
+  color: #333;
 }
-.download-link:hover {
+
+.form-group > span {
+  font-size: 0.9rem;
+  color: #555;
+  margin-right: 0.5rem;
+}
+
+.form-group a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+}
+
+.form-group a:hover {
   color: #0056b3;
+  text-decoration: underline;
+}
+
+/* 첨부파일 영역 간격 조절 */
+.form-group {
+  margin-bottom: 1.5rem;
 }

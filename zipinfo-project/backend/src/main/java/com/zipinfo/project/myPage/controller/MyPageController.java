@@ -91,7 +91,9 @@ public class MyPageController {
 		
 		try {
 			Member loginMember = (Member)session.getAttribute("loginMember");
-
+			
+			session.setAttribute("loginMember", member);
+			
 			int result = service.updateInfo(loginMember,member);
 			
 			return ResponseEntity.status(HttpStatus.OK) // 200

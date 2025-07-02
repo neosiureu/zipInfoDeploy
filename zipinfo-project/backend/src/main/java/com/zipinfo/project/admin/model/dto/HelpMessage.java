@@ -11,7 +11,7 @@ public class HelpMessage {
     private int messageNo;
     private String messageTitle;
     private String messageContent;
-    private Date messageWriteDate;
+    private String messageWriteDate;
     private String messageReadFl;
     private String userDelFl;
     private String adminDelFl;

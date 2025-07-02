@@ -4,6 +4,7 @@ import StockMenu from "./StockMenu";
 import MiniMenu from "./MiniMenu";
 import { axiosAPI } from '../../api/axiosAPI';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export default function MyStock() {
   const [properties, setProperties] = useState([]);
@@ -98,7 +99,7 @@ export default function MyStock() {
       const response = await axiosAPI.post("/myPage/deleteStockInfo", { stockNo: parseInt(stockNo) });
     
       if(response.status === 200){
-        alert("삭제되었습니다");
+        toast.success("삭제되었습니다");
         await fetchProperties();
       }
 
