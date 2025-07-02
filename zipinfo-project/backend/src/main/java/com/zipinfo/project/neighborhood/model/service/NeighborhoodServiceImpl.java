@@ -50,6 +50,43 @@ public class NeighborhoodServiceImpl implements NeighborhoodService {
 	}
 
 
+	@Override
+	public Map<String, Object> getSearchList(Map<String, Object> searchMap, int cp) {
+		log.debug("서비스 임플에서 매퍼에 들어가기 직전에 찍힌 서치맵의 내용"+searchMap);
+		// paramMap (key, query, boardCdoe)
+			
+			//1. 지정된 게시판 (boardCode)에서
+			// 검색조건에 맞으면서
+			// 삭제되지 않은 게시글 수를 조회
+
+			int listCount = mapper.getSearchCount(searchMap);
+			
+			//2. 1번의 결과 + cp 를 이용해서
+			// Pagination 객체를 생성
+			Pagination pagination = new Pagination(cp, listCount);
+			
+			//3. 특정 게시판의 지정된 페이지 목록 조회
+			int limit = pagination.getLimit(); // 10개씩 조회
+		
+		int offset = (cp - 1) * limit;
+		
+		RowBounds rowBounds = new RowBounds(offset,limit); 
+		
+		//mapper 메서드 호출 코드 수행
+		// -> Mapper 메서드 호출 시 전달 할 수 있는 매개변수 1개
+		// -> 2개를 전달할수 있는경우가있음
+		// RowBounds 를 이용할 때
+		// 1번쨰 : sql 에 전달할 파라미터
+		// 2번째 : RowBounds 객체   (1번쨰 아무것도없으면 null 이래도 해야됨)
+		List<Neighborhood> boardList = mapper.selectSearchList(searchMap,rowBounds);
+			
+			//4. 목록 조회 결과 + Pagination 객체를 Map으로 묶음
+		Map<String, Object> map = new HashMap<>();
+		map.put("pagination", pagination);
+		map.put("boardList", boardList);
+		
+		return map;
+	}
 
 
 
@@ -99,11 +136,11 @@ public class NeighborhoodServiceImpl implements NeighborhoodService {
 
 
 
-	@Override
-	public Map<String, Object> getSearchList(Map<String, Object> searchMap) {
-		log.debug("서치맵의 내용"+searchMap);
-		return mapper.getSearchList(searchMap);
-	}
+	
+
+
+
+
 
 	
 	

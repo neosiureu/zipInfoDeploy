@@ -94,7 +94,15 @@ const NeighborhoodBoardDetail = () => {
         .get("board/neighborhoodDetail", { params: { boardNo } })
         .then(({ data }) => {
           setPost(data);
-          setBoard(data); // board 상태에 data를 set하는 과정
+          setBoard(data);
+
+          if (data.likeCheck === 1) {
+            setLike(new Set([Number(boardNo)]));
+          }
+
+          if (data.likeCount !== undefined) {
+            setLikeCount(data.likeCount);
+          }
         })
         .finally(() => setLoading(false));
     }

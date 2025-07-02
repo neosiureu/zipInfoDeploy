@@ -42,17 +42,17 @@ public class NeighborhoodController {
 		 Map<String, Object> map;
 		 String key     = paramMap.get("key");       // t, c, tc, w 등의 검색 타입
 		 String query   = paramMap.get("query");     // 검색어 자체
-		 String city    = paramMap.get("city");      // 시/도 코드 (기본값 -1)
-		 String town    = paramMap.get("town");      // 군/구/시 코드 (기본값 -1)
-		 String subject = paramMap.get("subject");   // Q, R, E (기본값 "")
+		 String cityNo    = paramMap.get("cityNo");      // 시/도 코드 (기본값 -1)
+		 String townNo    = paramMap.get("townNo");      // 군/구/시 코드 (기본값 -1)
+		 String boardSubject = paramMap.get("boardSubject");   // Q, R, E (기본값 "")
 
 		 // 검색이 아닌 경우가 더 많으므로 이를 충족시키는지를 hasSearch라는 플래그를 통해 정한다.
 		 boolean hasSearch =
 		       (key    != null && !key.isBlank() // 제목 내용등이 비어서 넘어오면서 
 		     && query  != null && !query.isBlank())   // + 검색 내용이 비어서 넘어온다면           
-		    || (city    != null && !city.equals("-1"))           // 시.도가 선택되지 않은 채 넘어온다면
-		    || (town    != null && !town.equals("-1"))           // 군.구.시가 선택되지 않은 채 넘어온다면
-		    || (subject != null && !subject.equals("-1"));        // 주제(Q/R/E 중 하나가) 선택되지 않은 채 넘어온다면
+		    || (cityNo != null && !cityNo .equals("-1"))           // 시.도가 선택되지 않은 채 넘어온다면
+		    || ( townNo != null && ! townNo .equals("-1"))           // 군.구.시가 선택되지 않은 채 넘어온다면
+		    || (boardSubject != null && !boardSubject.equals("-1"));        // 주제(Q/R/E 중 하나가) 선택되지 않은 채 넘어온다면
 
 		 // 위 조건 중 하나라도 만족한다면 검색이 아닌 것이다.
 		
@@ -65,26 +65,31 @@ public class NeighborhoodController {
 	    	searchMap.put("cp", cp);
 	    	searchMap.put("key", key);
 	    	searchMap.put("query", query);
-	    	searchMap.put("city", city);
-	    	searchMap.put("town", town);
-	    	searchMap.put("subject", subject);
+	    	searchMap.put("cityNo", cityNo);
+	    	searchMap.put("townNo", townNo );
+	    	searchMap.put("boardSubject", boardSubject);
 
 	    	log.debug("서치 맵"+searchMap);
-	    	map = neighborhoodService.getSearchList(searchMap);
+	    	map = neighborhoodService.getSearchList(searchMap,cp);
 	    	// 이제 피할수 없으니 구현하기로 한다.
+	    	
+	    	response.put("boardList", map.get("boardList"));
+	   	    response.put("pagination", map.get("pagination"));
+
 
 	    }
 	 // 위 조건 중 하나라도 만족한다면 검색이 아닌 것이다.
 	    else {
 	    	map = neighborhoodService.getBoardList(cp, key, query);
 	    	// 일반적인 boardList 화면부터 구현한다.
+	    	response.put("boardList", map.get("boardList"));
+	   	    response.put("pagination", map.get("pagination"));
 
 	    }
 	    
 	    	    
 	    
-	    response.put("boardList", map.get("boardList"));
-	    response.put("pagination", map.get("pagination"));
+	 
 	    return ResponseEntity.ok(response);
 	}
 	
