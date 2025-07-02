@@ -1,9 +1,3 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 .main-visual {
   position: relative;
   width: 100vw;
@@ -66,7 +60,7 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
 }
 
-.main-search-icon {
+.search-icon {
   margin-right: 12px;
   display: block;
 }
@@ -99,16 +93,6 @@
   border-radius: 8px;
   text-align: center;
   margin: 80px auto;
-  overflow: hidden; /* 부모 영역 넘는 이미지 잘림 */
-  position: relative;
-}
-
-.banner img {
-  width: 100%;
-  height: 100%; /* 부모 높이와 맞춤 */
-  object-fit: cover; /* 부모 영역 가득 채우되 비율 유지하며 자르기 */
-  display: block;
-  border-radius: 8px;
 }
 
 .section-main {
@@ -173,20 +157,14 @@
   margin: 12px 0 4px 4px;
   color: #767676;
 }
-.card-title:hover {
-  text-decoration: underline;
-  cursor: pointer;
-}
+
 .card-price {
   font-size: 18px;
   font-weight: 700;
   margin-left: 4px;
   margin-bottom: 4px;
 }
-.card-price:hover {
-  text-decoration: underline;
-  cursor: pointer;
-}
+
 .card-price span {
   color: #495cf8;
 }
@@ -215,10 +193,6 @@
   align-items: center;
   gap: 4px;
 }
-.card-agent:hover {
-  text-decoration: underline;
-  cursor: pointer;
-}
 
 .card-agent img {
   width: 12px;
@@ -227,11 +201,20 @@
   display: inline-block;
 }
 
+.card-sale {
+  width: 308px; /* 고정 너비 */
+  overflow: hidden; /* 넘치는 부분 잘림 */
+  display: flex;
+  flex-direction: column;
+}
+
 .card-sale img {
-  width: 308px;
+  width: 100%; /* 부모 요소인 308px 기준으로 */
   height: 420px;
+  object-fit: cover; /* 넘치는 가로는 자르고 세로는 맞춤 */
   border-radius: 8px;
   cursor: pointer;
+  display: block;
 }
 
 .sale {
@@ -244,6 +227,10 @@
   font-weight: 400;
   margin-left: 4px;
   margin-bottom: 2px;
+  white-space: nowrap; /* 줄 바꿈 없음 */
+  overflow: hidden; /* 넘치는 부분 숨김 */
+  text-overflow: ellipsis; /* ...으로 표시 */
+  max-width: 90%; /* 필요 시 너비 제한 */
 }
 
 .card-area {
@@ -252,13 +239,4 @@
   font-weight: 400;
   margin-left: 4px;
   margin-bottom: 120px;
-}
-/*************슬라이딩 애니메이션을 위한 css******************************/
-.slide-list {
-  overflow: hidden;
-}
-
-.slide {
-  flex: 0 0 100%; /* 카드 하나가 전체 너비 */
-  transition: transform 0.5s ease-in-out;
 }

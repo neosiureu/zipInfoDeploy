@@ -37,8 +37,13 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/images/saleImg/thumbnail/**")
         		.addResourceLocations("file:///C:/uploadFiles/saleImg/thumbnail/");
         
+        // 평면도 이미지
+        registry.addResourceHandler("/images/saleImg/floor/**")
+                .addResourceLocations("file:///C:/uploadFiles/saleImg/floor/");
+        
+        // 문의 파일
         registry.addResourceHandler("/message/messageFile/**")
-        .addResourceLocations("file:///C:/uploadFiles/message/");
+        		.addResourceLocations("file:///C:/uploadFiles/message/");
 }
 
 
