@@ -13,15 +13,15 @@ public interface SaleService {
 	 */
 	List<Sale> getSaleListInRange(SaleSearchRequest result);
 
+	/** 분양 정보 전체 조회
+	 * @return
+	 */
+	List<Sale> selectSaleList();
+
 	/** 단일 분양 매물 조회 서비스
 	 * @param saleStockNo
 	 * @return
 	 */
 	Sale selectSaleDetail(int saleStockNo);
 
-	/** 분양 정보 전체 조회
-	 * @return
-	 */
-	List<Sale> selectSaleList();
-	
 }

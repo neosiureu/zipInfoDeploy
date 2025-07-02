@@ -45,6 +45,7 @@ public class Sale {
 	private double lng;
 	
 	private MultipartFile saleImg;					// 이미지
+	private String saleImgUrl;
 	
 	private List<Map<String, Object>> imageList; 	// 수정용 이미지
 	

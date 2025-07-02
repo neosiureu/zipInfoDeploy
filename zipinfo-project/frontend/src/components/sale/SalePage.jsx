@@ -391,7 +391,10 @@ const SalePage = () => {
                 <img src={saleThumbnail} alt="썸네일" className="sale-img" />
                 <div className="sale-title">
                   <div className="sale-name">
-                    {stockFormMap[item.saleStockForm]} · {item.saleStockName}
+                    {stockFormMap[item.saleStockForm]} ·{" "}
+                    {item.saleStockName.length > 9
+                      ? `${item.saleStockName.slice(0, 9)}...`
+                      : item.saleStockName}
                   </div>
                   <div className="sale-price">
                     <span>분양가</span> {formatPrice(item.salePrice)}
