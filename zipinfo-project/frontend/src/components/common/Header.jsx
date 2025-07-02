@@ -4,6 +4,7 @@ import logo from "../../assets/logo.svg";
 import "../../css/common/Header.css";
 import { MemberContext } from "../member/MemberContext";
 import { axiosAPI } from "../../api/axiosAPI";
+import { toast } from "react-toastify";
 
 const naverLogout = () => {
   return new Promise((resolve) => {
@@ -53,13 +54,12 @@ const Header = () => {
     localStorage.removeItem("loginMember");
     localStorage.removeItem("com.naver.nid.access_token");
     localStorage.removeItem("com.naver.nid.oauth.state_token");
-    alert("로그아웃 되었습니다");
     navigate("/");
   };
 
   const handleNavMyStock = () => {
     if (localStorage.getItem("loginMember") === null) {
-      alert("로그인 후 이용하시길 바랍니다.");
+      toast.error("로그인 후 이용하시길 바랍니다.");
       return;
     }
 

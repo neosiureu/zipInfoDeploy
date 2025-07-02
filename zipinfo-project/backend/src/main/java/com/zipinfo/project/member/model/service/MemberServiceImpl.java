@@ -120,8 +120,6 @@ public class MemberServiceImpl implements MemberService{
     		
     		member.setPresidentName(member.getMemberName());
 
-    		member.setMemberLocation(member.getPostcode()+"^^^"+member.getAddress() + "^^^"+ member.getDetailAddress());
-        	
         	member.setCompanyLocation(member.getCompanyPostcode()+"^^^"+member.getCompanyAddress() + "^^^"+ member.getCompanyDetailAddress());
     		
 
@@ -150,7 +148,6 @@ public class MemberServiceImpl implements MemberService{
     	
     	else {
     		
-    		member.setMemberLocation(member.getPostcode()+"^^^"+member.getAddress() +"^^^"+ member.getDetailAddress());
     		
         	member.setMemberAuth(1);
 

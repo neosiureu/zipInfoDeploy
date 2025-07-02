@@ -6,6 +6,7 @@ import StockMenu from "./StockMenu";
 import MiniMenu from "./MiniMenu";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function AddStock() {
   const location = useLocation();
@@ -153,7 +154,7 @@ export default function AddStock() {
           regionNo: admCdNo,
         }));
       } else {
-        alert("검색 결과 없음");
+        toast.error("검색 결과 없음");
       }
 
       // 정리
@@ -206,7 +207,7 @@ export default function AddStock() {
             lng: x,
           }));
         } else {
-          alert("좌표를 찾을 수 없습니다.");
+          toast.error("좌표를 찾을 수 없습니다.");
           setFormData((prev) => ({
             ...prev,
             lat: 0,
@@ -454,7 +455,7 @@ export default function AddStock() {
       for (const [key, value] of Object.entries(checkData)) {
         if (!value) {
           const label = keyToLabel[key] || key;
-          alert(`${label} 올바르지 않습니다.`);
+          toast.error(`${label} 올바르지 않습니다.`);
           return;
         }
       }
@@ -536,7 +537,7 @@ export default function AddStock() {
           }
         }
 
-        alert("매물 수정이 완료되었습니다");
+        toast.success("매물 수정이 완료되었습니다");
         nav("/myPage/myStock");
       }
     } catch (error) {
