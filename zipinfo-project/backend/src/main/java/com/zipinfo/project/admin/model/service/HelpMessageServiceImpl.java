@@ -30,8 +30,7 @@ public class HelpMessageServiceImpl implements HelpMessageService {
     public HelpMessage getHelpMessageById(int messageNo) {
         HelpMessage message = helpMessageMapper.selectMessageById(messageNo);
         if (message != null && message.getFileRename() != null && !message.getFileRename().isEmpty()) {
-            // 파일명과 web-path를 조합해 fileUrl 세팅
-            String fullFileUrl = messageWebPath + message.getFileRename();
+            String fullFileUrl = "http://localhost:8080/api/help/message/messageFile/" + message.getFileRename();
             message.setFileUrl(fullFileUrl);
         }
         return message;
