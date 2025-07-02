@@ -58,6 +58,6 @@ public interface HelpMessageMapper {
 	 */
 	List<HelpMessage> selectAnsweredMessagesByUser(int userNo);
 
-
+	
 
 }
