@@ -99,43 +99,56 @@
   overflow: hidden;
 }
 
+/* 공통 그리드 설정 */
+.tableHeader,
+.tableRow {
+  display: grid;
+  grid-template-columns: 0.5fr 2fr 1.5fr 1.5fr 1.5fr 0.5fr;
+  gap: 1rem;
+  align-items: center;
+}
+
 .tableHeader {
   background-color: #f9fafb;
   padding: 1rem 1.5rem;
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 1rem;
   font-size: 0.875rem;
   font-weight: 500;
   color: #4b5563;
   border-bottom: 1px solid #e5e7eb;
 }
 
+/* 각 컬럼별 추가 스타일 */
+/* 번호 */
 .tableHeader > div:nth-child(1) {
-  flex: 0.5;
-} /* 번호 */
+  /* 기본 */
+}
+/* 제목 */
 .tableHeader > div:nth-child(2) {
-  flex: 3;
-} /* 제목 */
+  text-align: right;
+  padding-right: 10px;
+}
+/* 작성자 */
 .tableHeader > div:nth-child(3) {
-  flex: 1;
-} /* 작성자 */
+  text-align: right;
+  padding-right: 10px;
+}
+/* 날짜 */
 .tableHeader > div:nth-child(4) {
-  flex: 1;
-} /* 날짜 */
+  text-align: right;
+  padding-right: 10px;
+}
+/* 답변 */
 .tableHeader > div:nth-child(5) {
-  justify-content: end;
-} /* 답변 */
+  text-align: right;
+  padding-right: 10px;
+}
+/* 상세보기 (마지막 컬럼) */
 .tableHeader > div:nth-child(6) {
-  /* 마지막 컬럼 (상세보기 버튼) */
+  /* 필요시 스타일 */
 }
 
 .tableRow {
   padding: 1rem 1.5rem;
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 1rem;
-  align-items: center;
   border-bottom: 1px solid #f3f4f6;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -143,6 +156,15 @@
 
 .tableRow:hover {
   background-color: #f9fafb;
+}
+
+/* 아래 행 각 컬럼 우측 정렬 */
+.tableRow > div:nth-child(2),
+.tableRow > div:nth-child(3),
+.tableRow > div:nth-child(4),
+.tableRow > div:nth-child(5) {
+  text-align: right;
+  padding-right: 10px;
 }
 
 .helpMessagesNumber {

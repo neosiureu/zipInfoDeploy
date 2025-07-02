@@ -22,7 +22,7 @@ const HelpMessage = () => {
       }
       setError(null);
 
-      const currentAdminId = 1; // 관리자로 로그인한 ID를 여기에 넣어야 합니다.
+      const currentUserId = 1; // 관리자로 로그인한 ID
 
       const url =
         activeTab === "received"
@@ -31,8 +31,8 @@ const HelpMessage = () => {
 
       const params =
         activeTab === "received"
-          ? { adminId: currentAdminId }
-          : { userNo: currentAdminId };
+          ? { adminId: currentUserId }
+          : { userNo: currentUserId };
 
       const response = await axios.get(url, { params });
 
@@ -62,12 +62,12 @@ const HelpMessage = () => {
     startIndex + itemsPerPage
   );
 
-  const getStatusBadge = (replyContent) => {
+  const getStatusBadge = (replyYn) => {
     const baseClass = styles.statusBadge;
-    if (!replyContent || replyContent.trim() === "") {
-      return `${baseClass} ${styles.statusWaiting}`;
-    } else {
+    if (replyYn === "Y") {
       return `${baseClass} ${styles.statusComplete}`;
+    } else {
+      return `${baseClass} ${styles.statusWaiting}`;
     }
   };
 
@@ -161,34 +161,35 @@ const HelpMessage = () => {
           <div>작성자</div>
           <div>날짜</div>
           <div>답변</div>
-          <div></div>
         </div>
 
         {currentHelpMessages.length === 0 ? (
           <div className={styles.emptyState}>
             {activeTab === "received"
               ? "받은 문의가 없습니다."
-              : "보낸 문의가 없습니다."}
+              : "답변한 문의가 없습니다."}
           </div>
         ) : (
           currentHelpMessages.map((msg) => (
-            <div key={msg.messageNo} className={styles.tableRow}>
+            <div
+              key={msg.messageNo}
+              className={styles.tableRow}
+              onClick={() => handleHelpMessageClick(msg)}
+              style={{ cursor: "pointer" }} // ✅ 마우스 커서 변경
+            >
               <div>{msg.messageNo}</div>
               <div>{msg.messageTitle}</div>
-              <div>{msg.senderNo}</div>
+              <div style={{ textAlign: "right", paddingRight: "10px" }}>
+                {msg.memberNickname || msg.senderNo}
+              </div>
+
               <div>
                 {new Date(msg.messageWriteDate).toLocaleDateString("ko-KR")}
               </div>
               <div>
-                <span className={getStatusBadge(msg.replyContent)}>
-                  {msg.replyContent ? "답변 완료" : "답변 대기"}
+                <span className={getStatusBadge(msg.replyYn)}>
+                  {msg.replyYn === "Y" ? "답변 완료" : "답변 대기"}
                 </span>
-              </div>
-              <div
-                className={styles.actionButton}
-                onClick={() => handleHelpMessageClick(msg)}
-              >
-                상세 보기
               </div>
             </div>
           ))
@@ -201,7 +202,9 @@ const HelpMessage = () => {
             className={styles.navButton}
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
-          ></button>
+          >
+            {"<"}
+          </button>
           {renderPageNumbers()}
           <button
             className={styles.navButton}
@@ -209,7 +212,9 @@ const HelpMessage = () => {
               setCurrentPage((prev) => Math.min(totalPages, prev + 1))
             }
             disabled={currentPage === totalPages}
-          ></button>
+          >
+            {">"}
+          </button>
         </div>
       )}
     </div>
