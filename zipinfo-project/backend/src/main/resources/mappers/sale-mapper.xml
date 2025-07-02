@@ -53,12 +53,57 @@
 	    AND (#{saleType} = -1 OR info.SALE_STOCK_FORM = #{saleType})
 	</select>
 	
+	<!-- 분양 정보 전체 조회 -->
+    <select id="selectSaleList" resultMap="saleMap">
+	  SELECT
+	    S.SALE_STOCK_NO,
+	    S.MEMBER_NO,
+	    M.MEMBER_EMAIL,
+	    S.SALE_STOCK_FORM,
+	    S.SALE_STOCK_NAME,
+	    S.SALE_PRICE,
+	    S.SALE_STATUS,
+	    S.SALE_ADDRESS,
+	    S.SCALE,
+	    TO_CHAR(S.APPLICATION_START_DATE, 'YYYY-MM-DD') AS APPLICATION_START_DATE,
+	    TO_CHAR(S.APPLICATION_END_DATE, 'YYYY-MM-DD') AS APPLICATION_END_DATE,
+	    TO_CHAR(S.ANNOUNCEMENT_DATE, 'YYYY-MM-DD') AS ANNOUNCEMENT_DATE,
+	    S.COMPANY,
+	    S.CONTACT_INFO,
+	    S.ACQUISITION_TAX,
+	    S.SALE_SUPPLY_AREA,
+	    S.SALE_ROOM_COUNT,
+	    S.SALE_BATHROOM_COUNT,
+	    S.DEPOSIT,
+	    S.MIDDLE_PAYMENT,
+	    S.BALANCE_PAYMENT,
+	    S.REGION_NO,
+	    TO_CHAR(S.REG_DATE, 'YYYY-MM-DD') AS REG_DATE,
+	    IMG.SALE_IMG_URL
+	  FROM SALE_INFO S
+	  JOIN MEMBER M ON S.MEMBER_NO = M.MEMBER_NO
+	  LEFT JOIN (
+	    SELECT SALE_STOCK_NO, SALE_IMG_URL
+	    FROM SALE_IMG
+	    WHERE SALE_IMG_ORDER = 1
+	  ) IMG ON S.SALE_STOCK_NO = IMG.SALE_STOCK_NO
+	  ORDER BY S.SALE_STOCK_NO DESC
+	</select>
+	
 	<!-- 단일 매물 조회 -->
 	<select id="selectSaleDetail" resultMap="saleMap">
 	  SELECT COORD.*, INFO.*
 	  FROM SALE_INFO INFO
 	  LEFT JOIN SALE_COORD COORD ON INFO.SALE_STOCK_NO = COORD.SALE_STOCK_NO
 	  WHERE INFO.SALE_STOCK_NO = #{saleStockNo}
+	</select>
+	
+	<!-- 분양 매물 이미지 조회 -->
+	<select id="selectSaleImages" resultType="com.zipinfo.project.sale.model.dto.SaleImage">
+	  SELECT SALE_STOCK_NO, SALE_IMG_URL, SALE_IMG_ORDER, SALE_IMG_TYPE
+	  FROM SALE_IMG
+	  WHERE SALE_STOCK_NO = #{saleStockNo}
+	  ORDER BY SALE_IMG_ORDER ASC
 	</select>
 	
 </mapper>

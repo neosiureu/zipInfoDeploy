@@ -120,31 +120,40 @@ const Main = () => {
   };
 
   const showSales = () => {
-    return saleList.map((item) => (
-      <div
-        className="card-sale"
-        key={item.saleStockNo}
-        onClick={() => navigate(`/sale/${item.saleStockNo}`)}
-      >
-        <img src={saleMain02} alt="분양 썸네일 이미지" />
-        <div className="card-title">
-          {item.saleStockForm === 1
-            ? "아파트"
-            : item.saleStockForm === 2
-            ? "빌라"
-            : item.saleStockForm === 3
-            ? "오피스텔"
-            : "기타"}{" "}
-          · {item.saleStockName}
+    const uniqueList = [
+      ...new Map(saleList.map((item) => [item.saleStockNo, item])).values(),
+    ];
+
+    return uniqueList.slice(0, 4).map((item) => {
+      const imgUrl = `http://localhost:8080${item.saleImgUrl}`;
+      console.log(`[분양 이미지 URL]`, imgUrl); // 콘솔에 경로 출력
+
+      return (
+        <div
+          className="card-sale"
+          key={item.saleStockNo}
+          onClick={() => navigate(`/sale/${item.saleStockNo}`)}
+        >
+          <img src={imgUrl} alt="분양 썸네일 이미지" />
+          <div className="card-title">
+            {item.saleStockForm === 1
+              ? "아파트"
+              : item.saleStockForm === 2
+              ? "빌라"
+              : item.saleStockForm === 3
+              ? "오피스텔"
+              : "기타"}{" "}
+            · {item.saleStockName}
+          </div>
+          <div className="card-price">
+            <span style={{ color: "blue" }}>분양가</span>{" "}
+            <strong>{formatPrice(item.salePrice)}</strong>
+          </div>
+          <div className="card-adress">{item.saleAddress}</div>
+          <div className="card-area">{item.saleSupplyArea}㎡</div>
         </div>
-        <div className="card-price">
-          <span style={{ color: "blue" }}>분양가</span>{" "}
-          <strong>{formatPrice(item.salePrice)}</strong>
-        </div>
-        <div className="card-adress">{item.saleAddress}</div>
-        <div className="card-area">{item.saleSupplyArea}㎡</div>
-      </div>
-    ));
+      );
+    });
   };
 
   return (
