@@ -99,7 +99,7 @@
 	</select>
 	
 	<!-- 분양 매물 이미지 조회 -->
-	<select id="selectSaleImages" resultType="com.zipinfo.project.sale.model.dto.SaleImage">
+	<select id="selectSaleImages">
 	  SELECT SALE_STOCK_NO, SALE_IMG_URL, SALE_IMG_ORDER, SALE_IMG_TYPE
 	  FROM SALE_IMG
 	  WHERE SALE_STOCK_NO = #{saleStockNo}
