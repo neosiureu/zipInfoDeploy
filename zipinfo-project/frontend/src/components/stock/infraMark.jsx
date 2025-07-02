@@ -58,7 +58,8 @@ const InfraMark = () => {
     };
     waitForMap();
   }, []);
-
+  const [isCategoryVisible, setIsCategoryVisible] = useState(false);
+  const isCategoryVisibleRef = useRef(isCategoryVisible);
   const CategoryEnum = {
     NONE: 0, //선택 없음
     BANK: 1 << 0, //은행
@@ -78,6 +79,7 @@ const InfraMark = () => {
     [CategoryEnum.CONSTORE]: "CS2",
   }; // CategoryEnum을 카카오 카테고리 Keyword로 변환하는 list
   const [clickedCategory, setClickedCategory] = useState(CategoryEnum.NONE); // 현재 클릭한 분류. 기본값 아무것도 선택하지 않았음.
+  const clickedCategoryRef = useRef(clickedCategory); // addListener전용 ref 함수.
   /*CategoryEnum 을 쓰는방법 : 
   ex. CategoryEnum.OIL | CategoryEnum.CAFE ---> OIL, CAFE가 동시에 저장됨.
    */
@@ -87,7 +89,9 @@ const InfraMark = () => {
   useEffect(() => {
     infraMarkersRef.current.forEach((marker) => marker.setMap(null)); // 이전에 itemMarkersRef에 저장해둔 markers 하나하나 취소
     infraMarkersRef.current = []; // infraMarkersRef 초기화
-    if (clickedCategory === CategoryEnum.NONE) return;
+
+    if (clickedCategory === CategoryEnum.NONE || !isCategoryVisible)
+      return; // 카테고리 선택이 없거나 줌 레벨이 3 이상이면 모든 마커들을 지운다.
     else {
       Object.entries(CATEGORY_CODE_MAP).forEach(([bit, code]) => {
         const selected = parseInt(bit, 10); // 문자열을 숫자로 변환
@@ -104,16 +108,8 @@ const InfraMark = () => {
       });
       //itemMarker.setMap(mapInstanceRef.current);
     }
-  }, [clickedCategory]);
-  /*function onClickCategory(val) {
-    setClickedCategory(val); //클릭한 분류 설정.
-    console.log("clickedCategory:", clickedCategory);
-    if (val === "") return; // "선택 없음"을 클릭했을떄는 ps.categorySearch() 실행안함
-    placeRef.current.categorySearch(val, placesSearchCB, {
-      //카카오 api에 주변정보 요청
-      bounds: mapInstanceRef.current.getBounds(),
-    });
-  }*/
+  }, [clickedCategory, isCategoryVisible]);
+
   const placeRef = useRef(null); // 카카오 지도 api에서 제공하는 place객체를 여기에 저장
 
   useEffect(() => {
@@ -143,7 +139,61 @@ const InfraMark = () => {
       tryInit(); //mapReady = false일때는 tryInit()을 절대 실행시키지 말것.
     }
   }, [mapReady]);
+  //clickedCategoryRef, isCategoryVisible Ref를 업데이트해주는 useEffect
+  useEffect(() => {
+    clickedCategoryRef.current = clickedCategory;
+    isCategoryVisibleRef.current = isCategoryVisible;
+  }, [clickedCategory, isCategoryVisible]);
 
+  /*kakaoMap addEventListener로 맵을 옮길때, 맵을 zoom 할때 동작들을 설정*/
+  useEffect(() => {
+    if (mapReady) {
+      window.kakao.maps.event.addListener(
+        mapInstanceRef.current,
+        "zoom_changed",
+        () => {
+          if (mapInstanceRef.current.getLevel() < 5) {
+            // 지도의 zoom 레벨이 1 또는 2일때 주변시설 표시기능 사용
+            console.log("getLevel: ", mapInstanceRef.current.getLevel);
+            setIsCategoryVisible(true);
+          } else {
+            console.log("getLevel: ", mapInstanceRef.current.getLevel);
+            setIsCategoryVisible(false); // 지도의 zoom 레벨이 3 이상일때 주변시설 표시기능 사용안함
+          }
+        }
+      );
+      window.kakao.maps.event.addListener(
+        mapInstanceRef.current,
+        "idle",
+        () => {
+          infraMarkersRef.current.forEach((marker) => marker.setMap(null)); // 이전에 itemMarkersRef에 저장해둔 markers 하나하나 취소
+          infraMarkersRef.current = []; // infraMarkersRef 초기화
+
+          if (
+            clickedCategoryRef.current === CategoryEnum.NONE ||
+            !isCategoryVisibleRef.current
+          ) {
+            console.log("idle에서 return 실행");
+            return; // 카테고리 선택이 없거나 줌 레벨이 3 이상이면 모든 마커들을 지운다.
+          } else {
+            Object.entries(CATEGORY_CODE_MAP).forEach(([bit, code]) => {
+              const selected = parseInt(bit, 10); // 문자열을 숫자로 변환
+              if (clickedCategoryRef.current & selected) {
+                placeRef.current.categorySearch(code, placesSearchCB, {
+                  //카카오 api에 주변정보 요청
+                  bounds: mapInstanceRef.current.getBounds(),
+                });
+              }
+            });
+            itemMarkersRef.current.map((itemMarker) => {
+              console.log(itemMarker);
+              itemMarker.setMap(mapInstanceRef.current);
+            });
+          }
+        }
+      );
+    }
+  }, [mapReady]);
   const infraMarkersRef = useRef([]); //주변 편의시설 Marker개체를 저장하는 STATE함수
   useEffect(() => {
     //todo : Map의 Level이 5 이하일떄만 주변 편의시설을 표시할수 있도록.
@@ -198,6 +248,10 @@ const InfraMark = () => {
 
         itemMarker.setMap(mapInstanceRef.current);
       });
+      //다음 Pagination 불러오기
+      if (pagination.hasNextPage()) {
+        pagination.nextPage();
+      }
     };
 
     if (status === kakao.maps.services.Status.OK) {
@@ -212,128 +266,140 @@ const InfraMark = () => {
   }
 
   return (
-    <aside id="category">
-      <div
-        id="None"
-        className={`infra-item ${
-          clickedCategory === CategoryEnum.NONE ? "on" : ""
-        }`} // 선택 없음 선택시 "on이란 css 속성 추가"( 선택 없음을 누르면 다른건 선택취소됨.)
-        data-category=""
-        //onClick={() => onClickCategory("")}
-        onClick={() => setClickedCategory(CategoryEnum.NONE)}
-      >
-        <span className="category_bg none"></span>
-        선택 없음
-      </div>
-      <div
-        id="BK9"
-        className={`infra-item ${
-          clickedCategory & CategoryEnum.BANK ? "on" : ""
-        }`} // 은행 선택시 "on이란 css 속성 추가"( 다른것과 중복선택 가능.)
-        data-category="BK9"
-        //onClick={() => onClickCategory("BK9")}
-        onClick={() =>
-          setClickedCategory((prev) =>
-            prev & CategoryEnum.BANK
-              ? prev & ~CategoryEnum.BANK
-              : prev | CategoryEnum.BANK
-          )
-        }
-      >
-        <span className="category_bg bank"></span>
-        은행
-      </div>
-      <div
-        id="MT1"
-        className={`infra-item ${
-          clickedCategory & CategoryEnum.MART ? "on" : ""
-        }`} // 마트 선택시 "on이란 css 속성 추가"( 다른것과 중복선택 가능.)
-        data-category="MT1"
-        //onClick={() => onClickCategory("MT1")}
-        onClick={() =>
-          setClickedCategory((prev) =>
-            prev & CategoryEnum.MART
-              ? prev & ~CategoryEnum.MART
-              : prev | CategoryEnum.MART
-          )
-        }
-      >
-        <span className="category_bg mart"></span>
-        마트
-      </div>
-      <div
-        id="PM9"
-        className={`infra-item ${
-          clickedCategory & CategoryEnum.PHARM ? "on" : ""
-        }`} // 약국 선택시 "on이란 css 속성 추가"( 다른것과 중복선택 가능.)
-        data-category="PM9"
-        //onClick={() => onClickCategory("PM9")}
-        onClick={() =>
-          setClickedCategory((prev) =>
-            prev & CategoryEnum.PHARM
-              ? prev & ~CategoryEnum.PHARM
-              : prev | CategoryEnum.PHARM
-          )
-        }
-      >
-        <span className="category_bg pharmacy"></span>
-        약국
-      </div>
-      <div
-        id="OL7"
-        className={`infra-item ${
-          clickedCategory & CategoryEnum.OIL ? "on" : ""
-        }`} // 주유소 선택시 "on이란 css 속성 추가"( 다른것과 중복선택 가능.)
-        data-category="OL7"
-        //onClick={() => onClickCategory("OL7")}
-        onClick={() =>
-          setClickedCategory((prev) =>
-            prev & CategoryEnum.OIL
-              ? prev & ~CategoryEnum.OIL
-              : prev | CategoryEnum.OIL
-          )
-        }
-      >
-        <span className="category_bg oil"></span>
-        주유소
-      </div>
-      <div
-        id="CE7"
-        className={`infra-item ${
-          clickedCategory & CategoryEnum.CAFE ? "on" : ""
-        }`} // 카페 선택시 "on이란 css 속성 추가"( 다른것과 중복선택 가능.)
-        data-category="CE7"
-        //onClick={() => onClickCategory("CE7")}
-        onClick={() =>
-          setClickedCategory((prev) =>
-            prev & CategoryEnum.CAFE
-              ? prev & ~CategoryEnum.CAFE
-              : prev | CategoryEnum.CAFE
-          )
-        }
-      >
-        <span className="category_bg cafe"></span>
-        카페
-      </div>
-      <div
-        id="CS2"
-        className={`infra-item ${
-          clickedCategory & CategoryEnum.CONSTORE ? "on" : ""
-        }`} // 편의점 선택시 "on이란 css 속성 추가"( 다른것과 중복선택 가능.)
-        data-category="CS2"
-        //onClick={() => onClickCategory("CS2")}
-        onClick={() =>
-          setClickedCategory((prev) =>
-            prev & CategoryEnum.CONSTORE
-              ? prev & ~CategoryEnum.CONSTORE
-              : prev | CategoryEnum.CONSTORE
-          )
-        }
-      >
-        <span className="category_bg store"></span>
-        편의점
-      </div>
-    </aside>
+    <>
+      {isCategoryVisible ? (
+        <aside id="category">
+          <div
+            id="None"
+            className={`infra-item ${
+              clickedCategory === CategoryEnum.NONE ? "on" : ""
+            }`} // 선택 없음 선택시 "on이란 css 속성 추가"( 선택 없음을 누르면 다른건 선택취소됨.)
+            data-category=""
+            //onClick={() => onClickCategory("")}
+            onClick={() => setClickedCategory(CategoryEnum.NONE)}
+          >
+            <span className="category_bg none"></span>
+            선택 없음
+          </div>
+          <div
+            id="BK9"
+            className={`infra-item ${
+              clickedCategory & CategoryEnum.BANK ? "on" : ""
+            }`} // 은행 선택시 "on이란 css 속성 추가"( 다른것과 중복선택 가능.)
+            data-category="BK9"
+            //onClick={() => onClickCategory("BK9")}
+            onClick={() =>
+              setClickedCategory((prev) =>
+                prev & CategoryEnum.BANK
+                  ? prev & ~CategoryEnum.BANK
+                  : prev | CategoryEnum.BANK
+              )
+            }
+          >
+            <span className="category_bg bank"></span>
+            은행
+          </div>
+          <div
+            id="MT1"
+            className={`infra-item ${
+              clickedCategory & CategoryEnum.MART ? "on" : ""
+            }`} // 마트 선택시 "on이란 css 속성 추가"( 다른것과 중복선택 가능.)
+            data-category="MT1"
+            //onClick={() => onClickCategory("MT1")}
+            onClick={() =>
+              setClickedCategory((prev) =>
+                prev & CategoryEnum.MART
+                  ? prev & ~CategoryEnum.MART
+                  : prev | CategoryEnum.MART
+              )
+            }
+          >
+            <span className="category_bg mart"></span>
+            마트
+          </div>
+          <div
+            id="PM9"
+            className={`infra-item ${
+              clickedCategory & CategoryEnum.PHARM ? "on" : ""
+            }`} // 약국 선택시 "on이란 css 속성 추가"( 다른것과 중복선택 가능.)
+            data-category="PM9"
+            //onClick={() => onClickCategory("PM9")}
+            onClick={() =>
+              setClickedCategory((prev) =>
+                prev & CategoryEnum.PHARM
+                  ? prev & ~CategoryEnum.PHARM
+                  : prev | CategoryEnum.PHARM
+              )
+            }
+          >
+            <span className="category_bg pharmacy"></span>
+            약국
+          </div>
+          <div
+            id="OL7"
+            className={`infra-item ${
+              clickedCategory & CategoryEnum.OIL ? "on" : ""
+            }`} // 주유소 선택시 "on이란 css 속성 추가"( 다른것과 중복선택 가능.)
+            data-category="OL7"
+            //onClick={() => onClickCategory("OL7")}
+            onClick={() =>
+              setClickedCategory((prev) =>
+                prev & CategoryEnum.OIL
+                  ? prev & ~CategoryEnum.OIL
+                  : prev | CategoryEnum.OIL
+              )
+            }
+          >
+            <span className="category_bg oil"></span>
+            주유소
+          </div>
+          <div
+            id="CE7"
+            className={`infra-item ${
+              clickedCategory & CategoryEnum.CAFE ? "on" : ""
+            }`} // 카페 선택시 "on이란 css 속성 추가"( 다른것과 중복선택 가능.)
+            data-category="CE7"
+            //onClick={() => onClickCategory("CE7")}
+            onClick={() =>
+              setClickedCategory((prev) =>
+                prev & CategoryEnum.CAFE
+                  ? prev & ~CategoryEnum.CAFE
+                  : prev | CategoryEnum.CAFE
+              )
+            }
+          >
+            <span className="category_bg cafe"></span>
+            카페
+          </div>
+          <div
+            id="CS2"
+            className={`infra-item ${
+              clickedCategory & CategoryEnum.CONSTORE ? "on" : ""
+            }`} // 편의점 선택시 "on이란 css 속성 추가"( 다른것과 중복선택 가능.)
+            data-category="CS2"
+            //onClick={() => onClickCategory("CS2")}
+            onClick={() =>
+              setClickedCategory((prev) =>
+                prev & CategoryEnum.CONSTORE
+                  ? prev & ~CategoryEnum.CONSTORE
+                  : prev | CategoryEnum.CONSTORE
+              )
+            }
+          >
+            <span className="category_bg store"></span>
+            편의점
+          </div>
+        </aside>
+      ) : (
+        <aside id="category" style={{ opacity: 0.5 }}>
+          <p style={{ fontSize: "10px" }}>
+            지도를 줌인해서
+            <br />
+            주변시설 확인
+          </p>
+        </aside>
+      )}
+    </>
   );
 };
 
