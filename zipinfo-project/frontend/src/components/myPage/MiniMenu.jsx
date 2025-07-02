@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { MemberContext } from "../member/MemberContext";
 
 export default function Menu(){
 
@@ -7,9 +8,16 @@ export default function Menu(){
 
     const location = useLocation();
 
+    const {member} = useContext(MemberContext);
+
     const tabs = [
       {label: "등록한 매물", path: "/myPage/myStock"},
       {label: "매물 등록", path: "/myPage/addStock"},
+      {label: "최근 본 매물", path: "/myPage/sawStock"},
+      {label: "찜 매물", path: "/myPage/likeStock"}
+    ];
+
+    const tabss = [
       {label: "최근 본 매물", path: "/myPage/sawStock"},
       {label: "찜 매물", path: "/myPage/likeStock"}
     ];
@@ -30,6 +38,7 @@ export default function Menu(){
     }, [location.pathname]);
 
   return(
+          member.memberAuth === 3? 
           <div className="my-page-stock-sub-tab-container">
             <div className="my-page-stock-sub-tab-nav">
               {tabs.map((tab) => (
@@ -48,6 +57,25 @@ export default function Menu(){
               ))}
             </div>
           </div>
-
+          :
+                    <div className="my-page-stock-sub-tab-container">
+            <div className="my-page-stock-sub-tab-nav">
+              {tabss.map((tab) => (
+                <button
+                  key={tab.label}
+                  onClick={() => {
+                    setActiveTab(tab.label);
+                    nav(tab.path);
+                  }}
+                  className={`my-page-stock-sub-tab-btn ${
+                    activeTab === tab.label ? "active" : "inactive"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+            
   )
 }
