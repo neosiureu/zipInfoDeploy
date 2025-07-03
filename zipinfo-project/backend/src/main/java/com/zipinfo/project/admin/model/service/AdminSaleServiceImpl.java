@@ -200,4 +200,45 @@ public class AdminSaleServiceImpl implements AdminSaleService {
         // 3. 기본 정보 삭제
         mapper.deleteSale(id);
     }
+
+	@Override
+	public int addSale(Sale sale) {
+		 // 1. 매물 기본 정보 DB 저장 (자동 채번된 PK가 sale.saleStockNo 에 세팅됨)
+        mapper.addSale(sale);
+
+        // 2. 좌표 정보 저장
+        Long saleNo = Long.valueOf(sale.getSaleStockNo());
+        mapper.addSaleCoord(saleNo, sale.getLat(), sale.getLng());
+
+        // 3. 생성된 PK 반환
+        return sale.getSaleStockNo();
+	}
+
+	@Override
+	public void addSaleImages(int saleStockNo, List<MultipartFile> thumbnailImages, List<MultipartFile> floorImages) {
+		Long saleNo = Long.valueOf(saleStockNo);
+
+        // 썸네일(ORDER=1)
+        saveImages(thumbnailImages, "thumbnail", saleNo, 1); // 기존에 이미지 저장하던 서비스단 메서드를 재활용하겠다
+
+        // 평면도(ORDER=2)
+        saveImages(floorImages, "floor", saleNo, 2);	// 기존에 이미지 저장하던 서비스단 메서드를 재활용하겠다	 
+	}
+
+	 @Override
+	    public void updateSaleImages(int saleStockNo,
+	                                 List<MultipartFile> thumbnailImages,
+	                                 List<MultipartFile> floorImages) {
+	        Long saleNo = Long.valueOf(saleStockNo);
+
+	        //  썸네일 이미지 덮어쓰기 order = 1
+	        if (thumbnailImages != null && !thumbnailImages.isEmpty()) {
+	            overwriteImages(thumbnailImages, "thumbnail", saleNo, 1);
+	        }
+
+	        // 평면도 이미지 덮어쓰기 order = 2
+	        if (floorImages != null && !floorImages.isEmpty()) {
+	            overwriteImages(floorImages, "floor", saleNo, 2);
+	        }
+	    }
 }

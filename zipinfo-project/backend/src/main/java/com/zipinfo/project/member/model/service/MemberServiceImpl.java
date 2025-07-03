@@ -32,12 +32,16 @@ public class MemberServiceImpl implements MemberService{
 	 */
 	@Override
 	public Member login(Member inputMember) {
-    Member loginMember = mapper.login(inputMember.getMemberEmail());
+    
+    inputMember.setMemberLogin("E");
+    Member loginMember = mapper.login(inputMember);
+
 	log.info("매퍼 들어간 이후"+ loginMember);
 
     log.info("db에서 꺼내온 값1: {}", loginMember);
     log.info("프론트에서 온 값1: {}", inputMember);
 
+    
 		if(loginMember ==null) {
 			 log.info("db에서 꺼내온 값2: {}", loginMember);
 			    log.info("프론트에서 온 값2: {}", inputMember);

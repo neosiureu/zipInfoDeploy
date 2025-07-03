@@ -9,7 +9,7 @@ import com.zipinfo.project.member.model.dto.Member;
 @Mapper
 public interface MemberMapper {
 
-	Member login(String memberEmail);
+	Member login(Member inputMember);
 
 	int checkEmail(String memberEmail);
 
@@ -22,6 +22,10 @@ public interface MemberMapper {
 	int signupGeneral(Member member);
 
 	Member selectByEmail(String email);
+
+
+
+	
 	
 	
 	

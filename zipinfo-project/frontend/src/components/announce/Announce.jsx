@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext, useMemo } from "react";
 import { fetchPosts } from "../../api/AnnounceApi";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../admin/AuthContext";
+import { MemberContext } from "../member/MemberContext";
 import "../../css/announce/Announce.css";
 
 const Announce = () => {
@@ -14,8 +14,7 @@ const Announce = () => {
   const [keyword, setKeyword] = useState("");
 
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
-
+  const { member: user } = useContext(MemberContext);
   // 관리자 여부 판단: memberAuth가 0이면 관리자
   const isAdmin = useMemo(() => {
     if (!user) return false;

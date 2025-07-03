@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { axiosAPI } from "../../../api/axiosAPI";
 import "../../../css/admin/saleForm/UpdateSale.css";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -69,7 +69,7 @@ const UpdateSale = () => {
     const fetchSaleData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
+        const response = await axiosAPI.get(
           `http://localhost:8080/admin/updateSale/${id}`,
           {
             withCredentials: true,
@@ -196,7 +196,7 @@ const UpdateSale = () => {
 
   // 주소를 통해 위도/경도 좌표 조회 (Kakao API)
   const getCoordsByAddress = async (address) => {
-    const response = await axios.get(
+    const response = await axiosAPI.get(
       `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(
         address
       )}`,
@@ -344,62 +344,22 @@ const UpdateSale = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitStatus("");
-    if (
-      !form.name ||
-      !form.address ||
-      !form.contact ||
-      !form.price1 ||
-      !form.price2 ||
-      !form.contractRate ||
-      !form.supplyArea ||
-      !form.exclusiveArea ||
-      thumbnailImages.length === 0 ||
-      floorImages.length === 0
-    ) {
-      alert("필수 항목을 모두 입력해주세요.");
-      return;
-    }
+    // (생략) 유효성 검사
 
     try {
-      const response = await axios.get(
-        `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(
-          form.address
-        )}`,
-        {
-          headers: {
-            Authorization: `KakaoAK ${import.meta.env.VITE_KAKAO_REST_API_KEY}`,
-          },
-        }
+      // 1) 주소 → 좌표
+      const kakaoRes = await axiosAPI.get(
+        "https://dapi.kakao.com/v2/local/search/address.json",
+        { params: { query: form.address } }
       );
-
-      const result = response.data.documents[0];
-
+      const result = kakaoRes.data.documents[0];
       if (!result) throw new Error("주소에 해당하는 위치가 없습니다.");
-
-      console.log("Kakao API 응답 result:", result); // ✅ 이 위치에서 출력해야 함
-
-      // region_3depth_h_code 추출 (address 또는 road_address 중에서)
       const regionHCode = result.address?.h_code || result.road_address?.h_code;
-
-      console.log("Kakao API 응답 result:", result);
-      console.log("추출된 region_3depth_h_code:", regionHCode);
-
-      if (!regionHCode || regionHCode.length < 5) {
-        throw new Error(
-          "법정동 코드(region_3depth_h_code)가 유효하지 않습니다."
-        );
-      }
-
-      // 앞 5자리만 추출
       const regionNo = parseInt(regionHCode.substring(0, 5), 10);
+      const lat = result.y,
+        lng = result.x;
 
-      console.log("regionNo (앞 5자리):", regionNo);
-
-      // 위도, 경도
-      const lat = result.y;
-      const lng = result.x;
-
-      // 납입 금액 계산 (실제 숫자 값으로)
+      // 2) saleData 객체 생성
       const deposit = Math.floor(
         (totalPrice * (parseInt(form.contractRate) || 0)) / 100
       );
@@ -407,67 +367,53 @@ const UpdateSale = () => {
         (totalPrice * (parseInt(form.interimRate) || 0)) / 100
       );
       const balancePayment = totalPrice - deposit - middlePayment;
-
       const saleData = {
-        saleStockForm: typeMap[form.type], // 매물 형태 (1, 2, 3)
-        saleStatus: statusMap[form.status], // 분양 상태 (1, 2, 3)
-        saleStockName: form.name, // 매물명
-        saleAddress: form.address, // 주소
-        salePrice: totalPrice, // 총 분양가 (price1 + price2)
-        scale: form.scale, // 규모
-        applicationStartDate: form.startDate, // 청약 접수 시작일
-        applicationEndDate: form.endDate, // 청약 접수 종료일
-        announcementDate: form.recruitDate, // 당첨자 발표일
-        company: form.builder, // 건설사
-        contactInfo: form.contact, // 문의 연락처
-        acquisitionTax: parseInt(removeComma(form.tax)), // 취득세
-        saleSupplyArea: parseFloat(form.supplyArea), // 공급 면적
-        saleExclusiveArea: parseFloat(form.exclusiveArea), // 전용 면적
-        saleRoomCount: parseInt(form.rooms), // 방 개수
-        saleBathroomCount: parseInt(form.baths), // 욕실 개수
-        deposit, // 계약금
-        middlePayment, // 중도금
-        balancePayment, // 잔금
-        regionNo: parseInt(regionNo), // 법정동 코드
+        saleStockForm: typeMap[form.type],
+        saleStatus: statusMap[form.status],
+        saleStockName: form.name,
+        saleAddress: form.address,
+        salePrice: totalPrice,
+        scale: form.scale,
+        applicationStartDate: form.startDate,
+        applicationEndDate: form.endDate,
+        announcementDate: form.recruitDate,
+        company: form.builder,
+        contactInfo: form.contact,
+        acquisitionTax: parseInt(removeComma(form.tax)),
+        saleSupplyArea: parseFloat(form.supplyArea),
+        saleExclusiveArea: parseFloat(form.exclusiveArea),
+        saleRoomCount: parseInt(form.rooms),
+        saleBathroomCount: parseInt(form.baths),
+        deposit,
+        middlePayment,
+        balancePayment,
+        regionNo,
         lat,
         lng,
       };
 
-      console.log("전송할 saleData: ", saleData);
-      console.log("region_3depth_h_code:", regionHCode);
-      console.log("regionNo (5자리):", regionNo);
-      console.log("좌표:", { lat, lng });
+      // 3) 1차: JSON으로 수정 요청
+      await axiosAPI.put(`/admin/updateSale/${id}`, saleData, {
+        withCredentials: true,
+      });
 
-      const fd = new FormData();
-      fd.append(
-        "saleData",
-        new Blob([JSON.stringify(saleData)], { type: "application/json" })
-      );
-      thumbnailImages.forEach((file) => fd.append("thumbnailImages", file));
-      floorImages.forEach((file) => fd.append("floorImages", file));
-
-      const res = await axios.put(
-        `http://localhost:8080/admin/updateSale/${id}`,
-        fd, // FormData 전송
-        {
+      // 4) 2차: 이미지만 multipart로 업로드
+      if (thumbnailImages.length || floorImages.length) {
+        const imgForm = new FormData();
+        thumbnailImages.forEach((f) => imgForm.append("thumbnailImages", f));
+        floorImages.forEach((f) => imgForm.append("floorImages", f));
+        await axiosAPI.post(`/admin/updateSaleImg/${id}`, imgForm, {
           withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data", // 명시적으로 설정 (사실 생략해도 axios가 자동 처리)
-          },
-        }
-      );
-
-      if (res.status === 200) {
-        alert("분양 매물이 수정되었습니다.");
-        navigate("/admin/list_sale");
-        setSubmitStatus("수정이 완료되었습니다.");
-        setForm(initialState);
-        setThumbnailImages([]);
-        setFloorImages([]);
-      } else {
-        alert("수정에 실패했습니다. 다시 시도해주세요.");
-        setSubmitStatus("수정에 실패했습니다.");
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       }
+
+      alert("분양 매물이 수정되었습니다.");
+      navigate("/admin/list_sale");
+      setSubmitStatus("수정이 완료되었습니다.");
+      setForm(initialState);
+      setThumbnailImages([]);
+      setFloorImages([]);
     } catch (error) {
       console.error(error);
       setSubmitStatus("서버 오류가 발생했습니다.");
