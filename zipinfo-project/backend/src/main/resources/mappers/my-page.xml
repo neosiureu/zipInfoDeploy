@@ -347,4 +347,20 @@
 		WHERE MESSAGE_NO = #{messageNo}
 	</select>
 	
+	<insert id="addSawStock">
+		INSERT INTO STOCK_SAW
+		VALUES(#{stockNo}, #{memberNo}, SYSDATE)
+	</insert>
+	
+	<select id="getSawStockNo">
+		SELECT STOCK_NO FROM "STOCK_SAW"
+		WHERE MEMBER_NO = #{memberNo}
+		ORDER BY SAW_DATE DESC
+	</select>
+	
+	<delete id="deleteSawStock">
+		DELETE "STOCK_SAW"
+		WHERE STOCK_NO = #{deleteNo}
+	</delete>
+	
 </mapper>

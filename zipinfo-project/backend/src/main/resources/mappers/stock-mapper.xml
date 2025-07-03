@@ -51,45 +51,92 @@
 	  <result property="latMax" column="latMax"/>
 	  <result property="lngMax" column="lngMax"/>
 	</resultMap>
-	<select id="selectStockInRange">
-		SELECT *
-			FROM (
-			    SELECT STOCK_NO AS stockNo, LAT AS lat, LNG AS lng
-			    FROM STOCK_COORD 
-			    WHERE LAT &gt; #{swLat} <!-- > escape 문자로 대체-->
-			    AND LAT &lt; #{neLat} <!-- < escape 문자로 대체-->
-			    AND LNG &gt; #{swLng} <!-- > escape 문자로 대체-->
-			    AND LNG &lt; #{neLng} <!-- < escape 문자로 대체-->
-			) c
-			INNER JOIN (SELECT * FROM STOCK_INFO
-			<where>
-				<if test="searchKeyWord != null and searchKeyWord != ''">
-			      AND (STOCK_NAME LIKE  '%' || #{searchKeyWord} || '%'
-			      OR STOCK_NAME LIKE CONCAT(#{searchKeyWord}, '%')
-			      OR STOCK_NAME LIKE CONCAT('%', #{searchKeyWord})
-			      OR STOCK_NAME = #{searchKeyWord})
-			    </if>
-			    <if test="locationCode != -1">
-			    	<if test="locationCode &lt; 100"> <!--들어온 locationCode 가 두자리수일떄-->
-			    		AND REGION_NO LIKE CONCAT(#{locationCode}, '%') <!-- 시도 코드 두자리만 들어왔을떄 주소 코드가 앞 두자리가 일치하는 것 모두를 SELECT-->
-			    	</if>
-			    	<if test="locationCode &gt; 100"> <!--들어온 locationCode 가 다섯자리 수 일떄-->
-			    		AND REGION_NO = #{locationCode} <!-- 주소 코드 다섯자리가 정확히 일치하는 것만 SELECT-->
-			    	</if>
-			      
-			      
-			    </if>
-			    <if test="stockType != -1">
-			      AND STOCK_TYPE = #{stockType}
-			    </if>
-			    <if test="stockForm != -1">
-			      AND STOCK_FORM = #{stockForm}
-			    </if>
-			</where>)
-			 i ON c.stockNo = i.STOCK_NO
-			 LEFT JOIN (SELECT MEMBER_NO, COMPANY_NAME, COMPANY_LOCATION, PRESIDENT_NAME, BROKER_NO, PRESIDENT_PHONE FROM BROKER_INFO) b ON i.MEMBER_NO = b.MEMBER_NO
-			 <!--LEFT JOIN (SELECT IMG_NO, STOCK_NO, IMG_ORDER, IMG_URL, IMG_ORIGIN_NAME, IMG_RENAME FROM STOCK_IMG) m ON i.STOCK_NO = m.STOCK_NO-->
+	
+	<resultMap id="stockImgList" type="com.zipinfo.project.stock.model.dto.Stock">
+    	<id column="STOCK_NO" property="stockNo"/>
+    	  <result property="memberNo" column="MEMBER_NO"/>
+		  <result property="stockName" column="STOCK_NAME"/>
+		  <result property="stockSellPrice" column="STOCK_SELL_PRICE"/>
+		  <result property="stockManageFee" column="STOCK_FEE_MONTH_ADD"/>
+		  <result property="stockFeeMonth" column="STOCK_FEE_MONTH"/>
+		  <result property="stockInfo" column="STOCK_INFO"/>
+		  <result property="stockType" column="STOCK_TYPE"/>
+		  <result property="stockForm" column="STOCK_FORM"/>
+		  <result property="exclusiveArea" column="EXCLUSIVE_AREA"/>
+		  <result property="supplyArea" column="SUPPLY_AREA"/>
+		  <result property="currentFloor" column="CURRENT_FLOOR"/>
+		  <result property="floorTotalCount" column="FLOOR_TOTAL_COUNT"/>
+		  <result property="roomCount" column="ROOM_COUNT"/>
+		  <result property="bathCount" column="BATH_COUNT"/>
+		  <result property="stockDirection" column="STOCK_DIRECTION"/>
+		  <result property="ableDate" column="ABLE_DATE"/>
+		  <result property="useApprovalDate" column="USE_APPROVAL_DATE"/>
+		  <result property="registDate" column="REGIST_DATE"/>
+		  <result property="stockDetail" column="STOCK_DETAIL"/>
+		  <result property="stockAddress" column="STOCK_ADDRESS"/>
+		  <result property="regionNo" column="REGION_NO"/>
+		  <result property="sellYn" column="SELL_YN"/>
+		  <result property="companyName" column="COMPANY_NAME"/>
+		  <result property="companyLocation" column="COMPANY_LOCATION"/>
+		  <result property="presidentName" column="PRESIDENT_NAME"/>
+		  <result property="brokerNo" column="BROKER_NO"/>
+		  <result property="presidentPhone" column="PRESIDENT_PHONE"/>
+		  <result property="lat" column="LAT"/>
+	  	  <result property="lng" column="LNG"/>
+    
+    	<collection property="imgUrls" ofType="string">
+        	<result column="IMG_URL"/>
+    	</collection>
+	</resultMap>
+	
+	
+	
+	<select id="selectStockInRange" resultMap="stockImgList">
+SELECT *
+FROM (
+    SELECT STOCK_NO AS stockNo, LAT AS lat, LNG AS lng
+    FROM STOCK_COORD 
+    WHERE LAT &gt; #{swLat}
+      AND LAT &lt; #{neLat}
+      AND LNG &gt; #{swLng}
+      AND LNG &lt; #{neLng}
+) c
+INNER JOIN (
+    SELECT *
+    FROM STOCK_INFO
+    <where>
+        <if test="searchKeyWord != null and searchKeyWord != ''">
+          AND (STOCK_NAME LIKE '%' || #{searchKeyWord} || '%'
+            OR STOCK_NAME LIKE CONCAT(#{searchKeyWord}, '%')
+            OR STOCK_NAME LIKE CONCAT('%', #{searchKeyWord})
+            OR STOCK_NAME = #{searchKeyWord})
+        </if>
+        <if test="locationCode != -1">
+          <choose>
+            <when test="locationCode &lt; 100">
+              AND REGION_NO LIKE CONCAT(#{locationCode}, '%')
+            </when>
+            <otherwise>
+              AND REGION_NO = #{locationCode}
+            </otherwise>
+          </choose>
+        </if>
+        <if test="stockType != -1">
+          AND STOCK_TYPE = #{stockType}
+        </if>
+        <if test="stockForm != -1">
+          AND STOCK_FORM = #{stockForm}
+        </if>
+    </where>
+) i ON c.stockNo = i.STOCK_NO
+LEFT JOIN (
+    SELECT MEMBER_NO, COMPANY_NAME, COMPANY_LOCATION, PRESIDENT_NAME, BROKER_NO, PRESIDENT_PHONE
+    FROM BROKER_INFO
+) b ON i.MEMBER_NO = b.MEMBER_NO
+LEFT JOIN STOCK_IMG m ON i.STOCK_NO = m.STOCK_NO
+  ORDER BY m.IMG_ORDER
 	</select>
+	
 	<select id="selectSigunguFullName">
 		SELECT TOWN_NAME FROM BOARD_TOWN
 		WHERE TOWN_NO LIKE #{sido} || '___'
@@ -133,24 +180,39 @@
 			 i ON c.stockNo = i.STOCK_NO
 	</select>
 	<select id="selectAnyFour"><!--위치 상관 x-->
-		SELECT *
-			FROM (
-			    SELECT *
-			    FROM (
-			        SELECT *
-			        FROM (
-			            SELECT STOCK_NO AS stockNo, LAT AS lat, LNG AS lng
-			            FROM STOCK_COORD
-			        ) c
-			        INNER JOIN (
-			            SELECT * FROM STOCK_INFO
-			        ) i ON c.stockNo = i.STOCK_NO
-			        INNER JOIN (
-			            SELECT MEMBER_NO, COMPANY_NAME, COMPANY_LOCATION, PRESIDENT_NAME , BROKER_NO, PRESIDENT_PHONE FROM BROKER_INFO
-			        ) b ON i.MEMBER_NO = b.MEMBER_NO
-			        ORDER BY i.REGIST_DATE ASC
-			    )
-			)
-			WHERE ROWNUM &lt;= 4
+SELECT *
+FROM (
+    SELECT *
+    FROM (
+        SELECT 
+            c.STOCK_NO AS stockNo,
+            c.LAT AS lat,
+            c.LNG AS lng,
+            i.STOCK_NAME,
+            i.STOCK_TYPE,
+            i.STOCK_SELL_PRICE,
+            i.STOCK_MANAGE_FEE,
+            i.STOCK_FEE_MONTH,
+            i.EXCLUSIVE_AREA,
+            i.SUPPLY_AREA,
+            i.CURRENT_FLOOR,
+            i.FLOOR_TOTAL_COUNT,
+            i.STOCK_FORM,
+            i.REGIST_DATE,
+            b.MEMBER_NO AS memberNo, 
+            b.COMPANY_NAME, 
+            b.COMPANY_LOCATION, 
+            b.PRESIDENT_NAME, 
+            b.BROKER_NO, 
+            b.PRESIDENT_PHONE,
+            img.IMG_URL AS imgUrl
+        FROM STOCK_COORD c
+        INNER JOIN STOCK_INFO i ON c.STOCK_NO = i.STOCK_NO
+        INNER JOIN BROKER_INFO b ON i.MEMBER_NO = b.MEMBER_NO
+        LEFT JOIN STOCK_IMG img ON img.STOCK_NO = i.STOCK_NO AND img.IMG_ORDER = 0
+        ORDER BY i.REGIST_DATE ASC
+    )
+)
+WHERE ROWNUM &lt;= 4
 	</select>
 </mapper>

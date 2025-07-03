@@ -26,5 +26,7 @@ public interface AdvertisementMapper {
 
 	int deleteAd(int adNo);
 
+	Advertisement getMainAd();
+
    
 }

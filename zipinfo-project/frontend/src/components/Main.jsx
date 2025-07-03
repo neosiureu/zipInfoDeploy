@@ -31,6 +31,7 @@ const Main = () => {
 
   const [stockList, setStockList] = useState([]);
   const [saleList, setSaleList] = useState([]);
+  const [mainAd, setMainAd] = useState(null);
 
   // 배너 URL 처리
   const bannerPath = localStorage.getItem("mainBannerUrl");
@@ -40,6 +41,12 @@ const Main = () => {
       : banner;
 
   useEffect(() => {
+    const loadAd = async () => {
+      const resp = await axiosAPI.get("/advertisement/getMainAd");
+      setMainAd(resp.data);
+      console.log(resp.data);
+    }
+
     const loadStock = async () => {
       const resp = await axiosAPI.post("/stock/itemOnMain", {});
       setStockList(resp.data);
@@ -52,13 +59,14 @@ const Main = () => {
 
     loadStock();
     loadSale();
+    loadAd();
   }, []);
 
   const StockSample = () => {
     return stockList.map((item, index) => (
       <div className="card" key={item.stockNo}>
         <img
-          src={main01}
+          src={`http://localhost:8080${item.imgUrl}`}
           alt="실거래 집 썸네일 이미지"
           onClick={() => {
             navigate(`/stock/${item.stockNo}`);
@@ -208,10 +216,12 @@ const Main = () => {
           </div>
         </div>
       </section>
-
+      
+      {mainAd && mainAd.adImgUrl !== null?
       <div className="banner">
-        <img src={fullBannerUrl} alt="배너광고 이미지" />
-      </div>
+        <img src={`http://localhost:8080${mainAd.adImgUrl}`} alt="배너광고 이미지" />
+      </div>:<div/>
+      }
 
       <section className="section-main">
         <div className="section-header">

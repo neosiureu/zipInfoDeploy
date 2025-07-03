@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"; // useRef 추가
+import { useContext, useEffect, useRef, useState } from "react"; // useRef 추가
 import { axiosAPI } from "../../api/axiosApi";
 import "../../css/stock/stockPage.css";
 import SearchBar from "../common/SearchBar";
@@ -16,6 +16,8 @@ import {
 } from "react-router-dom";
 import { useStockContext } from "./StockContext";
 import InfraMark from "./infraMark";
+import { Bookmark } from "lucide-react";
+import { MemberContext } from "../member/MemberContext";
 
 const StockPageCopy = () => {
   const {
@@ -79,6 +81,45 @@ const StockPageCopy = () => {
 
     return keys; // 총 9개의 셀 키
   }
+
+  const {member} = useContext(MemberContext);
+
+  const [likeStockList, setLikeStockList] = useState([]);
+
+  const [likeStock, setLikeStock] = useState(new Set()); // 좋아요 매물 가져오기
+
+  const getLikeStock = async () => {
+    try {
+      const response = await axiosAPI.get("/myPage/getLikeStock");
+      setLikeStockList(response.data);
+      setLikeStock(new Set(response.data.map((item) => item.stockNo)));
+    } catch (err) {
+      console.error("매물 불러오기 실패:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStockLike = async (stockNo) => {
+    setLikeStock((prev) => {
+      const updated = new Set(prev);
+      if (updated.has(stockNo)) {
+        updated.delete(stockNo); // 찜 해제
+      } else {
+        updated.add(stockNo); // 찜 추가
+      }
+      return updated;
+    });
+    try {
+      if (likeStock.has(stockNo)) {
+        const resp = await axiosAPI.post("/myPage/unlikeStock", { stockNo });
+      } else {
+        const resp = await axiosAPI.post("/myPage/likeStock", { stockNo });
+      }
+    } catch (err) {
+      console.error("찜 상태 변경 실패:", err);
+    }
+  };
 
   /****************QueryString 기능 구현을 위한 변수******************************************** */
   //const [searchParams] = useSearchParams();
@@ -241,6 +282,8 @@ const StockPageCopy = () => {
 
       marker.setMap(map);
     }
+
+    getLikeStock();
   }, []);
 
   useEffect(() => {
@@ -397,6 +440,10 @@ const StockPageCopy = () => {
     });
   };
 
+  const subDate = (e) => {
+    return e.substring(0,10);
+  }
+
   useEffect(() => {
     // kakao map이 로딩된 후에 SearchBar 관련 검색 매개변수들이 바뀔때마다 서버에 post요청으로 매물정보를 다시 받아오는 함수. -> setStockList(), updateMarker() 다시 실행함!
     const fetchData = async () => {
@@ -418,7 +465,7 @@ const StockPageCopy = () => {
           stockType: searchStockFormRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedType ||
           stockForm: searchStockTypeRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
         });
-        console.log("locationCode:", locationCodeRef.current);
+        console.log("매물:", resp.data);
         if (resp.status === 200) {
           console.log(resp.data);
 
@@ -435,10 +482,12 @@ const StockPageCopy = () => {
   }, [searchKeyWord, searchLocationCode, searchStockType, searchStockForm]);
 
   // 매물 item을 클릭했을떄 수행되는 핸들러 함수
-  const handleItemClick = (item) => {
+  const handleItemClick = async (item) => {
     setIsAsideVisible(true); //클릭시 상세창 표시=true 함.
     setClickedStockItem(item); // 클릭한 item의 index를 저장.
     //map?.setDraggable(false); // 사용자가 지도를 드래그하지 못하게 막음!
+    const resp = await axiosAPI.post('/myPage/addSawStock', {memberNo: member.memberNo, stockNo: item.stockNo});
+
     navigate(`/stock/${item.stockNo}`);
     console.log("stockNo:", item.stockNo);
   };
@@ -468,12 +517,12 @@ const StockPageCopy = () => {
             {/* 상단 이미지 2장 (예시) */}
             <div className="stock-detail-images">
               <img
-                src={stockImgLeft}
+                src={`http://localhost:8080${item.imgUrls[0]}`}
                 alt="상세1"
                 className="stock-detail-mainimg"
               />
               <img
-                src={stockImgRight}
+                src={`http://localhost:8080${item.imgUrls[2]}`}
                 alt="상세2"
                 className="stock-detail-mainimg"
               />
@@ -506,9 +555,16 @@ const StockPageCopy = () => {
                       " "
                     : "기타"}
                 </span>
-                <button className="stock-detail-like-btn" aria-label="찜하기">
-                  ☆
-                </button>
+                {member.memberNo !== null?
+                <button  onClick={() => {
+                          handleStockLike(item.stockNo);
+                        }} className="stock-detail-like-btn" aria-label="찜하기">
+                  <Bookmark
+                    className={`like-stock-bookmark ${
+                      likeStock.has(item.stockNo) ? "active" : ""
+                    }`}
+                  />
+                </button>:<div/>}
               </div>
               <div className="stock-detail-name">{item.stockName}</div>
               <div className="stock-detail-desc">{item.stockInfo}</div>
@@ -519,7 +575,7 @@ const StockPageCopy = () => {
             {/* Block 2: 평면도 */}
             <div className="stock-detail-info-block">
               <div className="stock-detail-plan">
-                <img src={floor} alt="평면도 이미지" />
+                <img src={`http://localhost:8080${item.imgUrls[1]}`} alt="평면도 이미지" />
               </div>
             </div>
 
@@ -567,15 +623,15 @@ const StockPageCopy = () => {
                     </tr>
                     <tr>
                       <td>입주가능일</td>
-                      <td>{item.ableDate}</td>
+                      <td>{subDate(item.ableDate)}</td>
                     </tr>
                     <tr>
                       <td>사용승인일</td>
-                      <td>{item.useApprovalDate}</td>
+                      <td>{subDate(item.useApprovalDate)}</td>
                     </tr>
                     <tr>
                       <td>최초등록일</td>
-                      <td>{item.registDate}</td>
+                      <td>{subDate(item.registDate)}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -657,7 +713,7 @@ const StockPageCopy = () => {
               onClick={() => handleItemClick(item, index)}
             >
               <div className="stock-header">
-                <img src={saleThumbnail} alt="썸네일" className="stock-img" />
+                <img src={`http://localhost:8080${item.imgUrls[0]}`} alt="썸네일" className="stock-img" />
                 <div>
                   <div className="stock-item-price">
                     <span className="item-type">

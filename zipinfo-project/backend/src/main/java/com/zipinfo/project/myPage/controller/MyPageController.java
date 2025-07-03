@@ -546,4 +546,19 @@ public class MyPageController {
 					.body("불러오는 중 예외 발생 : " + e.getMessage());
 		}
 	}
+	
+	@PostMapping("addSawStock")
+	public ResponseEntity<Object> addSawStock(@RequestBody Stock stock){
+		try {
+			
+			int result = service.addSawStock(stock);
+			
+			return ResponseEntity.status(HttpStatus.OK).body(result);
+			
+
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
 }
