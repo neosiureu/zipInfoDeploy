@@ -12,6 +12,8 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +31,7 @@ import com.zipinfo.project.member.model.dto.Member;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/help")
 @RequiredArgsConstructor
@@ -75,15 +78,18 @@ public class HelpMessageController {
      * @return
      */
     @PostMapping("/reply")
-    public ResponseEntity<?> postReply(HttpSession session, @RequestBody HelpMessage message) {
-        Member loginMember = (Member) session.getAttribute("loginMember");
-        message.setSenderNo(loginMember.getMemberNo());
-
-        boolean success = helpMessageService.saveReply(message);
-        if (!success) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("답변 등록 실패");
+    public ResponseEntity<?> postReply(@AuthenticationPrincipal Member loginMember,
+                                       @RequestBody HelpMessage message) {
+        if (loginMember == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
-        return ResponseEntity.ok("답변 등록 성공");
+
+        message.setSenderNo(loginMember.getMemberNo());
+        boolean success = helpMessageService.saveReply(message);
+
+        return success
+            ? ResponseEntity.ok("답변 등록 성공")
+            : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("답변 등록 실패");
     }
     
     /** 수정
@@ -103,12 +109,13 @@ public class HelpMessageController {
     /** 답변 수정 시 원글 + 답변 함께 조회 */
     @PostMapping("/reply/view")
     public ResponseEntity<Map<String, HelpMessage>> getOriginalAndReply(@RequestBody Map<String, Integer> req) {
-        int replyMessageNo = req.get("messageNo");
+        Integer replyMessageNoObj = req.get("messageNo");
+        if (replyMessageNoObj == null) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request 반환
+        }
+        int replyMessageNo = replyMessageNoObj;
 
-        // 답변 조회 (messageNo 기준)
         HelpMessage reply = helpMessageService.getHelpMessageById(replyMessageNo);
-
-        // 원글 조회 (INQUIRED_NO = replyMessageNo 인 행에서 다시 MESSAGE_NO 추출)
         HelpMessage original = helpMessageService.getOriginalByReplyMessageNo(replyMessageNo);
 
         if (reply == null || original == null) {
@@ -121,6 +128,7 @@ public class HelpMessageController {
 
         return ResponseEntity.ok(result);
     }
+
 
 
     @PatchMapping("/message/read/{messageNo}")

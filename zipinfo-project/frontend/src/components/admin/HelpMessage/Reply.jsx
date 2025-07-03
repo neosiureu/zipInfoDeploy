@@ -26,19 +26,25 @@ const Reply = () => {
     const fetchMessage = async () => {
       try {
         setLoading(true);
-        // 문의 + 답변 데이터를 함께 가져오는 API 가정
+
         const res = await axiosAPI.get(
           `/api/help/reply?messageNo=${messageNo}`
         );
 
-        setInquiry(res.data);
+        if (res.data.replyYn === "Y" && res.data.replyMessageNo) {
+          const viewRes = await axiosAPI.post("/api/help/reply/view", {
+            messageNo: res.data.replyMessageNo,
+          });
 
-        if (res.data.replyYn === "Y") {
-          // 답변이 있으면 수정 모드 활성화 및 답변 내용 세팅
-          setReply(res.data.replyContent || res.data.messageContent);
+          setInquiry(viewRes.data.original);
+          setReply(viewRes.data.reply.messageContent);
           setIsEdit(true);
-          setReplyMessageNo(res.data.replyMessageNo); // 답변 메시지 번호 (수정용)
+          setReplyMessageNo(viewRes.data.reply.messageNo);
+
+          console.log("API original data:", viewRes.data.original);
         } else {
+          // 답변 없으면 원글 그대로
+          setInquiry(res.data);
           setReply("");
           setIsEdit(false);
           setReplyMessageNo(null);
