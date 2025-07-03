@@ -9,13 +9,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import com.zipinfo.project.editneighborhood.model.service.EditneighborhoodService;
 import com.zipinfo.project.member.model.dto.Member;
@@ -46,7 +45,7 @@ public class EditNeighborhoodController {
 	 * @throws Exception
 	 */
 	@PostMapping("")
-	public int boardInsert(@RequestBody Neighborhood inputBoard, @SessionAttribute("loginMember") Member loginMember)
+	public int boardInsert(@RequestBody Neighborhood inputBoard, @AuthenticationPrincipal Member loginMember)
 			throws Exception {
 
 		int boardCode = 1;
@@ -67,12 +66,11 @@ public class EditNeighborhoodController {
 
 	/** 이주원
 	 * 게시글 삭제
-	 * @param inputBoard  : 입력된 값(제목, 내용) 세팅되어있음 (커맨드 객체)
-	 * @param loginMember : 로그인한 회원 번호를 얻어오는 용도(세션에 등록되어있음)
+	 * @param inputBoard 
 	 * @throws Exception
 	 */
 	@DeleteMapping("{boardNo}")
-	public int boardDelete(@PathVariable("boardNo") int boardNo, @SessionAttribute("loginMember") Member loginMember)
+	public int boardDelete(@PathVariable("boardNo") int boardNo, @AuthenticationPrincipal Member loginMember)
 			throws Exception {
 
 		
@@ -101,7 +99,7 @@ public class EditNeighborhoodController {
 	 * @throws Exception
 	 */
 	@PutMapping("")
-	public int boardUpdate(@RequestBody Neighborhood inputBoard, @SessionAttribute("loginMember") Member loginMember)
+	public int boardUpdate(@RequestBody Neighborhood inputBoard, @AuthenticationPrincipal Member loginMember)
 			throws Exception {
 
 		int boardCode = 1;

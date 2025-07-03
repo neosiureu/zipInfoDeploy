@@ -118,17 +118,18 @@ function GlobalWebSocketListener() {
           }
         );
       });
-      client.subscribe(`/topic/region/${member.memberLocation}`, (message)=> {
+      client.subscribe(`/topic/region/${member.memberLocation}`, (message) => {
         toast.info(
           <div>
             <strong>관심 지역에 새 글이 등록되었습니다</strong>
             <div>{message.body}</div>
-          </div>,{
-          position: "bottom-right",
-          autoClose: 10000,
-          className: "custom-toast",
-          icon:false,
-        }
+          </div>,
+          {
+            position: "bottom-right",
+            autoClose: 10000,
+            className: "custom-toast",
+            icon: false,
+          }
         );
       });
     });
@@ -437,7 +438,7 @@ function App() {
             <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />
             <Route path="/oauth2/naver/redirect" element={<NaverCallback />} />
           </Routes>
-          <ToastContainer  position="top-center" icon={false} autoClose={3000}  />
+          <ToastContainer position="top-center" icon={false} autoClose={3000} />
         </MemberProvider>
       </BrowserRouter>
     </AuthProvider>

@@ -9,3 +9,8 @@ export const axiosAPI = axios.create({
   // credential 허용 설정 필요함
   // -> JWT 사용 시 중요한 옵션
 });
+axiosAPI.interceptors.request.use((config) => {
+  const token = localStorage.getItem("accessToken");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});

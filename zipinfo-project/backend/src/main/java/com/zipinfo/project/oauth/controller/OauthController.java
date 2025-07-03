@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.zipinfo.project.common.config.JwtTokenProvider;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.oauth.model.service.OauthService;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,45 +26,57 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OauthController {
 	  private final OauthService oauthService;
+	 private final JwtTokenProvider jwtTokenProvider;
+
 	  
-	  
-	    @PostMapping("/kakao")
-	    public ResponseEntity<Member> kakaoLogin(@RequestBody Map<String,String> body , HttpSession session) {
-	        String token = body.get("code");  // 실제 키 이름도 반드시 확인!
-	        log.info("카카오 로그인 요청, code={}", token);
+	  @PostMapping("/kakao")
+	    public ResponseEntity<Map<String,Object>> kakaoLogin(@RequestBody Map<String,String> body) {
+
+	        String kakaoAccessToken = body.get("code");   // ↔ implicit 이면 body.get("accessToken")
+	        log.info("카카오 로그인 요청, code={}", kakaoAccessToken);
 
 	        try {
-	          Member member = oauthService.loginKakao(token);
-	          session.setAttribute("loginMember", member); 
-	          log.info("프론트로 보낼 member={}", member);
-	          return ResponseEntity.ok(member);
+	            /* 1) 카카오 토큰 → 우리 서비스 회원 */
+	            Member member = oauthService.loginKakao(kakaoAccessToken);
+
+	            /* 2) JWT 발급 */
+	            String jwt = jwtTokenProvider.createAccessToken(member);
+
+	            /* 3) 응답 */
+	            Map<String,Object> result = Map.of(
+	                    "loginMember",  member,
+	                    "accessToken",  jwt
+	            );
+	            return ResponseEntity.ok(result);
 
 	        } catch (Exception ex) {
-	         
-	          log.error("kakaoLogin 에러 발생", ex);
-	          return ResponseEntity.status(500).build();
+	            log.error("kakaoLogin 에러", ex);
+	            return ResponseEntity.internalServerError().build();
 	        }
 	    }
 	    
 	     
-	    @PostMapping("/naver")
-	    public ResponseEntity<Member> naverLogin(@RequestBody Map<String,String> body , HttpSession session) {
-	    	String token = body.get("accessToken"); // implicit
-	    	String code  = body.get("code");        // authorization_cod
+	  @PostMapping("/naver")
+	    public ResponseEntity<Map<String,Object>> naverLogin(@RequestBody Map<String,String> body) {
+
+	        String naverAccessToken = body.getOrDefault("accessToken", body.get("code"));
+	        log.info("네이버 로그인 요청, token={}", naverAccessToken);
 
 	        try {
-	          Member member = oauthService.loginNaver(token);
-	          session.setAttribute("loginMember", member); 
-	          log.info("네이버 로그인으로 프론트로 보낼 member={}", member);
-	          return ResponseEntity.ok(member);
+	            Member member = oauthService.loginNaver(naverAccessToken);
+	            String jwt    = jwtTokenProvider.createAccessToken(member);
+
+	            Map<String,Object> result = Map.of(
+	                    "loginMember",  member,
+	                    "accessToken",  jwt
+	            );
+	            return ResponseEntity.ok(result);
 
 	        } catch (Exception ex) {
-	         
-	          log.error("naverLogin 에러 발생", ex);
-	          return ResponseEntity.status(500).build();
+	            log.error("naverLogin 에러", ex);
+	            return ResponseEntity.internalServerError().build();
 	        }
 	    }
-	  
 	  
 
 }

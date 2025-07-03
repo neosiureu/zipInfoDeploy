@@ -7,11 +7,15 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.zipinfo.project.common.filter.JwtAuthFilter;
 
 import java.util.List;
 
@@ -47,10 +51,11 @@ public class SecurityConfig {
 
     // Security 설정
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,  JwtAuthFilter jwtAuthFilter) throws Exception {
         http
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
+
             .authorizeHttpRequests(auth -> auth
             	    // 공지사항 등록 (POST) 경로 수정
             		.requestMatchers(HttpMethod.POST, "/api/announce").hasRole("ADMIN")
@@ -75,6 +80,7 @@ public class SecurityConfig {
 
             )
             // iframe 허용 (H2 콘솔 등)
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
         return http.build();

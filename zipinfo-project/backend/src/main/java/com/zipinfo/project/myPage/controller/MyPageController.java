@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -41,12 +42,11 @@ public class MyPageController {
 	private final MyPageService service;
 	
 	@GetMapping("memberInfo")
-	public ResponseEntity<Object> memberInfo(HttpSession session){
+	public ResponseEntity<Object> memberInfo(@AuthenticationPrincipal Member loginMember){
 		
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember");
-			
+			if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();			
 			Member member = service.getMemberInfo(loginMember);
 			
 			
