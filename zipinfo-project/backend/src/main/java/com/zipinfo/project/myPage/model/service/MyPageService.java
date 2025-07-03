@@ -67,5 +67,7 @@ public interface MyPageService {
 
 	HelpMessage getMessageFile(int messageNo);
 
+	int addSawStock(Stock stock);
+
 
 }

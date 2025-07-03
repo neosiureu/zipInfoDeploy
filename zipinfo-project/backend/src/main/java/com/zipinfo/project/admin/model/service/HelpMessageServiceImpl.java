@@ -49,10 +49,10 @@ public class HelpMessageServiceImpl implements HelpMessageService {
         return result > 0 && updateResult > 0;
     }
 
-    @Override
     @Transactional
-    public boolean markMessageAsRead(int messageNo) {
-        return helpMessageMapper.updateReadFlag(messageNo) > 0;
+    public boolean updateReadFlag(int messageNo) {
+        int updatedRows = helpMessageMapper.updateReadFlag(messageNo);
+        return updatedRows > 0;
     }
 
     @Override
@@ -66,12 +66,29 @@ public class HelpMessageServiceImpl implements HelpMessageService {
     }
 
     @Override
-    public boolean updateReadFlag(int messageNo) {
-        return markMessageAsRead(messageNo);
+    public boolean updateReplyContent(int messageNo, String newContent) {
+        int affected = helpMessageMapper.updateReplyContent(messageNo, newContent);
+        return affected > 0;
+    }
+    
+    @Override
+    public int updateReply(HelpMessage helpMessage) {
+        return helpMessageMapper.updateReply(helpMessage);
+    }
+    
+    @Override
+    public HelpMessage getOriginalByReplyMessageNo(int replyMessageNo) {
+        return helpMessageMapper.selectOriginalByReplyMessageNo(replyMessageNo);
     }
 
     @Override
-    public List<HelpMessage> getRepliesByAdminToUser(int adminNo, int userNo) {
-        return helpMessageMapper.selectRepliesByAdminToUser(adminNo, userNo);
+    @Transactional
+    public boolean markMessageAsRead(int messageNo) {
+        int updatedRows = helpMessageMapper.updateReadFlag(messageNo);
+        return updatedRows > 0;
     }
+
+    
+
+
 }

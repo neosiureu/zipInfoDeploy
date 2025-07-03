@@ -30,5 +30,10 @@
   	DELETE "ADVERTISE_IMG"
   	WHERE AD_NO = #{adNo}
   </delete>
+  
+  <select id="getMainAd">
+  	SELECT * FROM ADVERTISE_IMG
+  	WHERE AD_MAIN = 'Y'
+  </select>
 
 </mapper>

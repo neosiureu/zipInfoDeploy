@@ -493,4 +493,25 @@ public class MyPageServiceImpl implements MyPageService{
 	public HelpMessage getMessageFile(int messageNo) {
 		return mapper.getMessageFile(messageNo);
 	}
+	
+	@Override
+	public int addSawStock(Stock stock) {
+		List<Integer> sawStock = mapper.getSawStockNo(stock);
+		int stockNo = stock.getStockNo();
+		
+		if(sawStock.contains(stock.getStockNo())) {
+			mapper.deleteSawStock(stockNo);
+		}
+		int result = mapper.addSawStock(stock);
+		int deleteResult = 0;
+		
+		List<Integer> sawStockList = mapper.getSawStockNo(stock);
+		
+		if(sawStockList.size() == 9) {
+			int deleteNo = sawStockList.get(8);
+			deleteResult = mapper.deleteSawStock(deleteNo);
+		}
+		
+		return result + deleteResult;
+	}
 }

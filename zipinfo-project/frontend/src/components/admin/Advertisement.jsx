@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "../../css/admin/Advertisement.css";
 import { toast } from "react-toastify";
@@ -7,6 +7,8 @@ const Advertisement = () => {
   // 🔒 고정된 관리자 정보
   const [adminName] = useState("관리자");
   const [adminId] = useState("admin01");
+
+  const fileInputRef = useRef(null);
 
   // 📦 광고 리스트 상태 (서버에서 불러오거나 업로드 시 추가)
   const [ads, setAds] = useState([]);
@@ -71,6 +73,7 @@ const Advertisement = () => {
         fetchAds();
       }
       setSelectedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       alert("이미지가 성공적으로 업로드되었습니다.");
     } catch (error) {
       console.error("이미지 업로드 실패", error);
@@ -173,7 +176,7 @@ const Advertisement = () => {
 
       {/* 📤 이미지 업로드 영역 */}
       <div className="admin-ad-upload">
-        <input type="file" accept="image/*" onChange={handleFileChange} />
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} />
       </div>
 
       {/* 🔘 업로드 버튼 */}

@@ -97,4 +97,9 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     public int deleteAd(int adNo) {
     	return mapper.deleteAd(adNo);
     }
+    
+    @Override
+    public Advertisement getMainAd() {
+    	return mapper.getMainAd();
+    }
 }

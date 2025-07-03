@@ -15,4 +15,6 @@ public interface AdvertisementService {
 	int updateMain(int adNo);
 
 	int deleteAd(int adNo);
+
+	Advertisement getMainAd();
 }

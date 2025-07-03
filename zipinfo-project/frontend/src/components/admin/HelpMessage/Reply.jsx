@@ -13,6 +13,8 @@ const Reply = () => {
   const [inquiry, setInquiry] = useState(null); // 문의 내용
   const [reply, setReply] = useState(""); // 답변 내용
   const [loading, setLoading] = useState(true);
+  const [isEdit, setIsEdit] = useState(false); // 답변 수정 모드 여부
+  const [replyMessageNo, setReplyMessageNo] = useState(null); // 수정 시 답변 메시지 번호
 
   useEffect(() => {
     if (!messageNo) {
@@ -24,11 +26,23 @@ const Reply = () => {
     const fetchMessage = async () => {
       try {
         setLoading(true);
+        // 문의 + 답변 데이터를 함께 가져오는 API 가정
         const res = await axiosAPI.get(
           `/api/help/reply?messageNo=${messageNo}`
         );
+
         setInquiry(res.data);
-        setReply(res.data.replyYn === "Y" ? res.data.messageContent : "");
+
+        if (res.data.replyYn === "Y") {
+          // 답변이 있으면 수정 모드 활성화 및 답변 내용 세팅
+          setReply(res.data.replyContent || res.data.messageContent);
+          setIsEdit(true);
+          setReplyMessageNo(res.data.replyMessageNo); // 답변 메시지 번호 (수정용)
+        } else {
+          setReply("");
+          setIsEdit(false);
+          setReplyMessageNo(null);
+        }
       } catch (err) {
         alert("문의 상세를 불러오는데 실패했습니다.");
         navigate("/admin/helpMessage");
@@ -51,15 +65,30 @@ const Reply = () => {
     }
 
     try {
-      await axiosAPI.post("/api/help/reply", {
-        messageContent: reply,
-        receiverNo: parseInt(receiverNo, 10),
-        inquiredNo: parseInt(messageNo, 10),
-      });
-      alert("답변이 등록되었습니다.");
+      if (isEdit && replyMessageNo) {
+        // 수정 API 호출 (PUT 또는 POST - 수정용)
+        await axiosAPI.put("/api/help/reply", {
+          messageNo: replyMessageNo,
+          messageContent: reply,
+        });
+        alert("답변이 수정되었습니다.");
+      } else {
+        // 새 답변 등록 API 호출
+        await axiosAPI.post("/api/help/reply", {
+          messageTitle: inquiry.messageTitle, // 추가
+          messageContent: reply,
+          receiverNo: parseInt(receiverNo, 10),
+          inquiredNo: parseInt(messageNo, 10),
+        });
+        alert("답변이 등록되었습니다.");
+      }
       navigate("/admin/helpMessage");
     } catch (err) {
-      alert("답변 등록 중 오류가 발생했습니다.");
+      alert(
+        isEdit
+          ? "답변 수정 중 오류가 발생했습니다."
+          : "답변 등록 중 오류가 발생했습니다."
+      );
     }
   };
 
@@ -128,7 +157,7 @@ const Reply = () => {
 
       <div className="form-actions">
         <button className="submit-btn" onClick={handleSubmit}>
-          답변하기
+          {isEdit ? "답변 수정" : "답변하기"}
         </button>
       </div>
     </div>

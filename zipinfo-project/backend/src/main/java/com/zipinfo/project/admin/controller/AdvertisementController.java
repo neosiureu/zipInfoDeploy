@@ -97,5 +97,21 @@ public class AdvertisementController {
 		                .body("메인 광고 설정 실패: " + e.getMessage());
 		}
     }
+    
+    @GetMapping("/getMainAd")
+    public ResponseEntity<Object> getMainAd(){
+    	try {
+    		
+    		Advertisement ad = advertisementService.getMainAd();
+    		
+    		System.out.println("응앗"+ad);
+    		
+    		return ResponseEntity.status(HttpStatus.OK).body(ad); 
+			
+		} catch (Exception e) {
+			 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		                .body("메인광고 가져오기 실패: " + e.getMessage());
+		}
+    }
 
 }
