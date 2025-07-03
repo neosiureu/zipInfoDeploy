@@ -53,6 +53,8 @@ export const StockProvider = ({ children, searchParams, navigate }) => {
   /****************QueryString 기능 구현을 위한 변수******************************************** */
   //const [searchParams] = useSearchParams(); --> 챗지피티가 이거 쓰지말래!!
 
+  const [isInfraCategoryVisible, setIsInfraCategoryVisible] = useState(false); // for InfraMark.jsx
+  const isInfraCategoryVisibleRef = useRef(isInfraCategoryVisible); //for InfraMark.jsx
   return (
     <StockContext.Provider
       value={{
@@ -81,6 +83,9 @@ export const StockProvider = ({ children, searchParams, navigate }) => {
         //gridsize -> state 변수가 아님!!
         //cellMap -> state 변수가 아님!!
         searchParams,
+        isInfraCategoryVisible,
+        setIsInfraCategoryVisible,
+        isInfraCategoryVisibleRef,
       }}
     >
       {children}
