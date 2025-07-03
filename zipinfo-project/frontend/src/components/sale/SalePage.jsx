@@ -44,10 +44,9 @@ const SalePage = () => {
     const billion = Math.floor(num / 100000000); // 억
     const tenThousand = Math.floor((num % 100000000) / 10000); // 만
 
-    if (billion > 0 && tenThousand > 0)
-      return `${billion}억 ${tenThousand}만원`;
+    if (billion > 0 && tenThousand > 0) return `${billion}억 ${tenThousand}`;
     if (billion > 0) return `${billion}억`;
-    if (tenThousand > 0) return `${tenThousand}만원`;
+    if (tenThousand > 0) return `${tenThousand}`;
     return `${num.toLocaleString()}원`; // 1만 미만일 경우
   };
 

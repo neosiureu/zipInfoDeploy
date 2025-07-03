@@ -67,9 +67,23 @@
 	  ) floor ON info.SALE_STOCK_NO = floor.SALE_STOCK_NO
 	
 	  WHERE (#{searchKeyWord} IS NULL OR info.SALE_STOCK_NAME LIKE '%' || #{searchKeyWord} || '%')
-	    AND (#{locationCode} = -1 OR info.REGION_NO = #{locationCode})
-	    AND (#{saleStatus} = -1 OR info.SALE_STATUS = #{saleStatus})
-	    AND (#{saleType} = -1 OR info.SALE_STOCK_FORM = #{saleType})
+	  
+	    <choose>
+	      <when test="locationCode != null and locationCode != -1 and locationCode &lt; 100">
+	        AND info.REGION_NO LIKE CONCAT(#{locationCode}, '%')
+	      </when>
+	      <when test="locationCode != null and locationCode != -1 and locationCode &gt;= 100">
+	        AND info.REGION_NO = #{locationCode}
+	      </when>
+	    </choose>
+	
+	    <if test="saleStatus != null and saleStatus != -1">
+	      AND info.SALE_STATUS = #{saleStatus}
+	    </if>
+	
+	    <if test="saleType != null and saleType != -1">
+	      AND info.SALE_STOCK_FORM = #{saleType}
+	    </if>
 	</select>
 	
 	<!-- 분양 정보 전체 조회 -->
