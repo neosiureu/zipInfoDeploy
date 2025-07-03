@@ -52,8 +52,9 @@ public class SaleController {
 	    System.out.println("=============================");
 	    System.out.println("SW: " + swLat + ", " + swLng);
 	    System.out.println("NE: " + neLat + ", " + neLng);
-	    
+	    System.out.println("locationCode : " + Result.getLocationCode());
 	    // 요청 좌표 안쪽 범위 내부에 있는 모든 매물들을 불러오는 service 동작 
+	    
 	    try {
 	    	List<Sale> stockList = service.getSaleListInRange(Result);
 			return ResponseEntity.status(HttpStatus.OK).body(stockList);
@@ -65,6 +66,18 @@ public class SaleController {
 		}
 	    
 	}
+	
+	@PostMapping("sigunguFullName")
+	private ResponseEntity<?> getSigunguFullName(@RequestBody int code){
+	    try {
+	        String fullName = service.getSigunguFullName(code);
+	        return ResponseEntity.status(HttpStatus.OK).body(fullName);
+	    } catch(Exception e) {
+	        log.error("시군구 명칭 조회중 오류 발생", e);
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("오류 발생: " + e.getMessage());
+	    }
+	}
+
 	
 	/** 분양 정보 전체 조회
      * @return

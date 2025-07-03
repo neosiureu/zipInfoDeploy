@@ -104,11 +104,11 @@ const SalePage = () => {
   useEffect(() => {
     if (!mapInstanceRef.current) return;
 
-    const fetchData = async () => {
-      const bounds = mapInstanceRef.current.getBounds();
-      const sw = bounds.getSouthWest();
-      const ne = bounds.getNorthEast();
+    const bounds = mapInstanceRef.current.getBounds();
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
 
+    const fetchData = async () => {
       try {
         const resp = await axiosAPI.post("/sale/selectSaleMap", {
           coords: {
@@ -117,18 +117,16 @@ const SalePage = () => {
             neLat: ne.getLat(),
             neLng: ne.getLng(),
           },
-          searchKeyWord: searchKeyWord,
+          searchKeyWord,
           locationCode: searchLocationCode,
           saleStatus: searchSaleStatus,
           saleType: searchSaleType,
         });
 
-        if (resp.status === 200) {
-          setStockList(resp.data);
-          updateMarker(resp.data);
-        }
-      } catch (e) {
-        console.error("검색 조건 변경 시 매물 조회 실패:", e);
+        setStockList(resp.data);
+        updateMarker(resp.data);
+      } catch (error) {
+        console.error("검색 조건 변경에 따른 요청 중 오류:", error);
       }
     };
 
@@ -146,6 +144,37 @@ const SalePage = () => {
       const map = new window.kakao.maps.Map(container, options);
       mapInstanceRef.current = map;
 
+      // 지도 생성 직후 첫 API 호출
+      const fetchInitialData = async () => {
+        const bounds = map.getBounds();
+        const sw = bounds.getSouthWest();
+        const ne = bounds.getNorthEast();
+
+        try {
+          const resp = await axiosAPI.post("/sale/selectSaleMap", {
+            coords: {
+              swLat: sw.getLat(),
+              swLng: sw.getLng(),
+              neLat: ne.getLat(),
+              neLng: ne.getLng(),
+            },
+            searchKeyWord: searchKeyWordRef.current || "",
+            locationCode: locationCodeRef.current ?? -1,
+            saleStatus: saleStatusRef.current ?? -1,
+            saleType: saleTypeRef.current ?? -1,
+          });
+
+          setStockList(resp.data);
+          updateMarker(resp.data);
+        } catch (error) {
+          console.error("초기 매물 요청 실패:", error);
+        }
+      };
+
+      // 최초 실행
+      fetchInitialData();
+
+      // idle 이벤트 등록 (기존처럼 유지)
       window.kakao.maps.event.addListener(map, "idle", async () => {
         const bounds = map.getBounds();
         const sw = bounds.getSouthWest();
@@ -159,16 +188,14 @@ const SalePage = () => {
               neLat: ne.getLat(),
               neLng: ne.getLng(),
             },
-            searchKeyWord: searchKeyWordRef.current,
-            locationCode: locationCodeRef.current,
-            saleStatus: saleStatusRef.current,
-            saleType: saleTypeRef.current,
+            searchKeyWord: searchKeyWordRef.current || "",
+            locationCode: locationCodeRef.current ?? -1,
+            saleStatus: saleStatusRef.current ?? -1,
+            saleType: saleTypeRef.current ?? -1,
           });
 
-          if (resp.status === 200) {
-            setStockList(resp.data);
-            updateMarker(resp.data);
-          }
+          setStockList(resp.data);
+          updateMarker(resp.data);
         } catch (error) {
           console.error("매물 요청 실패:", error);
         }
@@ -444,8 +471,8 @@ const SalePage = () => {
                   </div>
                   <div className="sale-address">
                     {item.saleSupplyArea}㎡ |{" "}
-                    {item.saleAddress.length > 12
-                      ? `${item.saleAddress.slice(0, 12)}...`
+                    {item.saleAddress.length > 10
+                      ? `${item.saleAddress.slice(0, 10)}...`
                       : item.saleAddress}
                   </div>
                   <div className="sale-status">{status[item.saleStatus]}</div>

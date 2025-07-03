@@ -581,7 +581,6 @@ const StockPageCopy = () => {
                 ) : (
                   <div />
                 )}
-
               </div>
               <div className="stock-detail-name">{item.stockName}</div>
               <div className="stock-detail-desc">

@@ -24,9 +24,9 @@ import lombok.NoArgsConstructor;
 public class SaleSearchRequest {
 	
 	private Map<String, Double> coords; 
-	private String searchKeyWord ; 	// 검색바 param(필수아님)
-	private Integer locationCode; 	// 검색바 param(필수아님)
+	private String searchKeyWord ; 		// 검색바 param(필수아님)
+	private Integer locationCode; 		// 검색바 param(필수아님)
 	private Integer saleStatus; 		// 검색바 param(필수아님)
-	private Integer saleType;	// 검색바 param(필수아님)
+	private Integer saleType;			// 검색바 param(필수아님)
 	
 }
