@@ -6,7 +6,7 @@ import { useLocation } from "react-router-dom";
 export const MemberContext = createContext();
 
 export const MemberProvider = ({ children }) => {
-  /* 1) 스토리지 ↔ state 동기화 */
+  /* 1) 스토리지와 state 동기화 */
   const [member, setMember] = useState(() => {
     const raw = localStorage.getItem("loginMember");
     return raw && raw !== "undefined" ? JSON.parse(raw) : null;
@@ -35,7 +35,7 @@ export const MemberProvider = ({ children }) => {
     }
   }, [token, member]);
 
-  /* 3) 서버에서 신선한 정보를 한 번만 가져오기 */
+  /* 3) 서버에서 새로운 정보를 한 번만 가져오기 */
   useEffect(() => {
     if (skipFetchNow || !token) return;
     axiosAPI

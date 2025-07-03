@@ -84,14 +84,15 @@ export function AuthProvider({ children }) {
     console.log("현재 로그인된 사용자:", user);
   }, [user]);
 
-  if (loading) {
-    return null;
-  }
+  // if (loading) {
+  //   return null;
+  // }
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        loading,
         setUser,
         handleLogin,
         handleLogout,
