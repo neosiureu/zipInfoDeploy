@@ -67,18 +67,6 @@ public class SaleController {
 	    
 	}
 	
-	@PostMapping("sigunguFullName")
-	private ResponseEntity<?> getSigunguFullName(@RequestBody int code){
-	    try {
-	        String fullName = service.getSigunguFullName(code);
-	        return ResponseEntity.status(HttpStatus.OK).body(fullName);
-	    } catch(Exception e) {
-	        log.error("시군구 명칭 조회중 오류 발생", e);
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("오류 발생: " + e.getMessage());
-	    }
-	}
-
-	
 	/** 분양 정보 전체 조회
      * @return
      */

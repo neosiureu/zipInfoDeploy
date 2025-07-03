@@ -251,9 +251,9 @@ const SearchBar = ({
                   분양상태
                 </option>
                 <option value="-1">전체</option>
-                <option value="분양예정">분양예정</option>
-                <option value="분양중">분양중</option>
-                <option value="분양완료">분양완료</option>
+                <option value="1">분양예정</option>
+                <option value="2">분양중</option>
+                <option value="3">분양완료</option>
               </>
             )}
           </select>
