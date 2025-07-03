@@ -12,6 +12,12 @@ import {
   useParams,
 } from "react-router-dom";
 import { useStockContext } from "./StockContext";
+import pharm from "../../assets/infraCategoryIcon/pharm.svg";
+import bank from "../../assets/infraCategoryIcon/bank.svg";
+import oil from "../../assets/infraCategoryIcon/oil.svg";
+import cafe from "../../assets/infraCategoryIcon/cafe.svg";
+import conv from "../../assets/infraCategoryIcon/conv.svg";
+import school from "../../assets/infraCategoryIcon/school.svg";
 
 const InfraMark = () => {
   const {
@@ -295,7 +301,10 @@ const InfraMark = () => {
               )
             }
           >
-            <span className="category_bg bank"></span>
+            <span
+              className="category_bg bank"
+              style={{ backgroundImage: `url(${bank})` }}
+            ></span>
             은행
           </div>
           <div
@@ -313,7 +322,10 @@ const InfraMark = () => {
               )
             }
           >
-            <span className="category_bg mart"></span>
+            <span
+              className="category_bg mart"
+              style={{ backgroundImage: `url(${school})` }}
+            ></span>
             마트
           </div>
           <div
@@ -331,7 +343,10 @@ const InfraMark = () => {
               )
             }
           >
-            <span className="category_bg pharmacy"></span>
+            <span
+              className="category_bg pharmacy"
+              style={{ backgroundImage: `url(${pharm})` }}
+            ></span>
             약국
           </div>
           <div
@@ -349,7 +364,10 @@ const InfraMark = () => {
               )
             }
           >
-            <span className="category_bg oil"></span>
+            <span
+              className="category_bg oil"
+              style={{ backgroundImage: `url(${oil})` }}
+            ></span>
             주유소
           </div>
           <div
@@ -367,7 +385,10 @@ const InfraMark = () => {
               )
             }
           >
-            <span className="category_bg cafe"></span>
+            <span
+              className="category_bg cafe"
+              style={{ backgroundImage: `url(${cafe})` }}
+            ></span>
             카페
           </div>
           <div
@@ -385,7 +406,10 @@ const InfraMark = () => {
               )
             }
           >
-            <span className="category_bg store"></span>
+            <span
+              className="category_bg store"
+              style={{ backgroundImage: `url(${conv})` }}
+            ></span>
             편의점
           </div>
         </aside>
