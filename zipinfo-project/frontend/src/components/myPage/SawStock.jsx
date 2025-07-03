@@ -42,6 +42,20 @@ export default function MyStock() {
 
   let result = '';
   if (억 > 0) result += `${억}억`;
+  if (만 > 0) result += `${result ? ' ' : ''}${manWithComma(만)}`;
+
+  return result || '0';
+  }
+
+  function monthPay(number) {
+  if (!number || isNaN(number)) return '';
+
+  const num = Number(number);
+  const 억 = Math.floor(num / 100000000);
+  const 만 = Math.floor((num % 100000000) / 10000);
+
+  let result = '';
+  if (억 > 0) result += `${억}억`;
   if (만 > 0) result += `${result ? ' ' : ''}${manWithComma(만)}만`;
 
   return result || '0';
@@ -136,7 +150,7 @@ export default function MyStock() {
                   <span>
                     {property.currentFloor}/{property.floorTotalCount}층 | {property.supplyArea}㎡ | 관리비{' '}
                     {property.stockManageFee !== 0
-                      ? `${formatToKoreanCurrency(property.stockManageFee)}원`
+                      ? `${monthPay(property.stockManageFee)}원`
                       : '없음'}
                   </span>
                 </div>
