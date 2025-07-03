@@ -40,6 +40,9 @@ const InfraMark = () => {
     //gridsize -> state 변수가 아님!!
     //cellMap -> state 변수가 아님!!
     searchParams,
+    isInfraCategoryVisible, // InfraMark.jsx에서 StockContext로 옮김
+    setIsInfraCategoryVisible, // InfraMark.jsx에서 StockContext로 옮김
+    isInfraCategoryVisibleRef, // InfraMark.jsx에서 StockContext로 옮김
   } = useStockContext();
 
   const [mapReady, setMapReady] = useState(false); // 실거래가 페이지상의 KakaoMap이
@@ -58,8 +61,8 @@ const InfraMark = () => {
     };
     waitForMap();
   }, []);
-  const [isCategoryVisible, setIsCategoryVisible] = useState(false);
-  const isCategoryVisibleRef = useRef(isCategoryVisible);
+  //const [isInfraCategoryVisible, setIsInfraCategoryVisible] = useState(false);
+  //const isInfraCategoryVisibleRef = useRef(isInfraCategoryVisible);
   const CategoryEnum = {
     NONE: 0, //선택 없음
     BANK: 1 << 0, //은행
@@ -90,8 +93,8 @@ const InfraMark = () => {
     infraMarkersRef.current.forEach((marker) => marker.setMap(null)); // 이전에 itemMarkersRef에 저장해둔 markers 하나하나 취소
     infraMarkersRef.current = []; // infraMarkersRef 초기화
 
-    if (clickedCategory === CategoryEnum.NONE || !isCategoryVisible)
-      return; // 카테고리 선택이 없거나 줌 레벨이 3 이상이면 모든 마커들을 지운다.
+    if (clickedCategory === CategoryEnum.NONE || !isInfraCategoryVisible)
+      return; // 카테고리 선택이 없거나 주변시설 보기 버튼을 누르지 않았다면 여기서 중단
     else {
       Object.entries(CATEGORY_CODE_MAP).forEach(([bit, code]) => {
         const selected = parseInt(bit, 10); // 문자열을 숫자로 변환
@@ -108,7 +111,7 @@ const InfraMark = () => {
       });
       //itemMarker.setMap(mapInstanceRef.current);
     }
-  }, [clickedCategory, isCategoryVisible]);
+  }, [clickedCategory, isInfraCategoryVisible]);
 
   const placeRef = useRef(null); // 카카오 지도 api에서 제공하는 place객체를 여기에 저장
 
@@ -142,13 +145,13 @@ const InfraMark = () => {
   //clickedCategoryRef, isCategoryVisible Ref를 업데이트해주는 useEffect
   useEffect(() => {
     clickedCategoryRef.current = clickedCategory;
-    isCategoryVisibleRef.current = isCategoryVisible;
-  }, [clickedCategory, isCategoryVisible]);
+    isInfraCategoryVisibleRef.current = isInfraCategoryVisible;
+  }, [clickedCategory, isInfraCategoryVisible]);
 
   /*kakaoMap addEventListener로 맵을 옮길때, 맵을 zoom 할때 동작들을 설정*/
   useEffect(() => {
     if (mapReady) {
-      window.kakao.maps.event.addListener(
+      /*window.kakao.maps.event.addListener(
         mapInstanceRef.current,
         "zoom_changed",
         () => {
@@ -161,7 +164,7 @@ const InfraMark = () => {
             setIsCategoryVisible(false); // 지도의 zoom 레벨이 3 이상일때 주변시설 표시기능 사용안함
           }
         }
-      );
+      );*/
       window.kakao.maps.event.addListener(
         mapInstanceRef.current,
         "idle",
@@ -248,10 +251,6 @@ const InfraMark = () => {
 
         itemMarker.setMap(mapInstanceRef.current);
       });
-      //다음 Pagination 불러오기
-      if (pagination.hasNextPage()) {
-        pagination.nextPage();
-      }
     };
 
     if (status === kakao.maps.services.Status.OK) {
@@ -267,7 +266,7 @@ const InfraMark = () => {
 
   return (
     <>
-      {isCategoryVisible ? (
+      {isInfraCategoryVisible ? (
         <aside id="category">
           <div
             id="None"
@@ -391,6 +390,7 @@ const InfraMark = () => {
           </div>
         </aside>
       ) : (
+        /*(
         <aside id="category" style={{ opacity: 0.5 }}>
           <p style={{ fontSize: "10px" }}>
             지도를 줌인해서
@@ -398,6 +398,7 @@ const InfraMark = () => {
             주변시설 확인
           </p>
         </aside>
+      )*/ <></>
       )}
     </>
   );

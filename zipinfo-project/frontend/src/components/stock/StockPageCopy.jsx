@@ -44,6 +44,9 @@ const StockPageCopy = () => {
     //gridsize -> state 변수가 아님!!
     //cellMap -> state 변수가 아님!!
     searchParams,
+    isInfraCategoryVisible, // InfraMark.jsx에서 StockContext로 옮김
+    setIsInfraCategoryVisible, // InfraMark.jsx에서 StockContext로 옮김
+    isInfraCategoryVisibleRef, // InfraMark.jsx에서 StockContext로 옮김
   } = useStockContext();
 
   /*******************마커 겹침 처리기능 관련 변수***************** */
@@ -482,6 +485,7 @@ const StockPageCopy = () => {
             <div className="sale-section-divider" />
 
             {/* Block 1: 매매/가격/찜 */}
+
             <div className="stock-detail-info-block">
               <div className="stock-detail-header">
                 <span className="stock-detail-type">
@@ -511,7 +515,21 @@ const StockPageCopy = () => {
                 </button>
               </div>
               <div className="stock-detail-name">{item.stockName}</div>
-              <div className="stock-detail-desc">{item.stockInfo}</div>
+              <div className="stock-detail-desc">
+                {item.stockInfo}
+                <button
+                  style={{ margin: "0px 0px 0px 50px" }}
+                  onClick={() => {
+                    var coord = new kakao.maps.LatLng(item.lat, item.lng);
+                    mapInstanceRef.current.setLevel(4); // 4레벨로 줌 후
+                    mapInstanceRef.current.panTo(coord); // 이동 애니메이션 설정
+
+                    setIsInfraCategoryVisible(!isInfraCategoryVisible);
+                  }}
+                >
+                  주변시설 보기
+                </button>
+              </div>
             </div>
 
             <div className="sale-section-divider" />
