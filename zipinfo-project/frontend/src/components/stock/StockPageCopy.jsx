@@ -426,10 +426,16 @@ const StockPageCopy = () => {
       const customOverlay = document.createElement("div");
       customOverlay.innerHTML = content;
 
-      // 여기서 직접 이벤트 바인딩
+      // 여기서 직접 이벤트 바인딩(클릭한번)
       customOverlay
         .querySelector(".custom-overlay")
         .addEventListener("click", () => {
+          handleItemClick(item);
+        });
+      // 여기서 직접 이벤트 바인딩(더블클릭)
+      customOverlay
+        .querySelector(".custom-overlay")
+        .addEventListener("dblclick", () => {
           handleItemClick(item);
         });
 
@@ -498,6 +504,11 @@ const StockPageCopy = () => {
 
     navigate(`/stock/${item.stockNo}`);
     console.log("stockNo:", item.stockNo);
+  };
+  const handleItemdblClick = async (item) => {
+    var coord = new kakao.maps.LatLng(item.lat, item.lng);
+    //mapInstanceRef.current.setLevel(4); // 4레벨로 줌 후
+    mapInstanceRef.current.panTo(coord); // 이동 애니메이션 설정
   };
   const closeStockDetail = () => {
     setIsAsideVisible(false);
