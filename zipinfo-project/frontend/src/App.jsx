@@ -14,6 +14,7 @@ import "./App.css";
 //import StockPageCopy from "./components/stock/StockPageCopy"; // ContextProvider 생성하는 방향으로 리팩토링 중!
 //import { StockProvider } from "./components/stock/StockContext";
 import StockProviderWrapper from "./components/stock/StockProviderWrapper";
+import SaleProviderWrapper from "./components/sale/SaleProviderWrapper";
 
 import MyInfo from "./components/myPage/MyInfo";
 import MyStock from "./components/myPage/MyStock";
@@ -118,17 +119,18 @@ function GlobalWebSocketListener() {
           }
         );
       });
-      client.subscribe(`/topic/region/${member.memberLocation}`, (message)=> {
+      client.subscribe(`/topic/region/${member.memberLocation}`, (message) => {
         toast.info(
           <div>
             <strong>관심 지역에 새 글이 등록되었습니다</strong>
             <div>{message.body}</div>
-          </div>,{
-          position: "bottom-right",
-          autoClose: 10000,
-          className: "custom-toast",
-          icon:false,
-        }
+          </div>,
+          {
+            position: "bottom-right",
+            autoClose: 10000,
+            className: "custom-toast",
+            icon: false,
+          }
         );
       });
     });
@@ -162,7 +164,7 @@ function App() {
             {/* 공통 사용자 레이아웃 */}
             <Route path="/" element={<Layout />}>
               <Route index element={<Main />} />
-              <Route path="sale" element={<SalePage />} />
+              <Route path="sale" element={<SaleProviderWrapper />} />
               <Route path="stock" element={<StockProviderWrapper />} />
 
               <Route path="login" element={<MemberLogin />} />
@@ -279,7 +281,10 @@ function App() {
               <Route path="stock/:stockNo" element={<StockProviderWrapper />} />
 
               {/* 분양페이지 */}
-              <Route path="/sale/:saleStockNo" element={<SalePage />} />
+              <Route
+                path="/sale/:saleStockNo"
+                element={<SaleProviderWrapper />}
+              />
 
               {/* 공지사항 (Announce) */}
               <Route path="announce" element={<Announce />} />
@@ -437,7 +442,7 @@ function App() {
             <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />
             <Route path="/oauth2/naver/redirect" element={<NaverCallback />} />
           </Routes>
-          <ToastContainer  position="top-center" icon={false} autoClose={3000}  />
+          <ToastContainer position="top-center" icon={false} autoClose={3000} />
         </MemberProvider>
       </BrowserRouter>
     </AuthProvider>

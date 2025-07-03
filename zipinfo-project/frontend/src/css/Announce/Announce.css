@@ -141,13 +141,13 @@
 
 .an-cell-title {
   flex: 1;
-  padding-left: 0;
-  justify-content: center;
+  padding-left: 48px;
+  justify-content: flex-start;
   cursor: pointer;
   transition: color 0.2s;
   display: flex;
   align-items: center;
-  text-align: center;
+  text-align: left;
 }
 
 .an-cell-title:hover {
