@@ -2,36 +2,39 @@ import { useEffect, useRef, useState } from "react";
 import { axiosAPI } from "../../api/axiosApi";
 import "../../css/sale/salePage.css";
 import SearchBar from "../common/SearchBar";
-import saleThumbnail from "../../assets/sale-page-thumbnail.svg"; // 썸네일 이미지 추가
-import floor from "../../assets/floor.svg"; // 평면도 이미지 추가
-import warning from "../../assets/circle_warning.svg"; // 미검색 결과 아이콘
+import warning from "../../assets/circle_warning.svg";
 
 import { useNavigate, useParams } from "react-router-dom";
+import { useSaleContext } from "./SaleContext"; // Context 사용
 
 const SalePage = () => {
-  // URL에서 매물 번호 받기
+  const {
+    mapRef,
+    mapInstanceRef,
+    itemMarkersRef,
+    isAsideVisible,
+    setIsAsideVisible,
+    stockList,
+    setStockList,
+    clickedStockItem,
+    setClickedStockItem,
+    searchKeyWord,
+    setSearchKeyWord,
+    searchKeyWordRef,
+    searchLocationCode,
+    setSearchLocationCode,
+    locationCodeRef,
+    searchSaleStatus,
+    setSearchSaleStatus,
+    saleStatusRef,
+    searchSaleType,
+    setSearchSaleType,
+    saleTypeRef,
+    navigate,
+    searchParams,
+  } = useSaleContext();
+
   const { saleStockNo } = useParams();
-
-  // 카카오 API 세팅
-  const mapRef = useRef(null);
-  const mapInstanceRef = useRef(null); //생성한 map instance를 저장 -- const map = new window.kakao.maps.Map(container, options);
-  const itemMarkersRef = useRef([]); // 지도내 표시된 마커 배열 저장
-
-  // 사이드 바 관련 상태
-  const [isAsideVisible, setIsAsideVisible] = useState(false); // 사이드 바 숨김 여부 저장
-
-  // 매물 상태 변수
-  const [stockList, setStockList] = useState([]); // 서버에서 받아오는 매물 리스트
-  const [clickedStockItem, setClickedStockItem] = useState(null); // 자세히 보기창에 띄울 매물
-
-  // SearchBar에 전달할 상태 추가
-  const [searchKeyWord, setSearchKeyWord] = useState("");
-  const [searchLocationCode, setSearchLocationCode] = useState(-1);
-  const [searchSaleStatus, setSaleStatus] = useState(-1);
-  const [searchSaleType, setSearchSaleType] = useState(-1);
-
-  // 상세 디테일 페이지를 URL로 연결할 변수
-  const navigate = useNavigate();
 
   // 분양가 표기 함수
   const formatPrice = (price) => {
@@ -75,12 +78,70 @@ const SalePage = () => {
     3: "분양완료",
   };
 
+  // 1. 쿼리스트링 → 검색 조건 초기화
+  useEffect(() => {
+    const status = Number(searchParams.get("status") ?? -1);
+    const type = Number(searchParams.get("type") ?? -1);
+    const region = Number(
+      searchParams.get("sigungu") || searchParams.get("sido") || -1
+    );
+    const keyword = searchParams.get("keyWord") || "";
+
+    setSearchSaleStatus(status);
+    setSearchSaleType(type);
+    setSearchLocationCode(region);
+    setSearchKeyWord(keyword);
+  }, [searchParams]);
+
+  // 2. 검색 조건 state → ref 최신화
+  useEffect(() => {
+    searchKeyWordRef.current = searchKeyWord;
+    locationCodeRef.current = searchLocationCode;
+    saleStatusRef.current = searchSaleStatus;
+    saleTypeRef.current = searchSaleType;
+  }, [searchKeyWord, searchLocationCode, searchSaleStatus, searchSaleType]);
+
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+
+    const fetchData = async () => {
+      const bounds = mapInstanceRef.current.getBounds();
+      const sw = bounds.getSouthWest();
+      const ne = bounds.getNorthEast();
+
+      try {
+        const resp = await axiosAPI.post("/sale/selectSaleMap", {
+          coords: {
+            swLat: sw.getLat(),
+            swLng: sw.getLng(),
+            neLat: ne.getLat(),
+            neLng: ne.getLng(),
+          },
+          searchKeyWord: searchKeyWord,
+          locationCode: searchLocationCode,
+          saleStatus: searchSaleStatus,
+          saleType: searchSaleType,
+        });
+
+        if (resp.status === 200) {
+          setStockList(resp.data);
+          updateMarker(resp.data);
+        }
+      } catch (e) {
+        console.error("검색 조건 변경 시 매물 조회 실패:", e);
+      }
+    };
+
+    fetchData();
+  }, [searchKeyWord, searchLocationCode, searchSaleStatus, searchSaleType]);
+
+  // 3. Kakao Map 초기화 및 idle 이벤트로 API 요청
   useEffect(() => {
     if (window.kakao && window.kakao.maps) {
       const container = mapRef.current;
       const options = {
-        center: new window.kakao.maps.LatLng(37.567937, 126.983001), // KH종로지원 대략적인 위도, 경도
-        level: 7, // 지도의 확대 레벨
+        center: new window.kakao.maps.LatLng(37.567937, 126.983001),
+        level: 7,
       };
       const map = new window.kakao.maps.Map(container, options);
       mapInstanceRef.current = map;
@@ -98,24 +159,24 @@ const SalePage = () => {
               neLat: ne.getLat(),
               neLng: ne.getLng(),
             },
-            searchKeyWord: searchKeyWord || "", //keyword ||
-            locationCode: searchLocationCode ?? -1, // -1 : 서버측에서 무시하는 value selectedLocation ||
-            saleStatus: searchSaleStatus ?? -1, // -1 : 서버측에서 무시하는 valueselectedType ||
-            saleType: searchSaleType ?? -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
+            searchKeyWord: searchKeyWordRef.current,
+            locationCode: locationCodeRef.current,
+            saleStatus: saleStatusRef.current,
+            saleType: saleTypeRef.current,
           });
+
           if (resp.status === 200) {
             setStockList(resp.data);
-
-            updateMarker();
+            updateMarker(resp.data);
           }
         } catch (error) {
-          console.log("매물 items 조회 중 error 발생 : ", error);
+          console.error("매물 요청 실패:", error);
         }
       });
     }
-  }, []);
+  }, [searchParams]);
 
-  // useEffect : URL에 매물 번호가 있을 경우 자동 상세 정보 열기
+  // 4. URL에 매물 번호가 있을 경우 상세 정보 표시
   useEffect(() => {
     const fetchDetail = async () => {
       try {
@@ -123,31 +184,26 @@ const SalePage = () => {
           params: { saleStockNo },
         });
         if (res.status === 200) {
-          const data = res.data;
-          setClickedStockItem(data);
+          setClickedStockItem(res.data);
           setIsAsideVisible(true);
 
-          // 지도 중심 이동
           const map = mapInstanceRef.current;
-          if (map && data.lat && data.lng) {
-            const offsetLng = -0.07; // ← 이동할 정도 (조절 가능)
+          if (map && res.data.lat && res.data.lng) {
+            const offsetLng = -0.07;
             const movedLatLng = new window.kakao.maps.LatLng(
-              data.lat,
-              data.lng - offsetLng
+              res.data.lat,
+              res.data.lng + offsetLng
             );
             map.panTo(movedLatLng);
-
-            updateMarker([data]);
+            updateMarker([res.data]);
           }
         }
-      } catch (error) {
-        console.error("상세 매물 조회 실패:", error);
+      } catch (e) {
+        console.error("상세 매물 조회 실패:", e);
       }
     };
 
-    if (saleStockNo) {
-      fetchDetail(); // URL에 매물번호 있으면 API 호출로 불러옴
-    }
+    if (saleStockNo) fetchDetail();
   }, [saleStockNo]);
 
   useEffect(() => {
@@ -155,59 +211,38 @@ const SalePage = () => {
   }, [stockList]); // stockList(맨 왼쪽에 있는 매물 Item들을 저장하는 state변수), searchLocationCode(검색창SearchBox에서 선택한 지역을 저장하는 state변수)
 
   // updateMarker : 요청을 보낼때마다 지도에 표시되는 마커들을 새로 세팅하는 함수
+  // 5. 마커 렌더링 함수
   const updateMarker = (list = stockList) => {
     const map = mapInstanceRef.current;
-
-    // 좌표 문자열 배열로 변환하여 비교
-    const existingCoords = itemMarkersRef.current.map((m) =>
-      m.getPosition().toString()
-    );
-    const newCoords = list.map((item) =>
-      new window.kakao.maps.LatLng(item.lat, item.lng).toString()
-    );
-
-    const needUpdate = existingCoords.join(",") !== newCoords.join(",");
-    if (!needUpdate) return;
+    if (!map) return;
 
     // 기존 마커 제거
     itemMarkersRef.current.forEach((marker) => marker.setMap(null));
     itemMarkersRef.current = [];
 
-    // 새 마커 생성
     list.forEach((item) => {
       const position = new window.kakao.maps.LatLng(item.lat, item.lng);
-      const content = `
-      <div class="custom-overlay">
+      const div = document.createElement("div");
+      div.className = "custom-overlay";
+      div.innerHTML = `
         <div class="area">${item.saleSupplyArea}㎡</div>
         <div class="label">분양가 <strong>${formatPrice(
           item.salePrice
         )}</strong></div>
-      </div>
-    `;
-
-      const overlayDiv = document.createElement("div");
-      overlayDiv.innerHTML = `
-        <div class="custom-overlay">
-          <div class="area">${item.saleSupplyArea}㎡</div>
-          <div class="label">분양가 <strong>${formatPrice(
-            item.salePrice
-          )}</strong></div>
-        </div>
       `;
-
-      overlayDiv.addEventListener("click", () => {
-        setIsAsideVisible(true);
+      div.addEventListener("click", () => {
         setClickedStockItem(item);
-        navigate(`/sale/${item.saleStockNo}`); // ← 추가
+        setIsAsideVisible(true);
+        navigate(`/sale/${item.saleStockNo}`);
       });
 
-      const customOverlay = new window.kakao.maps.CustomOverlay({
+      const overlay = new window.kakao.maps.CustomOverlay({
         position,
-        content: overlayDiv,
+        content: div,
         yAnchor: 1,
       });
-      customOverlay.setMap(map);
-      itemMarkersRef.current.push(customOverlay);
+      overlay.setMap(map);
+      itemMarkersRef.current.push(overlay);
     });
   };
 
@@ -217,7 +252,7 @@ const SalePage = () => {
     navigate(`/sale/${item.saleStockNo}`);
   };
 
-  const closeStockDetail = () => {
+  const closeDetail = () => {
     setIsAsideVisible(false);
     setClickedStockItem(null);
     navigate("/sale", { replace: true });
@@ -426,7 +461,6 @@ const SalePage = () => {
 
   return (
     <>
-      {/* 오류 수정: 필요한 함수 props를 SearchBar에 전달 */}
       <SearchBar
         showSearchType={false}
         searchKeyWord={searchKeyWord}
@@ -434,21 +468,22 @@ const SalePage = () => {
         searchLocationCode={searchLocationCode}
         setSearchLocationCode={setSearchLocationCode}
         searchStockForm={searchSaleStatus}
-        setSearchStockForm={setSaleStatus}
+        setSearchStockForm={setSearchSaleStatus}
         searchStockType={searchSaleType}
         setSearchStockType={setSearchSaleType}
       />
+
       <div className="container">
         <aside className="sale-side-panel">
           <StockList stockList={stockList} />
         </aside>
 
-        {isAsideVisible && (
+        {isAsideVisible && clickedStockItem && (
           <>
             <aside className="sale-side-panel detail-panel">
               <StockItemDetail item={clickedStockItem} />
             </aside>
-            <button className="sale-close-button" onClick={closeStockDetail}>
+            <button className="sale-close-button" onClick={closeDetail}>
               ✕
             </button>
           </>

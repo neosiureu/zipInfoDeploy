@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
 import logo from "../../assets/logo.svg";
 import "../../css/common/Header.css";
@@ -13,8 +13,6 @@ const naverLogout = () => {
       iframe.style.display = "none";
       iframe.src = "https://nid.naver.com/nidlogin.logout";
       document.body.appendChild(iframe);
-
-      // 3초 후 오류로 발생하는 iframe 제거 및 완료 처리
       setTimeout(() => {
         if (document.body.contains(iframe)) {
           document.body.removeChild(iframe);
@@ -23,7 +21,7 @@ const naverLogout = () => {
       }, 3000);
     } catch (error) {
       console.error("네이버 로그아웃 처리 중 오류:", error);
-      resolve(); // 에러가 발생해도 계속 진행
+      resolve();
     }
   });
 };
@@ -31,25 +29,20 @@ const naverLogout = () => {
 const Header = () => {
   const { member, setMember } = useContext(MemberContext);
   const navigate = useNavigate();
+  const location = useLocation(); // 현재 경로 확인
 
-  // 로그아웃 => 로컬스토리지 초기화
   const handleLogout = async () => {
-    // 1) 백엔드 세션 = 제이세션 아이디 무효화
     try {
       if (member?.memberLogin === "N") await naverLogout();
-      // Spring 컨트롤러에 만든 로그아웃 엔드포인트 (예: /member/logout)
       await axiosAPI.post("/member/logout");
       localStorage.removeItem("com.naver.nid.access_token");
       localStorage.removeItem("com.naver.nid.oauth.state_token");
     } catch (_) {}
-    // 2) 카카오 SDK 로그아웃
     if (window.Kakao && window.Kakao.Auth) {
       window.Kakao.Auth.logout(() => {
         console.log("Kakao SDK 로그아웃 완료");
       });
     }
-
-    // 3) 스토리지 초기화
     setMember(null);
     localStorage.removeItem("loginMember");
     localStorage.removeItem("com.naver.nid.access_token");
@@ -62,7 +55,6 @@ const Header = () => {
       toast.error("로그인 후 이용하시길 바랍니다.");
       return;
     }
-
     navigate("/myPage/myStock");
   };
 
@@ -75,33 +67,51 @@ const Header = () => {
           </Link>
         </span>
         <ul className="Header-menu">
-          <li>
+          <li
+            className={location.pathname.startsWith("/stock") ? "active" : ""}
+          >
             <Link to="/stock">실거래가</Link>
           </li>
-          <li>
+          <li className={location.pathname.startsWith("/sale") ? "active" : ""}>
             <Link to="/sale">분양</Link>
           </li>
-          <li>
+          <li
+            className={
+              location.pathname.startsWith("/announce") ? "active" : ""
+            }
+          >
             <Link to="/announce">공지사항</Link>
           </li>
-          <li>
+          <li
+            className={
+              location.pathname.startsWith("/neighborhoodBoard") ? "active" : ""
+            }
+          >
             <Link to="/neighborhoodBoard">우리동네</Link>
           </li>
-          <li onClick={handleNavMyStock}>관심목록</li>
-          {member?.memberAuth == 0 ? (
-            <>
-              <li>
-                <Link to="/gonggong">공공데이터 샘플 삽입</Link>
-              </li>
-            </>
-          ) : null}
+          <li
+            className={
+              location.pathname.startsWith("/myPage/myStock") ? "active" : ""
+            }
+          >
+            <Link to="/myPage/myStock">관심목록</Link>
+          </li>
+          {member?.memberAuth === 0 && (
+            <li
+              className={
+                location.pathname.startsWith("/gonggong") ? "active" : ""
+              }
+            >
+              <Link to="/gonggong">공공데이터 샘플 삽입</Link>
+            </li>
+          )}
         </ul>
       </div>
 
       <div className="Header-navbar-right">
         <ul className="Header-member">
           {member ? (
-            member.memberAuth == 0 ? (
+            member.memberAuth === 0 ? (
               <>
                 <li id="admin-page" className="Header-admin-page">
                   <Link to="/admin">관리자 페이지</Link>

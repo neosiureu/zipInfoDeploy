@@ -245,9 +245,10 @@ const SearchBar = ({
               </>
             ) : (
               <>
-                <option value="" disabled hidden>
-                  분양전체
+                <option value="-1" disabled hidden>
+                  분양상태
                 </option>
+                <option value="-1">전체</option>
                 <option value="분양예정">분양예정</option>
                 <option value="분양중">분양중</option>
                 <option value="분양완료">분양완료</option>

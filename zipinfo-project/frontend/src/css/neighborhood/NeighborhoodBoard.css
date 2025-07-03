@@ -74,20 +74,20 @@
   border-collapse: collapse;
   margin-bottom: 20px;
   background-color: white;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #dbdbdb;
 }
 
 /* 테이블 헤더 */
 .nb-header {
-  background-color: #f8f9fa;
-  border-bottom: 2px solid #e0e0e0;
+  background-color: #f7f7fb;
+  border-bottom: 1px solid #dbdbdb;
 }
 
 .nb-header th {
-  padding: 16px 12px;
+  padding: 12px 8px;
   font-size: 14px;
   font-weight: 600;
-  color: #666;
+  color: #999;
   text-align: center;
 }
 
@@ -139,9 +139,8 @@
 
 /* 테이블 셀 */
 .nb-row td {
-  padding: 14px 12px;
+  padding: 12px 8px;
   font-size: 14px;
-  color: #333;
   text-align: center;
   vertical-align: middle;
 }
@@ -152,36 +151,31 @@
 }
 
 .nb-cell-subject {
-  color: #666;
-  font-size: 13px;
-  font-weight: 500;
+  color: #999;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .nb-cell-title {
   text-align: left !important;
-  color: #333;
+  color: #111;
   cursor: pointer;
   padding-left: 16px !important;
 }
 
-.nb-cell-title:hover {
-  color: #007bff;
-  text-decoration: underline;
-}
-
 .nb-cell-area {
-  color: #666;
-  font-size: 13px;
+  color: #999;
+  font-size: 14px;
 }
 
 .nb-cell-author {
-  color: #666;
-  font-size: 13px;
+  color: #999;
+  font-size: 14px;
 }
 
 .nb-cell-likes {
-  color: #666;
-  font-size: 13px;
+  color: #999;
+  font-size: 14px;
 }
 
 .nb-cell-date {
@@ -191,7 +185,7 @@
 
 .nb-cell-views {
   color: #999;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* 페이지네이션 */
