@@ -217,8 +217,10 @@ const SearchBar = ({
             ) : (
               <>
                 <option value={-1}>전체</option>
-                {sigunguList?.map((sigungu, index) => (
-                  <option value={sigungu.townNo}>{sigungu.townName}</option>
+                {sigunguList?.map((sigungu) => (
+                  <option key={sigungu.townNo} value={sigungu.townNo}>
+                    {sigungu.townName}
+                  </option>
                 ))}
               </>
             )}
