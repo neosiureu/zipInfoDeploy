@@ -103,7 +103,7 @@
 .tableHeader,
 .tableRow {
   display: grid;
-  grid-template-columns: 0.5fr 2fr 1.5fr 1.5fr 1.5fr 0.5fr;
+  grid-template-columns: 1fr 1fr 1.5fr 1.5fr 1.5fr 0.5fr;
   gap: 1rem;
   align-items: center;
 }
@@ -124,8 +124,9 @@
 }
 /* 제목 */
 .tableHeader > div:nth-child(2) {
-  text-align: right;
-  padding-right: 10px;
+  text-align: left;
+  padding-left: 10px;
+  padding-right: 0;
 }
 /* 작성자 */
 .tableHeader > div:nth-child(3) {
@@ -136,11 +137,15 @@
 .tableHeader > div:nth-child(4) {
   text-align: right;
   padding-right: 10px;
+  line-height: 1.5rem;
+  box-sizing: border-box;
 }
 /* 답변 */
 .tableHeader > div:nth-child(5) {
   text-align: right;
   padding-right: 10px;
+  line-height: 1.5rem;
+  box-sizing: border-box;
 }
 /* 상세보기 (마지막 컬럼) */
 .tableHeader > div:nth-child(6) {
@@ -158,30 +163,32 @@
   background-color: #f9fafb;
 }
 
-/* 아래 행 각 컬럼 우측 정렬 */
-.tableRow > div:nth-child(2),
-.tableRow > div:nth-child(3),
-.tableRow > div:nth-child(4),
-.tableRow > div:nth-child(5) {
+/* 아래 행 각 컬럼 정렬 및 패딩 */
+.tableRow > div:nth-child(2) {
+  text-align: left;
+  padding-left: 10px;
+  padding-right: 0;
+}
+
+.tableRow > div:nth-child(3) {
   text-align: right;
   padding-right: 10px;
 }
 
-.helpMessagesNumber {
-  font-weight: 500;
-  color: #111827;
-}
-
-.helpMessagesContent {
-  color: #374151;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.tableRow > div:nth-child(4),
+.tableRow > div:nth-child(5) {
+  padding-right: 1px; /* 기존 10px에서 줄였음 */
+  padding-left: 1px; /* 새로 추가 */
+  text-align: right;
+  line-height: 1.5rem;
+  box-sizing: border-box;
 }
 
 .helpMessagesDate {
   font-size: 0.875rem;
   color: #6b7280;
+  margin: 0;
+  line-height: 1.5rem;
 }
 
 .statusBadge {
@@ -191,6 +198,7 @@
   font-weight: 500;
   display: inline-block;
   user-select: none;
+  line-height: 1;
 }
 
 .statusComplete {
@@ -206,6 +214,18 @@
 .statusWaiting {
   background-color: #e0e7ff; /* indigo-100 */
   color: #4338ca; /* indigo-700 */
+}
+
+.helpMessagesNumber {
+  font-weight: 500;
+  color: #111827;
+}
+
+.helpMessagesContent {
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .actionButton {

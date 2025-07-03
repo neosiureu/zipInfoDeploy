@@ -13,30 +13,19 @@
 }
 
 .toast-announce-title{
-  font-size: 20px;
+  font-weight: 600;
+  font-size: 14px;
   margin-bottom: 10px;
   color: #999999;
 }
 
-.toast-announce-con{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .toast-announce-body{
-  font-size: 15px;
+  font-weight: 400;
+  font-size: 14px;
   margin-right: 10px;
   color: #767676;
 }
 
-.toast-announce-button{
-  width: 80px;
-  height: 40px;
-  background-color: black;
-  color: white;
-  border-radius: 10px;
-}
 /* --------------------------------------------------------------------- */
 
 .Toastify__toast--success {

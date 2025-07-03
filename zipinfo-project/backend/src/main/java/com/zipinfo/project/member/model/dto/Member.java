@@ -1,5 +1,12 @@
 package com.zipinfo.project.member.model.dto;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 
-public class Member {
+public class Member implements UserDetails {
 	private int memberNo;
 	private String memberEmail;
 	private String memberPw;
@@ -38,6 +45,30 @@ public class Member {
     private String companyPostcode;
     private String companyAddress;
     private String companyDetailAddress;
+    
+    public String getRole() {
+        return switch (this.memberAuth) {
+            case 0 -> "ROLE_ADMIN";
+            case 1 -> "ROLE_USER";
+            case 2 -> "ROLE_WAITINGBROKER";
+            case 3 -> "ROLE_BROKER";
+            default -> "ROLE_USER";
+        };
+    }
+    
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+	    return List.of(new SimpleGrantedAuthority(this.getRole()));
+	}
+	
+	@Override
+	public String getPassword() {
+		return this.memberPw;
+	}
+	@Override
+	public String getUsername() {
+		return this.memberEmail;
+	}
     
     
 

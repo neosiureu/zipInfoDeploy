@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import com.zipinfo.project.announce.model.service.EditAnnounceService;
 import com.zipinfo.project.editneighborhood.model.service.EditneighborhoodService;
@@ -55,8 +56,10 @@ public class EditAnnounceController {
     @PostMapping("/write")
     public int announceInsert(
         @RequestBody Announce announce,
-        @SessionAttribute("loginMember") Member loginMember
+        @AuthenticationPrincipal Member loginMember
     ) throws Exception {
+    	
+    	System.out.println("응애" + loginMember.getMemberAuth());
 
         announce.setMemberNo(loginMember.getMemberNo());
 

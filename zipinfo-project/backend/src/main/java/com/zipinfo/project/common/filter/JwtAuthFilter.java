@@ -58,10 +58,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	                    c.get("loc") == null ? 0 : ((Number)c.get("loc")).intValue()
 	            );
 	            m.setMemberNickname( c.get("nick", String.class) );
+	            
+	            String role = switch (m.getMemberAuth()) {
+	            case 0 -> "ROLE_ADMIN";
+	            case 1 -> "ROLE_USER";
+	            case 2 -> "ROLE_WATIINGBROKER";
+	            case 3 -> "ROLE_BROKER";
+	            default -> "ROLE_USER";
+	            };
 
 	            Authentication auth =
 	                new UsernamePasswordAuthenticationToken(
-	                        m, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+	                        m, null, List.of(new SimpleGrantedAuthority(role)));
 
 	            SecurityContextHolder.getContext().setAuthentication(auth);
 	        }
