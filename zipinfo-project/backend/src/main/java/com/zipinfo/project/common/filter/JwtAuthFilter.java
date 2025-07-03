@@ -30,30 +30,43 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	@Autowired
     private final JwtTokenProvider provider;
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest req,
-                                    HttpServletResponse res,
-                                    FilterChain chain)
-                                    throws ServletException, IOException {
+	@Override
+	protected void doFilterInternal(HttpServletRequest req,
+	                                HttpServletResponse res,
+	                                FilterChain chain) throws ServletException, IOException {
 
-        String bearer = req.getHeader("Authorization");
-        if (bearer != null && bearer.startsWith("Bearer ")) {
-            String token = bearer.substring(7);
-            if (provider.validate(token)) {
-                Claims c = provider.parse(token);          
-                Member loginMember = new Member();         
-                loginMember.setMemberNo(      Integer.parseInt(c.getSubject()));
-                loginMember.setMemberEmail(   c.get("email",   String.class));
-                loginMember.setMemberAuth(    c.get("auth",    Integer.class));
-                loginMember.setMemberLocation(c.get("loc",     Integer.class));
-                loginMember.setMemberNickname(c.get("nick",    String.class));
-                loginMember.setMemberLogin(   c.get("loginTp", String.class));
-                Authentication auth =  new UsernamePasswordAuthenticationToken( loginMember, null,List.of(new SimpleGrantedAuthority("ROLE_USER")));                     
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            }
-        }
-        // else: 세션 기반 인증이 이미 Spring Security Filter 이후 단계에서 처리됨
+	    String bearer = req.getHeader("Authorization");
+	    log.debug("JWT  >>> {}", bearer);
 
-        chain.doFilter(req, res);
-    }
+	    if (bearer != null && bearer.startsWith("Bearer ")) {
+	        String token = bearer.substring(7);
+
+	        // 1) 유효성 먼저 확인
+	        boolean valid = provider.validate(token);   // → parseClaimsJws: 만료면 false
+	        log.debug("token valid = {}", valid);
+
+	        if (valid) {
+	            // 2) 이제 안전하게 Claims 꺼내도 Exception 발생 안함
+	            Claims c = provider.parse(token);
+
+	            Member m = new Member();
+	            m.setMemberNo( Integer.parseInt(c.getSubject()) );
+	            m.setMemberEmail(   c.get("email",     String.class) );
+	            m.setMemberLogin(   c.get("loginType", String.class) ); // ← **loginType 로 수정**
+	            m.setMemberAuth(    c.get("auth",      Integer.class) );
+	            m.setMemberLocation(
+	                    c.get("loc") == null ? 0 : ((Number)c.get("loc")).intValue()
+	            );
+	            m.setMemberNickname( c.get("nick", String.class) );
+
+	            Authentication auth =
+	                new UsernamePasswordAuthenticationToken(
+	                        m, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+	            SecurityContextHolder.getContext().setAuthentication(auth);
+	        }
+	    }
+	    chain.doFilter(req, res);
+	}
+
 }

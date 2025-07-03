@@ -4,7 +4,7 @@ import "../../css/myPage/menu.css";
 import "../../css/myPage/addStock.css";
 import StockMenu from "./StockMenu";
 import MiniMenu from "./MiniMenu";
-import axios from "axios";
+import { axiosAPI } from "../../api/axiosAPI";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -118,9 +118,9 @@ export default function AddStock() {
     setStockTumbImg(file);
 
     if (file.size > maxFileSize) {
-        toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
-        setStockTumbImg(null);
-        return;
+      toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+      setStockTumbImg(null);
+      return;
     }
   };
 
@@ -130,16 +130,19 @@ export default function AddStock() {
     const file = e.target.files[0];
 
     if (file.size > maxFileSize) {
-        toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
-        return;
+      toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+      return;
     }
 
-    const totalSize = [...stockImg, ...filess].reduce((acc, file) => acc + file.size, 0);
+    const totalSize = [...stockImg, ...filess].reduce(
+      (acc, file) => acc + file.size,
+      0
+    );
     if (totalSize > maxFilesSize) {
       toast.error("모든 파일의 합이 30MB를 초과합니다.");
       return;
     }
-    
+
     setStockImg((prev) => [...prev, ...filess]);
   };
 
@@ -148,9 +151,9 @@ export default function AddStock() {
     setBalanceImg(file);
 
     if (file.size > maxFileSize) {
-        toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
-        setStockTumbImg(null);
-        return;
+      toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+      setStockTumbImg(null);
+      return;
     }
   };
 
@@ -505,11 +508,12 @@ export default function AddStock() {
         regionNo: parseInt(formData.regionNo),
       };
 
-      const response = await axios.post(
-        "http://localhost:8080/myPage/updateStock",
+      const response = await axiosAPI.post(
+        "/myPage/updateStock",
         convertedData,
         { withCredentials: true }
       );
+      console.log("엑세스토큰", localStorage.getItem("accessToken"));
 
       if (response.status === 200) {
         console.log("기본 정보 등록 완료");
@@ -522,10 +526,13 @@ export default function AddStock() {
           const tumbImgForm = new FormData();
           tumbImgForm.append("stockImg", stockTumbImg);
           tumbImgForm.append("stockNo", parseInt(formData.stockNo));
-          const tumbImgResp = await axios.post(
-            "http://localhost:8080/myPage/updateTumbImg",
+          const tumbImgResp = await axiosAPI.post(
+            "/myPage/updateTumbImg",
             tumbImgForm,
-            { withCredentials: true }
+            {
+              withCredentials: true,
+              headers: { "Content-Type": "multipart/form-data" },
+            }
           );
           if (tumbImgResp.status === 200) {
             console.log("썸네일 업데이트 완료.");
@@ -538,10 +545,13 @@ export default function AddStock() {
           const balanceImgForm = new FormData();
           balanceImgForm.append("stockImg", balanceImg);
           balanceImgForm.append("stockNo", parseInt(formData.stockNo));
-          const balanceImgResp = await axios.post(
-            "http://localhost:8080/myPage/updateBalanceImg",
+          const balanceImgResp = await axiosAPI.post(
+            "/myPage/updateBalanceImg",
             balanceImgForm,
-            { withCredentials: true }
+            {
+              withCredentials: true,
+              headers: { "Content-Type": "multipart/form-data" },
+            }
           );
           if (balanceImgResp.status === 200) {
             console.log("평형 이미지 업데이트 완료.");
@@ -554,10 +564,13 @@ export default function AddStock() {
           const stockImgForm = new FormData();
           stockImg.forEach((file) => stockImgForm.append("stockImg", file));
           stockImgForm.append("stockNo", parseInt(formData.stockNo));
-          const stockImgResp = await axios.post(
-            "http://localhost:8080/myPage/updateStockImg",
+          const stockImgResp = await axiosAPI.post(
+            "/myPage/updateStockImg",
             stockImgForm,
-            { withCredentials: true }
+            {
+              withCredentials: true,
+              headers: { "Content-Type": "multipart/form-data" },
+            }
           );
           if (stockImgResp.status === 200) {
             console.log("이미지 업데이트 완료.");

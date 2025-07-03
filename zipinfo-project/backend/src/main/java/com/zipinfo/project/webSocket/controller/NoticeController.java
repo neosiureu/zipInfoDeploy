@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.zipinfo.project.member.model.dto.Member;
 
-import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequiredArgsConstructor

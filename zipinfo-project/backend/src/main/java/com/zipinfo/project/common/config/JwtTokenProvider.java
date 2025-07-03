@@ -1,12 +1,14 @@
 package com.zipinfo.project.common.config;
 import java.util.Date;
+import java.util.List;
 import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import org.springframework.stereotype.Component;
 
 import com.zipinfo.project.member.model.dto.Member;
@@ -41,15 +43,27 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
         Claims claims = parse(token);
-        UserDetails principal = User.builder()
-                .username(claims.getSubject())
-                .password("")                // 패스워드는 필요 없음
-                .authorities("ROLE_USER")    // 또는 claims.get("auth") 로 권한 주입
-                .build();
+        /* === Member 객체를 직접 만들어서 === */
+        Member m = new Member();
+        m.setMemberNo( Integer.parseInt(claims.getSubject()) );          // sub
+        m.setMemberEmail( (String)claims.get("email") );
+        m.setMemberLogin( (String)claims.get("loginType") );           // K / N / E
+        m.setMemberAuth( (Integer)claims.get("auth") );                // 0,1,2,3 …
+        m.setMemberLocation(
+        		claims.get("loc") == null ? 0 : ((Number)claims.get("loc")).intValue()
+        );
+        m.setMemberNickname( (String)claims.get("nick") );
 
-        return new UsernamePasswordAuthenticationToken(
-                principal, token, principal.getAuthorities());
+        /* 면 권한도 claim 에서 → SimpleGrantedAuthority 로 */
+        List<GrantedAuthority> auths = List.of(
+            new SimpleGrantedAuthority("ROLE_USER")
+        );
+
+        /* === principal 로 Member 를 넘김 === */
+        return new UsernamePasswordAuthenticationToken(m, token, auths);
     }
+    
+    
 
     public boolean validate(String token) {
         try { parse(token); return true; }
