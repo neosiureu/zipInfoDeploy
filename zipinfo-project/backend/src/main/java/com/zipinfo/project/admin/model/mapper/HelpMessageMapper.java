@@ -59,9 +59,33 @@ public interface HelpMessageMapper {
 	 */
 	List<HelpMessage> selectAnsweredMessagesByUser(int userNo);
 
-	 // 문의 + 답변 함께 조회
 	
-	List<HelpMessage> selectRepliesByAdminToUser(int adminNo, int userNo);
+	/** 기존 답변 문의 글 
+	 * @param adminNo
+	 * @param userNo
+	 * @return
+	 */
+	List<HelpMessage> selectRepliesByAdminToUser(@Param("adminNo") int adminNo, @Param("userNo") int userNo);
 
-	
+
+	 /** 수정
+	 * @param messageNo
+	 * @param messageContent
+	 * @return
+	 */
+	int updateReplyContent(@Param("messageNo") int messageNo,
+             @Param("messageContent") String messageContent);
+
+	/** 수정
+	 * @param helpMessage
+	 * @return
+	 */
+	int updateReply(HelpMessage helpMessage);
+
+	/** 원 글 조회
+	 * @param replyMessageNo
+	 * @return
+	 */
+	HelpMessage selectOriginalByReplyMessageNo(@Param("replyMessageNo") int replyMessageNo);
+
 }
