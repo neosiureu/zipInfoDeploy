@@ -53,6 +53,18 @@ public interface HelpMessageService {
 	 */
 	boolean updateReplyContent(int messageNo, String newContent);
 
+	/** 수정
+	 * @param helpMessage
+	 * @return
+	 */
+	int updateReply(HelpMessage helpMessage);
+
+	/** 원글 조회
+	 * @param replyMessageNo
+	 * @return
+	 */
+	HelpMessage getOriginalByReplyMessageNo(int replyMessageNo);
+
 
 	
 

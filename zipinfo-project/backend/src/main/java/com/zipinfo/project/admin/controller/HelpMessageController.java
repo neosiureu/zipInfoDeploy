@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,11 +39,18 @@ public class HelpMessageController {
     @Value("${my.message.folder-path}")
     private String messageFolderPath;
 
+    /** 문의 리스트
+     * @return
+     */
     @GetMapping("/list")
     public ResponseEntity<List<HelpMessage>> getAllMessages() {
         return ResponseEntity.ok(helpMessageService.getAllMessages());
     }
 
+    /** 문의 답변 조회
+     * @param messageNo
+     * @return
+     */
     @GetMapping("/reply")
     public ResponseEntity<?> getInquiryReply(@RequestParam("messageNo") int messageNo) {
         try {
@@ -60,11 +68,12 @@ public class HelpMessageController {
         }
     }
 
-    
 
-
-
-
+    /** 답변 등록
+     * @param session
+     * @param message
+     * @return
+     */
     @PostMapping("/reply")
     public ResponseEntity<?> postReply(HttpSession session, @RequestBody HelpMessage message) {
         Member loginMember = (Member) session.getAttribute("loginMember");
@@ -76,6 +85,43 @@ public class HelpMessageController {
         }
         return ResponseEntity.ok("답변 등록 성공");
     }
+    
+    /** 수정
+     * @param helpMessage
+     * @return
+     */
+    @PutMapping("/reply/update")
+    public ResponseEntity<?> updateReply(@RequestBody HelpMessage helpMessage) {
+        int result = helpMessageService.updateReply(helpMessage);
+        if (result > 0) {
+            return ResponseEntity.ok("답변 수정 완료");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("답변 수정 실패");
+        }
+    }
+    
+    /** 답변 수정 시 원글 + 답변 함께 조회 */
+    @PostMapping("/reply/view")
+    public ResponseEntity<Map<String, HelpMessage>> getOriginalAndReply(@RequestBody Map<String, Integer> req) {
+        int replyMessageNo = req.get("messageNo");
+
+        // 답변 조회 (messageNo 기준)
+        HelpMessage reply = helpMessageService.getHelpMessageById(replyMessageNo);
+
+        // 원글 조회 (INQUIRED_NO = replyMessageNo 인 행에서 다시 MESSAGE_NO 추출)
+        HelpMessage original = helpMessageService.getOriginalByReplyMessageNo(replyMessageNo);
+
+        if (reply == null || original == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        Map<String, HelpMessage> result = new HashMap<>();
+        result.put("original", original);
+        result.put("reply", reply);
+
+        return ResponseEntity.ok(result);
+    }
+
 
     @PatchMapping("/message/read/{messageNo}")
     public ResponseEntity<?> updateReadFlag(@PathVariable("messageNo") int messageNo) {
@@ -83,17 +129,29 @@ public class HelpMessageController {
         return result ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
     }
 
+    /** 미답변
+     * @param adminId
+     * @return
+     */
     @GetMapping("/unanswered")
     public List<HelpMessage> getUnanswered(@RequestParam("adminId") int adminId) {
         return helpMessageService.getUnansweredMessages(adminId);
     }
 
+    /** 답변하면 y
+     * @param userNo
+     * @return
+     */
     @GetMapping("/answered")
     public List<HelpMessage> getAnsweredMessages(@RequestParam(name = "userNo") int userNo) {
         return helpMessageService.getAnsweredMessagesByUser(userNo);
     }
 
 
+    /** 파일 다운로드
+     * @param filename
+     * @return
+     */
     @GetMapping("/message/messageFile/{filename:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable("filename") String filename) {
         try {

@@ -75,4 +75,17 @@ public interface HelpMessageMapper {
 	 */
 	int updateReplyContent(@Param("messageNo") int messageNo,
              @Param("messageContent") String messageContent);
+
+	/** 수정
+	 * @param helpMessage
+	 * @return
+	 */
+	int updateReply(HelpMessage helpMessage);
+
+	/** 원 글 조회
+	 * @param replyMessageNo
+	 * @return
+	 */
+	HelpMessage selectOriginalByReplyMessageNo(@Param("replyMessageNo") int replyMessageNo);
+
 }
