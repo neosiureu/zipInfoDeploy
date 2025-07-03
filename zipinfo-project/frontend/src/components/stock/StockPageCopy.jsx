@@ -93,7 +93,7 @@ const StockPageCopy = () => {
 
   const getLikeStock = async () => {
     try {
-      if (member !== null) {
+      if(member !== null){
         const response = await axiosAPI.get("/myPage/getLikeStock");
         setLikeStockList(response.data);
         setLikeStock(new Set(response.data.map((item) => item.stockNo)));
@@ -489,11 +489,8 @@ const StockPageCopy = () => {
     setIsAsideVisible(true); //클릭시 상세창 표시=true 함.
     setClickedStockItem(item); // 클릭한 item의 index를 저장.
     //map?.setDraggable(false); // 사용자가 지도를 드래그하지 못하게 막음!
-    if (member !== null) {
-      const resp = await axiosAPI.post("/myPage/addSawStock", {
-        memberNo: member.memberNo,
-        stockNo: item.stockNo,
-      });
+    if(member !== null){
+      const resp = await axiosAPI.post('/myPage/addSawStock', {memberNo: member.memberNo, stockNo: item.stockNo});
     }
 
     navigate(`/stock/${item.stockNo}`);
@@ -564,23 +561,17 @@ const StockPageCopy = () => {
                       " "
                     : "기타"}
                 </span>
-                {member && member.memberNo !== null ? (
-                  <button
-                    onClick={() => {
-                      handleStockLike(item.stockNo);
-                    }}
-                    className="stock-detail-like-btn"
-                    aria-label="찜하기"
-                  >
-                    <Bookmark
-                      className={`like-stock-bookmark ${
-                        likeStock.has(item.stockNo) ? "active" : ""
-                      }`}
-                    />
-                  </button>
-                ) : (
-                  <div />
-                )}
+                {member && member.memberNo !== null?
+                <button  onClick={() => {
+                          handleStockLike(item.stockNo);
+                        }} className="stock-detail-like-btn" aria-label="찜하기">
+                  <Bookmark
+                    className={`like-stock-bookmark ${
+                      likeStock.has(item.stockNo) ? "active" : ""
+                    }`}
+                  />
+                </button>:<div/>}
+
               </div>
               <div className="stock-detail-name">{item.stockName}</div>
               <div className="stock-detail-desc">
@@ -787,9 +778,8 @@ const StockPageCopy = () => {
                   <div className="stock-item-summary">
                     {item.currentFloor}/{item.floorTotalCount}층<span> | </span>
                     {item.exclusiveArea}㎡<span> | </span>관리비{" "}
-                    {item.stockManageFee !== 0
-                      ? `${item.stockManageFee / 10000}만원`
-                      : "없음"}
+                    {item.stockManageFee !== 0 ? `${item.stockManageFee / 10000}만원` : "없음"}
+
                   </div>
                   <div className="stock-item-info">
                     {item.stockInfo.length > 16

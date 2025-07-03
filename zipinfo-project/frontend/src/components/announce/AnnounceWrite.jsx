@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom"; // 수정 모드 �
 import axios from "axios";
 import SummernoteEditor from "../neighborhood/SummernoteEditor";
 import "../../css/Announce/AnnounceWrite.css";
+import { axiosAPI } from "../../api/axiosApi";
 
 export default function AnnounceWrite() {
   const navigate = useNavigate();
@@ -71,11 +72,11 @@ export default function AnnounceWrite() {
         );
         alert("공지사항이 수정되었습니다.");
       } else {
-        await axios.post("http://localhost:8080/api/announce/write", payload, {
+        await axiosAPI.post("http://localhost:8080/api/announce/write", payload, {
           withCredentials: true,
         });
         alert("공지사항이 등록되었습니다.");
-        await axios.post("http://localhost:8080/announce");
+        await axiosAPI.post("http://localhost:8080/announce");
       }
 
 
