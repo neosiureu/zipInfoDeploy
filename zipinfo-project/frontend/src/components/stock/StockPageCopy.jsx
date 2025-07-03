@@ -93,13 +93,13 @@ const StockPageCopy = () => {
 
   const getLikeStock = async () => {
     try {
-      const response = await axiosAPI.get("/myPage/getLikeStock");
-      setLikeStockList(response.data);
-      setLikeStock(new Set(response.data.map((item) => item.stockNo)));
+      if(member !== null){
+        const response = await axiosAPI.get("/myPage/getLikeStock");
+        setLikeStockList(response.data);
+        setLikeStock(new Set(response.data.map((item) => item.stockNo)));
+      }
     } catch (err) {
       console.error("매물 불러오기 실패:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -489,7 +489,9 @@ const StockPageCopy = () => {
     setIsAsideVisible(true); //클릭시 상세창 표시=true 함.
     setClickedStockItem(item); // 클릭한 item의 index를 저장.
     //map?.setDraggable(false); // 사용자가 지도를 드래그하지 못하게 막음!
-    const resp = await axiosAPI.post('/myPage/addSawStock', {memberNo: member.memberNo, stockNo: item.stockNo});
+    if(member !== null){
+      const resp = await axiosAPI.post('/myPage/addSawStock', {memberNo: member.memberNo, stockNo: item.stockNo});
+    }
 
     navigate(`/stock/${item.stockNo}`);
     console.log("stockNo:", item.stockNo);
@@ -559,7 +561,7 @@ const StockPageCopy = () => {
                       " "
                     : "기타"}
                 </span>
-                {member.memberNo !== null?
+                {member && member.memberNo !== null?
                 <button  onClick={() => {
                           handleStockLike(item.stockNo);
                         }} className="stock-detail-like-btn" aria-label="찜하기">
@@ -768,7 +770,7 @@ const StockPageCopy = () => {
                   <div className="stock-item-summary">
                     {item.currentFloor}/{item.floorTotalCount}층<span> | </span>
                     {item.exclusiveArea}㎡<span> | </span>관리비{" "}
-                    {item.stockManageFee / 10000}만원
+                    {item.stockManageFee !== 0 ? `${item.stockManageFee / 10000}만원` : "없음"}
                   </div>
                   <div className="stock-item-info">
                     {item.stockInfo.length > 16

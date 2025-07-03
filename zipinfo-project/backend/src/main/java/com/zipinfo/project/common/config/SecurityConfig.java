@@ -58,15 +58,13 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
             	    // 공지사항 등록 (POST) 경로 수정
-            		.requestMatchers(HttpMethod.POST, "/api/announce").hasRole("ADMIN")
+            		.requestMatchers(HttpMethod.POST, "/api/announce/write").hasRole("ADMIN")
 
-            	    
             	    // 공지사항 수정 (PUT) 경로 수정 (모든 write 하위 경로 포함)
-            	    .requestMatchers(HttpMethod.PUT, "/api/announce/write/**").hasRole("ADMIN")
+            	    .requestMatchers(HttpMethod.POST, "/api/announce/edit/**").hasRole("ADMIN")
             	    
             	    // 공지사항 삭제 (DELETE) 경로 수정 (detail 하위 경로 포함)
-            	    .requestMatchers(HttpMethod.DELETE, "/api/announce/detail/**").hasRole("ADMIN")
-
+            	    .requestMatchers(HttpMethod.POST, "/api/announce/detail/**").hasRole("ADMIN")
             	    
             	    // 조회는 모두 허용
             	    .requestMatchers(HttpMethod.GET, "/api/announce/**").permitAll()

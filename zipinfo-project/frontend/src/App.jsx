@@ -101,15 +101,7 @@ function GlobalWebSocketListener() {
         toast.info(
           <div className="toast-announce-container">
             <div className="toast-announce-title">공지 알림!</div>
-            <div className="toast-announce-con">
               <div className="toast-announce-body">{message.body}</div>
-              <button
-                className="toast-announce-button"
-                onClick={() => navigate("/announce")}
-              >
-                확인하기
-              </button>
-            </div>
           </div>,
           {
             position: "bottom-right",

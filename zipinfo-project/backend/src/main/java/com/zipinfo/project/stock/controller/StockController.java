@@ -69,6 +69,8 @@ public class StockController {
 	    //return 
 	    try {
 	    	List<Stock> stockList = service.getStockListInRange(sr);
+	    	
+	    	System.out.println(stockList);
 			
 			return ResponseEntity.status(HttpStatus.OK).body(stockList);
 		}catch(Exception e) {
