@@ -5,7 +5,7 @@ import "../../css/myPage/addStock.css";
 import StockMenu from "./StockMenu";
 import MiniMenu from "./MiniMenu";
 import { axiosAPI } from "../../api/axiosAPI";
-import axios from "axios";
+// import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -117,11 +117,14 @@ export default function AddStock() {
     const file = e.target.files[0];
 
     if (file.size > maxFileSize) {
-        toast.error("파일 크기는 10MB 이하만 업로드 할 수 있습니다.");
-        return;
+      toast.error("파일 크기는 10MB 이하만 업로드 할 수 있습니다.");
+      return;
     }
 
-    const totalSize = [...stockImg, ...filess].reduce((acc, file) => acc + file.size, 0);
+    const totalSize = [...stockImg, ...filess].reduce(
+      (acc, file) => acc + file.size,
+      0
+    );
     if (totalSize > maxFilesSize) {
       toast.error("모든 파일의 합이 30MB를 초과합니다.");
       return;
@@ -500,21 +503,22 @@ export default function AddStock() {
         regionNo: parseInt(formData.regionNo),
       };
 
-      const response = await axios.post(
+      const response = await axiosAPI.post(
         "http://localhost:8080/myPage/addStock",
         convertedData,
         { withCredentials: true }
       );
 
       if (response.status === 200) {
-
         const imageForm = new FormData();
         combinedImages.forEach((file) => imageForm.append("stockImg", file));
 
-        const imgResp = await axios.post(
+        const imgResp = await axiosAPI.post(
           "http://localhost:8080/myPage/addStockImg",
           imageForm,
-          { withCredentials: true }
+          { withCredentials: true,
+            headers: { "Content-Type": "multipart/form-data" }
+          }
         );
 
         if (imgResp.status === 200) {
@@ -526,14 +530,12 @@ export default function AddStock() {
       console.log("업로드 실패", error);
     }
   };
-    
-    return (
-      
-      <div className="my-page-add-stock">
+
+  return (
+    <div className="my-page-add-stock">
       <div className="my-page-add-stock-container">
-          
-        <StockMenu/>
-        <MiniMenu/>
+        <StockMenu />
+        <MiniMenu />
 
         <div className="my-page-stock-content-card">
           {/* 기본정보 섹션 */}

@@ -1,40 +1,59 @@
 import { createContext, useEffect, useState } from "react";
 import { axiosAPI } from "../../api/axiosApi";
+import { jwtDecode } from "jwt-decode";
 import { useLocation } from "react-router-dom";
-export const MemberContext = createContext();
-// Context는 React에서 컴포넌트 계층 구조(트리)를 통해 데이터를 효율적으로
-// 전달하기 위한 메커니즘.
-// 컴포넌트 간에 전역 상태를 공유할 수 있는 컨텍스트를 생성.
 
-// Context는 Provider(제공자)와 Consumer(소비자) 존재
+export const MemberContext = createContext();
+
 export const MemberProvider = ({ children }) => {
-  // 상태값, 함수
-  // 전역적으로 현재 로그인한 회원의 정보를 기억(상태)
+  /* 1) 스토리지 ↔ state 동기화 */
   const [member, setMember] = useState(() => {
-  const stored = localStorage.getItem("loginMember");
-  return stored ? JSON.parse(stored) : null;
-});
+    const raw = localStorage.getItem("loginMember");
+    return raw && raw !== "undefined" ? JSON.parse(raw) : null;
+  });
+
+  const token = localStorage.getItem("accessToken");
   const location = useLocation();
-  const skipFetch =
+  const skipFetchNow =
     location.pathname.startsWith("/login") ||
     location.pathname.startsWith("/oauth2/kakao");
 
   useEffect(() => {
-    if (skipFetch || member) return;
-    const isMember = async () => {
+    if (!member && token) {
       try {
-        const resp = await axiosAPI.get("/member/getMember");
-        if (resp.status === 200 && resp.data) {
-          setMember(resp.data);
-          console.log("로그인 정보가 있긴 함.");
-        }
-      } catch (error) {
-        console.error("Member 불러오기 실패:", error);
+        const { sub, email, loginTp, auth } = jwtDecode(token);
+        setMember({
+          memberNo: Number(sub),
+          memberEmail: email,
+          memberLogin: loginTp,
+          memberAuth: auth,
+        });
+      } catch {
+        /* 디코딩 실패 = 토큰 폐기 */
+        localStorage.removeItem("accessToken");
       }
-    };
+    }
+  }, [token, member]);
 
-    isMember();
-  }, [skipFetch]);
+  /* 3) 서버에서 신선한 정보를 한 번만 가져오기 */
+  useEffect(() => {
+    if (skipFetchNow || !token) return;
+    axiosAPI
+      .get("/member/getMember")
+      .then(({ data }) => {
+        if (data) {
+          // data 가 null 이면 여기 안 들어옴 – 정상
+          localStorage.setItem("loginMember", JSON.stringify(data));
+          setMember(data);
+        }
+      })
+      .catch(() => {
+        /* 토큰이 죽었으면 정리 */
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("loginMember");
+        setMember(null);
+      });
+  }, [skipFetchNow, token]);
 
   return (
     <MemberContext.Provider value={{ member, setMember }}>

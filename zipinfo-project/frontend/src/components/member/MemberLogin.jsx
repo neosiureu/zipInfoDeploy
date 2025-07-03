@@ -53,7 +53,7 @@ export default function MemberLogin() {
       });
 
       // 200 OK
-      const loginMember = resp.data; // 백엔드가 돌려준 Member
+      const { loginMember, accessToken } = resp.data; // 백엔드가 돌려준 Member
 
       // 아이디 저장 check 후 localStorage를 뒤져보는 경우
       if (formData.saveId) {
@@ -63,6 +63,7 @@ export default function MemberLogin() {
       }
 
       // 로그인 정보 저장
+      localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("loginMember", JSON.stringify(loginMember));
       setMember(loginMember);
 
@@ -96,18 +97,20 @@ export default function MemberLogin() {
   // 카카오 로그인
   const handleKakaoLogin = () => {
     localStorage.removeItem("loginMember");
+    localStorage.removeItem("accessToken");
     setMember(null);
 
     window.Kakao.Auth.loginForm({
       scope: "profile_nickname,account_email",
       success: async (authObj) => {
         try {
-          const { data: member } = await axiosAPI.post("/oauth/kakao", {
+          const { data } = await axiosAPI.post("/oauth/kakao", {
             code: authObj.access_token,
           });
-
-          localStorage.setItem("loginMember", JSON.stringify(member));
-          setMember(member);
+          const { loginMember, accessToken } = data; // 백엔드 응답 키와 동일
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("loginMember", JSON.stringify(loginMember));
+          setMember(loginMember);
           navigate("/");
         } catch (err) {
           console.error("카카오 로그인 처리 중 에러", err);
@@ -134,6 +137,7 @@ export default function MemberLogin() {
         .post("/oauth/naver", { accessToken })
         .then(({ data: member }) => {
           localStorage.setItem("loginMember", JSON.stringify(member));
+          localStorage.setItem("accessToken", data.accessToken);
           setMember(member);
           navigate("/");
         });
@@ -147,7 +151,7 @@ export default function MemberLogin() {
       return;
     }
 
-    // 3) 사용자 임의 닫기 → 조용히 취소
+    // 3) 사용자 임의 닫기 => 조용히 취소
     const poll = setInterval(() => {
       if (popup.closed) {
         clearInterval(poll);
@@ -155,8 +159,6 @@ export default function MemberLogin() {
       }
     }, 600);
   };
-
-  // 기타 앞으로 할 일
 
   const handleFindPassword = () => console.log("비밀번호 찾기 진입");
 

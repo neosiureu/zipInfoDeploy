@@ -6,17 +6,15 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
-import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -27,13 +25,11 @@ import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
 import com.zipinfo.project.stock.model.dto.Stock;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RequestMapping("myPage")
 @Slf4j
-@SessionAttributes({"loginMember"})
 @RestController
 @RequiredArgsConstructor
 public class MyPageController {
@@ -41,12 +37,11 @@ public class MyPageController {
 	private final MyPageService service;
 	
 	@GetMapping("memberInfo")
-	public ResponseEntity<Object> memberInfo(HttpSession session){
+	public ResponseEntity<Object> memberInfo(@AuthenticationPrincipal Member loginMember){
 		
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember");
-			
+			if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();			
 			Member member = service.getMemberInfo(loginMember);
 			
 			
@@ -87,12 +82,11 @@ public class MyPageController {
 	}
 	
 	@PostMapping("updateInfo")
-	public ResponseEntity<Object> updateInfo(HttpSession session, @RequestBody Member member){
+	public ResponseEntity<Object> updateInfo(@AuthenticationPrincipal Member loginMember, @RequestBody Member member){
 		
 		try {
-			Member loginMember = (Member)session.getAttribute("loginMember");
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			
-			session.setAttribute("loginMember", member);
 			
 			int result = service.updateInfo(loginMember,member);
 			
@@ -107,11 +101,11 @@ public class MyPageController {
 	}
 	
 	@PostMapping("checkPassword")
-	public ResponseEntity<Object> checkPassword(HttpSession session, @RequestBody Member member){
+	public ResponseEntity<Object> checkPassword(@AuthenticationPrincipal Member loginMember, @RequestBody Member member){
 		
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember");
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			
 			int result = service.checkPassword(loginMember,member);
 			
@@ -127,11 +121,11 @@ public class MyPageController {
 	
 	
 	@PostMapping("updatePassword")
-	public ResponseEntity<Object> updatePassword(HttpSession session, @RequestBody Member member){
+	public ResponseEntity<Object> updatePassword(@AuthenticationPrincipal Member loginMember, @RequestBody Member member){
 		
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember");
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			
 			int result = service.updatePassword(loginMember,member);
 			
@@ -146,12 +140,12 @@ public class MyPageController {
 	}
 	
 	@PostMapping("checkNickname")
-	public ResponseEntity<Object> checkNickname(HttpSession session, @RequestBody Member member){
+	public ResponseEntity<Object> checkNickname(@AuthenticationPrincipal Member loginMember, @RequestBody Member member){
 		
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember");
-			
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
 			int result = service.checkNickname(loginMember, member);
 		
 			return ResponseEntity.status(HttpStatus.OK) // 200
@@ -163,11 +157,11 @@ public class MyPageController {
 	}
 	
 	@GetMapping("withDraw")
-	public ResponseEntity<Object> withDraw(HttpSession session){
+	public ResponseEntity<Object> withDraw(@AuthenticationPrincipal Member loginMember){
 		
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember");
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			
 			int result = service.withDraw(loginMember);
 		
@@ -181,17 +175,14 @@ public class MyPageController {
 	}
 	
 	@PostMapping("addStock")
-	public ResponseEntity<Object> addStock(HttpSession session,  @RequestBody Stock stock){
+	public ResponseEntity<Object> addStock(@AuthenticationPrincipal Member loginMember,  @RequestBody Stock stock){
 		
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember");
 			
-	        if (loginMember == null) {
-	            System.out.println("세션에 로그인 정보 없음");
-	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-	                    .body("로그인 정보 없음 (세션 만료 혹은 미로그인)");
-	        }
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+
 			
 			stock.setMemberNo(loginMember.getMemberNo());
 			
@@ -214,11 +205,11 @@ public class MyPageController {
 	}
 	
 	@PostMapping(value = "addStockImg", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<Object> addStockImg(HttpSession session, @RequestPart("stockImg") List<MultipartFile> stockImg){
+	public ResponseEntity<Object> addStockImg(@AuthenticationPrincipal Member loginMember, @RequestPart("stockImg") List<MultipartFile> stockImg){
 		
 		try {
-			
-			Member loginMember = (Member)session.getAttribute("loginMember");
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
 			
 			int memberNo = loginMember.getMemberNo();
 			
@@ -234,10 +225,10 @@ public class MyPageController {
 	}
 	
 	@GetMapping("getMyStock")
-	public ResponseEntity<Object> getMyStock(HttpSession session){
+	public ResponseEntity<Object> getMyStock(@AuthenticationPrincipal Member loginMember){
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember");
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			
 			int memberNo = loginMember.getMemberNo();
 			
@@ -268,17 +259,13 @@ public class MyPageController {
 	}
 	
 	@PostMapping("updateStock")
-	public ResponseEntity<Object> updateStock(HttpSession session,  @RequestBody Stock stock){
+	public ResponseEntity<Object> updateStock(@AuthenticationPrincipal Member loginMember,  @RequestBody Stock stock){
 		
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember");
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			
-	        if (loginMember == null) {
-	            System.out.println("세션에 로그인 정보 없음");
-	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-	                    .body("로그인 정보 없음 (세션 만료 혹은 미로그인)");
-	        }
+	        
 			
 			int result = service.updateStock(stock);
 			
@@ -343,10 +330,10 @@ public class MyPageController {
 	}
 	
 	@GetMapping("getSawStock")
-	public ResponseEntity<Object> getSawStock(HttpSession session){
+	public ResponseEntity<Object> getSawStock(@AuthenticationPrincipal Member loginMember){
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember");
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			
 			int memberNo = loginMember.getMemberNo();
 			
@@ -361,10 +348,10 @@ public class MyPageController {
 	}
 	
 	@GetMapping("getLikeStock")
-	public ResponseEntity<Object> getLikeStock(HttpSession session){
+	public ResponseEntity<Object> getLikeStock(@AuthenticationPrincipal Member loginMember){
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember");
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			
 			int memberNo = loginMember.getMemberNo();
 			
@@ -379,10 +366,10 @@ public class MyPageController {
 	}
 	
 	@GetMapping("getMyPost")
-	public ResponseEntity<Object> getMyPost(HttpSession session){
+	public ResponseEntity<Object> getMyPost(@AuthenticationPrincipal Member loginMember){
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember");
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			
 			int memberNo = loginMember.getMemberNo();
 			
@@ -397,9 +384,9 @@ public class MyPageController {
 	}
 	
 	@PostMapping("unlikeStock")
-	public ResponseEntity<Object> unlikeStock(HttpSession session, @RequestBody Stock stock){
+	public ResponseEntity<Object> unlikeStock(@AuthenticationPrincipal Member loginMember, @RequestBody Stock stock){
 		try {
-			Member loginMember = (Member)session.getAttribute("loginMember"); 
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			
 			int memberNo = loginMember.getMemberNo();
 			
@@ -416,9 +403,9 @@ public class MyPageController {
 	}
 	
 	@PostMapping("likeStock")
-	public ResponseEntity<Object> likeStock(HttpSession session, @RequestBody Stock stock){
+	public ResponseEntity<Object> likeStock(@AuthenticationPrincipal Member loginMember, @RequestBody Stock stock){
 		try {
-			Member loginMember = (Member)session.getAttribute("loginMember"); 
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			
 			int memberNo = loginMember.getMemberNo();
 			
@@ -449,11 +436,11 @@ public class MyPageController {
 	}
 	
 	@PostMapping(value = "sendMessage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<Object> sendMessage(HttpSession session, @RequestParam("messageTitle") String messageTitle,@RequestParam("messageContent") String messageContent, @RequestParam("messageFile") MultipartFile messageFile){
+	public ResponseEntity<Object> sendMessage(@AuthenticationPrincipal Member loginMember, @RequestParam("messageTitle") String messageTitle,@RequestParam("messageContent") String messageContent, @RequestParam("messageFile") MultipartFile messageFile){
 		
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember"); 
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			
 			int memberNo = loginMember.getMemberNo();
 			
@@ -477,10 +464,10 @@ public class MyPageController {
 	}
 	
 	@GetMapping("getMyMessage")
-	public ResponseEntity<Object> getMyMessage(HttpSession session){
+	public ResponseEntity<Object> getMyMessage(@AuthenticationPrincipal Member loginMember){
 		try {
 			
-			Member loginMember = (Member)session.getAttribute("loginMember");
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			
 			int memberNo = loginMember.getMemberNo();
 			

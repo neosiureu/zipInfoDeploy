@@ -418,6 +418,7 @@ const NeighborhoodBoard = ({}) => {
       </div>
       <div className="nb-search">
         <input
+          className="nb-search-input"
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}

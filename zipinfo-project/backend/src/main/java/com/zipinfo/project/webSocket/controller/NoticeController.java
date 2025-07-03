@@ -3,6 +3,7 @@ package com.zipinfo.project.webSocket.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.zipinfo.project.member.model.dto.Member;
 
-import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,24 +26,24 @@ public class NoticeController {
     }
     
     @PostMapping("/neighbor/insert")
-    public void boardToast(HttpSession session, @RequestBody Member member) {
-    	Member loginMember = (Member)session.getAttribute("loginMember");
-    	
-    	int memberLocation = loginMember.getMemberLocation();
-    	
-    	int length = String.valueOf(memberLocation).length();
-    	
-    	int boardLocation = member.getMemberLocation();
-    	
-    	int sliceLocation = boardLocation / 1000;
-    	
-    	System.out.println("흐흐"+length+boardLocation+ loginMember);
-    	
-    	if(length == 5) {
-    		messagingTemplate.convertAndSend("/topic/region/"+boardLocation, "우리동네 게시판에서 확인하세요!");
-    	}else if(length == 2) {
-    		messagingTemplate.convertAndSend("/topic/region/"+sliceLocation, "우리동네 게시판에서 확인하세요!");
-    	}
+    public void boardToast(@AuthenticationPrincipal Member loginMember,
+                           @RequestBody Member board) {
+
+        int memberLocation = loginMember.getMemberLocation();      //  예전 그대로
+        int boardLocation  = board.getMemberLocation();
+        int sliceLocation  = boardLocation / 1000;
+
+        if (String.valueOf(memberLocation).length() == 5) {
+            messagingTemplate.convertAndSend(
+                "/topic/region/" + boardLocation,
+                "우리동네 게시판에서 확인하세요!"
+            );
+        } else {
+            messagingTemplate.convertAndSend(
+                "/topic/region/" + sliceLocation,
+                "우리동네 게시판에서 확인하세요!"
+            );
+        }
     }
 
     // 클라이언트가 보낼 경우 사용

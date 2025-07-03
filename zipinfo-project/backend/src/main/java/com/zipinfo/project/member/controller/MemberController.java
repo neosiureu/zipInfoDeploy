@@ -5,22 +5,23 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import com.zipinfo.project.common.config.JwtTokenProvider;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.member.model.service.MemberService;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,7 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MemberController {
 	private final MemberService service;
-	
+	private final JwtTokenProvider jwtTokenProvider;
 	
 	/**
 	 * @param session
@@ -53,15 +54,10 @@ public class MemberController {
 	 * 세션 내 멤버의 존재 여부를 체크하는 로직
 	 */
 	@GetMapping("/getMember")
-    public ResponseEntity<Member> getMember(HttpSession session) {
+    public ResponseEntity<Member> getMember(@AuthenticationPrincipal Member loginMember) {
 
-        Member member = (Member) session.getAttribute("loginMember");
-
-        if(member==null) {
-        	return null;
-        
-        }
-        return ResponseEntity.ok(member); 
+      
+        return ResponseEntity.ok(loginMember); 
     }
 
 	
@@ -74,19 +70,24 @@ public class MemberController {
 	 * 로그인 로직
 	 */
 	@PostMapping("/login")
-	public ResponseEntity<Object> login(@RequestBody Member inputMember, HttpSession session) {
+	public ResponseEntity<Object> login(@RequestBody Member inputMember) {
  
-	    Member loginMember = service.login(inputMember);
+		 Member loginMember = service.login(inputMember);
+		    if (loginMember == null) {
+		        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+		                             .body("아이디 또는 비밀번호가 올바르지 않습니다.");
+		    }
+		    // 1) 세션은 이제 쓰지 않음
+//		    session.setAttribute("loginMember", loginMember);
 
-	    if (loginMember == null) {         // 이메일 불일치 또는 비번 불일치
-	        return ResponseEntity        // 401 + 메시지
-	              .status(HttpStatus.UNAUTHORIZED)
-	              .body("아이디 또는 비밀번호가 올바르지 않습니다.");
-	    }
-	   
-	    session.setAttribute("loginMember", loginMember);
-	    System.out.println("해당 멤버의 권한은"+loginMember.getMemberAuth()+"입니다.");
-	    return ResponseEntity.ok(loginMember);
+		    // 2) JWT 발급
+		    String token = jwtTokenProvider.createAccessToken(loginMember);
+
+		    // 3) 응답
+		    Map<String,Object> body = new HashMap<>();
+		    body.put("loginMember", loginMember);
+		    body.put("accessToken", token);
+		    return ResponseEntity.ok(body);
 	}
 	
 	
@@ -157,43 +158,28 @@ public class MemberController {
 	}
 	
 	@PostMapping("/logout")
-	public ResponseEntity<Map<String, String>> logout(HttpSession session, HttpServletResponse response) {
-	    
-	    // 1. 네이버 관련 세션 정보 명시적 삭제
-	    session.removeAttribute("naverAccessToken");
-	    session.removeAttribute("naverRefreshToken");
-	    session.removeAttribute("naverUserInfo");
-	    session.removeAttribute("naverState");
-	    
-	    // 2. 카카오 관련 세션 정보도 함께 삭제
-	    session.removeAttribute("kakaoAccessToken");
-	    session.removeAttribute("kakaoRefreshToken");
-	    session.removeAttribute("kakaoUserInfo");
-	    
-	    // 3. 기본 로그인 정보 삭제
-	    session.removeAttribute("loginMember");
-	    
-	    // 4. 세션 무효화
-	    session.invalidate();
-	    
-	    // 5. 서버의 JSESSIONID 쿠키만이라도 삭제
-	    Cookie jsessionCookie = new Cookie("JSESSIONID", null);
-	    jsessionCookie.setPath("/");
-	    jsessionCookie.setMaxAge(0);
-	    response.addCookie(jsessionCookie);
-	    
-	    // 6. 클라이언트에게 네이버 로그아웃 필요하다고 알려주기
-	    Map<String, String> result = new HashMap<>();
+	public ResponseEntity<Map<String,String>> logout(
+	        @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+	    /* 1) (선택) 서버 측 블랙리스트 – 만약 필요할 때만 */
+	    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+	        String token = authHeader.substring(7);
+	        // jwtBlacklistService.add(token);   // 만료 시각까지 저장
+	    }
+
+	    /* 2) 클라이언트가 할 일 안내 */
+	    Map<String,String> result = new HashMap<>();
 	    result.put("message", "서버 로그아웃 완료");
-	    result.put("naverLogoutRequired", "true"); // 클라이언트에서 네이버 로그아웃 필요
-	    
+	    result.put("naverLogoutRequired", "true");   // 네이버 팝업 로그아웃 지시
+	    result.put("kakaoLogoutRequired", "true");   // 카카오 SDK logout 지시
+
 	    return ResponseEntity.ok(result);
 	}
+
 	
 	@GetMapping("/check-session")
-	public ResponseEntity<Boolean> checkSession(HttpSession session) {
-	    Member loginMember = (Member) session.getAttribute("loginMember");
-	    return ResponseEntity.ok(loginMember != null);
+	public ResponseEntity<Boolean> checkSession(Authentication auth) {
+	    return ResponseEntity.ok(auth != null && auth.isAuthenticated());
 	}
 
 }

@@ -33,20 +33,25 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      if (member?.memberLogin === "N") await naverLogout();
-      await axiosAPI.post("/member/logout");
-      localStorage.removeItem("com.naver.nid.access_token");
-      localStorage.removeItem("com.naver.nid.oauth.state_token");
-    } catch (_) {}
-    if (window.Kakao && window.Kakao.Auth) {
-      window.Kakao.Auth.logout(() => {
-        console.log("Kakao SDK 로그아웃 완료");
-      });
+
+      /* 1) 서버에 access-token 그대로 들고 로그아웃 요청 */
+      const { data } = await axiosAPI.post("/member/logout"); // 헤더에 Bearer 토큰 자동 첨부
+
+      const tasks = [];
+      if (data.naverLogoutRequired === "true") tasks.push(naverLogout());
+      if (data.kakaoLogoutRequired === "true" && window.Kakao?.Auth)
+        tasks.push(new Promise((r) => window.Kakao.Auth.logout(r)));
+      Promise.allSettled(tasks); // 기다리지 않음
+    } catch (e) {
+      console.warn("logout api fail", e);
     }
+
+    /* 3) 로컬 스토리지·컨텍스트 정리 */
+    if (window.stompClient?.connected) window.stompClient.disconnect();
+
+    localStorage.clear(); // accessToken, loginMember, 소셜 토큰 전부 삭제
+
     setMember(null);
-    localStorage.removeItem("loginMember");
-    localStorage.removeItem("com.naver.nid.access_token");
-    localStorage.removeItem("com.naver.nid.oauth.state_token");
     navigate("/");
   };
 
