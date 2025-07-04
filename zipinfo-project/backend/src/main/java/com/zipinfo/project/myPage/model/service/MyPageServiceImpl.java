@@ -3,7 +3,9 @@ package com.zipinfo.project.myPage.model.service;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +19,7 @@ import com.zipinfo.project.common.utility.Utility;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.myPage.model.mapper.MyPageMapper;
 import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
+import com.zipinfo.project.sale.model.dto.Sale;
 import com.zipinfo.project.stock.model.dto.Stock;
 
 import lombok.RequiredArgsConstructor;
@@ -513,5 +516,20 @@ public class MyPageServiceImpl implements MyPageService{
 		}
 		
 		return result + deleteResult;
+	}
+	
+	@Override
+	public Map<String, Object> searchResult(String value) {
+		value = value.replace("\"", "");
+		
+		List<Stock> stock = mapper.searchStock(value);
+		
+		List<Sale> sale = mapper.searchSale(value);
+		
+	    Map<String, Object> result = new HashMap<>();
+	    result.put("stock", stock);
+	    result.put("sale", sale);
+
+	    return result;
 	}
 }

@@ -2,6 +2,7 @@ package com.zipinfo.project.myPage.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -548,4 +549,22 @@ public class MyPageController {
 					.body("불러오는 중 예외 발생 : " + e.getMessage());
 		}
 	}
+	
+	@PostMapping("searchResult")
+	public ResponseEntity<Object> searchResult(@RequestBody String value){
+		try {
+			
+			Map<String, Object> result = service.searchResult(value);
+			
+			System.out.println("크앗"+result);
+			
+			return ResponseEntity.status(HttpStatus.OK).body(result);
+			
+			
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+	}
+	
 }
