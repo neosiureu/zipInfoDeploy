@@ -72,12 +72,9 @@ export const MemberProvider = ({ children }) => {
   useEffect(() => {
     const handleForceLogout = () => {
       if (window.stompClient?.connected) window.stompClient.disconnect();
-      alert("세션 시간이 만료되어 강제 로그아웃 되었습니다");
+      toast.error("이메일 또는 비밀번호가 다릅니다.");
       localStorage.clear();
       setMember(null);
-      // if (!location.pathname.startsWith("/login")) {
-      //   navigate("/");
-      // }
     };
 
     window.addEventListener("forceLogout", handleForceLogout);

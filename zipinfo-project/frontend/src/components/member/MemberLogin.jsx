@@ -36,6 +36,10 @@ export default function MemberLogin() {
     saveId: false,
   });
 
+  const handleFindPassword = () => {
+    navigate("/findPassword");
+  };
+
   // 입력값 제어
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -161,8 +165,6 @@ export default function MemberLogin() {
       }
     }, 600);
   };
-
-  const handleFindPassword = () => {};
 
   // 랜더링 될떄마다 저장된 ID 불러오기. 화면을 새로고침했을 때마다 새로운게 나오면 안되잖아.
   useEffect(() => {

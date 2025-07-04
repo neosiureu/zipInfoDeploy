@@ -1,0 +1,142 @@
+/* 새 비밀번호 설정 컨테이너 */
+.set-pw-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 40px;
+}
+
+/* 제목 */
+.set-pw-title {
+  font-size: 32px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* 이메일 정보 박스 */
+.set-pw-email-info-box {
+  background-color: #e9ecef;
+  color: #666;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  text-align: center;
+  width: 100%;
+  max-width: 800px;
+  border: 1px solid #dee2e6;
+}
+
+.set-pw-email-info {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* 폼 컨테이너 */
+.set-pw-form {
+  background: white;
+  padding: 80px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* 폼 그룹 */
+.set-pw-form-group {
+  margin-bottom: 25px;
+}
+
+/* 라벨 */
+.set-pw-form-label {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+/* 입력 필드 */
+.set-pw-form-input {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.set-pw-form-input:focus {
+  border-color: #495cf8;
+}
+
+.set-pw-form-input::placeholder {
+  color: #aaa;
+}
+
+/* 메시지 */
+.set-pw-message {
+  font-size: 14px;
+  margin-top: 8px;
+  display: block;
+  line-height: 1.4;
+}
+
+.set-pw-message.error {
+  color: #e74c3c;
+}
+
+.set-pw-message.confirm {
+  color: #27ae60;
+}
+
+.set-pw-message:not(.error):not(.confirm) {
+  color: #666;
+}
+
+/* 메인 버튼 */
+.set-pw-submit-button {
+  width: 100%;
+  background-color: #495cf8;
+  color: white;
+  border: none;
+  padding: 18px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 30px;
+  transition: background-color 0.3s ease;
+}
+
+.set-pw-submit-button:hover {
+  background-color: #495cf8;
+}
+
+/* 하단 링크 */
+.set-pw-back-to-login {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.set-pw-back-btn {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.set-pw-back-btn:hover {
+  color: #333;
+}

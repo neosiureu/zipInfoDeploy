@@ -13,10 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
-import java.io.FileOutputStream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
@@ -112,7 +110,7 @@ public class EditAnnounceController {
     public int editAnnounce(
         @PathVariable("announceNo") int announceNo,
         @RequestBody Announce announce,
-        @SessionAttribute("loginMember") Member loginMember
+        @AuthenticationPrincipal Member loginMember
     ) throws Exception {
     	
         announce.setMemberNo(loginMember.getMemberNo());
@@ -136,7 +134,7 @@ public class EditAnnounceController {
     @PostMapping("/detail/delete")
     public int deleteAnnounce(
         @RequestBody Announce announce,
-        @SessionAttribute("loginMember") Member loginMember
+        @AuthenticationPrincipal Member loginMember
     ) {
         if (loginMember.getMemberAuth() != 0) {
             throw new AccessDeniedException("관리자만 공지사항을 삭제할 수 있습니다.");

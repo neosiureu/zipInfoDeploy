@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
-@SessionAttributes({"loginMember"})
 @RestController
 @RequestMapping("/advertisement")
 public class AdvertisementController {
