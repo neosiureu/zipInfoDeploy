@@ -6,6 +6,7 @@ import { axiosAPI } from "../../api/axiosApi";
 import NeighborhoodFilters from "./NeighborhoodFilters";
 import { MemberContext } from "../member/MemberContext";
 import search from "../../assets/search-icon.svg";
+import arrowDown from "../../assets/arrow-down.svg";
 
 const NeighborhoodBoard = ({}) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -472,31 +473,37 @@ const NeighborhoodBoard = ({}) => {
             </button>
           ) : null}
         </div>
-      <div className="nb-search">
-        <div className="nb-search-container">
-          <select
-            className="nb-search-type"
-            value={searchKey}
-            onChange={handleSearchKeyChange}
-          >
-            {searchKeyOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <input
-          className="nb-search-input"
-          type="text"
-          value={searchQuery}
-          onChange={handleSearchQueryChange}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          placeholder="검색어를 입력하세요"
-        />
-        <button className="nb-search-btn" onClick={handleSearch}>
-          검색
-        </button>
+        <div className="nb-search">
+          <div className="nb-select-wrap">
+            <select
+              className="nb-search-type"
+              value={searchKey}
+              onChange={handleSearchKeyChange}
+            >
+              {searchKeyOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <img className="arrow-icon" src={arrowDown} alt="아래 아이콘" />
+          </div>
+          <div className="search-input-wrap">
+            <span className="header-search-icon">
+              <img src={search} alt="검색 아이콘" />
+            </span>
+            <input
+              className="nb-search-input"
+              type="text"
+              value={searchQuery}
+              onChange={handleSearchQueryChange}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              placeholder="검색어를 입력하세요"
+            />
+          </div>
+          <button className="nb-search-btn" onClick={handleSearch}>
+            검색
+          </button>
         </div>
       </div>
     </div>
