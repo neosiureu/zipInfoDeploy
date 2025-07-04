@@ -56,9 +56,9 @@ public interface MemberService {
 
 	int signup(Member member);
 
-//	int updatePassword(Member member);
+	int updatePassword(Member member);
 
-//	String encode(String memberPw);
+String encode(String memberPw);
     
     
 }

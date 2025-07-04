@@ -158,12 +158,11 @@ public class MemberController {
 		
 		try {
 	        // 비크립트를 이용한 비밀번호 암호화
-//	        String encodedPassword = service.encode(member.getMemberPw());
-//	        member.setMemberPw(encodedPassword);
+	        String encodedPassword = service.encode(member.getMemberPw());
+        member.setMemberPw(encodedPassword);
 	        
 	        // DB 업데이트
-//	        int result = service.updatePassword(member);
-			int result =1;
+	        int result = service.updatePassword(member);
 	        
 	        return ResponseEntity.ok().body(result > 0 ? 1 : 0);
 	    } catch (Exception e) {

@@ -174,39 +174,18 @@ public class MemberServiceImpl implements MemberService{
 	}
 
 
-//	@Override
-//	public String encode(String memberPw) {
-//
-//		Member loginMember = mapper.login(inputMember);
-//
-//		log.info("매퍼 들어간 이후"+ loginMember);
-//
-//	    log.info("db에서 꺼내온 값1: {}", loginMember);
-//	    log.info("프론트에서 온 값1: {}", inputMember);
-//
-//	    
-//			if(loginMember ==null) {
-//				 log.info("db에서 꺼내온 값2: {}", loginMember);
-//				 log.info("프론트에서 온 값2: {}", inputMember);
-//				return null;
-//			}
-//			
-//
-//			if(!bcrypt.matches(inputMember.getMemberPw(), loginMember.getMemberPw())) {
-//				 log.info("db에서 꺼내온 값3: {}", loginMember);
-//				 log.info("프론트에서 온 값3: {}", inputMember);
-//				return null;
-//			}
-//			
-//			loginMember.setMemberPw(null);
-//		return null;
-//	}
+	@Override
+	public String encode(String memberPw) {
 
-//	@Override
-//	public int updatePassword(Member member) {
-//		// TODO Auto-generated method stub
-//		return 0;
-//	}
+		
+		return null;
+	}
+
+	@Override
+	public int updatePassword(Member member) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 
 
