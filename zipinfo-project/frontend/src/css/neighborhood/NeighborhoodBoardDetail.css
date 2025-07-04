@@ -1,6 +1,6 @@
 /* 기본 레이아웃 */
 .nb-detail-container {
-  max-width: 1200px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -9,7 +9,6 @@
   background-color: white;
   border-radius: 8px;
   padding: 40px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* 로딩 및 에러 상태 */

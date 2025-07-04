@@ -2,9 +2,10 @@ import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoard.css";
 import { useNavigate } from "react-router-dom";
-import { axiosAPI } from "../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosApi";
 import NeighborhoodFilters from "./NeighborhoodFilters";
 import { MemberContext } from "../member/MemberContext";
+import search from "../../assets/search-icon.svg";
 
 const NeighborhoodBoard = ({}) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -415,18 +416,24 @@ const NeighborhoodBoard = ({}) => {
             </button>
           ) : null}
         </div>
-      </div>
-      <div className="nb-search">
-        <input
-          className="nb-search-input"
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="검색어를 입력하세요"
-        />
-        <button className="nb-search-btn" onClick={handleSearch}>
-          검색
-        </button>
+
+        <div className="nb-search">
+          <div className="nb-search-input-wrap">
+            <span className="nb-search-icon">
+              <img src={search} alt="검색 아이콘" />
+            </span>
+            <input
+              className="nb-search-input"
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="검색어를 입력하세요"
+            />
+          </div>
+          <button className="nb-search-btn" onClick={handleSearch}>
+            검색
+          </button>
+        </div>
       </div>
     </div>
   );
