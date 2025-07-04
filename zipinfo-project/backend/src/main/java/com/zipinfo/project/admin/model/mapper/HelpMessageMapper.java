@@ -84,6 +84,6 @@ public interface HelpMessageMapper {
 	 * @param messageNo
 	 * @return
 	 */
-	HelpMessage selectReplyByInquiredNo(int messageNo);
+	HelpMessage selectReplyByInquiredNo(@Param("inquiredNo") int inquiredNo);
 
 }

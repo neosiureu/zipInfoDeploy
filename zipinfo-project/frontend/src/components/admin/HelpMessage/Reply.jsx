@@ -19,114 +19,52 @@ const Reply = () => {
   const [replyMessageNo, setReplyMessageNo] = useState(null);
 
   useEffect(() => {
+    console.log("URL에서 받은 messageNo: ", messageNo); // ✅ 확인용 출력
     if (!messageNo) {
-      toast.error(
-        <div>
-          <div className="toast-error-title">오류 알림!</div>
-          <div className="toast-error-body">
-            잘못된 접근입니다: 회원정보가 없습니다.
-          </div>
-        </div>
-      );
+      toast.error("잘못된 접근입니다.");
       navigate("/admin/helpMessage");
       return;
     }
 
-    const fetchMessage = async () => {
-      try {
-        setLoading(true);
-        const res = await axiosAPI.get(
-          `/api/help/reply?messageNo=${messageNo}`
-        );
-
-        if (res.data.replyYn === "Y" && res.data.replyMessageNo) {
-          const viewRes = await axiosAPI.post("/api/help/reply/view", {
-            messageNo: res.data.replyMessageNo,
-          });
-          setInquiry(viewRes.data.original);
-          setReply(viewRes.data.reply.messageContent);
-          setIsEdit(true);
-          setReplyMessageNo(viewRes.data.reply.messageNo);
-        } else {
-          setInquiry(res.data);
-          setReply("");
-          setIsEdit(false);
-          setReplyMessageNo(null);
-        }
-      } catch (err) {
-        toast.error(
-          <div>
-            <div className="toast-error-title">오류 알림!</div>
-            <div className="toast-error-body">
-              잘못된 접근입니다: 회원정보가 없습니다.
-            </div>
-          </div>
-        );
-
+    setLoading(true);
+    axiosAPI
+      .get(`/api/help/reply?messageNo=${messageNo}`)
+      .then((res) => {
+        console.log("서버 응답: ", res.data);
+        setInquiry(res.data); // 문의글 세팅
+        setReply(res.data.replyContent || ""); // 답변 내용 세팅
+      })
+      .catch(() => {
+        toast.error("문의 정보를 불러오는 중 오류가 발생했습니다.");
         navigate("/admin/helpMessage");
-      } finally {
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    };
-    fetchMessage();
-  }, [messageNo, navigate]);
+      });
+  }, [messageNo]);
 
   const handleSubmit = async () => {
     if (!reply.trim()) {
-      toast.error(
-        <div>
-          <div className="toast-error-title">오류 알림!</div>
-          <div className="toast-error-body">답변 내용을 입력하세요.</div>
-        </div>
-      );
+      toast.error("답변 내용을 입력하세요.");
       return;
     }
     if (!receiverNo) {
-      toast.error(
-        <div>
-          <div className="toast-error-title">오류 알림!</div>
-          <div className="toast-error-body">수신자 정보가 없습니다.</div>
-        </div>
-      );
+      toast.error("수신자 정보가 없습니다.");
       return;
     }
 
     try {
-      if (isEdit && replyMessageNo) {
-        await axiosAPI.put("/api/help/reply", {
-          messageNo: replyMessageNo,
-          messageContent: reply,
-        });
-        toast.success(
-          <div>
-            <div className="toast-success-title">수정 성공 알림!</div>
-            <div className="toast-success-body">답변이 수정되었습니다.</div>
-          </div>
-        );
-      } else {
-        await axiosAPI.post("/api/help/reply", {
-          messageTitle: inquiry.messageTitle,
-          messageContent: reply,
-          senderNo: 1, // 관리자 번호 1로 고정
-          receiverNo: parseInt(receiverNo, 10),
-          inquiredNo: parseInt(messageNo, 10),
-        });
-        toast.success(
-          <div>
-            <div className="toast-success-title">등록 성공 알림!</div>
-            <div className="toast-success-body">답변이 등록되었습니다.</div>
-          </div>
-        );
-      }
+      await axiosAPI.post("/api/help/reply", {
+        messageTitle: inquiry.messageTitle,
+        messageContent: reply,
+        senderNo: 1, // 관리자 번호 1로 고정
+        receiverNo: parseInt(receiverNo, 10),
+        inquiredNo: parseInt(messageNo, 10),
+      });
+      toast.success("답변이 등록되었습니다.");
       navigate("/admin/helpMessage");
-
     } catch (err) {
-      toast.error(
-        <div>
-          <div className="toast-error-title">오류 알림!</div>
-          <div className="toast-error-body">제출 중 오류가 발생하였습니다.</div>
-        </div>
-      );
+      toast.error("제출 중 오류가 발생하였습니다.");
     }
   };
 

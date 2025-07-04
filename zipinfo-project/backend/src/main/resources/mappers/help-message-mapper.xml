@@ -45,6 +45,7 @@
     hm.MESSAGE_NO AS messageNo,
     hm.MESSAGE_TITLE AS messageTitle,
     hm.MESSAGE_CONTENT AS messageContent,
+     hm.REPLY_CONTENT AS replyContent,
     TO_CHAR(hm.MESSAGE_WRITE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS messageWriteDate,
     hm.MESSAGE_READ_FL AS messageReadFl,
     hm.USER_DEL_FL AS userDelFl,
@@ -63,6 +64,32 @@
   LEFT JOIN MEMBER m ON hm.SENDER_NO = m.MEMBER_NO
   WHERE hm.MESSAGE_NO = #{messageNo}
 </select>
+
+<!-- 답변 분리 조회 -->
+<select id="selectReplyByInquiredNo">
+  SELECT 
+    hm.MESSAGE_NO AS messageNo,
+    hm.MESSAGE_TITLE AS messageTitle,
+    hm.MESSAGE_CONTENT AS messageContent,
+    TO_CHAR(hm.MESSAGE_WRITE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS messageWriteDate,
+    hm.MESSAGE_READ_FL AS messageReadFl,
+    hm.USER_DEL_FL AS userDelFl,
+    hm.ADMIN_DEL_FL AS adminDelFl,
+    hm.SENDER_NO AS senderNo,
+    hm.RECEIVER_NO AS receiverNo,
+    hm.REPLY_YN AS replyYn,
+    hm.INQUIRED_NO AS inquiredNo,
+    mf.FILE_NO AS fileNo,
+    mf.FILE_URL AS fileUrl,
+    mf.FILE_ORIGIN_NAME AS fileOriginName,
+    mf.FILE_RENAME AS fileRename,
+    m.MEMBER_NICKNAME AS memberNickname
+  FROM HELP_MESSAGE hm
+  LEFT JOIN MESSAGE_FILE mf ON hm.MESSAGE_NO = mf.MESSAGE_NO
+  LEFT JOIN MEMBER m ON hm.SENDER_NO = m.MEMBER_NO
+  WHERE hm.INQUIRED_NO = #{inquiredNo}
+</select>
+
 
 <insert id="insertReply">
   INSERT INTO HELP_MESSAGE (
@@ -136,12 +163,6 @@
   ORDER BY hm.MESSAGE_WRITE_DATE DESC
 </select>
 
-<update id="updateReplyMessage">
-  UPDATE HELP_MESSAGE
-  SET MESSAGE_CONTENT = #{messageContent},
-      MESSAGE_TITLE = #{messageTitle}
-  WHERE MESSAGE_NO = #{messageNo}
-</update>
 
 <select id="selectMessageWithReply" resultMap="helpMessageResultMap">
   SELECT
