@@ -77,8 +77,8 @@
 }
 
 .checkbox-input {
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   margin-right: 8px;
   border: 1px solid #dbdbdb;
   accent-color: #495cf8;
@@ -130,13 +130,6 @@
   justify-content: center;
   gap: 8px;
   margin-bottom: 16px;
-}
-
-/* 정교한 카카오톡 아이콘 */
-.kakao-detailed-icon {
-  color: #3e2723;
-  margin-top: 1px; /* 미세 조정 */
-  flex-shrink: 0; /* 아이콘 크기 고정 */
 }
 
 /* 네이버 로그인 버튼 */

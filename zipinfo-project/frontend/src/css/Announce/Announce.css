@@ -1,14 +1,13 @@
 /* 기본 레이아웃 */
 .an-container {
-  max-width: 1200px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 20px 20px;
 }
 
 .an-board-wrapper {
   background-color: white;
-  border-radius: 8px;
-  padding: 30px;
+  padding: 20px;
 }
 
 .an-title {
@@ -25,44 +24,63 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
-  margin: 20px 0 30px 0;
+  margin-bottom: 80px;
+}
+
+.an-search-input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #dbdbdb;
+  background: #fff;
+  height: 36px;
+  width: 260px;
+  padding: 0 12px;
+}
+
+.an-search-icon {
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
 }
 
 .an-search-input {
-  width: 260px;
-  padding: 10px 14px;
+  border: none;
+  outline: none;
+  align-items: center;
   font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  transition: border-color 0.2s;
+  width: 200px;
+  background: transparent;
+  color: #111;
 }
 
 .an-search-input:focus {
   outline: none;
-  border-color: #495cf8;
 }
 
 .an-search-btn {
-  padding: 10px 20px;
-  background-color: #495cf8;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  padding: 0 16px;
+  background-color: #fff;
+  color: #111;
+  border: 1.5px solid #ddd;
+  border-radius: 2px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  height: 36px;
 }
 
 .an-search-btn:hover {
-  background-color: #3b4ce6;
+  background-color: #f8f9fa;
 }
 
 /* 게시판 테이블 */
 .an-board-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: white;
   border: 1px solid #dbdbdb;
-  border-radius: 4px;
-  overflow: hidden;
 }
 
 .an-header {
