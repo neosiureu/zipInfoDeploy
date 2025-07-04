@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { axiosAPI } from "../../../api/axiosAPI";
 import "../../../css/admin/saleForm/addSale.css";
 import { useNavigate } from "react-router-dom";
 
@@ -222,14 +222,11 @@ const AddSale = () => {
     }
 
     try {
-      const response = await axios.get(
-        `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(
-          form.address
-        )}`,
+      const response = await axiosAPI.get(
+        "https://dapi.kakao.com/v2/local/search/address.json",
         {
-          headers: {
-            Authorization: `KakaoAK ${import.meta.env.VITE_KAKAO_REST_API_KEY}`,
-          },
+          params: { query: form.address },
+          // interceptor 가 withCredentials=false & KakaoAK 헤더를 자동으로 붙여줍니다
         }
       );
 
@@ -299,25 +296,60 @@ const AddSale = () => {
       console.log("regionNo (5자리):", regionNo);
       console.log("좌표:", { lat, lng });
 
-      const fd = new FormData();
-      fd.append(
-        "saleData",
-        new Blob([JSON.stringify(saleData)], { type: "application/json" })
-      );
-      thumbnailImages.forEach((file) => fd.append("thumbnailImages", file));
-      floorImages.forEach((file) => fd.append("floorImages", file));
+      // const fd = new FormData();
+      // fd.append(
+      //   "saleData",
+      //   new Blob([JSON.stringify(saleData)], { type: "application/json" })
+      // );
+      // thumbnailImages.forEach((file) => fd.append("thumbnailImages", file));
+      // floorImages.forEach((file) => fd.append("floorImages", file));
+      //       const res = await axios.post(
+      //   "http://localhost:8080/admin/addSale",
+      //   fd,
+      //   {
+      //     withCredentials: true,
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   }
+      // );
 
-      const res = await axios.post(
-        "http://localhost:8080/admin/addSale",
-        fd, // FormData 전송
+      /*
+        JWT로 전환하면서 axiosAPI를 커스텀용으로 사용해야만 jwt가 동작할 수 있었음
+        => axiosAPI.interceptors.request.use((config)에서 Authorization 헤더 자동 추가가 필요했기에 
+        반드시 우리가 따로 만든 axiosAPI를 썼어야 했다
+
+        그런데 커스텀 axiosAPI에서는 기본 헤더를 Content-Type: application/json으로 고정시켰음
+        이로 인해 FormData(multipart/form-data) 요청시 헤더 충돌이 발생하여 415 에러가 났음
+
+        문제 해결을 위해 두 가지 선택지가 있었음:
+        가장 간단히 생각할 수 있는 방법은 axiosAPI에서 FormData 감지하여 Content-Type 자동 처리. 
+        다만 커스텀으로 만든 axiosAPI를 따로 건들고 예외를 둘 경우 다른 파일에서도 또 달리 처리를 해줘야 했음
+        대안) API를 JSON 전송과 파일 업로드 멀티파트 데이터 전송으로 분리
+
+        설계상 분리가 더 깔끔하다고 판단하여 백엔드에서 json과 멀티파트를 분리하는 방식을 선택했다
+        */
+      const { data: saleStockNo } = await axiosAPI.post(
+        "/admin/addSale",
+        saleData, // 순수 JS 객체 => application/json타입
+        { withCredentials: true }
+      );
+
+      // 2단계: 방금 받아온 saleStockNo 로 이미지만 multipart/form-data 전송
+      const imgForm = new FormData();
+      thumbnailImages.forEach((f) => imgForm.append("thumbnailImages", f));
+      floorImages.forEach((f) => imgForm.append("floorImages", f));
+      const res = await axiosAPI.post(
+        `/admin/addSaleImg/${saleStockNo}`,
+        imgForm,
         {
           withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data", // 명시적으로 설정 (사실 생략해도 axios가 자동 처리)
-          },
+          headers: { "Content-Type": "multipart/form-data" },
+          /* headers: {
+      Authorization: `KakaoAK ${import.meta.env.VITE_KAKAO_REST_API_KEY}`, interceptor가 withCredentials=false 와 KakaoAK 헤더를 자동으로 붙여줌
+    }, */
         }
       );
-
       if (res.status === 200) {
         alert("분양 매물이 등록되었습니다.");
         navigate("/admin/list_sale");
@@ -555,7 +587,7 @@ const AddSale = () => {
             <input
               type="text"
               name="price2"
-              placeholder="(단위: 만원, 선택 입력)"
+              placeholder="(단위: 만원)"
               className="sale-form-input"
               value={form.price2}
               onChange={handleChange}

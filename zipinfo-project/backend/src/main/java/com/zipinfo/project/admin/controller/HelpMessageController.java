@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,7 +27,6 @@ import com.zipinfo.project.admin.model.dto.HelpMessage;
 import com.zipinfo.project.admin.model.service.HelpMessageService;
 import com.zipinfo.project.member.model.dto.Member;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -92,45 +90,11 @@ public class HelpMessageController {
             : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("답변 등록 실패");
     }
     
-    /** 수정
-     * @param helpMessage
+
+    /** 관리자가 읽음 상태
+     * @param messageNo
      * @return
      */
-    @PutMapping("/reply/update")
-    public ResponseEntity<?> updateReply(@RequestBody HelpMessage helpMessage) {
-        int result = helpMessageService.updateReply(helpMessage);
-        if (result > 0) {
-            return ResponseEntity.ok("답변 수정 완료");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("답변 수정 실패");
-        }
-    }
-    
-    /** 답변 수정 시 원글 + 답변 함께 조회 */
-    @PostMapping("/reply/view")
-    public ResponseEntity<Map<String, HelpMessage>> getOriginalAndReply(@RequestBody Map<String, Integer> req) {
-        Integer replyMessageNoObj = req.get("messageNo");
-        if (replyMessageNoObj == null) {
-            return ResponseEntity.badRequest().body(null); // 400 Bad Request 반환
-        }
-        int replyMessageNo = replyMessageNoObj;
-
-        HelpMessage reply = helpMessageService.getHelpMessageById(replyMessageNo);
-        HelpMessage original = helpMessageService.getOriginalByReplyMessageNo(replyMessageNo);
-
-        if (reply == null || original == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-
-        Map<String, HelpMessage> result = new HashMap<>();
-        result.put("original", original);
-        result.put("reply", reply);
-
-        return ResponseEntity.ok(result);
-    }
-
-
-
     @PatchMapping("/message/read/{messageNo}")
     public ResponseEntity<?> updateReadFlag(@PathVariable("messageNo") int messageNo) {
         boolean result = helpMessageService.updateReadFlag(messageNo);
@@ -156,6 +120,17 @@ public class HelpMessageController {
     }
 
 
+    /** 문의글 상세 조회 시, 해당 문의글과 그 문의에 달린 답변을 함께 불러오는 API
+     * @param messageNo
+     * @return
+     */
+    @GetMapping("/detailWithReply/{messageNo}")
+    public ResponseEntity<HelpMessage> getMessageWithReply(@PathVariable int messageNo) {
+        HelpMessage message = helpMessageService.getMessageWithReply(messageNo);
+        return ResponseEntity.ok(message);
+    }
+
+    
     /** 파일 다운로드
      * @param filename
      * @return

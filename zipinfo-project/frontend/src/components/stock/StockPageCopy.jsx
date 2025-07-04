@@ -478,8 +478,9 @@ const StockPageCopy = () => {
 
   // 매물 item을 클릭했을떄 수행되는 핸들러 함수
   const handleItemClick = async (item) => {
-    setIsAsideVisible(true); //클릭시 상세창 표시=true 함.
     setClickedStockItem(item); // 클릭한 item의 index를 저장.
+    setIsAsideVisible(true); //클릭시 상세창 표시=true 함.
+
     //map?.setDraggable(false); // 사용자가 지도를 드래그하지 못하게 막음!
     if (member !== null) {
       const resp = await axiosAPI.post("/myPage/addSawStock", {
@@ -583,10 +584,12 @@ const StockPageCopy = () => {
                 {item.stockInfo}
                 <button
                   style={{ margin: "0px 0px 0px 50px" }}
-                  onClick={() => {
+                  onClick={async () => {
                     var coord = new kakao.maps.LatLng(item.lat, item.lng);
-                    mapInstanceRef.current.setLevel(4); // 4레벨로 줌 후
-                    mapInstanceRef.current.panTo(coord); // 이동 애니메이션 설정
+                    await mapInstanceRef.current.setLevel(4); // 4레벨로 줌 후
+                    // 🔽 약간의 지연을 주자 (줌 적용 후 panTo 애니메이션 작동하도록)
+                    await new Promise((resolve) => setTimeout(resolve, 300)); // 300ms 딜레이
+                    await mapInstanceRef.current.panTo(coord); // 이동 애니메이션 설정
 
                     setIsInfraCategoryVisible(!isInfraCategoryVisible);
                   }}

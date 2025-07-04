@@ -15,7 +15,6 @@
 		AND
 		M.MEMBER_DEL_FL
 		='N'
-
 	</select>
 
 	<!-- 특정 게시판의 지정된 페이지 목록 조회 -->
@@ -118,7 +117,46 @@
 		<if test="cityNo != null">
 			AND CT.CITY_NO = #{cityNo}
 		</if>
-		ORDER BY
+		
+		<if test="key != null and query!=null">
+		
+		<choose>
+<!-- 제목 검색 (key의 값이 "t"인 경우) -->
+
+<when test='key=="t"'>
+AND BOARD_TITLE LIKE '%' || #{query} || '%'
+<!-- %{#qurey}%  는 #query 자체를 검색하도록 인식함-->
+</when>
+
+
+<!-- 제목 검색 (key의 값이 "t"인 경우) -->
+
+
+<when test='key=="c"'>
+  AND REGEXP_REPLACE(BOARD_CONTENT, '&lt;[^&gt;]*&gt;', '') LIKE '%' || #{query} || '%'
+</when>
+
+<!-- 내용 검색 (key의 값이 "c"인 경우) -->
+
+
+<when test='key=="tc"'>
+  AND (
+    BOARD_TITLE LIKE '%' || #{query} || '%'
+    OR REGEXP_REPLACE(BOARD_CONTENT, '&lt;[^&gt;]*&gt;', '') LIKE '%' || #{query} || '%'
+  )
+</when>
+
+
+<!-- 제목내용 검색 (key의 값이 "tc"인 경우) -->
+
+
+<otherwise>
+AND MEMBER_NICKNAME LIKE '%' || #{query} || '%'
+</otherwise>
+<!-- 다른 검색 = 작성자 검색(key의 값이 "w"인 경우) -->
+</choose>
+</if>
+ORDER BY
 		B.BOARD_NO DESC
 	</select>
 
@@ -214,7 +252,46 @@
 		<if test="cityNo != null">
 			AND CT.CITY_NO = #{cityNo}
 		</if>
-		ORDER BY
+		
+		<if test="key != null and query!=null">
+		
+		<choose>
+<!-- 제목 검색 (key의 값이 "t"인 경우) -->
+
+<when test='key=="t"'>
+AND BOARD_TITLE LIKE '%' || #{query} || '%'
+<!-- %{#qurey}%  는 #query 자체를 검색하도록 인식함-->
+</when>
+
+
+<!-- 제목 검색 (key의 값이 "t"인 경우) -->
+
+
+<when test='key=="c"'>
+  AND REGEXP_REPLACE(BOARD_CONTENT, '&lt;[^&gt;]*&gt;', '') LIKE '%' || #{query} || '%'
+</when>
+
+<!-- 내용 검색 (key의 값이 "c"인 경우) -->
+
+
+<when test='key=="tc"'>
+  AND (
+    BOARD_TITLE LIKE '%' || #{query} || '%'
+    OR REGEXP_REPLACE(BOARD_CONTENT, '&lt;[^&gt;]*&gt;', '') LIKE '%' || #{query} || '%'
+  )
+</when>
+
+
+<!-- 제목내용 검색 (key의 값이 "tc"인 경우) -->
+
+
+<otherwise>
+AND MEMBER_NICKNAME LIKE '%' || #{query} || '%'
+</otherwise>
+<!-- 다른 검색 = 작성자 검색(key의 값이 "w"인 경우) -->
+</choose>
+</if>
+ORDER BY
 		B.BOARD_NO DESC
 	</select>
 

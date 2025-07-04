@@ -6,6 +6,9 @@ import NaverCallback from "../auth/NaverCallback";
 import { data, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
+import Kakao from "../../assets/kakao-talk-icon.svg";
+import Naver from "../../assets/naver-icon.svg";
+
 function openNaverPopup() {
   const url = new URL("https://nid.naver.com/oauth2.0/authorize");
   url.searchParams.set("response_type", "token"); //  백엔드가 accessToken을 받던 그대로
@@ -233,19 +236,8 @@ export default function MemberLogin() {
 
         {/* 카카오 간편 로그인 */}
         <button onClick={handleKakaoLogin} className="kakao-login-btn option5">
-          <svg
-            className="kakao-detailed-icon"
-            width="20"
-            height="18"
-            viewBox="0 0 20 18"
-            fill="none"
-          >
-            <path
-              d="M10 0C4.48 0 0 3.28 0 7.32c0 2.6 1.74 4.89 4.38 6.17l-.79 2.91c-.08.29.2.52.45.38l3.29-2.17c.55.08.95.08 1.67.08 5.52 0 10-3.28 10-7.32S15.52 0 10 0z"
-              fill="currentColor"
-            />
-          </svg>
-          카카오로 간편하게 로그인하기
+          <img src={Kakao} alt="카카오톡 아이콘" />
+          <span>카카오로 간편하게 로그인하기</span>
         </button>
 
         {/* 네이버 간편 로그인 */}
@@ -253,7 +245,8 @@ export default function MemberLogin() {
           onClick={handleNaverLogin}
           className="naver-login-btn brand-color"
         >
-          <span className="naver-simple-n">N</span>네이버로 간편하게 로그인하기
+          <img src={Naver} alt="네이버 아이콘" />
+          <span>네이버로 간편하게 로그인하기</span>
         </button>
 
         {/* 회원가입 */}

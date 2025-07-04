@@ -237,11 +237,18 @@ export default function AddStock() {
             addr
           )}`,
           {
+            method: "GET",
+            mode: "cors", // CORS 모드로 요청
+            credentials: "omit", // 쿠키·자격증명 전송 금지
             headers: {
               Authorization: `KakaoAK ${restApiKey}`,
             },
           }
         );
+
+        if (!res.ok) {
+          throw new Error(`Kakao API 에러: ${res.status}`);
+        }
 
         const coordData = await res.json();
         if (coordData.documents.length > 0) {

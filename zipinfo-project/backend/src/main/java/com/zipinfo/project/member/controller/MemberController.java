@@ -102,7 +102,8 @@ public class MemberController {
 	 */
 	@GetMapping("/checkEmail")
 	public int checkEmail(@RequestParam("memberEmail") String memberEmail) {
-//		log.info(memberEmail+"이 컨트롤러에 도착했다.");
+		log.info(memberEmail+"이 컨트롤러에 도착했다.");
+		log.info(service.checkEmail(memberEmail)+"을 프론트단으로 보내겠다.");
 		return service.checkEmail(memberEmail);
 	}
 	
@@ -116,6 +117,7 @@ public class MemberController {
 	@GetMapping("/checkNickname")
 	public int checkNickname(@RequestParam("memberNickname") String memberNickname) {
 
+		
 		return service.checkNickname(memberNickname);
 		
 	}
@@ -161,7 +163,7 @@ public class MemberController {
 	public ResponseEntity<Map<String,String>> logout(
 	        @RequestHeader(value = "Authorization", required = false) String authHeader) {
 
-	    /* 1) (선택) 서버 측 블랙리스트 – 만약 필요할 때만 */
+	    /* 1)  서버 측 블랙리스트 – 만약 필요할 때만 */
 	    if (authHeader != null && authHeader.startsWith("Bearer ")) {
 	        String token = authHeader.substring(7);
 	        // jwtBlacklistService.add(token);   // 만료 시각까지 저장

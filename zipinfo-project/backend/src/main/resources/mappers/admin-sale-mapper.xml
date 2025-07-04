@@ -37,7 +37,6 @@
 	ORDER BY S.SALE_STOCK_NO DESC
   </select>
 
-
   <!-- 관리자 분양 매물 등록 -->
   <insert id="addSale" useGeneratedKeys="true" keyProperty="saleStockNo">
     <selectKey keyProperty="saleStockNo" resultType="int" order="BEFORE">

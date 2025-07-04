@@ -1,13 +1,13 @@
 /* 기본 레이아웃 */
 .nb-container {
-  max-width: 1200px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 20px 20px;
 }
 
 .nb-board-wrapper {
   background-color: white;
-  padding: 30px;
+  padding: 20px;
 }
 
 .nb-title {
@@ -268,61 +268,61 @@
     display: none;
   }
 }
-/* ───────── 검색 · 필터 바 ───────── */
+/* ───────── 검색 · 필터 바 ───────── */
 
 .nb-search {
   /* 가운데 정렬 */
   display: flex;
   justify-content: center; /* 수평 정렬 */
-  gap: 8px; /* 인풋·버튼 사이 여백 */
-
-  /* 테이블·페이지네이션과 간격 맞추기 */
-  margin: 50px auto 0; /* 위쪽 50px, 좌·우 auto → 가운데 */
-  max-width: 420px; /* 너무 길어지지 않도록 한계폭 */
+  align-items: center;
+  gap: 10px; /* 인풋·버튼 사이 여백 */
+  margin-bottom: 80px;
 }
 
-.nb-searchbar {
+.nb-search-input-wrap {
   display: flex;
-  align-items: center; /* 세로 가운데 맞춤 */
-  gap: 12px; /* 컴포넌트 간 여백 */
-  margin-bottom: 28px;
-  padding: 10px 16px;
-  border: 1.5px solid #d9d9ff; /* 얇은 보라색 라인 */
-  border-radius: 8px;
-  background: #fdfdff;
+  align-items: center;
+  border: 1.5px solid #dbdbdb;
+  background: #fff;
+  height: 36px;
+  width: 260px;
+  padding: 0 12px;
 }
 
-/* 셀렉트 공통 디자인(기존 .select-wrap 기반) */
-.nb-searchbar select {
-  min-width: 130px;
-  height: 38px;
-  padding: 0 34px 0 12px;
-  border: 1.5px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #222;
-  background: #fff
-    url("data:image/svg+xml,%3Csvg fill='%23666' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='2' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E")
-    no-repeat right 10px center/12px 8px;
-  appearance: none;
+.nb-search-icon {
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
 }
 
 .nb-search-input {
-  flex: 1 1 260px; /* 기본폭 260px, 남으면 늘어나고 줄어들 수 있음 */
+  border: none;
+  outline: none;
+  align-items: center;
+  font-size: 14px;
+  width: 200px;
+  background: transparent;
+  color: #111;
+}
+
+.nb-search-input:focus {
+  outline: none;
 }
 
 /* 검색 버튼 */
 .nb-search-btn {
-  height: 38px;
-  padding: 0 22px;
-  border: none;
-  border-radius: 6px;
-  background: #495cf8;
-  color: #fff;
+  padding: 0 16px;
+  background-color: #fff;
+  color: #111;
+  border: 1.5px solid #ddd;
+  border-radius: 2px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+  transition: background-color 0.2s ease;
+  height: 36px;
 }
+
 .nb-search-btn:hover {
-  background: #3242f0;
+  background-color: #f8f9fa;
 }

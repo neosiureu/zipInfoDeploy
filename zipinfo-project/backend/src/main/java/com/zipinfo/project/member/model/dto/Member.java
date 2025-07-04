@@ -7,6 +7,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,6 +30,7 @@ public class Member implements UserDetails {
 	private int memberAuth;
 	private String accessToken;
 	private int memberLocation;  // 관심 주소 => DB저장용
+	private int townNo;  // 관심 주소 => DB저장용
 
 
 	
@@ -57,6 +60,7 @@ public class Member implements UserDetails {
     }
     
 	@Override
+	@JsonIgnore 
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 	    return List.of(new SimpleGrantedAuthority(this.getRole()));
 	}

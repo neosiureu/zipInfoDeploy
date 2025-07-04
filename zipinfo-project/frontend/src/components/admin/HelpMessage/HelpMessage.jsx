@@ -103,7 +103,15 @@ const HelpMessage = () => {
     } catch (e) {
       console.warn("읽음 처리 실패", e);
     }
-    navigate(`/admin/help/reply/${msg.messageNo}?senderNo=${msg.senderNo}`);
+
+    // 탭에 따라 viewOnly 쿼리 파라미터 포함 여부 결정
+    if (activeTab === "sent") {
+      navigate(
+        `/admin/help/reply/${msg.messageNo}?senderNo=${msg.senderNo}&viewOnly=true`
+      );
+    } else {
+      navigate(`/admin/help/reply/${msg.messageNo}?senderNo=${msg.senderNo}`);
+    }
   };
 
   if (loading) {
@@ -175,7 +183,7 @@ const HelpMessage = () => {
               key={msg.messageNo}
               className={styles.tableRow}
               onClick={() => handleHelpMessageClick(msg)}
-              style={{ cursor: "pointer" }} // ✅ 마우스 커서 변경
+              style={{ cursor: "pointer" }}
             >
               <div>{msg.messageNo}</div>
               <div>{msg.messageTitle}</div>

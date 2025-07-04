@@ -2,9 +2,10 @@ import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoard.css";
 import { useNavigate } from "react-router-dom";
-import { axiosAPI } from "../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosApi";
 import NeighborhoodFilters from "./NeighborhoodFilters";
 import { MemberContext } from "../member/MemberContext";
+import search from "../../assets/search-icon.svg";
 
 const NeighborhoodBoard = ({}) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,7 +26,14 @@ const NeighborhoodBoard = ({}) => {
   const [searchKey, setSearchKey] = useState("t"); // 일단 t만하고 c는 내용 tc는 제목+내용 w는 작성자로 확장하자.
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get("query") || ""
-  ); //실제로 검색될 대상
+  ); //실제로 검색될 대상이지만 일단 화면 표시용 상태를 따로 관리한다
+  const [activeSearchQuery, setActiveSearchQuery] = useState(
+    searchParams.get("query") || ""
+  ); // 실제로 넘길 것
+
+  const [activeSearchKey, setActiveSearchKey] = useState(
+    searchParams.get("key") || "t"
+  );
 
   const [likeCount, setLikeCount] = useState(0);
   //--------------서버(DB)에서 받을 데이터에 대하여--------------//
@@ -39,7 +47,7 @@ const NeighborhoodBoard = ({}) => {
 
   //--------------서버(DB)에서 받을 데이터 마무리--------------//
 
-  //--------------데이터를 매번 로딩 하는 방법 = useEffect 생성--------------//
+  //--------------데이터를 매번 로딩 하는 방법 useEffect 생성--------------//
 
   // 따로 서버에서 갔다와서 로드하는 기능을 가져온다음 페이지네이션은 그 이후에 진행하도록 한다
 
@@ -66,13 +74,60 @@ const NeighborhoodBoard = ({}) => {
 
   //
   const handleSearch = () => {
-    if (currentPage != 1) {
-      setCurrentPage(1);
-    } else {
+    setActiveSearchKey(searchKey);
+    setActiveSearchQuery(searchQuery);
+    setCurrentPage(1);
+    setSearchParams(
+      (prev) => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set("cp", 1);
+
+        if (searchQuery.trim()) {
+          newParams.set("query", searchQuery);
+          newParams.set("key", searchKey);
+        } else {
+          newParams.delete("query");
+          newParams.delete("key");
+        }
+
+        // 기존 필터 유지
+        if (selectedCity !== "-1") {
+          newParams.set("cityNo", selectedCity);
+        }
+        if (selectedTown !== "-1") {
+          newParams.set("townNo", selectedTown);
+        }
+        if (selectedSubject !== "-1") {
+          newParams.set("boardsubject", selectedSubject);
+        }
+
+        return newParams;
+      },
+      { replace: true }
+    );
+
+    setTimeout(() => {
       boardData();
-    }
+    }, 0);
   };
 
+  const handleSearchKeyChange = (e) => {
+    const newKey = e.target.value;
+    setSearchKey(newKey);
+    setCurrentPage(1);
+  };
+
+  const handleSearchQueryChange = (e) => {
+    const newQuery = e.target.value;
+    setSearchQuery(newQuery);
+  };
+
+  const searchKeyOptions = [
+    { value: "t", label: "제목" },
+    { value: "c", label: "내용" },
+    { value: "tc", label: "제목+내용" },
+    { value: "w", label: "작성자" },
+  ];
   const handlePaginationChange = (page) => {
     setCurrentPage(page);
     const params = new URLSearchParams(searchParams);
@@ -113,9 +168,9 @@ const NeighborhoodBoard = ({}) => {
 
       // 1) 쿼리 파라미터 조립 (키, 검색어자체, 선택된 시도, 선택된 시군구, 선택된 주제라는 5개의 선택 사항이 쿼리로 넘어가 하나도 없을 떄만 일반적인 페이지네이션 리스트로 가게 됨)
       const params = new URLSearchParams({ cp: currentPage });
-      if (searchQuery.trim()) {
-        params.append("key", searchKey);
-        params.append("query", searchQuery);
+      if (activeSearchQuery.trim()) {
+        params.append("key", activeSearchKey);
+        params.append("query", activeSearchQuery);
       }
       if (selectedCity !== "-1") {
         params.append("cityNo", selectedCity);
@@ -145,8 +200,8 @@ const NeighborhoodBoard = ({}) => {
     boardData();
   }, [
     currentPage,
-    searchKey,
-    searchQuery,
+    activeSearchKey,
+    activeSearchQuery,
     selectedCity,
     selectedTown,
     selectedSubject,
@@ -242,11 +297,14 @@ const NeighborhoodBoard = ({}) => {
         newParams.set("cp", currentPage);
         // 검색 관련
         // 쿼리가 있는경우와 없는 경우
-        if (searchQuery.trim()) {
-          newParams.set("query", searchQuery);
+        if (activeSearchQuery.trim()) {
+          newParams.set("query", activeSearchQuery);
+          newParams.set("key", activeSearchKey);
         } else {
           newParams.delete("query");
+          newParams.delete("key");
         }
+
         if (selectedCity !== "-1") {
           newParams.set("cityNo", selectedCity);
         } else {
@@ -280,7 +338,6 @@ const NeighborhoodBoard = ({}) => {
     currentPage,
     searchKey,
     searchQuery,
-    searchKey,
     selectedCity,
     selectedTown,
     selectedSubject,
@@ -415,18 +472,32 @@ const NeighborhoodBoard = ({}) => {
             </button>
           ) : null}
         </div>
-      </div>
       <div className="nb-search">
+        <div className="nb-search-container">
+          <select
+            className="nb-search-type"
+            value={searchKey}
+            onChange={handleSearchKeyChange}
+          >
+            {searchKeyOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
         <input
           className="nb-search-input"
           type="text"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleSearchQueryChange}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           placeholder="검색어를 입력하세요"
         />
         <button className="nb-search-btn" onClick={handleSearch}>
           검색
         </button>
+        </div>
       </div>
     </div>
   );

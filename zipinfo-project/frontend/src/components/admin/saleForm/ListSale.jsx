@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../../css/admin/saleForm/listSale.css";
 import { axiosAPI } from "../../../api/axiosAPI";
 import { Link } from "react-router-dom";
+import "../../../css/admin/saleForm/listSale.css";
 
 const ListSale = () => {
   const navigate = useNavigate();
+  const [saleList, setSaleList] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const [adminName] = useState("홍길동");
   const [adminId] = useState("admin01");
-
-  const [saleList, setSaleList] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axiosAPI.get("/admin/selectSaleList");
-        console.log("서버에서 받아온 분양 매물 목록:", response.data);
-
-        setSaleList(response.data);
+        setSaleList(response.data); // 전체 리스트 그대로 저장
       } catch (error) {
-        console.error("분양 매물 목록 불러오기 실패:", error);
+        console.error("매물 목록 불러오기 실패:", error);
       }
     };
 
@@ -28,12 +28,10 @@ const ListSale = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm("정말로 이 매물을 삭제하시겠습니까?")) return;
-
     try {
       await axiosAPI.delete(`/admin/deleteSale/${id}`, {
         withCredentials: true,
       });
-
       alert("삭제가 완료되었습니다.");
       setSaleList((prev) => prev.filter((sale) => sale.saleStockNo !== id));
     } catch (error) {
@@ -42,13 +40,8 @@ const ListSale = () => {
     }
   };
 
-  const handleEdit = (id) => {
-    navigate(`/admin/edit_sale/${id}`);
-  };
-
-  const handleAdd = () => {
-    navigate("/admin/add_sale");
-  };
+  const handleEdit = (id) => navigate(`/admin/edit_sale/${id}`);
+  const handleAdd = () => navigate("/admin/add_sale");
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -60,6 +53,11 @@ const ListSale = () => {
     2: "주택/빌라",
     3: "오피스텔",
   };
+
+  // 페이지별로 잘라서 보여줄 데이터
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = saleList.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(saleList.length / itemsPerPage);
 
   return (
     <div className="ls-container">
@@ -89,8 +87,8 @@ const ListSale = () => {
             </tr>
           </thead>
           <tbody>
-            {saleList.length > 0 ? (
-              saleList.map((sale) => (
+            {currentItems.length > 0 ? (
+              currentItems.map((sale) => (
                 <tr key={sale.saleStockNo}>
                   <td>
                     <Link to={`/sale/${sale.saleStockNo}`} className="ls-link">
@@ -133,6 +131,23 @@ const ListSale = () => {
           </tbody>
         </table>
       </div>
+
+      {/* 페이지네이션 버튼 */}
+      {totalPages > 1 && (
+        <div className="ls-pagination">
+          {Array.from({ length: totalPages }, (_, idx) => (
+            <button
+              key={idx + 1}
+              onClick={() => setCurrentPage(idx + 1)}
+              className={`ls-page-btn ${
+                currentPage === idx + 1 ? "active" : ""
+              }`}
+            >
+              {idx + 1}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="ls-btn-wrapper">
         <button className="ls-add-btn" onClick={handleAdd}>

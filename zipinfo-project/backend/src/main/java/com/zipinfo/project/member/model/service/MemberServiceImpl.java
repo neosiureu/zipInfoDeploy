@@ -32,12 +32,16 @@ public class MemberServiceImpl implements MemberService{
 	 */
 	@Override
 	public Member login(Member inputMember) {
-    Member loginMember = mapper.login(inputMember.getMemberEmail());
+    
+    inputMember.setMemberLogin("E");
+    Member loginMember = mapper.login(inputMember);
+
 	log.info("매퍼 들어간 이후"+ loginMember);
 
     log.info("db에서 꺼내온 값1: {}", loginMember);
     log.info("프론트에서 온 값1: {}", inputMember);
 
+    
 		if(loginMember ==null) {
 			 log.info("db에서 꺼내온 값2: {}", loginMember);
 			    log.info("프론트에서 온 값2: {}", inputMember);
@@ -64,6 +68,7 @@ public class MemberServiceImpl implements MemberService{
 	@Override
 	public int checkEmail(String memberEmail) {
 		// TODO Auto-generated method stub
+		log.debug("이메일 체크중입니다"+memberEmail);
 		return mapper.checkEmail(memberEmail);
 
 	}
@@ -113,7 +118,6 @@ public class MemberServiceImpl implements MemberService{
 	public int signup(Member member) {
     	
 		member.setMemberLogin("E"); // 이 로직에서 회원가입하는건 공통적으로 이메일 회원가입이니까 
-    
     	// 멤버 또는 중개사의 location 필드를 채워 넣어 DB에 들어가기 좋게 만든다.
     	
     	if(member.getBrokerNo()!=null) {

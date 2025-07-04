@@ -3,7 +3,7 @@ import { useContext } from "react";
 import logo from "../../assets/logo.svg";
 import "../../css/common/Header.css";
 import { MemberContext } from "../member/MemberContext";
-import { axiosAPI } from "../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosApi";
 import { toast } from "react-toastify";
 
 const naverLogout = () => {
@@ -33,7 +33,6 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-
       /* 1) 서버에 access-token 그대로 들고 로그아웃 요청 */
       const { data } = await axiosAPI.post("/member/logout"); // 헤더에 Bearer 토큰 자동 첨부
 
