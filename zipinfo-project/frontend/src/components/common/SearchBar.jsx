@@ -51,8 +51,6 @@ const SearchBar = ({
     const stockForm = searchParams.get("form") // ?form=int
       ? Number(searchParams.get("form"))
       : -1;
-    console.log(stockType);
-    console.log(stockForm);
     setSearchStockType(stockType);
     setDealType(stockForm);
     setSearchStockForm(stockForm);
@@ -79,30 +77,13 @@ const SearchBar = ({
   };
 
   useEffect(() => {
-    console.log("searchLocationCode 바뀜:", searchLocationCode);
-  }, [searchLocationCode]);
-
-  useEffect(() => {
-    console.log(
-      "sidoSelected:",
-      sidoSelected,
-      "sigunguSelected:",
-      sigunguSelected
-    );
-
     if (sigunguSelected === -1 && sidoSelected !== -1) {
       // 시/도 가 선택된 상태에서 시/군/구가 선택이 안되있거나 전체로 선택되어있을떄
-      console.log("sigunguSelected === -1 && sidoSelected !== -1");
-      console.log(typeof searchLocationCode);
       setSearchLocationCode(sidoSelected); // 시도(lower than < 100)를 SearchLocationCode로 끌어올림
       //setSearchLocationCode(1000000000000);
     } else if (sigunguSelected !== -1 && sidoSelected !== -1) {
-      // 시/도 가 선택된 상태에서 시/군/구도 선택되었을떄
-      console.log("sigunguSelected !== -1 && sidoSelected !== -1");
       setSearchLocationCode(sigunguSelected);
     } else if (sigunguSelected === -1 && sidoSelected === -1) {
-      // 시/도, 시/군/구 모두 선택을 안헀을떄(또는 전체로 선택되었을떄)
-      console.log("sigunguSelected === -1 && sidoSelected === -1");
       setSearchLocationCode(-1);
     } else {
       console.log(
@@ -119,7 +100,6 @@ const SearchBar = ({
     const fetchSigunguList = async () => {
       if (sidoSelected !== -1) {
         try {
-          console.log("sidoSelected:", sidoSelected);
           const resp = await axiosAPI.post(
             "/searchBar/getAllSigungu",
 
@@ -127,7 +107,6 @@ const SearchBar = ({
             { headers: { "Content-Type": "application/json" } }
           );
           setSigunguList(resp.data);
-          console.log(resp.data);
         } catch (error) {
           console.log("시군구 로딩중 error 발생 : ", error);
         }

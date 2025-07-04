@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import "../../css/myPage/seeMyMessage.css";
 import "../../css/myPage/menu.css";
 import StockMenu from "./StockMenu";
 import MessageMenu from "./MessageMenu";
-import { useLocation, useNavigate } from 'react-router-dom';
-import { axiosAPI } from '../../api/axiosAPI';
-import { Check, X } from 'lucide-react';
+import { useLocation, useNavigate } from "react-router-dom";
+import { axiosAPI } from "../../api/axiosAPI";
+import { Check, X } from "lucide-react";
 
 const MyPost = () => {
   const nav = useNavigate();
@@ -15,15 +15,14 @@ const MyPost = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchProperties = async () => {
-  try {
-    const response = await axiosAPI.get('/myPage/getMyMessage');
-    setPosts(response.data);
-    console.log(response.data);
-  } catch (err) {
-    console.error("문의내역 불러오기 실패:", err);
-  }finally {
-    setLoading(false);
-  }
+    try {
+      const response = await axiosAPI.get("/myPage/getMyMessage");
+      setPosts(response.data);
+    } catch (err) {
+      console.error("문의내역 불러오기 실패:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -38,8 +37,8 @@ const MyPost = () => {
   const itemsPerPage = 10;
 
   const handlePageChange = (page) => {
-  setCurrentPage(page);
-  nav(`/myPage/myPost?cp=${page}`); // URL 업데이트
+    setCurrentPage(page);
+    nav(`/myPage/myPost?cp=${page}`); // URL 업데이트
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -58,49 +57,64 @@ const MyPost = () => {
 
   return (
     <div className="my-page">
-        <div className="my-page-container">
-      
-          <StockMenu />
-          <MessageMenu />
+      <div className="my-page-container">
+        <StockMenu />
+        <MessageMenu />
 
-          <div className="my-message-container">
-      {/* 게시판 헤더 */}
-        <div className="my-message-table">
-          <div className="my-message-header">
-            <div className="my-message-header-cell my-message-header-number">번호</div>
-            <div className="my-message-header-cell my-message-header-title">제목</div>
-
-            <div className="my-message-header-cell my-message-header-date">날짜</div>
-          </div>
-
-          {currentPosts.length!==0? currentPosts.map((item, index) => {
-            const displayNumber = posts.length - (indexOfFirstItem + index);
-            return (
-            <div key={index} className="my-message-row">
-              <div className="my-message-cell my-message-cell-number">{displayNumber}</div>
-              <div
-                className="my-message-cell my-message-cell-title"
-                onClick={() => handleBoardClick(item)} // 클릭 이벤트로 상세화면으로 이동하게
-                style={{ cursor: "pointer" }}
-              >
-                {item.replyYn !== 'Y' ? (
-                  <>
-                    <span className='reply-n-status'>답변대기 </span>{item.messageTitle}
-                  </>
-                ) : (
-                  <>
-                    <span className='reply-y-status'>답변완료 </span>{item.messageTitle}
-                  </>
-                )}
+        <div className="my-message-container">
+          {/* 게시판 헤더 */}
+          <div className="my-message-table">
+            <div className="my-message-header">
+              <div className="my-message-header-cell my-message-header-number">
+                번호
               </div>
-              <div className="my-message-cell my-message-cell-date">{item.messageWriteDate}</div>
+              <div className="my-message-header-cell my-message-header-title">
+                제목
+              </div>
+
+              <div className="my-message-header-cell my-message-header-date">
+                날짜
+              </div>
             </div>
-          )}): <div className='no-my-post'>작성한 문의글이 없습니다.</div>}
+
+            {currentPosts.length !== 0 ? (
+              currentPosts.map((item, index) => {
+                const displayNumber = posts.length - (indexOfFirstItem + index);
+                return (
+                  <div key={index} className="my-message-row">
+                    <div className="my-message-cell my-message-cell-number">
+                      {displayNumber}
+                    </div>
+                    <div
+                      className="my-message-cell my-message-cell-title"
+                      onClick={() => handleBoardClick(item)} // 클릭 이벤트로 상세화면으로 이동하게
+                      style={{ cursor: "pointer" }}
+                    >
+                      {item.replyYn !== "Y" ? (
+                        <>
+                          <span className="reply-n-status">답변대기 </span>
+                          {item.messageTitle}
+                        </>
+                      ) : (
+                        <>
+                          <span className="reply-y-status">답변완료 </span>
+                          {item.messageTitle}
+                        </>
+                      )}
+                    </div>
+                    <div className="my-message-cell my-message-cell-date">
+                      {item.messageWriteDate}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="no-my-post">작성한 문의글이 없습니다.</div>
+            )}
           </div>
           <div className="my-stock-pagination">
-
             <button
-              className='my-stock-page-prev'
+              className="my-stock-page-prev"
               onClick={() => handlePageChange(1)}
               disabled={currentPage === 1}
             >
@@ -109,7 +123,7 @@ const MyPost = () => {
 
             {/* 이전 그룹으로 이동 또는 1페이지로 */}
             <button
-              className='my-stock-page-prev'
+              className="my-stock-page-prev"
               onClick={() => {
                 if (startPage === 1) {
                   handlePageChange(1);
@@ -121,7 +135,7 @@ const MyPost = () => {
             >
               ‹
             </button>
-            
+
             {/* 현재 그룹 페이지들 */}
             {Array.from({ length: endPage - startPage + 1 }, (_, index) => {
               const page = startPage + index;
@@ -138,7 +152,7 @@ const MyPost = () => {
 
             {/* 다음 그룹으로 이동 또는 마지막 페이지로 */}
             <button
-              className='my-stock-page-next'
+              className="my-stock-page-next"
               onClick={() => {
                 if (endPage >= totalPages) {
                   handlePageChange(totalPages);
@@ -150,10 +164,10 @@ const MyPost = () => {
             >
               ›
             </button>
-            
+
             {/* 맨 마지막 페이지로 */}
             <button
-              className='my-stock-page-next'
+              className="my-stock-page-next"
               onClick={() => handlePageChange(totalPages)}
               disabled={currentPage === totalPages}
             >

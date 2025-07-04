@@ -6,6 +6,7 @@ import { axiosAPI } from "../../api/axiosApi";
 import { CITY, TOWN } from "../common/Gonggong";
 import { MemberContext } from "../member/MemberContext";
 import { Heart } from "lucide-react";
+import { toast } from "react-toastify";
 
 const NeighborhoodBoardDetail = () => {
   const [board, setBoard] = useState([{}]);
@@ -25,7 +26,12 @@ const NeighborhoodBoardDetail = () => {
 
   const handleBoardLike = async (boardNo) => {
     if (member == null) {
-      alert("로그인 후 이용해주세요!");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">로그인 후 이용해주세요.</div>
+        </div>
+      );
       return;
     }
     const isCurrentlyLiked = like.has(boardNo);
@@ -63,11 +69,23 @@ const NeighborhoodBoardDetail = () => {
     const { data: result } = await axiosAPI.delete(`/editBoard/${boardNo}`);
     if (result > 0) {
       if (confirm("글을 삭제하시겠습니까?")) {
-        alert("글이 삭제되었습니다");
+        toast.success(
+          <div>
+            <div className="toast-success-title">삭제 성공 알림!</div>
+            <div className="toast-success-body">게시글이 삭제되었습니다.</div>
+          </div>
+        );
       }
       navigate(`/neighborhoodBoard?cp=${cp}`);
     } else {
-      alert("글 삭제 실패. 본인의 게시글이 아닙니다!");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            게시글 삭제 실패. 본인의 게시글이 아닙니다!
+          </div>
+        </div>
+      );
       return; // 실패시 페이지 이동 막기
     }
   };

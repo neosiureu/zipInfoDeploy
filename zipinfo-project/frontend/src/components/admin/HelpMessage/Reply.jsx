@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import "../../../css/admin/HelpMessage/Reply.css";
 import { axiosAPI } from "./../../../api/axiosApi";
+import { toast } from "react-toastify";
 
 const Reply = () => {
   const { messageNo } = useParams();
@@ -18,7 +19,14 @@ const Reply = () => {
 
   useEffect(() => {
     if (!messageNo) {
-      alert("잘못된 접근입니다: messageNo가 없습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            잘못된 접근입니다: 회원정보가 없습니다.
+          </div>
+        </div>
+      );
       navigate("/admin/helpMessage");
       return;
     }
@@ -40,8 +48,6 @@ const Reply = () => {
           setReply(viewRes.data.reply.messageContent);
           setIsEdit(true);
           setReplyMessageNo(viewRes.data.reply.messageNo);
-
-          console.log("API original data:", viewRes.data.original);
         } else {
           // 답변 없으면 원글 그대로
           setInquiry(res.data);
@@ -50,7 +56,15 @@ const Reply = () => {
           setReplyMessageNo(null);
         }
       } catch (err) {
-        alert("문의 상세를 불러오는데 실패했습니다.");
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">
+              잘못된 접근입니다: 회원정보가 없습니다.
+            </div>
+          </div>
+        );
+
         navigate("/admin/helpMessage");
       } finally {
         setLoading(false);
@@ -62,11 +76,21 @@ const Reply = () => {
 
   const handleSubmit = async () => {
     if (!reply.trim()) {
-      alert("답변 내용을 입력하세요.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">답변 내용을 입력하세요.</div>
+        </div>
+      );
       return;
     }
     if (!receiverNo) {
-      alert("수신자 정보가 없습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">수신자 정보가 없습니다.</div>
+        </div>
+      );
       return;
     }
 
@@ -77,7 +101,12 @@ const Reply = () => {
           messageNo: replyMessageNo,
           messageContent: reply,
         });
-        alert("답변이 수정되었습니다.");
+        toast.success(
+          <div>
+            <div className="toast-success-title">수정 성공 알림!</div>
+            <div className="toast-success-body">답변이 수정되었습니다.</div>
+          </div>
+        );
       } else {
         // 새 답변 등록 API 호출
         await axiosAPI.post("/api/help/reply", {
@@ -86,14 +115,20 @@ const Reply = () => {
           receiverNo: parseInt(receiverNo, 10),
           inquiredNo: parseInt(messageNo, 10),
         });
-        alert("답변이 등록되었습니다.");
+        toast.success(
+          <div>
+            <div className="toast-success-title">등록 성공 알림!</div>
+            <div className="toast-success-body">답변이 등록되었습니다.</div>
+          </div>
+        );
       }
       navigate("/admin/helpMessage");
     } catch (err) {
-      alert(
-        isEdit
-          ? "답변 수정 중 오류가 발생했습니다."
-          : "답변 등록 중 오류가 발생했습니다."
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">제출 중 오류가 발생하였습니다.</div>
+        </div>
       );
     }
   };

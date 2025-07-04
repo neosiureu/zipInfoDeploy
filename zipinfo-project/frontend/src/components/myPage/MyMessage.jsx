@@ -32,7 +32,14 @@ export default function MyStock() {
     }
 
     if (file.size > maxFileSize) {
-      toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            파일 크기는 10MB 이하만 업로드 할 수 있습니다.
+          </div>
+        </div>
+      );
       setMessageFile(null);
       e.target.value = null; // input 초기화 (같은 파일 다시 선택 가능하게)
       return;
@@ -63,10 +70,14 @@ export default function MyStock() {
         }
       );
       if (response.status === 200) {
-        console.log("문의 전송 완료.");
         nav("/myPage/seeMyMessage");
       } else {
-        console.log("썸네일 업데이트 실패");
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">문의 전송이 실패하였습니다.</div>
+          </div>
+        );
       }
     }
   };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { axiosAPI } from "../../api/axiosAPI";
 import "../../css/member/MemberSignup.css";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function MemberSignUp() {
   const navigate = useNavigate();
@@ -186,7 +187,14 @@ export default function MemberSignUp() {
     updateMessage("authKeyMessage", "");
 
     if (!checkObj.memberEmail) {
-      alert("유효한 이메일 작성 후 클릭해주세요");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            유효한 이메일 작성 후 클릭해주세요.
+          </div>
+        </div>
+      );
       return;
     }
 
@@ -216,7 +224,12 @@ export default function MemberSignUp() {
 
     // 타이머 시작
     updateMessage("authKeyMessage", initTime, "");
-    alert("인증번호가 발송되었습니다.");
+    toast.success(
+      <div>
+        <div className="toast-success-title">인증번호 발송 알림!</div>
+        <div className="toast-success-body">인증번호가 발송되었습니다.</div>
+      </div>
+    );
 
     let currentMin = 5;
     let currentSec = 0;
@@ -263,12 +276,26 @@ export default function MemberSignUp() {
   // 인증번호 확인
   const checkAuthKey = () => {
     if (min === 0 && sec === 0) {
-      alert("인증번호 입력 제한시간을 초과하였습니다. 다시 발급해주세요");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            인증번호 입력 제한시간을 초과하였습니다. 다시 발급해주세요.
+          </div>
+        </div>
+      );
       return;
     }
 
     if (formData.authKey.length < 6 || formData.authKey.length >= 7) {
-      alert("인증번호를 정확히 입력해주세요");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            인증번호를 정확히 입력해주세요.
+          </div>
+        </div>
+      );
       return;
     }
 
@@ -282,7 +309,14 @@ export default function MemberSignUp() {
       .then((response) => {
         const result = response.data;
         if (result == 0) {
-          alert("인증번호가 일치하지않습니다");
+          toast.error(
+            <div>
+              <div className="toast-error-title">오류 알림!</div>
+              <div className="toast-error-body">
+                인증번호가 일치하지 않습니다.
+              </div>
+            </div>
+          );
           updateCheckObj("authKey", false);
           return;
         }
@@ -328,8 +362,6 @@ export default function MemberSignUp() {
   };
 
   const validateBrokerNo = (inputBrokerNo) => {
-    console.log("Checking brokerNo:", inputBrokerNo);
-
     // 1) 빈 값 처리
     if (inputBrokerNo.trim().length === 0) {
       updateMessage(
@@ -378,8 +410,6 @@ export default function MemberSignUp() {
 
   // 대표 전화번호 유효성 검사
   const validatePresidentPhone = (inputPhone) => {
-    console.log("Checking presidentPhone:", inputPhone);
-
     // 1) 빈 값 처리
     if (inputPhone.trim().length === 0) {
       updateMessage(
@@ -563,7 +593,12 @@ export default function MemberSignUp() {
           default:
             str = "입력값을 확인해주세요.";
         }
-        alert(str);
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">{str}</div>
+          </div>
+        );
         document.querySelector(`[name="${key}"]`)?.focus();
         return;
       }
@@ -595,11 +630,25 @@ export default function MemberSignUp() {
       .then((resp) => resp.text())
       .then((result) => {
         if (result === "1" || result === "success") {
-          alert("회원가입이 완료되었습니다!");
+          toast.success(
+            <div>
+              <div className="toast-success-title">오류 알림!</div>
+              <div className="toast-success-body">
+                회원가입이 완료되었습니다.
+              </div>
+            </div>
+          );
           // 성공 시 네비게이트 처리
           navigate("/login");
         } else {
-          alert("회원가입에 실패했습니다. 다시 시도해주세요.");
+          toast.error(
+            <div>
+              <div className="toast-error-title">오류 알림!</div>
+              <div className="toast-error-body">
+                회원가입에 실패하였습니다. 다시 시도해주세요.
+              </div>
+            </div>
+          );
         }
       });
   };

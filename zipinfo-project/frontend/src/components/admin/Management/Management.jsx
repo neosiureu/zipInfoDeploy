@@ -19,7 +19,6 @@ const Management = () => {
 
   // 응답 데이터가 배열인지 확인하고 없으면 빈 배열로 처리하는 헬퍼
   const handleResponse = (res, setDataFunc, errorMessage) => {
-    console.log("API 응답 데이터(res.data):", res.data); // 여기서 API 응답 전체를 출력
 
     if (Array.isArray(res.data)) {
       setDataFunc(res.data);
