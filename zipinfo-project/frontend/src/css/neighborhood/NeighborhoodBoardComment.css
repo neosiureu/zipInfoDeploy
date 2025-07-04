@@ -5,6 +5,10 @@
   padding: 0;
 }
 
+.nb-comment-title {
+  margin: 24px;
+}
+
 /* ───────── 루트 댓글 카드 ───────── */
 .comment-row {
   position: relative;
@@ -22,8 +26,9 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
-  font-weight: 600;
-  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
 }
 .comment-date {
   font-weight: 400;
@@ -35,7 +40,8 @@
 /* ─── 본문 ─── */
 .comment-content {
   margin-bottom: 16px;
-  color: #444;
+  font-size: 13px;
+  color: #333;
   line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;
@@ -62,23 +68,22 @@
   border: none;
   background: none;
   font-size: 13px;
-  color: #666;
+  color: #111;
   cursor: pointer;
   padding: 0;
   transition: color 0.2s;
+  margin-bottom: 12px;
+  margin-right: 12px;
 }
 .comment-btn-area button:first-child {
-  color: #6200ff;
-}
-.comment-btn-area button:hover {
-  color: #6200ff;
+  color: #4256ec;
 }
 
 /* ───────── 모든 답글 (1단계 이상) ───────── */
 .child-comment {
   margin: 16px 0 24px 32px; /* 위/아래 간격 + 들여쓰기 */
   padding: 16px 24px; /* 카드 안쪽 여백 */
-  border: 1px solid #eee;
+  border: 1px solid #dbdbdb;
   border-radius: 4px;
   background: #fafafa;
   position: relative;
@@ -103,14 +108,14 @@
 .comment-reply-area {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #dbdbdb;
 }
 .comment-reply-area textarea {
   width: 100%;
   box-sizing: border-box;
   min-height: 90px; /* 높이를 두 배로 */
   padding: 10px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid #dbdbdb;
   border-radius: 4px;
   font-size: 14px;
   font-family: inherit;
@@ -128,7 +133,7 @@
   box-sizing: border-box;
   min-height: 90px;
   padding: 10px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid #dbdbdb;
   border-radius: 4px;
   font-size: 14px;
   font-family: inherit;
@@ -141,7 +146,7 @@
   gap: 16px;
   margin-bottom: 32px;
   padding: 20px;
-  border: 1px solid #ddd;
+  border: 1px solid #dbdbdb;
   border-radius: 6px;
   background: #fff;
 }
@@ -149,7 +154,7 @@
   flex: 1;
   min-height: 90px;
   padding: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid #dbdbdb;
   border-radius: 4px;
   font-size: 14px;
   font-family: inherit;
@@ -160,12 +165,9 @@
   height: 40px;
   border: none;
   border-radius: 4px;
-  background: #6200ff;
+  background: #111;
   color: #fff;
   font-size: 14px;
   cursor: pointer;
   transition: background 0.2s;
-}
-.nb-comment-form button:hover {
-  background: #4a00c9;
 }

@@ -64,7 +64,10 @@ public class HelpMessageServiceImpl implements HelpMessageService {
     @Override
     @Transactional
     public boolean saveReply(HelpMessage message) {
-        // 원글 존재 여부 확인
+    	 System.out.println("saveReply 호출 - messageContent: " + message.getMessageContent());
+    	    System.out.println("saveReply 호출 - messageTitle: " + message.getMessageTitle());
+    	    System.out.println("saveReply 호출 - inquiredNo: " + message.getInquiredNo());
+
         HelpMessage messageResult = helpMessageMapper.selectMessageById(message.getInquiredNo());
         if (messageResult == null) {
             return false;
@@ -129,7 +132,7 @@ public class HelpMessageServiceImpl implements HelpMessageService {
             original.setReplyContent(reply.getMessageContent());
         }
 
-        // 파일 URL 세팅 등 추가 작업도 여기서 해도 됩니다.
+       
         return original;
     }
 

@@ -89,16 +89,14 @@ function MessageListener() {
 export function getLocationName(code) {
   const codeStr = String(code);
   if (codeStr.length === 2) {
-    const city = CITY.find(c => c.code === Number(code));
+    const city = CITY.find((c) => c.code === Number(code));
     return city?.name || "알 수 없음";
   } else if (codeStr.length === 5) {
-    const town = TOWN.find(t => t.fullcode === String(code));
+    const town = TOWN.find((t) => t.fullcode === String(code));
     return town?.name || "알 수 없음";
   }
   return "유효하지 않은 코드";
 }
-
-
 
 function GlobalWebSocketListener() {
   const stompClientRef = useRef(null);
@@ -107,7 +105,7 @@ function GlobalWebSocketListener() {
   const { member } = useContext(MemberContext);
 
   const memberLocation = member?.memberLocation;
-  const memberCity = String(memberLocation)?.substring(0,2);
+  const memberCity = String(memberLocation)?.substring(0, 2);
 
   useEffect(() => {
     let isMounted = true;
@@ -136,21 +134,36 @@ function GlobalWebSocketListener() {
 
         let sub2;
         if (member?.memberLocation) {
-          sub2 = client.subscribe(`/topic/region/${memberLocation}`, (message) => {
-            toast.info(
-              <div>
-                <div className="toast-location-title">우리동네 게시판에 새 글이 등록되었습니다</div>
-                {String(memberLocation).length === 2?<div className="toast-location-body">{getLocationName(memberLocation)}에 대한 게시글이 등록되었습니다.</div>:
-                <div className="toast-location-body">{getLocationName(memberCity)} {getLocationName(memberLocation)}에 대한 게시글이 등록되었습니다.</div>}
-              </div>,
-              {
-                position: "bottom-right",
-                autoClose: 10000,
-                className: "custom-toast",
-                icon: false,
-              }
-            );
-          });
+          sub2 = client.subscribe(
+            `/topic/region/${memberLocation}`,
+            (message) => {
+              toast.info(
+                <div>
+                  <div className="toast-location-title">
+                    우리동네 게시판에 새 글이 등록되었습니다
+                  </div>
+                  {String(memberLocation).length === 2 ? (
+                    <div className="toast-location-body">
+                      {getLocationName(memberLocation)}에 대한 게시글이
+                      등록되었습니다.
+                    </div>
+                  ) : (
+                    <div className="toast-location-body">
+                      {getLocationName(memberCity)}{" "}
+                      {getLocationName(memberLocation)}에 대한 게시글이
+                      등록되었습니다.
+                    </div>
+                  )}
+                </div>,
+                {
+                  position: "bottom-right",
+                  autoClose: 10000,
+                  className: "custom-toast",
+                  icon: false,
+                }
+              );
+            }
+          );
         }
 
         // 구독 저장
@@ -164,8 +177,7 @@ function GlobalWebSocketListener() {
       subscriptions.current.forEach((sub) => {
         try {
           sub.unsubscribe();
-        } catch (e) {
-        }
+        } catch (e) {}
       });
       subscriptions.current = [];
 

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { MemberContext } from "../member/MemberContext";
 import "../../css/announce/Announce.css";
 import { toast } from "react-toastify";
+import search from "../../assets/search-icon.svg";
 
 const Announce = () => {
   const [posts, setPosts] = useState([]);

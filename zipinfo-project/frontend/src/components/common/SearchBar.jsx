@@ -152,7 +152,7 @@ const SearchBar = ({
         </div>
 
         {/* 시/도 */}
-        <div className="select-wrap">
+        <div className="search-select-wrap">
           <select
             className="glow-target"
             value={sidoSelected}

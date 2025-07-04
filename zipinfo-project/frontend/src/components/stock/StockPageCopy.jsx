@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react"; // useRef 추가
 import { axiosAPI } from "../../api/axiosApi";
 import "../../css/stock/stockPage.css";
-import SearchBar from "../common/SearchBar";
+
 import floor from "../../assets/floor.svg"; // 평면도 이미지 추가
 import agent from "../../assets/agent-icon.svg"; // 중개사 아이콘
 import warning from "../../assets/circle_warning.svg"; // 미검색 결과 아이콘
@@ -145,6 +145,7 @@ const StockPageCopy = () => {
     const setCoord = async () => {
       // SearchBar에 검색 Location이 변경될때 해당 지역을 보여주기 위한 useEffect()
       /***********실행전에 mapRef 초기화*********** */
+      console.log("mapRef : ", mapRef.current);
       const container = mapRef.current; // 지도를 표시할 div
       const options = {
         center: new window.kakao.maps.LatLng(37.567937, 126.983001), // KH종로지원 대략적인 위도, 경도
@@ -156,6 +157,7 @@ const StockPageCopy = () => {
 
       if ([...searchParams.entries()].length !== 0) {
         //searchParams가 비지 않았을때! (비엇을떄도 spring server에 request를 보낼 필요 없음!)
+        console.log("coordsFromStock searchLocationCode: ", searchLocationCode);
         try {
           const resp = await axiosAPI.post(
             // 검색창에 있는 모든 조건 loading.
@@ -175,6 +177,7 @@ const StockPageCopy = () => {
               stockForm: Number(searchParams.get("form") ?? -1),
             }
           );
+          console.log("coordsFromStock resp:", resp.data);
           if (resp.data) {
             const { latCenter, lngCenter, minLat, minLng, maxLat, maxLng } =
               resp.data; // 요청으로 얻어온 평균 좌표, 최소 lat, 최소 lng, 최대 lat, 최대 lng를 저장.
@@ -201,6 +204,7 @@ const StockPageCopy = () => {
 
     const fetchData = async () => {
       try {
+        console.log("API 요청 전 locationCode:", searchLocationCode);
         const resp = await axiosAPI.post("/stock/items", {
           coords: {
             swLat: sw.getLat(),
@@ -242,6 +246,9 @@ const StockPageCopy = () => {
         const sw = bounds.getSouthWest();
         const ne = bounds.getNorthEast();
 
+        console.log("현재 화면 범위:");
+        console.log("좌하단(SW):", sw.getLat(), sw.getLng());
+        console.log("우상단(NE):", ne.getLat(), ne.getLng());
         try {
           const resp = await axiosAPI.post("/stock/items", {
             coords: {
@@ -255,7 +262,11 @@ const StockPageCopy = () => {
             stockType: searchStockFormRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedType ||
             stockForm: searchStockTypeRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
           });
+          console.log("locationCode:", locationCodeRef.current);
+
           if (resp.status === 200) {
+            console.log(resp.data);
+
             setStockList(resp.data);
             updateMarker();
 
@@ -463,7 +474,10 @@ const StockPageCopy = () => {
           stockType: searchStockFormRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedType ||
           stockForm: searchStockTypeRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
         });
+        console.log("매물:", resp.data);
         if (resp.status === 200) {
+          console.log(resp.data);
+
           setStockList(resp.data);
           updateMarker();
 
@@ -490,6 +504,7 @@ const StockPageCopy = () => {
     }
 
     navigate(`/stock/${item.stockNo}`);
+    console.log("stockNo:", item.stockNo);
   };
   const handleItemdblClick = async (item) => {
     var coord = new kakao.maps.LatLng(item.lat, item.lng);
