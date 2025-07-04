@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react"; // useRef 추가
 import { axiosAPI } from "../../api/axiosApi";
 import "../../css/stock/stockPage.css";
-
+import SearchBar from "../common/SearchBar";
 import floor from "../../assets/floor.svg"; // 평면도 이미지 추가
 import agent from "../../assets/agent-icon.svg"; // 중개사 아이콘
 import warning from "../../assets/circle_warning.svg"; // 미검색 결과 아이콘
