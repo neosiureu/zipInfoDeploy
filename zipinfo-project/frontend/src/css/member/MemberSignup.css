@@ -2,7 +2,7 @@
 .signup-container {
   max-width: 500px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 80px 20px;
 }
 
 /* 제목 */
@@ -10,25 +10,25 @@
   text-align: center;
   font-size: 24px;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 30px;
+  color: #111;
+  margin-bottom: 40px;
 }
 
 /* 탭 네비게이션 */
 .signup-tab-navigation {
   display: flex;
   margin-bottom: 30px;
-  border-radius: 8px;
+  border-radius: 4px;
   overflow: hidden;
-  border: 1px solid #e1e5e9;
+  border: 1px solid #dbdbdb;
 }
 
 .signup-tab-button {
   flex: 1;
   padding: 12px 20px;
   border: none;
-  background-color: #f8f9fa;
-  color: #6c757d;
+  background-color: #fff;
+  color: #767676;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -38,10 +38,6 @@
 .signup-tab-button.active {
   background-color: #495cf8;
   color: white;
-}
-
-.signup-tab-button:hover:not(.active) {
-  background-color: #e9ecef;
 }
 
 /* 폼 */
@@ -62,7 +58,7 @@
 .signup-form-label {
   font-size: 14px;
   font-weight: 500;
-  color: #333;
+  color: #111;
   margin-bottom: 4px;
 }
 
@@ -71,13 +67,14 @@
   display: flex;
   gap: 8px;
   align-items: center;
+  justify-content: center;
 }
 
 /* 입력 필드 */
 .signup-form-input {
   flex: 1;
   padding: 12px 16px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #dbdbdb;
   border-radius: 6px;
   font-size: 14px;
   background-color: #fff;
@@ -86,12 +83,11 @@
 
 .signup-form-input:focus {
   outline: none;
-  border-color: #4285f4;
-  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+  border-color: #495cf8;
 }
 
 .signup-form-input::placeholder {
-  color: #9ca3af;
+  color: #999;
 }
 
 .signup-form-input[readonly] {
@@ -117,6 +113,10 @@
   white-space: nowrap;
   transition: background-color 0.2s ease;
   width: 80px; /* 고정 너비로 버튼 크기 통일 */
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .signup-verify-button:hover {
@@ -181,7 +181,6 @@
   font-weight: 600;
   cursor: pointer;
   margin-top: 20px;
-  transition: all 0.2s ease;
 }
 
 /* 폼이 유효할 때 제출 버튼 활성화 스타일 */

@@ -587,7 +587,7 @@ const AddSale = () => {
             <input
               type="text"
               name="price2"
-              placeholder="(단위: 만원, 선택 입력)"
+              placeholder="(단위: 만원)"
               className="sale-form-input"
               value={form.price2}
               onChange={handleChange}

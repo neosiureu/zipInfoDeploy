@@ -144,21 +144,6 @@ const Announce = () => {
           </div>
         </div>
 
-        {/* 검색창 */}
-        <div className="an-search-container">
-          <input
-            type="text"
-            className="an-search-input"
-            placeholder="검색어를 입력하세요"
-            value={searchInput}
-            onChange={handleInputChange}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          />
-          <button className="an-search-btn" onClick={handleSearch}>
-            검색
-          </button>
-        </div>
-
         {/* 페이지네이션 및 글쓰기 버튼 */}
         <div className="an-pagination-container">
           <div className="an-pagination">
@@ -188,6 +173,26 @@ const Announce = () => {
               글쓰기
             </button>
           )}
+        </div>
+
+        {/* 검색창 */}
+        <div className="an-search-container">
+          <div className="an-search-input-wrap">
+            <span className="an-search-icon">
+              <img src={search} alt="검색 아이콘" />
+            </span>
+            <input
+              type="text"
+              className="an-search-input"
+              placeholder="검색어를 입력하세요"
+              value={searchInput}
+              onChange={handleInputChange}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            />
+          </div>
+          <button className="an-search-btn" onClick={handleSearch}>
+            검색
+          </button>
         </div>
       </div>
     </div>
