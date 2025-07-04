@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
 
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
@@ -97,7 +97,7 @@ public class NeighborhoodController {
 	
 	@GetMapping("/neighborhoodDetail")
 	public ResponseEntity<Object> boardDetail(
-			@SessionAttribute(value = "loginMember", required = false) Member loginMember,
+			@AuthenticationPrincipal Member loginMember,
 			 @RequestParam("boardNo") int boardNo,
 			HttpServletRequest req, 
 			HttpServletResponse resp) {
@@ -174,12 +174,12 @@ public class NeighborhoodController {
 			// 조회 결과가 있는 경우
 			
 		}
-		
+		log.debug("현재 접속한 멤버"+ loginMember);
 		return ResponseEntity.ok(board);
 	}
 	
 	@PostMapping("/like")
-	public ResponseEntity<Object> like(@RequestBody Map<String, Object> paramMap , @SessionAttribute(value = "loginMember", required = false) Member loginMember){
+	public ResponseEntity<Object> like(@RequestBody Map<String, Object> paramMap ,@AuthenticationPrincipal Member loginMember){
 		
 		paramMap.put("memberNo", loginMember.getMemberNo());
 		log.info("현재 파라미터 맵에 들어있는 정보"+paramMap);
@@ -188,7 +188,32 @@ public class NeighborhoodController {
 		if(like!=1) return null;
 		
 		return ResponseEntity.ok(like);
-	}			
-			
+	}
+	
+//	@PostMapping("/like")
+//	public ResponseEntity<Object> like(@RequestBody Map<String, Object> paramMap, @AuthenticationPrincipal Member loginMember) {
+//	    
+//	    // 로그인 여부 확인
+//	    if (loginMember == null) {
+//	        log.warn("로그인되지 않은 사용자의 좋아요 요청");
+//	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+//	    }
+//	    
+//	    paramMap.put("memberNo", loginMember.getMemberNo());
+//	    log.info("현재 파라미터 맵에 들어있는 정보: " + paramMap);
+//	    
+//	    try {
+//	        int like = neighborhoodService.like(paramMap);
+//	        if (like != 1) {
+//	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("좋아요 처리 실패");
+//	        }
+//	        
+//	        return ResponseEntity.ok(like);
+//	    } catch (Exception e) {
+//	        log.error("좋아요 처리 중 오류 발생", e);
+//	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
+//	    }
+//	}		
+//			
 	
 }

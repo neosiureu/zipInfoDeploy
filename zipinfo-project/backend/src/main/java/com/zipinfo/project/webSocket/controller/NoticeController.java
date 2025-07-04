@@ -7,14 +7,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.zipinfo.project.member.model.dto.Member;
 
 
 @RestController
 @RequiredArgsConstructor
-@SessionAttributes({"loginMember"})
 public class NoticeController {
 
     private final SimpMessagingTemplate messagingTemplate;

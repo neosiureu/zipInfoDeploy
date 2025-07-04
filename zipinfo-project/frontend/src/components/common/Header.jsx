@@ -32,6 +32,8 @@ const Header = () => {
   const location = useLocation(); // 현재 경로 확인
 
   const handleLogout = async () => {
+    console.log("로그아웃 전 saveId:", localStorage.getItem("saveId"));
+
     try {
       /* 1) 서버에 access-token 그대로 들고 로그아웃 요청 */
       const { data } = await axiosAPI.post("/member/logout"); // 헤더에 Bearer 토큰 자동 첨부
@@ -44,11 +46,14 @@ const Header = () => {
     } catch (e) {
       console.warn("logout api fail", e);
     }
-
+    console.log("로그아웃 후 saveId:", localStorage.getItem("saveId"));
     /* 3) 로컬 스토리지·컨텍스트 정리 */
     if (window.stompClient?.connected) window.stompClient.disconnect();
 
-    localStorage.clear(); // accessToken, loginMember, 소셜 토큰 전부 삭제
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("loginMember");
+    localStorage.removeItem("com.naver.nid.access_token");
+    localStorage.removeItem("com.naver.nid.oauth.state_token");
 
     setMember(null);
     navigate("/");

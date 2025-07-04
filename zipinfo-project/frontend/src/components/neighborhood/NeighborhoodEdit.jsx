@@ -8,7 +8,6 @@ import { axiosAPI } from "../../api/axiosApi";
 import SummernoteEditor from "./SummernoteEditor";
 import { useContext, useEffect, useState } from "react";
 import NeighborhoodFilters from "./NeighborhoodFilters";
-import axios from "axios";
 import { MemberContext } from "../member/MemberContext";
 import { toast } from "react-toastify";
 

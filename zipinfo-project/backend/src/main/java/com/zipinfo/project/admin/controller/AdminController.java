@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
-import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.zipinfo.project.admin.model.service.AdminService;
 import com.zipinfo.project.common.config.JwtTokenProvider;
@@ -29,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("admin")
 @Slf4j
 @RequiredArgsConstructor
-@SessionAttributes({ "loginMember" })
+
 public class AdminController {
 
     private final AdminService service;

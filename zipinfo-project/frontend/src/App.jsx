@@ -9,7 +9,8 @@ import AdminRoute from "./AdminRoute";
 import Main from "./components/Main";
 import SalePage from "./components/sale/SalePage";
 import { CITY, TOWN } from "./components/common/Gonggong";
-
+import MemberFindPw from "./components/member/MemberFindPw";
+import MemberSetPw from "./components/member/MemberSetPw";
 import "./App.css";
 
 //import StockPageCopy from "./components/stock/StockPageCopy"; // ContextProvider 생성하는 방향으로 리팩토링 중!
@@ -234,6 +235,8 @@ function App() {
 
               <Route path="login" element={<MemberLogin />} />
               <Route path="signUp" element={<MemberSignup />} />
+              <Route path="findPassword" element={<MemberFindPw />} />
+              <Route path="memberSetPw" element={<MemberSetPw />} />
               <Route path="gonggong" element={<Gonggong />} />
 
               {/* 마이페이지 */}
