@@ -98,6 +98,7 @@ const HelpMessage = () => {
   };
 
   const handleHelpMessageClick = async (msg) => {
+    console.log("클릭한 메시지:", msg);
     try {
       await axios.patch(`/api/help/message/read/${msg.messageNo}`);
     } catch (e) {
@@ -106,8 +107,10 @@ const HelpMessage = () => {
 
     // 탭에 따라 viewOnly 쿼리 파라미터 포함 여부 결정
     if (activeTab === "sent") {
+      const targetNo =
+        msg.inquiredNo && msg.inquiredNo !== 0 ? msg.inquiredNo : msg.messageNo;
       navigate(
-        `/admin/help/reply/${msg.messageNo}?senderNo=${msg.senderNo}&viewOnly=true`
+        `/admin/help/reply/${targetNo}?senderNo=${msg.receiverNo}&viewOnly=true`
       );
     } else {
       navigate(`/admin/help/reply/${msg.messageNo}?senderNo=${msg.senderNo}`);
