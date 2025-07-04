@@ -138,7 +138,7 @@ public class EditNeighborhoodController {
 		image.transferTo(dest);
 
 		// 4. 웹 경로 반환
-		return boardWebPath + fileName; // /images/boardImg/abc123.jpg
+		return boardWebPath + fileName; // /images/boardImg/img.jpg
 	}
 
 }

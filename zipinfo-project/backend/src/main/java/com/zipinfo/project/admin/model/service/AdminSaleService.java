@@ -37,4 +37,11 @@ public interface AdminSaleService {
 	 */
 	void deleteSale(int id) throws Exception;
 
+	int addSale(Sale sale);
+
+	void addSaleImages(int saleStockNo, List<MultipartFile> thumbnailImages, List<MultipartFile> floorImages);
+
+	void updateSaleImages(int id, List<MultipartFile> thumbnailImages, List<MultipartFile> floorImages);
+
+
 }

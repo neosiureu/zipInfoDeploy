@@ -22,7 +22,6 @@ import com.zipinfo.project.common.config.JwtTokenProvider;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.member.model.service.MemberService;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

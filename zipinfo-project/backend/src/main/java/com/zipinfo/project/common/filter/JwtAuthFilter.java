@@ -52,7 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	            Member m = new Member();
 	            m.setMemberNo( Integer.parseInt(c.getSubject()) );
 	            m.setMemberEmail(   c.get("email",     String.class) );
-	            m.setMemberLogin(   c.get("loginType", String.class) ); // ← **loginType 로 수정**
+	            m.setMemberLogin(   c.get("loginType", String.class) ); //loginType 로 수정
 	            m.setMemberAuth(    c.get("auth",      Integer.class) );
 	            m.setMemberLocation(
 	                    c.get("loc") == null ? 0 : ((Number)c.get("loc")).intValue()

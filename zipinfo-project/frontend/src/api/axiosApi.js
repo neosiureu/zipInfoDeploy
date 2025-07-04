@@ -1,4 +1,5 @@
 import axios from "axios";
+const KAKAO_REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
 
 export const axiosAPI = axios.create({
   baseURL: "http://localhost:8080",
@@ -9,8 +10,27 @@ export const axiosAPI = axios.create({
   // credential 허용 설정 필요함
   // -> JWT 사용 시 중요한 옵션
 });
+
 axiosAPI.interceptors.request.use((config) => {
+  if (config.url?.startsWith("https://dapi.kakao.com/")) {
+    delete config.headers.Authorization;
+    config.withCredentials = false;
+    config.headers.Authorization = `KakaoAK ${KAKAO_REST_API_KEY}`;
+    return config;
+  }
   const token = localStorage.getItem("accessToken");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
+axiosAPI.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    // 401 또는 403 응답 시 자동 로그아웃 이벤트 발생
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      window.dispatchEvent(new CustomEvent("forceLogout"));
+    }
+    return Promise.reject(error);
+  }
+);
