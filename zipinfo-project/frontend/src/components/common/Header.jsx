@@ -81,17 +81,17 @@ const Header = () => {
           </li>
           <li
             className={
-              location.pathname.startsWith("/announce") ? "active" : ""
-            }
-          >
-            <Link to="/announce">공지사항</Link>
-          </li>
-          <li
-            className={
               location.pathname.startsWith("/neighborhoodBoard") ? "active" : ""
             }
           >
             <Link to="/neighborhoodBoard">우리동네</Link>
+          </li>
+          <li
+            className={
+              location.pathname.startsWith("/announce") ? "active" : ""
+            }
+          >
+            <Link to="/announce">공지사항</Link>
           </li>
           <li
             className={

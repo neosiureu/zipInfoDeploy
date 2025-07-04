@@ -6,8 +6,6 @@
 }
 
 .nb-detail-wrapper {
-  background-color: white;
-  border-radius: 8px;
   padding: 40px;
 }
 
@@ -22,9 +20,9 @@
 
 /* 헤더 영역 */
 .nb-detail-header {
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 1px solid #dbdbdb;
   padding-bottom: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .nb-detail-title {
@@ -38,16 +36,11 @@
 .nb-detail-meta {
   display: flex;
   align-items: center;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 400;
   color: #767676;
   gap: 10px;
   justify-content: flex-end;
-}
-
-.nb-detail-author,
-.nb-detail-date,
-.nb-detail-views {
-  font-weight: 500;
 }
 
 .nb-detail-separator {
@@ -96,9 +89,9 @@
   margin-top: 150px;
 }
 .nb-detail-btn {
-  min-width: 88px;
-  height: 44px;
-  padding: 0 24px;
+  min-width: 68px;
+  height: 42px;
+  padding: 0 20px;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 500;
@@ -112,31 +105,19 @@
   justify-content: center;
 }
 .nb-detail-btn-edit {
-  background: #4256ec;
+  background: #495cf8;
   color: #fff;
   border: none;
-}
-.nb-detail-btn-edit:hover {
-  background: #2938c8;
 }
 .nb-detail-btn-delete {
   background: #111;
   color: #fff;
   border: none;
 }
-.nb-detail-btn-delete:hover {
-  background: #222;
-  color: #fff;
-}
 .nb-detail-btn-list {
   background: #fff;
   color: #111;
   border: 1.5px solid #e2e5ea;
-}
-.nb-detail-btn-list:hover {
-  background: #f4f5fa;
-  color: #4256ec;
-  border-color: #4256ec;
 }
 .nb-detail-sigungu {
   display: grid;
@@ -171,4 +152,9 @@
   grid-column: 2 / 3;
   margin: 0;
   justify-self: end; /* 우측 정렬 */
+}
+
+.nb-detail-sigungu-detail {
+  color: #767676;
+  font-weight: 400;
 }

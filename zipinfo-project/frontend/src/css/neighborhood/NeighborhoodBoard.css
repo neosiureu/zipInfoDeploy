@@ -326,3 +326,40 @@
 .nb-search-btn:hover {
   background-color: #f8f9fa;
 }
+
+.nb-select-wrap {
+  position: relative;
+  display: inline-block;
+  min-width: 120px;
+  max-width: 200px;
+}
+
+.nb-select-wrap select {
+  height: 36px;
+  min-width: 120px;
+  max-width: 200px;
+  padding: 0 16px 0 10px;
+  border: 1.5px solid #ddd;
+  background: #fff;
+  font-size: 14px;
+  color: #111;
+  appearance: none;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px 16px;
+}
+
+.nb-select-wrap .arrow-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  width: 16px;
+  height: 16px;
+}
+
+.nb-select-wrap select:focus {
+  border-color: #007bff;
+  outline: none;
+}

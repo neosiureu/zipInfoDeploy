@@ -68,59 +68,72 @@ const AnnounceDetail = () => {
 
   return (
     <div className="an-detail-container">
-      {/* 제목 표시 */}
-      <h2 className="an-detail-title">{post.announceTitle || post.title}</h2>
-
-      {/* 작성자, 작성일, 조회수 메타 정보 */}
-      <div className="an-detail-meta">
-        <span>작성자: {post.memberNickname || post.author}</span>
-        <span>
-          작성일:{" "}
-          {post.announceWriteDate
-            ? new Date(post.announceWriteDate).toLocaleDateString()
-            : post.createdAt
-            ? new Date(post.createdAt).toLocaleDateString()
-            : "날짜 없음"}
-        </span>
-        <span>조회수: {post.announceReadCount ?? post.viewCount ?? 0}</span>
-      </div>
-
-      {/* 본문 내용 */}
-      <div
-        className="an-detail-content"
-        dangerouslySetInnerHTML={{ __html: post.announce || post.content }}
-      ></div>
-
-      {/* 버튼들 한 줄로 정렬 */}
-      <div className="an-detail-buttons">
-        {isAdmin && (
-          <>
-            <button
-              className="an-detail-btn-edit"
-              onClick={() =>
-                navigate(`/announce/edit/${id}`, {
-                  state: {
-                    id: id,
-                    title: post.announceTitle,
-                    content: post.announce,
-                  },
-                })
-              }
-            >
-              수정
-            </button>
-
-            <button className="an-detail-btn-delete" onClick={handleDelete}>
-              삭제
-            </button>
-          </>
-        )}
-        <button
-          className="an-detail-btn-back"
-          onClick={() => navigate("/announce")}
+      <div className="an-detail-wrapper">
+        <div
+          className="an-detail-header"
+          style={{
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            gap: "20px",
+          }}
         >
-          목록으로
-        </button>
+          <h2 className="an-detail-title">
+            {post.announceTitle || post.title}
+          </h2>
+          <div className="an-detail-meta">
+            <span>작성자 : {post.memberNickname || post.author}</span>
+            <span className="an-detail-separator">|</span>
+            <span>
+              작성일 :{" "}
+              {post.announceWriteDate
+                ? new Date(post.announceWriteDate).toLocaleDateString()
+                : post.createdAt
+                ? new Date(post.createdAt).toLocaleDateString()
+                : "날짜 없음"}
+            </span>
+            <span className="an-detail-separator">|</span>
+            <span>조회수: {post.announceReadCount ?? post.viewCount ?? 0}</span>
+          </div>
+        </div>
+
+        {/* 본문 내용 */}
+        <div
+          className="an-detail-content"
+          dangerouslySetInnerHTML={{ __html: post.announce || post.content }}
+        ></div>
+
+        {/* 버튼들 한 줄로 정렬 */}
+        <div className="an-detail-buttons">
+          {isAdmin && (
+            <>
+              <button
+                className="an-detail-btn-edit"
+                onClick={() =>
+                  navigate(`/announce/edit/${id}`, {
+                    state: {
+                      id: id,
+                      title: post.announceTitle,
+                      content: post.announce,
+                    },
+                  })
+                }
+              >
+                수정
+              </button>
+
+              <button className="an-detail-btn-delete" onClick={handleDelete}>
+                삭제
+              </button>
+            </>
+          )}
+          <button
+            className="an-detail-btn-back"
+            onClick={() => navigate("/announce")}
+          >
+            목록으로
+          </button>
+        </div>
       </div>
     </div>
   );
