@@ -1,6 +1,7 @@
 package com.zipinfo.project.myPage.model.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -68,6 +69,8 @@ public interface MyPageService {
 	HelpMessage getMessageFile(int messageNo);
 
 	int addSawStock(Stock stock);
+
+	Map<String, Object> searchResult(String value);
 
 
 }

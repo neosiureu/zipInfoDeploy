@@ -363,4 +363,16 @@
 		WHERE STOCK_NO = #{deleteNo}
 	</delete>
 	
+	<select id="searchStock">
+		SELECT * FROM "STOCK_INFO"
+		WHERE REPLACE(STOCK_NAME, ' ', '') LIKE '%' || REPLACE(#{value}, ' ', '') || '%'
+		OR REPLACE(STOCK_ADDRESS, ' ', '') LIKE '%' || REPLACE(#{value}, ' ', '') || '%'
+	</select>
+	
+	<select id="searchSale">
+		SELECT * FROM "SALE_INFO"
+		WHERE REPLACE(SALE_STOCK_NAME, ' ', '') LIKE '%' || REPLACE(#{value}, ' ', '') || '%'
+		OR REPLACE(SALE_ADDRESS, ' ', '') LIKE '%' || REPLACE(#{value}, ' ', '') || '%'
+	</select>
+	
 </mapper>

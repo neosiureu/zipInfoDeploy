@@ -21,10 +21,11 @@ import saleMain03 from "../assets/sale-thumbnail-03.svg";
 import saleMain04 from "../assets/sale-thumbnail-04.svg";
 
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { axiosAPI } from "../api/axiosApi";
 
 import { formatPrice } from "../components/common/priceConvert";
+import axios from "axios";
 
 const Main = () => {
   const navigate = useNavigate();
@@ -32,6 +33,46 @@ const Main = () => {
   const [stockList, setStockList] = useState([]);
   const [saleList, setSaleList] = useState([]);
   const [mainAd, setMainAd] = useState(null);
+
+  const [searchContent, setSearchContent] = useState(null);
+
+  const searchRef = useRef(null);
+
+  const [isSearchActive, setIsSearchActive] = useState(false);
+
+  const [searchRegion, setSearchRegion] = useState([]);
+  const [searchStock, setSearchStock] = useState([]);
+  const [searchSale, setSearchSale] = useState([]);
+
+  const handleSearchActive = () => {
+    setIsSearchActive(true);
+  };
+
+  const handleSearchResult = async (e) => {
+    const value = e.target.value;
+    setSearchContent(value);
+    const response = await axiosAPI.post("/myPage/searchResult", value);
+    console.log(response.data);
+    setSearchStock(response.data.stock);
+    setSearchSale(response.data.sale);
+  };
+
+  const returnAddress = (add) => {
+    const str = add;
+    const parts = str.split("^^^");
+    const address = parts[1]; // "서울 중랑구 중랑역로 272-6"
+
+    return address;
+  };
+
+  const returnType = (form) => {
+    const forms = {
+      1: "아파트",
+      2: "빌라",
+      3: "오피스텔",
+    };
+    return forms[form] || "기타";
+  };
 
   // 배너 URL 처리
   const bannerPath = localStorage.getItem("mainBannerUrl");
@@ -60,6 +101,23 @@ const Main = () => {
     loadSale();
     loadAd();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        isSearchActive &&
+        searchRef.current &&
+        !searchRef.current.contains(e.target)
+      ) {
+        setIsSearchActive(false); // 외부 클릭 시 닫기
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSearchActive]);
 
   const StockSample = () => {
     return stockList.map((item, index) => (
@@ -175,10 +233,71 @@ const Main = () => {
             당신의 삶이 머무를 공간을 위해 믿을 수 있는 정보로 함께
             찾아드립니다.
           </p>
-          <div className="search-bar">
-            <img src={search} alt="검색 아이콘" className="main-search-icon" />
-            <input type="text" placeholder="검색어를 입력하세요" />
+          <div className="search-wrapper">
+            <div
+              ref={searchRef}
+              className={!isSearchActive ? "search-bar" : "search-bar-active"}
+            >
+              <img
+                src={search}
+                alt="검색 아이콘"
+                className="main-search-icon"
+              />
+              <input
+                onFocus={() => setIsSearchActive(true)}
+                onClick={() => handleSearchActive()}
+                onChange={handleSearchResult}
+                type="text"
+                placeholder="검색어를 입력하세요"
+                value={searchContent}
+              />
+              {isSearchActive && (
+                <div className="expanded-search-overlay">
+                  <div className="expanded-search-container">
+                    <div className="search-column">
+                      <h3>지역, 지하철, 대학교</h3>
+                      <ul>
+                        {searchRegion?.map((item, idx) => (
+                          <li key={idx}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="search-column-1">
+                      <h3>단지</h3>
+                      <ul>
+                        {searchStock?.map((item, idx) => (
+                          <li
+                            key={idx}
+                            onClick={() => navigate(`/stock/${item.stockNo}`)}
+                          >
+                            <div>
+                              <div>{item.stockName}</div>
+                              <div>{returnAddress(item.stockAddress)}</div>
+                            </div>
+                            <div>
+                              <div>{returnType(item.stockForm)}</div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="search-bottom-block"></div>
+                    </div>
+
+                    <div className="search-column">
+                      <h3>분양</h3>
+                      <ul>
+                        {searchSale?.map((item, idx) => (
+                          <li key={idx}>{item.saleStockName}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
+
           <div className="main-icons">
             <button
               className="apart-icons"

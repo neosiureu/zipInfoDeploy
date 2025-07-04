@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.zipinfo.project.admin.model.dto.HelpMessage;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
+import com.zipinfo.project.sale.model.dto.Sale;
 import com.zipinfo.project.stock.model.dto.Stock;
 
 @Mapper
@@ -122,6 +123,10 @@ public interface MyPageMapper {
 	List<Integer> getSawStockNo(Stock stock);
 
 	int deleteSawStock(int deleteNo);
+
+	List<Stock> searchStock(String value);
+
+	List<Sale> searchSale(String value);
 
 
 }
