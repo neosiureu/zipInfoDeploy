@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 
 export default function SummernoteEditor({ value, onChange, disabled }) {
   const editorRef = useRef(null);
@@ -121,8 +122,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
   // 텍스트 오프셋 기반 커서 위치 저장 함수
   const saveCursorPosition = () => {
-    console.log(" [CURSOR] saveCursorPosition 시작");
-
     const selection = window.getSelection();
     if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
@@ -163,10 +162,8 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
         return cursor;
       } else {
-        console.log(" [CURSOR] 커서 위치 저장 실패: editable 영역 밖");
       }
     } else {
-      console.log(" [CURSOR] 커서 위치 저장 실패: selection.rangeCount = 0");
     }
     return null;
   };
@@ -174,14 +171,8 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
   // 개선된 커서 위치 복원 함수
   const restoreCursorPosition = (savedPosition) => {
     if (!savedPosition) {
-      console.log(" [CURSOR] 복원 실패: savedPosition이 null");
       return false;
     }
-
-    console.log(" [CURSOR] 커서 위치 복원 시도:", {
-      nodeOffset: savedPosition.startOffset,
-      textOffset: savedPosition.textOffset,
-    });
 
     const $editable = window
       .$(editorRef.current)
@@ -189,7 +180,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
       .find(".note-editable");
 
     if (!$editable[0]) {
-      console.log(" [CURSOR] 복원 실패: editable 없음");
       return false;
     }
 
@@ -214,15 +204,10 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
         selection.removeAllRanges();
         selection.addRange(range);
-
-        console.log("[CURSOR] 텍스트 오프셋 방식으로 복원 성공");
         return true;
       } else {
-        console.log(" [CURSOR] 텍스트 오프셋 방식 실패: 위치 찾을 수 없음");
       }
-    } catch (e) {
-      console.log(" [CURSOR] 복원 실패 (예외):", e.message);
-    }
+    } catch (e) {}
 
     return false;
   };
@@ -232,12 +217,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
     const wasTyping = isTyping.current;
     isTyping.current = true;
 
-    console.log(" [TYPING] startTyping 호출", {
-      wasTyping,
-      isComposing: isComposing.current,
-      queueLength: changeQueue.current.length,
-    });
-
     // 이전 타임아웃 클리어
     if (typingTimeout.current) {
       clearTimeout(typingTimeout.current);
@@ -245,7 +224,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
     // 200ms 후 타이핑 종료로 간주 (안정성 향상)
     typingTimeout.current = setTimeout(() => {
-      console.log("[TYPING] 타이핑 종료 (타임아웃)");
       isTyping.current = false;
       processQueuedChanges();
     }, 200);
@@ -253,34 +231,18 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
   // 큐에 쌓인 변경사항 처리
   const processQueuedChanges = () => {
-    console.log(" [QUEUE] processQueuedChanges 호출", {
-      queueLength: changeQueue.current.length,
-    });
-
     if (changeQueue.current.length === 0) return;
 
     // 가장 최근 변경사항만 처리
     const latestChange = changeQueue.current[changeQueue.current.length - 1];
     changeQueue.current = [];
 
-    console.log(
-      "📋 [QUEUE] 큐에서 최신 변경사항 처리, 내용 길이:",
-      latestChange.contents.length
-    );
     processChange(latestChange.contents);
   };
 
   // 개선된 변경사항 처리 함수
   const processChange = (contents) => {
-    console.log(" [PROCESS] processChange 시작", {
-      contentsLength: contents.length,
-      isProcessing: isProcessingChange.current,
-      isTyping: isTyping.current,
-      isComposing: isComposing.current,
-    });
-
     if (isProcessingChange.current) {
-      console.log(" [PROCESS] 이미 처리 중이므로 중단");
       return;
     }
 
@@ -299,49 +261,28 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
       isEmpty && $editable.text().trim().length === 0;
     const currentlyHasPlaceholder = $editable.hasClass("force-placeholder");
 
-    console.log(" [PLACEHOLDER]", {
-      isEmpty,
-      shouldShow: shouldShowPlaceholder,
-      currentlyHas: currentlyHasPlaceholder,
-      editableTextLength: $editable.text().trim().length,
-    });
-
     if (shouldShowPlaceholder !== currentlyHasPlaceholder) {
       if (shouldShowPlaceholder) {
-        console.log(" [PLACEHOLDER] 플레이스홀더 추가");
         $editable.addClass("force-placeholder");
       } else {
-        console.log(" [PLACEHOLDER] 플레이스홀더 제거");
         $editable.removeClass("force-placeholder");
       }
     }
 
     // 커서 복원 (isComposing 체크 제거, 타이핑 중이 아닐 때만)
     if (currentCursor && !isTyping.current) {
-      console.log(" [PROCESS] 커서 복원 시도");
       requestAnimationFrame(() => {
-        console.log("[PROCESS] requestAnimationFrame 실행");
-        const restored = restoreCursorPosition(currentCursor);
-        console.log(" [PROCESS] 커서 복원 결과:", restored ? "성공" : "실패");
-
         // 커서 복원 후 React 상태 업데이트
         setTimeout(() => {
-          console.log(" [PROCESS] onChange 호출");
           if (onChange) onChange(contents);
         }, 10);
       });
     } else {
-      console.log("⏭[PROCESS] 커서 복원 건너뜀", {
-        hasCursor: !!currentCursor,
-        isTyping: isTyping.current,
-      });
       // 커서 복원을 하지 않는 경우에는 즉시 onChange 호출
-      console.log(" [PROCESS] onChange 즉시 호출");
       if (onChange) onChange(contents);
     }
 
     isProcessingChange.current = false;
-    console.log("[PROCESS] processChange 완료");
   };
 
   // 진짜 썸머노츠 동적 로딩
@@ -383,7 +324,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
       };
 
       link.onerror = () => {
-        console.error("Bootstrap CSS 로드 실패");
         resolve();
       };
 
@@ -419,16 +359,13 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
     if ($editable.length) {
       const handleCompositionStart = () => {
-        console.log("🇰🇷 [COMPOSITION] 조합 시작");
         isComposing.current = true;
       };
 
       const handleCompositionEnd = () => {
-        console.log("🇰🇷 [COMPOSITION] 조합 종료");
         // 조합 종료를 약간 지연시켜 안정성 확보
         setTimeout(() => {
           isComposing.current = false;
-          console.log("[COMPOSITION] 조합 상태 완전 종료");
         }, 50);
       };
 
@@ -473,16 +410,8 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
             const currentTime = Date.now();
             const timeDiff = currentTime - lastChangeTime.current;
 
-            console.log("[ONCHANGE]", {
-              contentsLength: contents.length,
-              timeDiff,
-              isTyping: isTyping.current,
-              queueLength: changeQueue.current.length,
-            });
-
             // 빠른 연속 입력 감지 (150ms 이내로 조정)
             if (timeDiff < 150) {
-              console.log("⚡ [ONCHANGE] 빠른 입력 감지 - 큐에 추가");
               startTyping();
 
               // 변경사항을 큐에 추가
@@ -494,7 +423,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
               // 큐가 너무 커지지 않도록 제한
               if (changeQueue.current.length > 10) {
                 changeQueue.current = changeQueue.current.slice(-5);
-                console.log("📋 [ONCHANGE] 큐 크기 제한으로 인한 정리");
               }
 
               lastChangeTime.current = currentTime;
@@ -505,10 +433,8 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
             // 타이핑 중이 아니면 즉시 처리
             if (!isTyping.current) {
-              console.log(" [ONCHANGE] 즉시 처리");
               processChange(contents);
             } else {
-              console.log(" [ONCHANGE] 타이핑 중이므로 큐에 추가");
               // 타이핑 중이면 큐에 추가
               changeQueue.current.push({
                 contents: contents,
@@ -608,7 +534,14 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
               });
             };
             img.onerror = () => {
-              alert("이미지를 불러올 수 없습니다.");
+              toast.error(
+                <div>
+                  <div className="toast-error-title">오류 알림!</div>
+                  <div className="toast-error-body">
+                    이미지를 불러올 수 없습니다.
+                  </div>
+                </div>
+              );
             };
             img.src = url;
           },
@@ -848,14 +781,8 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
         !isProcessingChange.current &&
         !isTyping.current
       ) {
-        console.log("🔄 [EFFECT] value prop 변경으로 인한 코드 업데이트");
         $editor.summernote("code", value || "");
       } else {
-        console.log("⏭️ [EFFECT] 코드 업데이트 건너뜀", {
-          sameValue: currentCode === value,
-          isProcessing: isProcessingChange.current,
-          isTyping: isTyping.current,
-        });
       }
     }
   }, [value, isReady]);

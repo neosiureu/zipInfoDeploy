@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { MemberContext } from "../member/MemberContext";
 import { axiosAPI } from "../../api/axiosAPI";
 import "../../css/neighborhood/NeighborhoodBoardComment.css";
+import { toast } from "react-toastify";
 
 //NeighborhoodCommentSection  ────────(데이터/상태 총괄)
 //   └─ fetchComments()  ───>  comments []   (DB → 평면 배열)
@@ -23,8 +24,20 @@ const CommentItem = ({ comment, loginMember, reload }) => {
 
   // 답글의 삽입 (진짜 댓글을 아래 세번째 컴포넌트에서 따로 처리하게 된다)
   const addReply = async () => {
-    if (!loginMember) return alert("로그인 후 이용해주세요");
-    if (!text.trim()) return alert("내용을 입력해주세요");
+    if (!loginMember)
+      return toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">로그인 후 이용해주세요.</div>
+        </div>
+      );
+    if (!text.trim())
+      return toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">내용을 입력해주세요.</div>
+        </div>
+      );
     const params = {
       commentContent: text,
       memberNo: loginMember?.memberNo,
@@ -37,7 +50,12 @@ const CommentItem = ({ comment, loginMember, reload }) => {
       setText("");
       reload();
     } else {
-      alert("답글 등록 실패!");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">답글 등록에 실패했습니다.</div>
+        </div>
+      );
     }
   };
 
@@ -48,14 +66,25 @@ const CommentItem = ({ comment, loginMember, reload }) => {
       `/boardComment/${comment.commentNo}`
     );
     if (result > 0) {
-      alert("댓글이 삭제되었습니다");
+      toast.success(
+        <div>
+          <div className="toast-success-title">삭제 성공 알림!</div>
+          <div className="toast-success-body">댓글이 삭제되었습니다.</div>
+        </div>
+      );
       reload();
     }
   };
 
   // 댓글의 수정
   const update = async () => {
-    if (!text.trim()) return alert("내용을 입력해주세요");
+    if (!text.trim())
+      return toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">내용을 입력해주세요.</div>
+        </div>
+      );
     const { data: result } = await axiosAPI.put(
       `/boardComment/${comment.commentNo}`,
       { commentContent: text }
@@ -186,7 +215,7 @@ const NeighborhoodCommentSection = ({ boardNo }) => {
         });
         setComments(data);
       } catch (error) {
-        console.log("댓글 목록 로딩 오류");
+        console.log(error);
       } finally {
         setLoading(false);
       }
@@ -196,8 +225,20 @@ const NeighborhoodCommentSection = ({ boardNo }) => {
 
   // 새 댓글등록
   const handleInsertComment = async () => {
-    if (!member) return alert("로그인 후 이용해주세요");
-    if (!content.trim()) return alert("내용을 작성해주세요");
+    if (!member)
+      return toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">로그인 후 이용해주세요.</div>
+        </div>
+      );
+    if (!content.trim())
+      return toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">내용을 작성해주세요.</div>
+        </div>
+      );
 
     // 뭘 서버로 보낼래?
     const params = {
@@ -212,9 +253,19 @@ const NeighborhoodCommentSection = ({ boardNo }) => {
       setRefreshKey((k) => k + 1);
       reload();
       // 트리거를 증가시켜 한 화면에서 댓글을 다시 로드한다
-      alert("댓글이 등록되었습니다");
+      toast.success(
+        <div>
+          <div className="toast-success-title">댓글 등록 알림!</div>
+          <div className="toast-success-body">댓글이 등록되었습니다.</div>
+        </div>
+      );
     } else {
-      alert("댓글 등록 실패");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">댓글 등록에 실패하였습니다.</div>
+        </div>
+      );
     }
   };
 

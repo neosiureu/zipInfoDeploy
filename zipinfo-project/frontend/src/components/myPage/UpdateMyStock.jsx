@@ -118,7 +118,14 @@ export default function AddStock() {
     setStockTumbImg(file);
 
     if (file.size > maxFileSize) {
-      toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            파일 크기는 10MB 이하만 업로드 할 수 있습니다.
+          </div>
+        </div>
+      );
       setStockTumbImg(null);
       return;
     }
@@ -130,7 +137,14 @@ export default function AddStock() {
     const file = e.target.files[0];
 
     if (file.size > maxFileSize) {
-      toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            파일 크기는 10MB 이하만 업로드 할 수 있습니다.
+          </div>
+        </div>
+      );
       return;
     }
 
@@ -139,7 +153,14 @@ export default function AddStock() {
       0
     );
     if (totalSize > maxFilesSize) {
-      toast.error("모든 파일의 합이 30MB를 초과합니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            모든 파일 합이 30MB를 초과합니다.
+          </div>
+        </div>
+      );
       return;
     }
 
@@ -151,7 +172,14 @@ export default function AddStock() {
     setBalanceImg(file);
 
     if (file.size > maxFileSize) {
-      toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            파일 크기는 10MB 이하만 업로드 할 수 있습니다.
+          </div>
+        </div>
+      );
       setStockTumbImg(null);
       return;
     }
@@ -186,7 +214,12 @@ export default function AddStock() {
           regionNo: admCdNo,
         }));
       } else {
-        toast.error("검색 결과 없음");
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">검색 결과가 없습니다.</div>
+          </div>
+        );
       }
 
       // 정리
@@ -239,7 +272,12 @@ export default function AddStock() {
             lng: x,
           }));
         } else {
-          toast.error("좌표를 찾을 수 없습니다.");
+          toast.error(
+            <div>
+              <div className="toast-error-title">오류 알림!</div>
+              <div className="toast-error-body">좌표를 찾을 수 없습니다.</div>
+            </div>
+          );
           setFormData((prev) => ({
             ...prev,
             lat: 0,
@@ -251,8 +289,6 @@ export default function AddStock() {
   };
 
   const handleStockType = (e) => {
-    console.log(formData);
-
     const { value } = e.target;
 
     setFormData((prev) => ({
@@ -487,7 +523,12 @@ export default function AddStock() {
       for (const [key, value] of Object.entries(checkData)) {
         if (!value) {
           const label = keyToLabel[key] || key;
-          toast.error(`${label} 올바르지 않습니다.`);
+          toast.error(
+            <div>
+              <div className="toast-error-title">오류 알림!</div>
+              <div className="toast-error-body">{label} 올바르지 않습니다.</div>
+            </div>
+          );
           return;
         }
       }
@@ -513,10 +554,8 @@ export default function AddStock() {
         convertedData,
         { withCredentials: true }
       );
-      console.log("엑세스토큰", localStorage.getItem("accessToken"));
 
       if (response.status === 200) {
-        console.log("기본 정보 등록 완료");
         // const combinedImages = [
         // ...(stockTumbImg ? [stockTumbImg] : []),
         // ...(balanceImg ? [balanceImg] : []),
@@ -534,11 +573,6 @@ export default function AddStock() {
               headers: { "Content-Type": "multipart/form-data" },
             }
           );
-          if (tumbImgResp.status === 200) {
-            console.log("썸네일 업데이트 완료.");
-          } else {
-            console.log("썸네일 업데이트 실패");
-          }
         }
 
         if (balanceImg !== null) {
@@ -553,11 +587,6 @@ export default function AddStock() {
               headers: { "Content-Type": "multipart/form-data" },
             }
           );
-          if (balanceImgResp.status === 200) {
-            console.log("평형 이미지 업데이트 완료.");
-          } else {
-            console.log("평형 이미지 업데이트 실패");
-          }
         }
 
         if (stockImg.length !== 0) {
@@ -572,14 +601,16 @@ export default function AddStock() {
               headers: { "Content-Type": "multipart/form-data" },
             }
           );
-          if (stockImgResp.status === 200) {
-            console.log("이미지 업데이트 완료.");
-          } else {
-            console.log("썸네일 업데이트 실패");
-          }
         }
 
-        toast.success("매물 수정이 완료되었습니다");
+        toast.success(
+          <div>
+            <div className="toast-success-title">수정 성공 알림!</div>
+            <div className="toast-success-body">
+              매물 정보가 수정되었습니다.
+            </div>
+          </div>
+        );
         nav("/myPage/myStock");
       }
     } catch (error) {

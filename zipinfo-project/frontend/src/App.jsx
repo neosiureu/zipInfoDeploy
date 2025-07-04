@@ -8,6 +8,7 @@ import AdminRoute from "./AdminRoute";
 
 import Main from "./components/Main";
 import SalePage from "./components/sale/SalePage";
+import { CITY, TOWN } from "./components/common/Gonggong";
 
 import "./App.css";
 
@@ -85,59 +86,117 @@ function MessageListener() {
   return null;
 }
 
+export function getLocationName(code) {
+  const codeStr = String(code);
+  if (codeStr.length === 2) {
+    const city = CITY.find(c => c.code === Number(code));
+    return city?.name || "알 수 없음";
+  } else if (codeStr.length === 5) {
+    const town = TOWN.find(t => t.fullcode === String(code));
+    return town?.name || "알 수 없음";
+  }
+  return "유효하지 않은 코드";
+}
+
+
+
 function GlobalWebSocketListener() {
   const stompClientRef = useRef(null);
-
+  const subscriptions = useRef([]);
+  const connectedRef = useRef(false);
   const { member } = useContext(MemberContext);
 
-  const navigate = useNavigate();
+  const memberLocation = member?.memberLocation;
+  const memberCity = String(memberLocation)?.substring(0,2);
 
   useEffect(() => {
-    console.log(member);
-    const socket = new SockJS("http://localhost:8080/ws");
-    const client = Stomp.over(socket);
-    client.connect({}, () => {
-      client.subscribe("/topic/notice", (message) => {
-        toast.info(
-          <div className="toast-announce-container">
-            <div className="toast-announce-title">공지 알림!</div>
-            <div className="toast-announce-con">
+    let isMounted = true;
+
+    const connectWebSocket = () => {
+      const socket = new SockJS("http://localhost:8080/ws");
+      const client = Stomp.over(socket);
+
+      client.connect({}, () => {
+        if (!isMounted) return;
+
+        const sub1 = client.subscribe("/topic/notice", (message) => {
+          toast.info(
+            <div>
+              <div className="toast-announce-title">공지 알림!</div>
               <div className="toast-announce-body">{message.body}</div>
-            </div>
-          </div>,
-          {
-            position: "bottom-right",
-            autoClose: 10000,
-            className: "custom-toast",
-            icon: false,
-          }
-        );
+            </div>,
+            {
+              position: "bottom-right",
+              autoClose: 10000,
+              className: "custom-toast",
+              icon: false,
+            }
+          );
+        });
+
+        let sub2;
+        if (member?.memberLocation) {
+          sub2 = client.subscribe(`/topic/region/${memberLocation}`, (message) => {
+            toast.info(
+              <div>
+                <div className="toast-location-title">우리동네 게시판에 새 글이 등록되었습니다</div>
+                {String(memberLocation).length === 2?<div className="toast-location-body">{getLocationName(memberLocation)}에 대한 게시글이 등록되었습니다.</div>:
+                <div className="toast-location-body">{getLocationName(memberCity)} {getLocationName(memberLocation)}에 대한 게시글이 등록되었습니다.</div>}
+              </div>,
+              {
+                position: "bottom-right",
+                autoClose: 10000,
+                className: "custom-toast",
+                icon: false,
+              }
+            );
+          });
+        }
+
+        // 구독 저장
+        subscriptions.current = sub2 ? [sub1, sub2] : [sub1];
+        stompClientRef.current = client;
+        connectedRef.current = true;
       });
-      client.subscribe(`/topic/region/${member.memberLocation}`, (message) => {
-        toast.info(
-          <div>
-            <strong>관심 지역에 새 글이 등록되었습니다</strong>
-            <div>{message.body}</div>
-          </div>,
-          {
-            position: "bottom-right",
-            autoClose: 10000,
-            className: "custom-toast",
-            icon: false,
-          }
-        );
+    };
+
+    const disconnectWebSocket = async () => {
+      subscriptions.current.forEach((sub) => {
+        try {
+          sub.unsubscribe();
+        } catch (e) {
+        }
       });
-    });
-    stompClientRef.current = client;
+      subscriptions.current = [];
+
+      return new Promise((resolve) => {
+        if (stompClientRef.current?.connected) {
+          stompClientRef.current.disconnect(() => {
+            connectedRef.current = false;
+            resolve();
+          });
+        } else {
+          connectedRef.current = false;
+          resolve();
+        }
+      });
+    };
+
+    // main logic
+    (async () => {
+      await disconnectWebSocket(); // 기존 연결 정리
+      if (isMounted && member?.memberNo) {
+        connectWebSocket(); // 새로운 연결 시도
+      }
+    })();
 
     return () => {
-      if (stompClientRef.current?.connected) {
-        stompClientRef.current.disconnect();
-      }
+      isMounted = false;
+      disconnectWebSocket();
     };
   }, [member]);
 
-  return null; // 렌더링하지 않음
+  return null;
 }
 
 function App() {

@@ -44,8 +44,7 @@ const Main = () => {
     const loadAd = async () => {
       const resp = await axiosAPI.get("/advertisement/getMainAd");
       setMainAd(resp.data);
-      console.log(resp.data);
-    }
+    };
 
     const loadStock = async () => {
       const resp = await axiosAPI.post("/stock/itemOnMain", {});
@@ -115,7 +114,9 @@ const Main = () => {
         <div className="card-desc">
           {item.currentFloor}/{item.floorTotalCount}층 <span>|</span>{" "}
           {item.exclusiveArea}㎡ <span>|</span> 관리비{" "}
-          {item.stockManageFee !== 0 ? `${item.stockManageFee / 10000}만원` : "없음"}
+          {item.stockManageFee !== 0
+            ? `${item.stockManageFee / 10000}만원`
+            : "없음"}
         </div>
         <div className="card-agent">
           <span>
@@ -134,8 +135,6 @@ const Main = () => {
 
     return uniqueList.slice(0, 4).map((item) => {
       const imgUrl = `http://localhost:8080${item.saleImgUrl}`;
-      console.log(`[분양 이미지 URL]`, imgUrl); // 콘솔에 경로 출력
-
       return (
         <div
           className="card-sale"
@@ -216,12 +215,17 @@ const Main = () => {
           </div>
         </div>
       </section>
-      
-      {mainAd && mainAd.adImgUrl !== null?
-      <div className="banner">
-        <img src={`http://localhost:8080${mainAd.adImgUrl}`} alt="배너광고 이미지" />
-      </div>:<div/>
-      }
+
+      {mainAd && mainAd.adImgUrl !== null ? (
+        <div className="banner">
+          <img
+            src={`http://localhost:8080${mainAd.adImgUrl}`}
+            alt="배너광고 이미지"
+          />
+        </div>
+      ) : (
+        <div />
+      )}
 
       <section className="section-main">
         <div className="section-header">

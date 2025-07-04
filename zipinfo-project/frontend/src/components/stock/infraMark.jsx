@@ -62,7 +62,6 @@ const InfraMark = () => {
       } else {
         // SDK 또는 mapInstance가 아직 준비되지 않은 경우 재시도
         setTimeout(waitForMap, 100); // 계속 기다림
-        console.log("setTimeout(waitForMap) 실행중..");
       }
     };
     waitForMap();
@@ -112,7 +111,6 @@ const InfraMark = () => {
         }
       });
       itemMarkersRef.current.map((itemMarker) => {
-        console.log(itemMarker);
         itemMarker.setMap(mapInstanceRef.current);
       });
       //itemMarker.setMap(mapInstanceRef.current);
@@ -127,12 +125,10 @@ const InfraMark = () => {
     if (mapInstanceRef) {
       let ps = new window.kakao.maps.services.Places();
     }*/
-    console.log("mapReady:", mapReady);
 
     if (mapReady) {
       const tryInit = () => {
         if (!mapInstanceRef.current) {
-          console.log("mapInstanceRef 아직 로딩이 안됨!!");
           return;
         }
         const map = mapInstanceRef.current;
@@ -140,7 +136,6 @@ const InfraMark = () => {
           map,
         });
         if (placeRef.current) {
-          console.log("placeRef 저장됨!", placeRef.current);
         }
 
         // ps 객체 활용 가능
@@ -182,7 +177,6 @@ const InfraMark = () => {
             clickedCategoryRef.current === CategoryEnum.NONE ||
             !isCategoryVisibleRef.current
           ) {
-            console.log("idle에서 return 실행");
             return; // 카테고리 선택이 없거나 줌 레벨이 3 이상이면 모든 마커들을 지운다.
           } else {
             Object.entries(CATEGORY_CODE_MAP).forEach(([bit, code]) => {
@@ -195,7 +189,6 @@ const InfraMark = () => {
               }
             });
             itemMarkersRef.current.map((itemMarker) => {
-              console.log(itemMarker);
               itemMarker.setMap(mapInstanceRef.current);
             });
           }
@@ -214,7 +207,6 @@ const InfraMark = () => {
 
     const handler = () => {
       const level = map.getLevel();
-      console.log("지도 레벨 변경됨:", level);
       setZoomLevel(level); // 상태 저장하고 UI 반영 등
     };
 

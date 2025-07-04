@@ -10,6 +10,7 @@ import { useContext, useEffect, useState } from "react";
 import NeighborhoodFilters from "./NeighborhoodFilters";
 import axios from "axios";
 import { MemberContext } from "../member/MemberContext";
+import { toast } from "react-toastify";
 
 const NeighborhoodEdit = () => {
   const location = useLocation();
@@ -62,7 +63,14 @@ const NeighborhoodEdit = () => {
           setContent(data.boardContent);
         })
         .catch((error) => {
-          alert("게시글을 불러오는 중 오류가 발생했습니다.");
+          toast.error(
+            <div>
+              <div className="toast-error-title">오류 알림!</div>
+              <div className="toast-error-body">
+                게시글을 불러오는 중 오류가 발생했습니다.
+              </div>
+            </div>
+          );
         })
         .finally(() => {
           setLoading(false);
@@ -76,25 +84,50 @@ const NeighborhoodEdit = () => {
 
     // 기본 유효성 검사
     if (!title.trim()) {
-      alert("제목을 입력해주세요.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">제목을 입력해주세요.</div>
+        </div>
+      );
       return;
     }
 
     if (!content.trim() || content.trim() === "<p><br></p>") {
-      alert("내용을 입력해주세요.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">내용을 입력해주세요.</div>
+        </div>
+      );
       return;
     }
     // 선택값 검증: -1이면 미선택 상태이므로 막기
     if (selectedCity === -1) {
-      alert("시/도를 선택해주세요.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">시/도를 선택해주세요.</div>
+        </div>
+      );
       return;
     }
     if (selectedTown === -1) {
-      alert("시/군/구를 선택해주세요.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">시/군/구를 선택해주세요.</div>
+        </div>
+      );
       return;
     }
     if (selectedSubject === -1) {
-      alert("주제를 선택해주세요.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">주제를 선택해주세요.</div>
+        </div>
+      );
       return;
     }
 
@@ -113,10 +146,22 @@ const NeighborhoodEdit = () => {
         const { data: result } = await axiosAPI.put("/editBoard", params);
 
         if (result > 0) {
-          alert("글이 수정되었습니다");
+          toast.success(
+            <div>
+              <div className="toast-success-title">수정 성공 알림!</div>
+              <div className="toast-success-body">게시글이 수정되었습니다.</div>
+            </div>
+          );
           navigate(`/neighborhoodBoard/detail/${boardNo}?cp=${cp}`);
         } else {
-          alert("글 수정 실패. 본인의 게시글이 아닙니다!");
+          toast.error(
+            <div>
+              <div className="toast-error-title">오류 알림!</div>
+              <div className="toast-error-body">
+                게시글 수정이 실패했습니다.
+              </div>
+            </div>
+          );
           return; // 실패시 페이지 이동 막기
         }
       } else {
@@ -130,17 +175,36 @@ const NeighborhoodEdit = () => {
         const { data: result } = await axiosAPI.post("/editBoard", params);
 
         if (result > 0) {
-          alert("글이 등록되었습니다");
-          await axiosAPI.post("/neighbor/insert", {memberLocation:selectedTown});
+          toast.success(
+            <div>
+              <div className="toast-success-title">게시글 등록 알림!</div>
+              <div className="toast-success-body">게시글이 등록되었습니다.</div>
+            </div>
+          );
+          await axiosAPI.post("/neighbor/insert", {
+            memberLocation: selectedTown,
+          });
           navigate(`/neighborhoodBoard?cp=${cp}`); // 성공시에 리스트 페이지로 이동
         } else {
-          alert("글 등록 실패");
+          toast.error(
+            <div>
+              <div className="toast-error-title">오류 알림!</div>
+              <div className="toast-error-body">
+                게시글 등록에 실패했습니다.
+              </div>
+            </div>
+          );
           return; // 실패시  중단
         }
       }
     } catch (error) {
       console.error(" 저장 오류:", error);
-      alert("저장 중 오류가 발생했습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">저장 중 오류가 발생했습니다..</div>
+        </div>
+      );
     } finally {
       setLoading(false);
     }

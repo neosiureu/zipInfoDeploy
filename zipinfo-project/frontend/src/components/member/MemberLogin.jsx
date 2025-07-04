@@ -93,7 +93,6 @@ export default function MemberLogin() {
 
   // 회원가입
   const handleSignUp = () => {
-    console.log("회원가입 페이지 진입!!");
     navigate("/signUp"); //router 사용
   };
 
@@ -163,7 +162,7 @@ export default function MemberLogin() {
     }, 600);
   };
 
-  const handleFindPassword = () => console.log("비밀번호 찾기 진입");
+  const handleFindPassword = () => {};
 
   // 랜더링 될떄마다 저장된 ID 불러오기. 화면을 새로고침했을 때마다 새로운게 나오면 안되잖아.
   useEffect(() => {

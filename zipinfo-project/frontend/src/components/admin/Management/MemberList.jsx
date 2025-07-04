@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Search, RefreshCw, Lock, CheckCircle, XCircle } from "lucide-react";
 import axios from "axios";
 import "../../../css/admin/Management/MemberList.css";
+import { toast } from "react-toastify";
 
 const BASE_URL = "http://localhost:8080"; // API 주소에 맞게 변경하세요
 
@@ -77,13 +78,23 @@ const MemberList = ({ initialMembers }) => {
 
     try {
       await axios.delete(`${BASE_URL}/admin/management/members/${memberNo}`);
-      alert("회원이 삭제되었습니다.");
+      toast.success(
+        <div>
+          <div className="toast-success-title">삭제 성공 알림!</div>
+          <div className="toast-success-body">회원정보가 삭제되었습니다.</div>
+        </div>
+      );
 
       // 삭제 후 목록에서 제거
       setCurrentMembers((prev) => prev.filter((m) => m.memberNo !== memberNo));
     } catch (error) {
       console.error("회원 삭제 실패", error);
-      alert("회원 삭제에 실패했습니다. 다시 시도해주세요.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">회원 삭제에 실패하였습니다.</div>
+        </div>
+      );
     }
   };
 

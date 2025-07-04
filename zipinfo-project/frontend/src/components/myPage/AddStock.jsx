@@ -104,7 +104,14 @@ export default function AddStock() {
     const file = e.target.files[0];
 
     if (file.size > maxFileSize) {
-      toast.error("파일 크기는 10MB 이하만 업로드 할 수 있습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            파일 크기는 10MB 이하만 업로드 할 수 있습니다.
+          </div>
+        </div>
+      );
       setStockTumbImg(null);
       return;
     }
@@ -117,7 +124,14 @@ export default function AddStock() {
     const file = e.target.files[0];
 
     if (file.size > maxFileSize) {
-      toast.error("파일 크기는 10MB 이하만 업로드 할 수 있습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            파일 크기는 10MB 이하만 업로드 할 수 있습니다.
+          </div>
+        </div>
+      );
       return;
     }
 
@@ -126,7 +140,14 @@ export default function AddStock() {
       0
     );
     if (totalSize > maxFilesSize) {
-      toast.error("모든 파일의 합이 30MB를 초과합니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            모든 파일의 합이 30MB를 초과합니다.
+          </div>
+        </div>
+      );
       return;
     }
 
@@ -136,7 +157,14 @@ export default function AddStock() {
   const handleBalanceChange = (e) => {
     const file = e.target.files[0];
     if (file.size > maxFileSize) {
-      toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            파일 크기는 10MB 이하만 업로드 할 수 있습니다.
+          </div>
+        </div>
+      );
       setStockTumbImg(null);
       return;
     }
@@ -166,7 +194,12 @@ export default function AddStock() {
           regionNo: admCdNo,
         }));
       } else {
-        toast.error("검색 결과 없음");
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">검색 결과가 없습니다..</div>
+          </div>
+        );
       }
 
       // 정리
@@ -226,7 +259,12 @@ export default function AddStock() {
             lng: x,
           }));
         } else {
-          toast.error("좌표를 찾을 수 없습니다.");
+          toast.error(
+            <div>
+              <div className="toast-error-title">오류 알림!</div>
+              <div className="toast-error-body">좌표를 찾을 수 없습니다.</div>
+            </div>
+          );
           setFormData((prev) => ({
             ...prev,
             lat: 0,
@@ -238,8 +276,6 @@ export default function AddStock() {
   };
 
   const handleStockType = (e) => {
-    console.log(formData);
-
     const { value } = e.target;
 
     setFormData((prev) => ({
@@ -474,23 +510,43 @@ export default function AddStock() {
       for (const [key, value] of Object.entries(checkData)) {
         if (!value) {
           const label = keyToLabel[key] || key;
-          toast.error(`${label} 올바르지 않습니다.`);
+          toast.error(
+            <div>
+              <div className="toast-error-title">오류 알림!</div>
+              <div className="toast-error-body">{label} 올바르지 않습니다.</div>
+            </div>
+          );
           return;
         }
       }
 
       if (stockTumbImg === null) {
-        toast.error("썸네일 이미지를 넣어주세요.");
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">썸네일 이미지를 넣어주세요.</div>
+          </div>
+        );
         return;
       }
 
       if (balanceImg === null) {
-        toast.error("평형 이미지를 넣어주세요.");
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">평형 이미지를 넣어주세요.</div>
+          </div>
+        );
         return;
       }
 
       if (stockImg.length == 0) {
-        toast.error("매물 사진을 넣어주세요.");
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">매물 사진을 넣어주세요.</div>
+          </div>
+        );
         return;
       }
 
@@ -530,7 +586,14 @@ export default function AddStock() {
         );
 
         if (imgResp.status === 200) {
-          toast.success("매물 등록이 완료되었습니다.");
+          toast.success(
+            <div>
+              <div className="toast-success-title">매물 등록 알림!</div>
+              <div className="toast-success-body">
+                매물 등록이 완료되었습니다.
+              </div>
+            </div>
+          );
           nav("/myPage");
         }
       }
@@ -886,7 +949,7 @@ export default function AddStock() {
 
           {/* 서체정보 섹션 */}
           <div className="my-page-stock-section">
-            <h2 className="my-page-stock-section-title">서체정보</h2>
+            <h2 className="my-page-stock-section-title">매물사진</h2>
             <div className="my-page-stock-form-group">
               <div className="my-page-stock-image-upload-section">
                 <div className="my-page-stock-image-upload-header">

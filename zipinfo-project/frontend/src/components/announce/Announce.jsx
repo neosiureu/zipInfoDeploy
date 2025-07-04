@@ -3,6 +3,7 @@ import { fetchPosts } from "../../api/AnnounceApi";
 import { useNavigate } from "react-router-dom";
 import { MemberContext } from "../member/MemberContext";
 import "../../css/announce/Announce.css";
+import { toast } from "react-toastify";
 
 const Announce = () => {
   const [posts, setPosts] = useState([]);
@@ -22,17 +23,10 @@ const Announce = () => {
     return Number(memberAuth) === 0;
   }, [user]);
 
-  // 디버깅용: 현재 user와 isAdmin 상태 로그
-  useEffect(() => {
-    console.log("현재 user:", user);
-    console.log("isAdmin:", isAdmin);
-  }, [user, isAdmin]);
-
   // 공지사항 목록 불러오기 함수 (페이지 번호를 0부터 받음)
   const loadPosts = async (page = 0, searchKeyword = keyword) => {
     try {
       const data = await fetchPosts(page, 10, searchKeyword);
-      console.log("공지사항 데이터:", data); // 데이터 형태 확인용
 
       setPosts(data.posts || []);
       setTotalPages(data.totalPages || 1);
@@ -81,7 +75,14 @@ const Announce = () => {
   // 글쓰기 버튼 클릭 시 관리자 여부 확인 후 이동
   const handleWriteClick = () => {
     if (!isAdmin) {
-      alert("관리자만 글을 작성할 수 있습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            관리자만 공지사항을 작성할 수 있습니다.
+          </div>
+        </div>
+      );
       return;
     }
     navigate("/announce/write");

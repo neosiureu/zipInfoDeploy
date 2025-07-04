@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Search, RefreshCw } from "lucide-react";
 import "../../../css/admin/Management/DeletedMembers.css";
+import { toast } from "react-toastify";
 
 const roleOptions = ["일반회원", "중개인", "관리자"];
 const BASE_URL = "http://localhost:8080"; // API 주소 맞게 조정하세요
@@ -20,7 +21,6 @@ const DeletedMembers = () => {
       const response = await axios.get(
         `${BASE_URL}/admin/management/members/deleted`
       );
-      console.log("삭제된 회원 데이터:", response.data); // 서버 응답 구조 확인용 로그
       setDeletedMembers(response.data);
     } catch (error) {
       console.error("삭제된 회원 목록 로드 실패:", error);
@@ -67,14 +67,31 @@ const DeletedMembers = () => {
       );
 
       if (response.status === 200) {
-        alert("계정이 성공적으로 복구되었습니다.");
+        toast.success(
+          <div>
+            <div className="toast-success-title">복구 성공 알림!</div>
+            <div className="toast-success-body">
+              계정이 성공적으로 복구되었습니다.
+            </div>
+          </div>
+        );
         await fetchDeletedMembers(); // 복구 후 목록 최신화
       } else {
-        alert("복구에 실패했습니다. 다시 시도해주세요.");
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">복구에 실패하였습니다.</div>
+          </div>
+        );
       }
     } catch (error) {
       console.error("계정 복구 중 오류:", error);
-      alert("복구 중 오류가 발생했습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">복구 중 오류가 발생하였습니다.</div>
+        </div>
+      );
     }
   };
 

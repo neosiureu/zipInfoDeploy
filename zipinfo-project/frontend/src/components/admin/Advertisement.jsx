@@ -19,9 +19,7 @@ const Advertisement = () => {
   // 컴포넌트 마운트 시 서버에서 광고 리스트 불러오기
   const fetchAds = async () => {
     try {
-      const resp = await axios.get(
-        "http://localhost:8080/advertisement/list"
-      );
+      const resp = await axios.get("http://localhost:8080/advertisement/list");
       // 서버에서 받아오는 데이터가 아래 형태라 가정
       // [{ id, imageUrl, author, isMain }, ...]
       setAds(resp.data);
@@ -31,7 +29,6 @@ const Advertisement = () => {
   };
 
   useEffect(() => {
-
     fetchAds();
   }, []);
 
@@ -47,16 +44,28 @@ const Advertisement = () => {
     const maxFileSize = 10 * 1024 * 1024;
 
     if (!selectedFile) {
-      alert("업로드할 파일을 선택해주세요.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">업로드할 파일을 선택해주세요.</div>
+        </div>
+      );
       setSelectedFile(null);
       return;
     }
 
     if (selectedFile.size > maxFileSize) {
-        toast.error("파일 크기는 10MB 이하만 업로드할 수 있습니다.");
-        setSelectedFile(null);
-        return;
-      }
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            파일 크기는 10MB 이하만 업로드할 수 있습니다.
+          </div>
+        </div>
+      );
+      setSelectedFile(null);
+      return;
+    }
 
     try {
       const formData = new FormData();
@@ -66,42 +75,51 @@ const Advertisement = () => {
       const response = await axios.post(
         "http://localhost:8080/advertisement/register",
         formData,
-        {withCredentials: true}
+        { withCredentials: true }
       );
 
-      if(response.status === 200){
+      if (response.status === 200) {
         fetchAds();
       }
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
-      alert("이미지가 성공적으로 업로드되었습니다.");
+      toast.success(
+        <div>
+          <div className="toast-success-title">광고 등록 성공 알림!</div>
+          <div className="toast-success-body">광고가 등록되었습니다..</div>
+        </div>
+      );
     } catch (error) {
       console.error("이미지 업로드 실패", error);
-      alert("이미지 업로드에 실패했습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">광고 등록에 실패하였습니다.</div>
+        </div>
+      );
     }
   };
 
   // ✅ 광고 메인 등록/해제 토글
   const handleToggleMain = async (adNo) => {
-      const response = await axios.post(
-        "http://localhost:8080/advertisement/updateMain",
-        {adNo:parseInt(adNo)},
-        {withCredentials: true}
-      );
+    const response = await axios.post(
+      "http://localhost:8080/advertisement/updateMain",
+      { adNo: parseInt(adNo) },
+      { withCredentials: true }
+    );
 
-      fetchAds();
-
+    fetchAds();
   };
 
   // ✅ 광고 삭제 (클라이언트 상태에서만 삭제)
   const handleDelete = async (adNo) => {
-      const response = await axios.post(
-        "http://localhost:8080/advertisement/delete",
-        {adNo:parseInt(adNo)},
-        {withCredentials: true}
-      );
+    const response = await axios.post(
+      "http://localhost:8080/advertisement/delete",
+      { adNo: parseInt(adNo) },
+      { withCredentials: true }
+    );
 
-      fetchAds();
+    fetchAds();
   };
 
   return (
@@ -176,7 +194,12 @@ const Advertisement = () => {
 
       {/* 📤 이미지 업로드 영역 */}
       <div className="admin-ad-upload">
-        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+        />
       </div>
 
       {/* 🔘 업로드 버튼 */}

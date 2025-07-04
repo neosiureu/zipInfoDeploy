@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Search, RefreshCw, XCircle } from "lucide-react";
 import "../../../css/admin/Management/BrokerApplications.css";
+import { toast } from "react-toastify";
 
 const roleOptions = ["관리자", "일반회원", "중개인 신청", "중개인"];
 
@@ -87,8 +88,14 @@ const BrokerApplications = () => {
       );
       setApplications(updated);
     } catch (error) {
-      console.error("회원 권한 변경 실패", error);
-      alert("회원 권한 변경에 실패했습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            회원 권한 변경에 실패하였습니다.
+          </div>
+        </div>
+      );
     }
   };
 
@@ -110,7 +117,14 @@ const BrokerApplications = () => {
       setApplications(updated);
     } catch (error) {
       console.error("신청 거절 실패", error);
-      alert("거절 처리 실패. 다시 시도해주세요.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            거절 처리 실패. 다시 한번 시도해주세요.
+          </div>
+        </div>
+      );
     }
   };
 

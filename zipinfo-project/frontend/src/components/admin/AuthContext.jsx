@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useRef } from "react";
+import { toast } from "react-toastify";
 
 export const AuthContext = createContext();
 
@@ -26,7 +27,14 @@ export function AuthProvider({ children }) {
     logoutTimer.current = setTimeout(() => {
       localStorage.removeItem("loginMember");
       setUser(null);
-      alert("세션 만료, 다시 로그인해주세요.");
+      toast.success(
+        <div>
+          <div className="toast-success-title">세션 만료 알림!</div>
+          <div className="toast-success-body">
+            세션이 만료되었습니다. 다시 로그인해주세요.
+          </div>
+        </div>
+      );
       window.location.href = "/";
     }, 3600000);
   };
@@ -41,7 +49,12 @@ export function AuthProvider({ children }) {
       });
 
       if (!response.ok) {
-        alert("로그인 실패: 서버 응답이 정상적이지 않습니다.");
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">로그인 실패</div>
+          </div>
+        );
         return false;
       }
 
@@ -58,7 +71,14 @@ export function AuthProvider({ children }) {
       return true;
     } catch (error) {
       console.error("로그인 실패:", error);
-      alert("이메일 또는 비밀번호가 올바르지 않습니다.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">로그인 실패 알림!</div>
+          <div className="toast-error-body">
+            이메일 또는 비밀번호가 올바르지 않습니다.
+          </div>
+        </div>
+      );
       return false;
     }
   };
@@ -79,10 +99,6 @@ export function AuthProvider({ children }) {
       console.error("로그아웃 오류:", error);
     }
   };
-
-  useEffect(() => {
-    console.log("현재 로그인된 사용자:", user);
-  }, [user]);
 
   // if (loading) {
   //   return null;

@@ -7,6 +7,7 @@ import {
 import { AuthContext } from "../admin/AuthContext";
 
 import "../../css/announce/AnnounceDetail.css";
+import { toast } from "react-toastify";
 
 const AnnounceDetail = () => {
   const { id } = useParams(); // URL 파라미터에서 공지사항 ID 획득
@@ -24,7 +25,14 @@ const AnnounceDetail = () => {
         setPost(data);
       } catch (error) {
         console.error("공지사항 상세 조회 실패", error);
-        alert("공지사항을 불러오는 중 오류가 발생했습니다.");
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">
+              공지사항을 불러오는 중 오류가 발생했습니다.
+            </div>
+          </div>
+        );
         navigate("/announce"); // 에러 시 목록으로 이동
       }
     };
@@ -36,11 +44,21 @@ const AnnounceDetail = () => {
     if (window.confirm("정말 삭제하시겠습니까?")) {
       try {
         await deletePost(id); // 삭제 API 호출
-        alert("삭제가 완료되었습니다.");
+        toast.success(
+          <div>
+            <div className="toast-success-title">삭제 성공 알림!</div>
+            <div className="toast-success-body">삭제가 완료되었습니다.</div>
+          </div>
+        );
         navigate("/announce"); // 삭제 후 목록 페이지로 이동
       } catch (error) {
         console.error("삭제 실패", error);
-        alert("삭제 중 오류가 발생했습니다.");
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">삭제 중 오류가 발생했습니다.</div>
+          </div>
+        );
       }
     }
   };

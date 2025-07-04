@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 const KEY = import.meta.env.VITE_VWORLD_KEY;
 const DOMAIN = import.meta.env.VITE_VWORLD_DOMAIN ?? "localhost:5173";
@@ -339,8 +340,6 @@ export default function Gonggong() {
           gungu: f.properties.sig_kor_nm,
         }));
 
-        console.log(` V-World에서 ${rawData.length}개 시군구 데이터 로드 완료`);
-
         // CITY 배열 생성
         const citySet = new Set();
         const cities = [];
@@ -376,9 +375,6 @@ export default function Gonggong() {
         generateNewTownCode(towns);
 
         setApiLoading(false);
-        console.log(
-          ` 새 데이터 생성 완료: CITY ${cities.length}개, TOWN ${towns.length}개`
-        );
       })
       .catch((e) => {
         setApiError(String(e));
@@ -409,7 +405,14 @@ ${towns
 
   const copyToClipboard = (text, type) => {
     navigator.clipboard.writeText(text).then(() => {
-      alert(`${type} 배열 코드가 클립보드에 복사되었습니다!`);
+      toast.success(
+        <div>
+          <div className="toast-success-title">복사 성공 알림!</div>
+          <div className="toast-success-body">
+            {type} 배열 코드가 클립보드에 복사되었습니다.
+          </div>
+        </div>
+      );
     });
   };
 

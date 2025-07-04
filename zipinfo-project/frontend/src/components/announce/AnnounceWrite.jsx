@@ -4,6 +4,7 @@ import axios from "axios";
 import SummernoteEditor from "../neighborhood/SummernoteEditor";
 import "../../css/Announce/AnnounceWrite.css";
 import { axiosAPI } from "../../api/axiosApi";
+import { toast } from "react-toastify";
 
 export default function AnnounceWrite() {
   const navigate = useNavigate();
@@ -41,11 +42,21 @@ export default function AnnounceWrite() {
   // 공지사항 등록 또는 수정 처리 함수
   const onSubmit = async () => {
     if (!title.trim()) {
-      alert("제목을 입력해주세요.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">제목을 입력해주세요.</div>
+        </div>
+      );
       return;
     }
     if (!content || content.trim() === "<p><br></p>") {
-      alert("내용을 입력해주세요.");
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">내용을 입력해주세요.</div>
+        </div>
+      );
       return;
     }
 
@@ -70,22 +81,41 @@ export default function AnnounceWrite() {
             withCredentials: true, // 쿠키 포함 옵션
           }
         );
-        alert("공지사항이 수정되었습니다.");
+        toast.success(
+          <div>
+            <div className="toast-success-title">공지사항 수정 알림!</div>
+            <div className="toast-success-body">공지사항이 수정되었습니다.</div>
+          </div>
+        );
       } else {
-        await axiosAPI.post("http://localhost:8080/api/announce/write", payload, {
-          withCredentials: true,
-        });
-        alert("공지사항이 등록되었습니다.");
+        await axiosAPI.post(
+          "http://localhost:8080/api/announce/write",
+          payload,
+          {
+            withCredentials: true,
+          }
+        );
+        toast.success(
+          <div>
+            <div className="toast-success-title">공지사항 등록 알림!</div>
+            <div className="toast-success-body">공지사항이 등록되었습니다.</div>
+          </div>
+        );
         await axiosAPI.post("http://localhost:8080/announce");
       }
-
-
 
       // 완료 후 공지사항 목록 페이지로 이동
       navigate("/announce");
     } catch (error) {
       console.error(error);
-      alert(`공지사항 ${isEditMode ? "수정" : "등록"}에 실패했습니다.`);
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            공지사항 제출 중 오류가 발생했습니다.
+          </div>
+        </div>
+      );
     } finally {
       setIsSubmitting(false);
     }
