@@ -11,8 +11,8 @@ AND MEMBER_DEL_FL ='N' AND MEMBER_LOGIN = #{memberLogin} </select>
 <select id="checkEmail"> SELECT COUNT(*)
 	FROM "MEMBER"
 	WHERE MEMBER_EMAIL = #{memberEmail}
-	AND MEMBER_DEL_FL = 'N'
-	 </select>
+	AND MEMBER_DEL_FL = 'N'AND MEMBER_LOGIN = 'E'
+	</select>
 <select id="checkNickname">
   	SELECT COUNT(*)
   	FROM "MEMBER"

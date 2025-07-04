@@ -132,3 +132,14 @@ header.Header-navbar .Header-menu li a:hover {
 .Header-menu li.active a {
   color: #495cf8;
 }
+
+/* 비활성화 헤더 탭 색 유지 임시방편 */
+.Header-navbar .Header-menu li > a {
+  color: #111 !important;
+}
+
+/* 활성화된 헤더 탭 색 유지 임시방편 */
+.Header-navbar .Header-menu li.active > a,
+.Header-navbar .Header-menu li > a:hover {
+  color: #495cf8 !important;
+}

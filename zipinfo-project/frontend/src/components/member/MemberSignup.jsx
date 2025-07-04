@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { axiosAPI } from "../../api/axiosAPI";
 import "../../css/member/MemberSignup.css";
 import { useNavigate } from "react-router-dom";
+import MemberLocationFilter from "../member/MemberLocationFilter";
+import { CITY, TOWN } from "../common/Gonggong";
 
 export default function MemberSignUp() {
   const navigate = useNavigate();
@@ -15,10 +17,13 @@ export default function MemberSignUp() {
     memberPwConfirm: "",
     memberName: "",
     memberNickname: "",
-    postcode: "", // 우편번호 (관심지역)
-    address: "", // 주소 (관심지역)
-    detailAddress: "", // 상세주소 (관심지역)
+    // postcode: "", // 우편번호 (관심지역)
+    // address: "", // 주소 (관심지역)
+    // detailAddress: "", // 상세주소 (관심지역)
+    cityNo: "",
+    memberLocation: "",
     //////////////////////////////////////////////////////////////
+    //
 
     // 중개사 전용 테이블
     companyName: "", // 중개사의 이름
@@ -57,12 +62,52 @@ export default function MemberSignUp() {
   const [checkObj, setCheckObj] = useState(INITIAL_CHECK_OBJ);
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [messageClasses, setMessageClasses] = useState({});
+  const { cityNo, memberLocation } = formData;
 
   // 타이머 관련 상태
   const [authTimer, setAuthTimer] = useState(null);
   const [min, setMin] = useState(5);
   const [sec, setSec] = useState(0);
   const initTime = "05:00";
+
+  /* 마이페이지 수정 페이지에서 그대로 배껴온 부분 */
+
+  useEffect(() => {
+    if (memberLocation && String(memberLocation).length === 5) {
+      // 시군구(fullcode)까지 전달된 경우
+      const town = TOWN.find((t) => t.fullcode === String(memberLocation));
+      if (town) {
+        setSelectedCity(town.code);
+        setSelectedTown(town.fullcode);
+      }
+    } else if (cityNo && String(cityNo).length === 2) {
+      // 시도만 전달된 경우
+      setSelectedCity(Number(cityNo));
+      setSelectedTown(-1); // 초기화
+    }
+  }, [cityNo, memberLocation]);
+
+  // 시도 선택핸들러
+  const handleCityChange = (e) => {
+    const location = e.target.value;
+    setSelectedCity(location);
+    setFormData((prev) => ({ ...prev, cityNo: location, memberLocation: "" }));
+
+    setSelectedTown(-1); // 시도 변경시 시군구 초기화
+  };
+  // 시군구 선택 핸들러
+  const handleTownChange = (e) => {
+    const location = e.target.value;
+    setSelectedTown(location);
+    setFormData((prev) => ({ ...prev, memberLocation: location }));
+  };
+
+  const [selectedCity, setSelectedCity] = useState(
+    cityNo == undefined ? -1 : cityNo
+  ); // 선택된 시도 (e.target)
+  const [selectedTown, setSelectedTown] = useState(
+    memberLocation == undefined ? -1 : memberLocation
+  ); // 선택된 시군구 (e.target)
 
   // 타이머 정리
   useEffect(() => {
@@ -163,7 +208,7 @@ export default function MemberSignUp() {
       return;
     }
 
-    // 중복 검사
+    // 이메일 중복 검사
     axiosAPI
       .get(`/member/checkEmail?memberEmail=${inputEmail}`)
       .then((response) => {
@@ -461,7 +506,7 @@ export default function MemberSignUp() {
       return;
     }
 
-    // 중복 검사
+    // 이메일 중복 검사
     axiosAPI
       .get(`/member/checkNickname?memberNickname=${inputNickname}`)
       .then((response) => {
@@ -478,21 +523,7 @@ export default function MemberSignUp() {
       .catch((err) => console.log(err));
   };
 
-  // 관심지역 주소 API 호출
-  const execDaumPostcode = () => {
-    new window.daum.Postcode({
-      oncomplete: (data) => {
-        const addr =
-          data.userSelectedType === "R" ? data.roadAddress : data.jibunAddress;
-        setFormData((prev) => ({
-          ...prev,
-          postcode: data.zonecode,
-          address: addr,
-        }));
-        document.getElementsByName("detailAddress")[0].focus();
-      },
-    }).open();
-  };
+  // 관심지역 주소 API 호출 => 관심지역은 select로 하기로 한다
 
   // 중개사 주소 API 호출
   const execDaumPostcodeCompany = () => {
@@ -722,46 +753,13 @@ export default function MemberSignUp() {
           </span>
         </div>
 
-        {/* 공통: 관심지역 주소 */}
-        <div className="signup-form-group">
-          <label className="signup-form-label">관심지역 주소</label>
-          <div className="input-wrapper">
-            <input
-              type="text"
-              id="postcode"
-              name="postcode"
-              value={formData.postcode}
-              readOnly
-              className="signup-form-input"
-              placeholder="관심지역 우편 번호"
-              required
-            />
-            <button
-              type="button"
-              className="signup-address-button"
-              onClick={execDaumPostcode}
-            >
-              주소검색
-            </button>
-          </div>
-
-          <input
-            type="text"
-            id="address"
-            name="address"
-            value={formData.address}
-            readOnly
-            className="signup-form-input signup-address-detail"
-            placeholder="관심지역 주소를 검색해 주세요"
-          />
-          <input
-            type="text"
-            id="detailAddress"
-            name="detailAddress"
-            value={formData.detailAddress}
-            onChange={handleInputChange}
-            className="signup-form-input signup-address-detail"
-            placeholder="관심지역 상세 주소를 입력해 주세요"
+        <div className="my-page-info-field">
+          <label className="my-page-info-label">선호 지역</label>
+          <MemberLocationFilter
+            selectedCity={selectedCity}
+            selectedTown={selectedTown}
+            onCityChange={handleCityChange}
+            onTownChange={handleTownChange}
           />
         </div>
 

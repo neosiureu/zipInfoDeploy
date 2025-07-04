@@ -68,6 +68,7 @@ public class MemberServiceImpl implements MemberService{
 	@Override
 	public int checkEmail(String memberEmail) {
 		// TODO Auto-generated method stub
+		log.debug("이메일 체크중입니다"+memberEmail);
 		return mapper.checkEmail(memberEmail);
 
 	}
@@ -117,7 +118,6 @@ public class MemberServiceImpl implements MemberService{
 	public int signup(Member member) {
     	
 		member.setMemberLogin("E"); // 이 로직에서 회원가입하는건 공통적으로 이메일 회원가입이니까 
-    
     	// 멤버 또는 중개사의 location 필드를 채워 넣어 DB에 들어가기 좋게 만든다.
     	
     	if(member.getBrokerNo()!=null) {

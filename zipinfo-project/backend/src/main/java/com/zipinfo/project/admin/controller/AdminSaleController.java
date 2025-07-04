@@ -22,7 +22,6 @@ public class AdminSaleController {
 	/*
 	 @PostMapping(value = "/addSale", consumes = "multipart/form-data")
 public ResponseEntity<String> addSale(
-    HttpSession session,  // 세션 사용
     @RequestPart("saleData") Sale sale,
     @RequestPart(value = "thumbnailImages", required = false) List<MultipartFile> thumbnailImages,
     @RequestPart(value = "floorImages", required = false) List<MultipartFile> floorImages
@@ -89,7 +88,6 @@ public ResponseEntity<String> addSale(
 	}
 
 	/*
-	 * HttpSession session,
 	 * 
 	 * @RequestPart("saleData") Sale sale, // 여기에는 json이 오기를 원함
 	 * 

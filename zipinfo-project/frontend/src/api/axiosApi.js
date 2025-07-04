@@ -22,3 +22,15 @@ axiosAPI.interceptors.request.use((config) => {
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
+axiosAPI.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    // 401 또는 403 응답 시 자동 로그아웃 이벤트 발생
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      window.dispatchEvent(new CustomEvent("forceLogout"));
+    }
+    return Promise.reject(error);
+  }
+);

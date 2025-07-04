@@ -2,11 +2,13 @@ import { createContext, useEffect, useState, useContext } from "react";
 import { AuthContext } from "../admin/AuthContext";
 import { axiosAPI } from "../../api/axiosApi";
 import { jwtDecode } from "jwt-decode";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const MemberContext = createContext();
 
 export const MemberProvider = ({ children }) => {
+  const navigate = useNavigate();
+
   /* 1) 스토리지와 state 동기화 */
   const [member, setMember] = useState(() => {
     const raw = localStorage.getItem("loginMember");
@@ -66,6 +68,21 @@ export const MemberProvider = ({ children }) => {
         setMember(null);
       });
   }, [skipFetchNow, token]);
+
+  useEffect(() => {
+    const handleForceLogout = () => {
+      if (window.stompClient?.connected) window.stompClient.disconnect();
+      alert("세션 시간이 만료되어 강제 로그아웃 되었습니다");
+      localStorage.clear();
+      setMember(null);
+      // if (!location.pathname.startsWith("/login")) {
+      //   navigate("/");
+      // }
+    };
+
+    window.addEventListener("forceLogout", handleForceLogout);
+    return () => window.removeEventListener("forceLogout", handleForceLogout);
+  }, [location.pathname, navigate]);
 
   return (
     <MemberContext.Provider value={{ member, setMember }}>
