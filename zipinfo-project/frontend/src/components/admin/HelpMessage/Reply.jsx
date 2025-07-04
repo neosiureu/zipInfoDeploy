@@ -9,12 +9,13 @@ const Reply = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const receiverNo = queryParams.get("senderNo");
+  const viewOnly = queryParams.get("viewOnly") === "true";
 
-  const [inquiry, setInquiry] = useState(null); // 문의 내용
-  const [reply, setReply] = useState(""); // 답변 내용
+  const [inquiry, setInquiry] = useState(null);
+  const [reply, setReply] = useState("");
   const [loading, setLoading] = useState(true);
-  const [isEdit, setIsEdit] = useState(false); // 답변 수정 모드 여부
-  const [replyMessageNo, setReplyMessageNo] = useState(null); // 수정 시 답변 메시지 번호
+  const [isEdit, setIsEdit] = useState(false);
+  const [replyMessageNo, setReplyMessageNo] = useState(null);
 
   useEffect(() => {
     if (!messageNo) {
@@ -26,7 +27,6 @@ const Reply = () => {
     const fetchMessage = async () => {
       try {
         setLoading(true);
-
         const res = await axiosAPI.get(
           `/api/help/reply?messageNo=${messageNo}`
         );
@@ -35,15 +35,11 @@ const Reply = () => {
           const viewRes = await axiosAPI.post("/api/help/reply/view", {
             messageNo: res.data.replyMessageNo,
           });
-
           setInquiry(viewRes.data.original);
           setReply(viewRes.data.reply.messageContent);
           setIsEdit(true);
           setReplyMessageNo(viewRes.data.reply.messageNo);
-
-          console.log("API original data:", viewRes.data.original);
         } else {
-          // 답변 없으면 원글 그대로
           setInquiry(res.data);
           setReply("");
           setIsEdit(false);
@@ -56,7 +52,6 @@ const Reply = () => {
         setLoading(false);
       }
     };
-
     fetchMessage();
   }, [messageNo, navigate]);
 
@@ -72,24 +67,23 @@ const Reply = () => {
 
     try {
       if (isEdit && replyMessageNo) {
-        // 수정 API 호출 (PUT 또는 POST - 수정용)
         await axiosAPI.put("/api/help/reply", {
           messageNo: replyMessageNo,
           messageContent: reply,
         });
         alert("답변이 수정되었습니다.");
       } else {
-        // 새 답변 등록 API 호출
         await axiosAPI.post("/api/help/reply", {
-          messageTitle: inquiry.messageTitle, // 추가
+          messageTitle: inquiry.messageTitle,
           messageContent: reply,
+          senderNo: 1, // 관리자 번호 1로 고정
           receiverNo: parseInt(receiverNo, 10),
           inquiredNo: parseInt(messageNo, 10),
         });
         alert("답변이 등록되었습니다.");
       }
       navigate("/admin/helpMessage");
-    } catch (err) {
+    } catch {
       alert(
         isEdit
           ? "답변 수정 중 오류가 발생했습니다."
@@ -107,7 +101,7 @@ const Reply = () => {
 
   return (
     <div className="form-container">
-      <h2 className="form-title">문의 상세 및 답변</h2>
+      <h2 className="form-title">문의 상세</h2>
 
       <div className="form-box">
         <div className="form-label-col">제목</div>
@@ -151,21 +145,29 @@ const Reply = () => {
       <div className="form-box">
         <div className="form-label-col">답변</div>
         <div className="form-content-col">
-          <textarea
-            value={reply}
-            onChange={(e) => setReply(e.target.value)}
-            className="form-textarea"
-            placeholder="답변을 입력하세요"
-            rows={8}
-          />
+          {viewOnly ? (
+            <div style={{ whiteSpace: "pre-wrap" }}>
+              {reply || "등록된 답변이 없습니다."}
+            </div>
+          ) : (
+            <textarea
+              value={reply}
+              onChange={(e) => setReply(e.target.value)}
+              className="form-textarea"
+              placeholder="답변을 입력하세요"
+              rows={8}
+            />
+          )}
         </div>
       </div>
 
-      <div className="form-actions">
-        <button className="submit-btn" onClick={handleSubmit}>
-          {isEdit ? "답변 수정" : "답변하기"}
-        </button>
-      </div>
+      {!viewOnly && (
+        <div className="form-actions">
+          <button className="submit-btn" onClick={handleSubmit}>
+            {isEdit ? "답변 수정" : "답변하기"}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

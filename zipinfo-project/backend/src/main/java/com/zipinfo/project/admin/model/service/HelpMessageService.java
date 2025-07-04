@@ -26,47 +26,40 @@ public interface HelpMessageService {
      */
     boolean saveReply(HelpMessage message);
 
-	/** 관리자가 문의내용 확인했을 경우 DB에 해당 문의글 READ_FL 'Y'로 변경
-	 * @param messageNo
-	 * @return
-	 */
-	boolean markMessageAsRead(int messageNo);
+    /**
+     * 문의글 읽음 상태(READ_FL)를 'Y'로 변경
+     * @param messageNo 읽음 처리할 문의글 번호
+     * @return 성공 시 true, 실패 시 false 반환
+     */
+    boolean updateReadFlag(int messageNo);
 
-	/** 답변 안한 문의 내용
-	 * @param adminId
-	 * @return
-	 */
-	List<HelpMessage> getUnansweredMessages(int adminId);
+    /**
+     * 답변하지 않은 문의글 리스트 조회
+     * @param adminId 관리자 ID (필요한 경우)
+     * @return 답변하지 않은 문의글 리스트
+     */
+    List<HelpMessage> getUnansweredMessages(int adminId);
 
-	/** 답변한 문의 내용
-	 * @param userNo
-	 * @return
-	 */
-	List<HelpMessage> getAnsweredMessagesByUser(int userNo);
-
-	boolean updateReadFlag(int messageNo);
-
-	/** 수정
-	 * @param messageNo
-	 * @param newContent
-	 * @return
-	 */
-	boolean updateReplyContent(int messageNo, String newContent);
-
-	/** 수정
-	 * @param helpMessage
-	 * @return
-	 */
-	int updateReply(HelpMessage helpMessage);
-
-	/** 원글 조회
-	 * @param replyMessageNo
-	 * @return
-	 */
-	HelpMessage getOriginalByReplyMessageNo(int replyMessageNo);
+    /**
+     * 답변한 문의글 리스트 조회
+     * @param userNo 사용자 번호
+     * @return 답변한 문의글 리스트
+     */
+    List<HelpMessage> getAnsweredMessagesByUser(int userNo);
 
 
-	
+    /**
+     * 답변 메시지 번호로 원본 문의글 조회
+     * @param replyMessageNo 답변 메시지 번호
+     * @return 원본 문의글 정보
+     */
+    HelpMessage getOriginalByReplyMessageNo(int replyMessageNo);
 
-	
+    /**
+     * 문의글과 해당 문의글에 달린 답변을 함께 조회
+     * @param messageNo 문의글 번호
+     * @return 문의글 및 답변이 포함된 HelpMessage 객체
+     */
+    HelpMessage getMessageWithReply(int messageNo);
+
 }

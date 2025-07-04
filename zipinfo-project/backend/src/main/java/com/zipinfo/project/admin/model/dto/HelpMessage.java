@@ -28,4 +28,5 @@ public class HelpMessage {
     
     private MultipartFile messageFile;
     private String memberNickname;
+    private String replyContent;
 }
