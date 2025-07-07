@@ -84,7 +84,7 @@ const Main = () => {
             : item.stockForm === 3
             ? "오피스텔"
             : "기타"}{" "}
-          · {item.stockName} ·{" "}
+          · {item.stockName}{" "}
         </div>
         <div
           className="card-price"

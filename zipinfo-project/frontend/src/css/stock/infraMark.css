@@ -54,32 +54,64 @@
   background-image: url("https://cdn-icons-png.flaticon.com/512/1828/1828778.png");
   background-size: cover;
 }
-.category_bg.bank {
+.category_bg.dummy {
+  /*개발용 임시 아이콘.*/
   background-image: url("https://cdn-icons-png.flaticon.com/512/190/190411.png");
   background-size: cover;
 }
 
-.category_bg.mart {
-  background-image: url("https://cdn-icons-png.flaticon.com/512/1046/1046741.png");
+.category_bg.bank {
+  background-image: url("../../assets/infraCategoryIcon/bank.svg");
   background-size: cover;
 }
 
-.category_bg.pharmacy {
-  background-image: url("https://cdn-icons-png.flaticon.com/512/1450/1450331.png");
+.category_bg.mart {
+  background-image: url("../../assets/infraCategoryIcon/school.svg");
+  background-size: cover;
+}
+
+.category_bg.pharm {
+  background-image: url("../../assets/infraCategoryIcon/pharm.svg");
   background-size: cover;
 }
 
 .category_bg.oil {
-  background-image: url("https://cdn-icons-png.flaticon.com/512/2830/2830316.png");
+  background-image: url("../../assets/infraCategoryIcon/oil.svg");
   background-size: cover;
 }
 
 .category_bg.cafe {
-  background-image: url("https://cdn-icons-png.flaticon.com/512/556/556784.png");
+  background-image: url("../../assets/infraCategoryIcon/cafe.svg");
   background-size: cover;
 }
 
 .category_bg.store {
-  background-image: url("https://cdn-icons-png.flaticon.com/512/891/891462.png");
+  background-image: url("../../assets/infraCategoryIcon/conv.svg");
   background-size: cover;
+}
+
+.overlay-map-icon {
+  width: 32px;
+  height: 32px;
+
+  background-size: cover;
+  background-position: center;
+  opacity: 0.5;
+}
+
+.transparent {
+  opacity: 0;
+  transition: opacity 0.75s;
+}
+.hover-marker {
+  display: flex;
+  flex-direction: column; /* 세로 방향 정렬 */
+  align-items: center; /* 가로축 중앙 정렬 */
+  justify-content: center; /* 세로축 중앙 정렬 */
+}
+.hover-marker:hover .transparent {
+  cursor: pointer;
+  opacity: 1;
+}
+.hover-marker > .custom-overlay {
 }
