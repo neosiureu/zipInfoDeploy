@@ -6,54 +6,53 @@
 .my-page-container {
   max-width: 1024px;
   margin: 0 auto;
-  padding: 2rem 1rem;
 }
 
 .my-page-page-title {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-top: 80px;
+  margin-bottom: 40px;
 }
 
 .my-page-page-title h1 {
-  font-size: 1.875rem;
-  font-weight: bold;
-  color: #1f2937;
-  margin-bottom: 2rem;
+  font-size: 32px;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 40px;
 }
 
 .my-page-tab-navigation {
   display: flex;
   justify-content: center;
-  margin-bottom: 2rem;
 }
 
 .my-page-tab-container {
   display: flex;
   background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  overflow: hidden;
+  gap: 12px;
 }
 
 .my-page-tab-button {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  padding: 14px 12px;
+  font-size: 14px;
   font-weight: 500;
-  border: none;
+  border: 1px solid #dbdbdb;
+  background: white;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
 
 .my-page-tab-button.active {
-  background-color: #111827;
+  background-color: #111;
   color: white;
+  border: 1px solid #111;
 }
 
 .my-page-tab-button.inactive {
   background-color: white;
-  color: #6b7280;
+  color: #111;
 }
 
 .my-page-tab-button.inactive:hover {
-  background-color: #f9fafb;
+  background-color: #f7f7f7;
 }

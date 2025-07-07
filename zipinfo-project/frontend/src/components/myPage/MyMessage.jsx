@@ -89,7 +89,7 @@ export default function MyStock() {
         <div className="my-message-contact-container">
           <div className="my-message-contact-title">
             <span className="my-message-span">
-              zipInfo에 궁금하신 점을 문의해주세요.
+              집인포에 궁금하신 점을 문의해주세요.
             </span>
           </div>
           <div className="my-message-title">

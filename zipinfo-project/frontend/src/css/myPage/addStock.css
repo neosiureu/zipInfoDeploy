@@ -6,44 +6,45 @@
 .my-page-add-stock-container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 2rem 1rem;
 }
 
 /* 서브 탭 */
 .my-page-stock-sub-tab-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 2rem;
+  margin-bottom: 40px;
 }
 
 .my-page-stock-sub-tab-nav {
   display: flex;
-  gap: 1.5rem;
-  font-size: 0.875rem;
 }
 
 .my-page-stock-sub-tab-btn {
   background: none;
   border: none;
   cursor: pointer;
-  padding-bottom: 0.25rem;
-  color: #6b7280;
-  transition: color 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+  color: #767676;
 }
 
 .my-page-stock-sub-tab-btn.active {
-  color: #000000;
-  font-weight: 500;
-  border-bottom: 2px solid #000000;
+  color: #111;
+  font-weight: 600;
+}
+
+.my-page-stock-sub-tab-btn:not(:last-child)::after {
+  content: "|";
+  margin: 0 12px;
+  color: #dbdbdb;
+  font-weight: normal;
 }
 
 /* 콘텐츠 카드 */
 .my-page-stock-content-card {
   background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
   padding: 1.5rem;
+  margin-bottom: 120px;
 }
 
 /* 섹션 스타일 */
@@ -71,28 +72,27 @@
 
 .my-page-stock-input-label {
   width: 100px;
-  font-size: 13px;
-  color: #374151;
+  font-size: 14px;
+  color: #111;
 }
 
 .my-page-stock-input-field {
   flex: 1;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
+  padding: 0.75rem 1rem;
+  border: 1px solid #dbdbdb;
   border-radius: 0.25rem;
-  font-size: 0.875rem;
+  font-size: 14px;
 }
 
 .my-page-stock-input-field:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #495cf8;
 }
 
 .my-page-stock-textarea {
   flex: 1;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid #dbdbdb;
   border-radius: 0.25rem;
   font-size: 13px;
   height: 250px;
@@ -101,14 +101,12 @@
 
 .my-page-stock-textarea:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #495cf8;
 }
 
 /* 이미지 업로드 섹션 */
 .my-page-stock-image-upload-section {
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
+  border: 1px solid #dbdbdb;
   padding: 1rem;
 }
 
@@ -125,7 +123,7 @@
 }
 
 .my-page-stock-image-add-btn {
-  color: #2563eb;
+  color: #495cf8;
   font-size: 0.875rem;
   display: flex;
   align-items: center;
@@ -145,7 +143,7 @@
 
 .my-page-stock-image-upload-desc {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: #999;
   margin: 0;
   line-height: 1.4;
 }
@@ -156,7 +154,7 @@
 }
 
 .my-page-stock-save-button {
-  background-color: #2563eb;
+  background-color: #495cf8;
   color: white;
   padding: 0.75rem 2rem;
   border: none;
@@ -167,101 +165,20 @@
   transition: background-color 0.2s;
 }
 
-.my-page-stock-save-button:hover {
-  background-color: #1d4ed8;
-}
-
 .imgList {
   font-size: 12px;
-  color: #2563eb;
+  color: #495cf8;
   list-style-type: none;
 }
 
 .my-page-stock-address-btn {
-  width: 200px;
-  background-color: black;
+  background-color: #111;
   color: white;
-  height: 34px;
+  width: 82px;
+  height: 45px;
   border-radius: 5px;
   margin-left: 10px;
-}
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .header-content {
-    padding: 0 1rem;
-  }
-
-  .header-left {
-    gap: 1rem;
-  }
-
-  .nav {
-    display: none;
-  }
-
-  .main-content {
-    padding: 1rem;
-  }
-
-  .tab-nav {
-    flex-wrap: wrap;
-    gap: 0.25rem;
-  }
-
-  .tab-btn {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.75rem;
-  }
-
-  .sub-tab-nav {
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .input-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .input-label {
-    width: auto;
-  }
-
-  .input-field {
-    width: 100%;
-  }
-
-  .footer-links {
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .header-right {
-    gap: 0.5rem;
-  }
-
-  .signup-text {
-    font-size: 0.875rem;
-  }
-
-  .login-btn {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.75rem;
-  }
-
-  .page-title {
-    font-size: 1.25rem;
-  }
-
-  .content-card {
-    padding: 1rem;
-  }
-
-  .section-title {
-    font-size: 1rem;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

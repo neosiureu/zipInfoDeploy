@@ -36,9 +36,7 @@ public ResponseEntity<String> addSale(
 	@Autowired
 	private AdminSaleService service;
 
-	/**
-	 * 관리자 분양 정보 전체 조회
-	 * 
+	/** 관리자 분양 정보 전체 조회
 	 * @return
 	 */
 	@GetMapping("selectSaleList")
@@ -52,6 +50,11 @@ public ResponseEntity<String> addSale(
 		}
 	}
 
+	/** 관리자 분양 정보 등록
+	 * @param loginMember
+	 * @param sale
+	 * @return
+	 */
 	@PostMapping(value = "/addSale", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Integer> addSale(@AuthenticationPrincipal Member loginMember, @RequestBody Sale sale) {
 		if (loginMember == null) {
@@ -68,8 +71,12 @@ public ResponseEntity<String> addSale(
 		return ResponseEntity.ok(saleStockNo);
 	}
 
-	/**
-	 * 위 메서드서 받은 saleStockNo로 multipart 이미지만 업로드
+	/** 위 메서드에서 받은 saleStockNo로 multipart 이미지만 업로드
+	 * @param loginMember
+	 * @param saleStockNo
+	 * @param thumbnailImages
+	 * @param floorImages
+	 * @return
 	 */
 	@PostMapping(value = "/addSaleImg/{saleStockNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<String> addSaleImages(@AuthenticationPrincipal Member loginMember,
@@ -113,9 +120,7 @@ public ResponseEntity<String> addSale(
 	 * 
 	 */
 
-	/**
-	 * 관리자 매물 상세 조회(수정용)
-	 * 
+	/** 관리자 매물 상세 조회(수정용)
 	 * @param id
 	 * @return
 	 */
@@ -134,6 +139,12 @@ public ResponseEntity<String> addSale(
 		}
 	}
 
+	/** 관리자 분양 정보 수정
+	 * @param loginMember
+	 * @param id
+	 * @param sale
+	 * @return
+	 */
 	@PutMapping(value = "/updateSale/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateSaleJson(
         @AuthenticationPrincipal Member loginMember,
@@ -171,8 +182,12 @@ public ResponseEntity<String> addSale(
         }
     }
 
-    /**
-     * 2) 이미지 파일만 multipart/form-data로 업로드
+    /** 이미지 파일만 multipart/form-data로 업로드
+     * @param loginMember
+     * @param id
+     * @param thumbnailImages
+     * @param floorImages
+     * @return
      */
     @PostMapping(value = "/updateSaleImg/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> updateSaleImages(
@@ -208,10 +223,10 @@ public ResponseEntity<String> addSale(
                 .body("이미지 수정 중 오류 발생: " + e.getMessage());
         }
     }
-	/**
-	 * 관리자 분양 정보 삭제
-	 * 
+    
+	/** 관리자 분양 정보 삭제
 	 * @param id
+	 * @param loginMember
 	 * @return
 	 */
 	@DeleteMapping("/deleteSale/{id}")

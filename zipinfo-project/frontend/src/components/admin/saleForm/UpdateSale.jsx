@@ -103,16 +103,6 @@ const UpdateSale = () => {
           const price1 = Math.floor(totalPrice / 100000000); // 억 단위
           const price2 = Math.floor((totalPrice % 100000000) / 10000); // 만원 단위
 
-          // 계약금, 중도금 비율 계산
-          // const contractRate =
-          //   totalPrice > 0
-          //     ? Math.round((saleData.deposit / totalPrice) * 100)
-          //     : 0;
-          // const interimRate =
-          //   totalPrice > 0
-          //     ? Math.round((saleData.middlePayment / totalPrice) * 100)
-          //     : 0;
-
           // 금액 → 한글 통화 포맷
           const toKoreanCurrency = (amount) => {
             const billion = Math.floor(amount / 100000000);

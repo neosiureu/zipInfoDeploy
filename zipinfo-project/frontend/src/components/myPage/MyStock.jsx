@@ -241,20 +241,22 @@ export default function MyStock() {
                           </div>
                         </div>
                       </div>
-                      <button
-                        className="update-stock-info"
-                        onClick={() =>
-                          nav("/myPage/updateMyStock", { state: property })
-                        }
-                      >
-                        수정
-                      </button>
-                      <button
-                        className="delete-stock-info"
-                        onClick={() => handleDeleteStock(property.stockNo)}
-                      >
-                        삭제
-                      </button>
+                      <div className="stock-action-row">
+                        <button
+                          className="update-stock-info"
+                          onClick={() =>
+                            nav("/myPage/updateMyStock", { state: property })
+                          }
+                        >
+                          수정
+                        </button>
+                        <button
+                          className="delete-stock-info"
+                          onClick={() => handleDeleteStock(property.stockNo)}
+                        >
+                          삭제
+                        </button>
+                      </div>
                     </div>
                   );
                 })}

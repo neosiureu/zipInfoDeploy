@@ -32,14 +32,65 @@ public class AdminSaleServiceImpl implements AdminSaleService {
     @Value("${my.sale.web-path}")
     private String saleWebPath;
 
-    /** 관리자 분양 매물 목록 조회 */
+    /** 관리자 분양 매물 목록 조회
+     *
+     */
     @Override
     public List<Sale> selectSaleList() {
         return mapper.selectSaleList();
     }
+    
+	/** 관리자 분양 정보 등록
+	 *
+	 */
+	@Override
+	public int addSale(Sale sale) {
+		 // 1. 매물 기본 정보 DB 저장 (자동 채번된 PK가 sale.saleStockNo 에 세팅됨)
+       mapper.addSale(sale);
 
-    /**
-     * 분양 매물 등록 (기본 정보, 좌표, 이미지 포함)
+       // 2. 좌표 정보 저장
+       Long saleNo = Long.valueOf(sale.getSaleStockNo());
+       mapper.addSaleCoord(saleNo, sale.getLat(), sale.getLng());
+
+       // 3. 생성된 PK 반환
+       return sale.getSaleStockNo();
+	}
+
+	/** 관리자 분양 정보 이미지 등록
+	 *
+	 */
+	@Override
+	public void addSaleImages(int saleStockNo, List<MultipartFile> thumbnailImages, List<MultipartFile> floorImages) {
+		Long saleNo = Long.valueOf(saleStockNo);
+
+       // 썸네일(ORDER=1)
+       saveImages(thumbnailImages, "thumbnail", saleNo, 1); // 기존에 이미지 저장하던 서비스단 메서드를 재활용하겠다
+
+       // 평면도(ORDER=2)
+       saveImages(floorImages, "floor", saleNo, 2);	// 기존에 이미지 저장하던 서비스단 메서드를 재활용하겠다	 
+	}
+
+	/** 관리자 분양 정보 수정
+	 *
+	 */
+	@Override
+   public void updateSaleImages(int saleStockNo,
+                                List<MultipartFile> thumbnailImages,
+                                List<MultipartFile> floorImages) {
+       Long saleNo = Long.valueOf(saleStockNo);
+
+       //  썸네일 이미지 덮어쓰기 order = 1
+       if (thumbnailImages != null && !thumbnailImages.isEmpty()) {
+           overwriteImages(thumbnailImages, "thumbnail", saleNo, 1);
+       }
+
+       // 평면도 이미지 덮어쓰기 order = 2
+       if (floorImages != null && !floorImages.isEmpty()) {
+           overwriteImages(floorImages, "floor", saleNo, 2);
+       }
+   }
+
+    /** 관리자 분양 정보 등록 (기본 정보, 좌표, 이미지 포함)
      * @param sale 매물 정보
      * @param thumbnailImages 썸네일 이미지 리스트
      * @param floorImages 평면도 이미지 리스트
@@ -61,8 +112,7 @@ public class AdminSaleServiceImpl implements AdminSaleService {
         saveImages(floorImages, "floor", saleNo, 2);
     }
 
-    /**
-     * 이미지 저장 및 DB 등록 (이미지 유형별 ORDER 고정)
+    /** 관리자 분양 이미지 저장 및 DB 등록 (이미지 유형별 ORDER 고정)
      * @param images 이미지 리스트
      * @param subDir 하위 디렉토리 이름 (thumbnail or floor)
      * @param saleNo 매물 번호
@@ -99,7 +149,9 @@ public class AdminSaleServiceImpl implements AdminSaleService {
         }
     }
 
-    /** 매물 상세 조회 (기본 정보 + 이미지 목록 포함) */
+    /** 관리자 분양 정보 상세 조회 (기본 정보 + 이미지 목록 포함)
+     *
+     */
     @Override
     public Sale getSaleById(Long id) {
         Sale sale = mapper.selectSaleById(id);
@@ -115,8 +167,7 @@ public class AdminSaleServiceImpl implements AdminSaleService {
         return sale;
     }
 
-    /**
-     * 매물 수정 처리 (기본 정보, 좌표, 이미지)
+    /** 관리자 분양 정보 수정 (기본 정보, 좌표, 이미지)
      * @param sale 수정할 매물 정보
      * @param thumbnailImages 썸네일 이미지
      * @param floorImages 평면도 이미지
@@ -142,8 +193,7 @@ public class AdminSaleServiceImpl implements AdminSaleService {
         }
     }
 
-    /**
-     * 이미지 덮어쓰기 (기존 파일명 유지, 없으면 새로 등록)
+    /** 관리자 분양 정보 이미지 덮어쓰기 (기존 파일명 유지, 없으면 새로 등록)
      * @param newFiles 업로드된 이미지 리스트
      * @param subDir 저장 디렉토리명
      * @param saleNo 매물 번호
@@ -188,7 +238,9 @@ public class AdminSaleServiceImpl implements AdminSaleService {
         }
     }
 
-    /** 분양 매물 삭제 (기본 정보 + 이미지 + 좌표 삭제 포함) */
+    /** 분양 매물 삭제 (기본 정보 + 이미지 + 좌표 삭제 포함)
+     *
+     */
     @Override
     public void deleteSale(int id) throws Exception {
         // 1. 이미지 삭제
@@ -200,45 +252,5 @@ public class AdminSaleServiceImpl implements AdminSaleService {
         // 3. 기본 정보 삭제
         mapper.deleteSale(id);
     }
-
-	@Override
-	public int addSale(Sale sale) {
-		 // 1. 매물 기본 정보 DB 저장 (자동 채번된 PK가 sale.saleStockNo 에 세팅됨)
-        mapper.addSale(sale);
-
-        // 2. 좌표 정보 저장
-        Long saleNo = Long.valueOf(sale.getSaleStockNo());
-        mapper.addSaleCoord(saleNo, sale.getLat(), sale.getLng());
-
-        // 3. 생성된 PK 반환
-        return sale.getSaleStockNo();
-	}
-
-	@Override
-	public void addSaleImages(int saleStockNo, List<MultipartFile> thumbnailImages, List<MultipartFile> floorImages) {
-		Long saleNo = Long.valueOf(saleStockNo);
-
-        // 썸네일(ORDER=1)
-        saveImages(thumbnailImages, "thumbnail", saleNo, 1); // 기존에 이미지 저장하던 서비스단 메서드를 재활용하겠다
-
-        // 평면도(ORDER=2)
-        saveImages(floorImages, "floor", saleNo, 2);	// 기존에 이미지 저장하던 서비스단 메서드를 재활용하겠다	 
-	}
-
-	 @Override
-	    public void updateSaleImages(int saleStockNo,
-	                                 List<MultipartFile> thumbnailImages,
-	                                 List<MultipartFile> floorImages) {
-	        Long saleNo = Long.valueOf(saleStockNo);
-
-	        //  썸네일 이미지 덮어쓰기 order = 1
-	        if (thumbnailImages != null && !thumbnailImages.isEmpty()) {
-	            overwriteImages(thumbnailImages, "thumbnail", saleNo, 1);
-	        }
-
-	        // 평면도 이미지 덮어쓰기 order = 2
-	        if (floorImages != null && !floorImages.isEmpty()) {
-	            overwriteImages(floorImages, "floor", saleNo, 2);
-	        }
-	    }
+    
 }
