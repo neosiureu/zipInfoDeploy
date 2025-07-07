@@ -1,89 +1,59 @@
 package com.zipinfo.project.admin.model.mapper;
 
 import java.util.List;
-import java.util.Map;
 
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.zipinfo.project.admin.model.dto.HelpMessage;
 
-@Mapper
 public interface HelpMessageMapper {
 
     /**
-     * 전체 문의 목록 조회
-     * @return 문의 리스트
+     * 전체 문의 목록 조회 (삭제되지 않은 글만)
+     * @return 문의글 리스트
      */
     List<HelpMessage> selectAllMessages();
 
     /**
-     * 특정 문의 상세 조회
-     * @param messageNo 조회할 문의 번호
-     * @return 문의 상세 정보 (없으면 null)
+     * 단일 문의글 상세 조회 (첨부파일 및 작성자 닉네임 포함)
+     * @param messageNo 조회할 문의글 번호
+     * @return HelpMessage DTO
      */
-    HelpMessage selectMessageById(@Param("messageNo") int messageNo);
+    HelpMessage selectMessageById(int messageNo);
 
     /**
-     * 문의글에 답변 내용 업데이트
-     * HELP_MESSAGE 테이블의 REPLY_CONTENT와 REPLY_DATE(SYSDATE) 컬럼 업데이트
-     * 
-     * @param messageNo 답변할 문의글 번호 (MESSAGE_NO)
-     * @param replyContent 등록할 답변 내용
-     * @return 업데이트 성공 시 1 이상의 값 반환, 실패 시 0 반환
+     * 답변 내용, 답변 여부, 수신자 번호 업데이트
+     * HELP_MESSAGE 테이블 내 원본 문의글 행에 REPLY_CONTENT, REPLY_YN='Y', RECEIVER_NO 필드 수정
+     * @param message 답변 내용과 대상 포함 DTO
+     * @return 영향 받은 행 수
      */
-	int insertReply(HelpMessage message);
+    int updateReply(HelpMessage message);
+
+
+    /**
+     * 관리자가 답변하지 않은 문의글 조회
+     * 본인(adminId)이 작성한 글 제외 (관리자 입장에서 미답변된 문의)
+     * @param adminId 관리자 회원번호
+     * @return 미답변 문의글 리스트
+     */
+    List<HelpMessage> selectUnansweredMessages(int adminId);
+
+
+    /**
+     * 답변 메시지 번호로 원본 문의글 조회
+     * 답변은 별도 행이 아니므로 메시지 번호로 원본 행 조회
+     * @param replyMessageNo 답변 메시지 번호
+     * @return 원본 문의글 DTO
+     */
+    HelpMessage selectOriginalByReplyMessageNo(int replyMessageNo);
+
+    /**
+     * 관리자가 답변 완료한 문의글 목록 조회
+     * adminId가 답변(작성자)인 문의글만 조회
+     * @param adminId 관리자 회원번호
+     * @return 관리자가 답변한 문의글 리스트
+     */
+    List<HelpMessage> selectRepliedMessagesByAdmin(int adminId);
+
 	
-	/** 관리자가 문의내용 확인했을 경우 DB에 해당 문의글 READ_FL 'Y'로 변경
-	 * @param messageNo
-	 * @return
-	 */
-	int updateReadFlag(int messageNo);
-	
-	/** 답변 등록 시 해당 문의글 REPLY_YN = 'Y'로 변경
-	 * @param messageNo
-	 * @return
-	 */
-	int updateReplyYn(int messageNo);
-
-	/** 관리자 보낸 메시지 제외
-	 * @param adminId
-	 * @return
-	 */
-	List<HelpMessage> selectUnansweredMessages(@Param("adminId") int adminId);
-	
-	
-	/** [보낸 문의] → [문의 답변] 메뉴: REPLY_YN = 'Y' 인 문의글만 출력
-	 * @param userNo
-	 * @return
-	 */
-	List<HelpMessage> selectAnsweredMessagesByUser(int userNo);
-
-	
-	/** 기존 답변 문의 글 
-	 * @param adminNo
-	 * @param userNo
-	 * @return
-	 */
-	List<HelpMessage> selectRepliesByAdminToUser(@Param("adminNo") int adminNo, @Param("userNo") int userNo);
-
-
-	/** 원 글 조회
-	 * @param replyMessageNo
-	 * @return
-	 */
-	HelpMessage selectOriginalByReplyMessageNo(@Param("replyMessageNo") int replyMessageNo);
-
-	/** 답변 조회
-	 * @param messageNo
-	 * @return
-	 */
-	HelpMessage selectMessageWithReply(int messageNo);
-
-	/** 글 답변 분리
-	 * @param messageNo
-	 * @return
-	 */
-	HelpMessage selectReplyByInquiredNo(@Param("inquiredNo") int inquiredNo);
-
 }

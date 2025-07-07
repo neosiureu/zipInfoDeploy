@@ -1,25 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import "../../../css/admin/HelpMessage/Reply.css";
 import { axiosAPI } from "./../../../api/axiosApi";
 import { toast } from "react-toastify";
+import { AuthContext } from "../AuthContext";
 
 const Reply = () => {
   const { messageNo } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const receiverNo = queryParams.get("senderNo");
+  const originalSenderNo = queryParams.get("senderNo"); // 문의 보낸 사람
   const viewOnly = queryParams.get("viewOnly") === "true";
+
+  const { user } = useContext(AuthContext);
 
   const [inquiry, setInquiry] = useState(null);
   const [reply, setReply] = useState("");
   const [loading, setLoading] = useState(true);
-  const [isEdit, setIsEdit] = useState(false);
-  const [replyMessageNo, setReplyMessageNo] = useState(null);
 
   useEffect(() => {
-    console.log("URL에서 받은 messageNo: ", messageNo); // ✅ 확인용 출력
+    console.log(
+      "useEffect 실행 - messageNo:",
+      messageNo,
+      "originalSenderNo:",
+      originalSenderNo
+    );
+
     if (!messageNo) {
       toast.error("잘못된 접근입니다.");
       navigate("/admin/helpMessage");
@@ -30,9 +37,9 @@ const Reply = () => {
     axiosAPI
       .get(`/api/help/reply?messageNo=${messageNo}`)
       .then((res) => {
-        console.log("서버 응답: ", res.data);
-        setInquiry(res.data); // 문의글 세팅
-        setReply(res.data.replyContent || ""); // 답변 내용 세팅
+        console.log("문의 상세 데이터:", res.data);
+        setInquiry(res.data);
+        setReply(res.data.replyContent || "");
       })
       .catch(() => {
         toast.error("문의 정보를 불러오는 중 오류가 발생했습니다.");
@@ -41,36 +48,57 @@ const Reply = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [messageNo]);
+  }, [messageNo, originalSenderNo, navigate]);
 
   const handleSubmit = async () => {
+    console.log(
+      "답변 제출 시도 - messageNo:",
+      messageNo,
+      "originalSenderNo:",
+      originalSenderNo,
+      "reply:",
+      reply
+    );
+
+    if (reply.length > 400) {
+      toast.error("답변은 400자 이내로 작성해주세요.");
+      return; // 제한 초과 시 제출 중단
+    }
+
     if (!reply.trim()) {
       toast.error("답변 내용을 입력하세요.");
       return;
     }
-    if (!receiverNo) {
-      toast.error("수신자 정보가 없습니다.");
+
+    if (!user?.memberNo) {
+      toast.error("로그인이 필요합니다.");
       return;
     }
 
     try {
+      console.log("답변 등록 요청 데이터:", {
+        messageNo: parseInt(messageNo, 10),
+        replyContent: reply,
+        receiverNo: user.memberNo, // 로그인한 관리자 번호
+      });
+
       await axiosAPI.post("/api/help/reply", {
-        messageTitle: inquiry.messageTitle,
-        messageContent: reply,
-        senderNo: 1, // 관리자 번호 1로 고정
-        receiverNo: parseInt(receiverNo, 10),
-        inquiredNo: parseInt(messageNo, 10),
+        messageNo: parseInt(messageNo, 10),
+        replyContent: reply,
+        receiverNo: user.memberNo, // 로그인한 관리자 번호
       });
       toast.success("답변이 등록되었습니다.");
       navigate("/admin/helpMessage");
     } catch (err) {
-      toast.error("제출 중 오류가 발생하였습니다.");
+      console.error("답변 등록 오류:", err);
+      toast.error("답변 등록 중 오류가 발생했습니다.");
     }
   };
 
   if (loading) {
     return <div className="form-container">로딩 중...</div>;
   }
+
   if (!inquiry) {
     return <div className="form-container">문의 정보를 찾을 수 없습니다.</div>;
   }
@@ -131,6 +159,7 @@ const Reply = () => {
               onChange={(e) => setReply(e.target.value)}
               className="form-textarea"
               placeholder="답변을 입력하세요"
+              maxLength={400} // 답변 제한
               rows={8}
             />
           )}
@@ -140,7 +169,7 @@ const Reply = () => {
       {!viewOnly && (
         <div className="form-actions">
           <button className="submit-btn" onClick={handleSubmit}>
-            {isEdit ? "답변 수정" : "답변하기"}
+            답변하기
           </button>
         </div>
       )}
