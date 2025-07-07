@@ -26,6 +26,13 @@
   align-items: center;
 }
 
+.nb-filter-bar {
+  display: flex;
+  align-items: center; /* 자식들을 수직 중앙 정렬 */
+  gap: 15px; /* 주제분류 옆으로 15px 띄우기 */
+  margin-bottom: 20px; /* 기존 필터 아래 여백 유지 */
+}
+
 .nb-filters select:focus {
   border-color: #007bff;
   outline: none;
@@ -35,6 +42,24 @@
 .nb-select-wrap {
   position: relative;
   display: inline-block;
+}
+
+.searcbar-refresh-btn {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid #ddd;
+  background: #fff;
+  border-radius: 2px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  position: relative;
+  top: -10px;
 }
 
 .select-wrap select,
@@ -247,27 +272,6 @@
   border-radius: 5px;
 }
 
-/* 반응형 대응 */
-@media (max-width: 768px) {
-  .nb-board-table {
-    font-size: 12px;
-  }
-
-  .nb-header th,
-  .nb-row td {
-    padding: 8px 6px;
-  }
-
-  .nb-header-area,
-  .nb-header-date {
-    display: none;
-  }
-
-  .nb-cell-area,
-  .nb-cell-date {
-    display: none;
-  }
-}
 /* ───────── 검색 · 필터 바 ───────── */
 
 .nb-search {
@@ -307,6 +311,11 @@
 
 .nb-search-input:focus {
   outline: none;
+}
+
+.searcbar-refresh-btn img {
+  width: 16px;
+  height: 16px;
 }
 
 /* 검색 버튼 */

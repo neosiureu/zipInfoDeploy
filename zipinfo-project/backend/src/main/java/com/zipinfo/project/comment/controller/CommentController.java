@@ -27,7 +27,8 @@ public class CommentController {
 		@Autowired
 		private CommentService service;
 		
-		/** 댓글 목록 조회
+		/* 이주원 
+		 * 댓글 목록 조회
 		 * @param boardNo
 		 * @return
 		 */
@@ -38,7 +39,8 @@ public class CommentController {
 			return select;
 		}
 		
-		/** 댓글/답글 등록
+		/* 이주원
+		 *  댓글/답글 등록
 		 * @return
 		 */
 		@PostMapping("")
@@ -49,7 +51,8 @@ public class CommentController {
 			return insert;
 		}
 		
-		/** 댓글 삭제
+		/* 이주원
+		 * 댓글 삭제
 		 * @param commentNo
 		 * @return
 		 */
@@ -64,7 +67,8 @@ public class CommentController {
 		
 		
 		
-		/** 댓글 수정
+		/* 이주원
+		 *  댓글 수정
 		 * @param comment
 		 * @return
 		 */
@@ -74,9 +78,6 @@ public class CommentController {
 			int update =service.update(comment);
 			return update;
 		}
-		
-		
-		
 		
 		
 		

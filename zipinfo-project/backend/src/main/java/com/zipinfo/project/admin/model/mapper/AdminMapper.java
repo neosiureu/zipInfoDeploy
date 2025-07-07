@@ -16,5 +16,25 @@ public interface AdminMapper {
      */
     Member login(String memberEmail);
 
+    
+    
+	/** 이주원
+	 * 관리자 댓글 삭제
+	 * @param commentNo
+	 * @return
+	 */
+	int deleteCommentByAdmin(int commentNo);
+
+
+
+	/** 이주원
+	 * 관리자 게시글 삭제
+	 * @param boardNo
+	 * @return
+	 */
+	int deleteBoardByAdmin(int boardNo);
+
+	
+	
    
 }

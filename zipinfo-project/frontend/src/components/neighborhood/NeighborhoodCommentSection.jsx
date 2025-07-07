@@ -3,7 +3,7 @@ import { MemberContext } from "../member/MemberContext";
 import { axiosAPI } from "../../api/axiosAPI";
 import "../../css/neighborhood/NeighborhoodBoardComment.css";
 import { toast } from "react-toastify";
-
+import { useNavigate } from "react-router-dom";
 //NeighborhoodCommentSection  ────────(데이터/상태 총괄)
 //   └─ fetchComments()  ───>  comments []   (DB → 평면 배열)
 //   └─ buildTree()   ───────>  트리 구조        (댓글과 답글에 대한 계층화)
@@ -15,7 +15,9 @@ import { toast } from "react-toastify";
 // 이 파일안에는 세개의 함수형 컴포넌트가 존재한다.
 // 일단 하나의 댓글 또는 답글을 담당하는 부분을 분리하자.
 // 하나의 댓글 또는 답글에 대해 수정 삭제 삽입등을 할 수 있게 하는 함수를 안에 만드록 return한다.
+
 const CommentItem = ({ comment, loginMember, reload }) => {
+  const navigate = useNavigate();
   const [edit, setEdit] = useState(false);
   const [reply, setReply] = useState(false);
   const [text, setText] = useState("");
@@ -95,6 +97,24 @@ const CommentItem = ({ comment, loginMember, reload }) => {
     }
   };
 
+  const adminDelete = async () => {
+    if (!confirm("정말 삭제하시겠습니까?")) return;
+    const { data: result } = await axiosAPI.delete(
+      `/admin/comments/${comment.commentNo}`
+    );
+    if (result > 0) {
+      toast.success(
+        <div>
+          <div className="toast-success-title">삭제 성공 알림!</div>
+          <div className="toast-success-body">
+            관리자 권한으로 댓글이 삭제되었습니다.
+          </div>
+        </div>
+      );
+      reload();
+    }
+  };
+
   // 컴포넌트 내 댓글 랜더링 영역 => 댓글과 답글을 한번에 처리한다
   return (
     <li
@@ -146,6 +166,9 @@ const CommentItem = ({ comment, loginMember, reload }) => {
                   <button onClick={() => setEdit(false)}>취소</button>
                 </>
               )}
+              {isAdmin && !isMine && (
+                <button onClick={() => adminDelete()}>관리자 삭제</button>
+              )}
             </div>
           )}
 
@@ -165,20 +188,6 @@ const CommentItem = ({ comment, loginMember, reload }) => {
           )}
         </>
       )}
-
-      {/* 자식 댓글은 무조건 렌더링 */}
-      {/* {comment.children?.length > 0 && (
-        <ul id="commentList">
-          {comment.children.map((child) => (
-            <CommentItem
-              key={child.commentNo}
-              comment={child}
-              loginMember={loginMember}
-              reload={reload}
-            />
-          ))}
-        </ul>
-      )} */}
     </li>
   );
 };

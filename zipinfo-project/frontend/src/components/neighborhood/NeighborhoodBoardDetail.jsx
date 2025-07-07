@@ -10,8 +10,9 @@ import { toast } from "react-toastify";
 
 const NeighborhoodBoardDetail = () => {
   const [board, setBoard] = useState([{}]);
-
   const { member } = useContext(MemberContext);
+  const isAdmin = member?.memberAuth === 0;
+
   const { boardNo } = useParams();
   const [searchParams] = useSearchParams();
   const cp = Number(searchParams.get("cp") ?? 1);
@@ -87,6 +88,22 @@ const NeighborhoodBoardDetail = () => {
         </div>
       );
       return; // 실패시 페이지 이동 막기
+    }
+  };
+
+  const handleAdminDelete = async (boardNo) => {
+    if (!confirm("관리자 권한으로 해당 게시글을 삭제하시겠습니까?")) return;
+    const { data: result } = await axiosAPI.delete(`/admin/board/${boardNo}`);
+    if (result > 0) {
+      toast.success(
+        <div>
+          <div className="toast-success-title">삭제 성공 알림!</div>
+          <div className="toast-success-body">
+            관리자권한으로 게시글이 삭제되었습니다.
+          </div>
+        </div>
+      );
+      navigate(-1);
     }
   };
 
@@ -207,10 +224,17 @@ const NeighborhoodBoardDetail = () => {
               </button>
             </>
           ) : null}
-
+          {isAdmin && loginMemberNo !== memberNo && (
+            <button
+              className="nb-detail-btn nb-detail-btn-delete"
+              onClick={() => handleAdminDelete(boardNo)}
+            >
+              관리자 글삭제
+            </button>
+          )}
           <button
             className="nb-detail-btn nb-detail-btn-list"
-            onClick={() => navigate(`/neighborhoodBoard?cp=${cp}`)}
+            onClick={() => navigate(-1)}
           >
             목록보기
           </button>
