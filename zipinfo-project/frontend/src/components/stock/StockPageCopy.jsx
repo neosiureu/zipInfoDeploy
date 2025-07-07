@@ -513,7 +513,7 @@ const StockPageCopy = () => {
   };
   const closeStockDetail = () => {
     setIsAsideVisible(false);
-    setClickedStockIndex(null);
+    setClickedStockItem(null);
     navigate("/stock", { replace: true });
   };
 
@@ -609,7 +609,7 @@ const StockPageCopy = () => {
                     setIsInfraCategoryVisible(!isInfraCategoryVisible);
                   }}
                 >
-                  주변시설 보기
+                  주변시설 {isInfraCategoryVisible ? "보지 않기" : "보기"}
                 </button>
               </div>
             </div>
@@ -874,10 +874,9 @@ const StockPageCopy = () => {
             </button>
           </>
         )}
-
+        <InfraMark mapInstanceRef={mapInstanceRef} />
         <main className="map-area" ref={mapRef}>
           {/* 카카오 맵이 여기에 렌더링됩니다. */}
-          <InfraMark mapInstanceRef={mapInstanceRef} />
         </main>
       </div>
     </>
