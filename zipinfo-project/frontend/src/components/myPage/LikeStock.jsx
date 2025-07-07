@@ -53,7 +53,7 @@ export default function MyStock() {
     return result || "0";
   }
 
-    function monthPay(number) {
+  function monthPay(number) {
     if (!number || isNaN(number)) return "";
 
     const num = Number(number);
@@ -237,9 +237,7 @@ export default function MyStock() {
                               {property.currentFloor}/{property.floorTotalCount}
                               층 | {property.supplyArea}㎡ | 관리비{" "}
                               {property.stockManageFee !== 0
-                                ? `${monthPay(
-                                    property.stockManageFee
-                                  )}원`
+                                ? `${monthPay(property.stockManageFee)}원`
                                 : "없음"}
                             </span>
                           </div>

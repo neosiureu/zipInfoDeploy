@@ -4,13 +4,11 @@
   margin: 0 auto;
   margin-top: 50px;
   background-color: white;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
 /* 게시판 테이블 */
 .my-message-table {
   border: 1px solid #dbdbdb;
-  border-radius: 4px;
   overflow: hidden;
 }
 
@@ -38,7 +36,7 @@
 }
 
 .my-message-header-date {
-  width: 100px;
+  width: 170px;
   flex-shrink: 0;
 }
 
@@ -50,7 +48,7 @@
 /* 게시글 행 */
 .my-message-row {
   display: flex;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid #dbdbdb;
   background-color: white;
 }
 
@@ -76,6 +74,7 @@
   width: 50px;
   flex-shrink: 0;
   justify-content: center;
+  color: #767676;
 }
 
 .my-message-cell-subject {
@@ -94,9 +93,13 @@
 }
 
 .my-message-cell-date {
-  width: 100px;
+  width: 170px;
   flex-shrink: 0;
   justify-content: center;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
 }
 
 .my-message-cell-views {
@@ -113,24 +116,28 @@
   align-items: center;
 }
 
-.reply-n-status{
+.reply-n-status {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: black;
+  background-color: #111;
   color: white;
   font-size: 12px;
   margin-right: 10px;
   width: 50px;
 }
 
-.reply-y-status{
+.reply-y-status {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: green;
+  background-color: #51c6c6;
   color: white;
   font-size: 12px;
   margin-right: 10px;
   width: 50px;
+}
+
+.my-stock-pagination {
+  margin-top: 24px;
 }

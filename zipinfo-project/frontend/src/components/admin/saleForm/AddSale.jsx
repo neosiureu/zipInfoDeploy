@@ -291,11 +291,6 @@ const AddSale = () => {
         lng,
       };
 
-      console.log("전송할 saleData: ", saleData);
-      console.log("region_3depth_h_code:", regionHCode);
-      console.log("regionNo (5자리):", regionNo);
-      console.log("좌표:", { lat, lng });
-
       // const fd = new FormData();
       // fd.append(
       //   "saleData",
@@ -327,7 +322,7 @@ const AddSale = () => {
         다만 커스텀으로 만든 axiosAPI를 따로 건들고 예외를 둘 경우 다른 파일에서도 또 달리 처리를 해줘야 했음
         대안) API를 JSON 전송과 파일 업로드 멀티파트 데이터 전송으로 분리
 
-        설계상 분리가 더 깔끔하다고 판단하여 백엔드에서 json과 멀티파트를 분리하는 방식을 선택했다
+        설계상 분리가 더 깔끔하다고 판단하여 백엔드에서 json과 멀티파트를 분리하는 방식을 선택함.
         */
       const { data: saleStockNo } = await axiosAPI.post(
         "/admin/addSale",
@@ -346,8 +341,7 @@ const AddSale = () => {
           withCredentials: true,
           headers: { "Content-Type": "multipart/form-data" },
           /* headers: {
-      Authorization: `KakaoAK ${import.meta.env.VITE_KAKAO_REST_API_KEY}`, interceptor가 withCredentials=false 와 KakaoAK 헤더를 자동으로 붙여줌
-    }, */
+      Authorization: `KakaoAK ${import.meta.env.VITE_KAKAO_REST_API_KEY}`, interceptor가 withCredentials=false 와 KakaoAK 헤더를 자동으로 붙여줌}, */
         }
       );
       if (res.status === 200) {

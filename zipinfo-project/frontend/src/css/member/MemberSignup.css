@@ -52,6 +52,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-bottom: 48px;
 }
 
 /* 라벨 */
@@ -119,10 +120,6 @@
   align-items: center;
 }
 
-.signup-verify-button:hover {
-  background-color: #1f2937;
-}
-
 /* 주소검색 버튼 */
 .signup-address-button {
   padding: 12px 20px;
@@ -138,14 +135,9 @@
   min-width: 80px; /* 최소 너비 설정으로 버튼 크기 통일 */
 }
 
-.signup-address-button:hover {
-  background-color: #1f2937;
-}
-
 /* 메시지 */
 .message {
   font-size: 12px;
-  margin-top: 4px;
   padding-left: 4px;
 }
 

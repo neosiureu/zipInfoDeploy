@@ -243,10 +243,6 @@
   font-weight: 500;
 }
 
-.member-location-select {
-  border-radius: 5px;
-}
-
 /* 반응형 대응 */
 @media (max-width: 768px) {
   .nb-board-table {

@@ -4,19 +4,19 @@ import {
   fetchPostDetail as fetchPostById,
   deletePost,
 } from "../../api/AnnounceApi";
-import { AuthContext } from "../admin/AuthContext";
 
 import "../../css/announce/AnnounceDetail.css";
 import { toast } from "react-toastify";
+import { MemberContext } from "./../member/MemberContext";
 
 const AnnounceDetail = () => {
   const { id } = useParams(); // URL 파라미터에서 공지사항 ID 획득
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
-  const { user } = useContext(AuthContext);
+  const { member } = useContext(MemberContext);
 
   // 관리자 여부 판단: memberAuth가 숫자 0인 경우 관리자 권한으로 간주
-  const isAdmin = user && Number(user.memberAuth) === 0;
+  const isAdmin = member && Number(member.memberAuth) === 0;
 
   useEffect(() => {
     const loadPost = async () => {

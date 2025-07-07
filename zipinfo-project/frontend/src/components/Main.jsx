@@ -64,9 +64,6 @@ const Main = () => {
   const StockSample = () => {
     return stockList.map((item, index) => (
       <div className="card" key={item.stockNo}>
-        <p className="card-index-transparent">
-          {getTimeAgo(convertToJSDate(item.registDate))}
-        </p>
         <img
           src={`http://localhost:8080${item.imgUrl}`}
           alt="실거래 집 썸네일 이미지"
