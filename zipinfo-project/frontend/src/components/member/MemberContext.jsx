@@ -80,8 +80,10 @@ export const MemberProvider = ({ children }) => {
   useEffect(() => {
     const handleForceLogout = () => {
       if (window.stompClient?.connected) window.stompClient.disconnect();
-      toast.error("세션이 만료되어 로그아웃 됩니다.");
-      localStorage.clear();
+      toast.error("이메일 또는 비밀번호가 다릅니다.");
+      // localStorage.clear();
+      localStorage.remove("loginMember");
+      localStorage.remove("accessToken");
       setMember(null);
     };
 

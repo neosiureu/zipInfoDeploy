@@ -436,35 +436,35 @@ public class MyPageController {
 		}
 	}
 	
-	   @PostMapping(value = "sendMessage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	   public ResponseEntity<Object> sendMessage(@AuthenticationPrincipal Member loginMember, @RequestParam("messageTitle") String messageTitle,@RequestParam("messageContent") String messageContent,
-	          @RequestParam(value = "messageFile", required = false) MultipartFile messageFile){
-	      
-	      try {
-	         
-	           if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-	         
-	         int memberNo = loginMember.getMemberNo();
-	         
-	         HelpMessage message = new HelpMessage();
-	         
-	         message.setMessageContent(messageContent);
-	         
-	         message.setMessageTitle(messageTitle);
-	         
-	         message.setSenderNo(memberNo);
-	         
-	         int result = service.sendMessage(messageFile, message);
-	      
-	         return ResponseEntity.status(HttpStatus.OK) // 200
-	               .body(result); 
-	      } catch (Exception e) {
-	         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	               .body("불러오는 중 예외 발생 : " + e.getMessage());
-	      }
-	      
-	   }
-	   
+	@PostMapping(value = "sendMessage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<Object> sendMessage(@AuthenticationPrincipal Member loginMember, @RequestParam("messageTitle") String messageTitle,@RequestParam("messageContent") String messageContent,
+			 @RequestParam(value = "messageFile", required = false) MultipartFile messageFile){
+		
+		try {
+			
+	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+			
+			int memberNo = loginMember.getMemberNo();
+			
+			HelpMessage message = new HelpMessage();
+			
+			message.setMessageContent(messageContent);
+			
+			message.setMessageTitle(messageTitle);
+			
+			message.setSenderNo(memberNo);
+			
+			int result = service.sendMessage(messageFile, message);
+		
+			return ResponseEntity.status(HttpStatus.OK) // 200
+					.body(result); 
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("불러오는 중 예외 발생 : " + e.getMessage());
+		}
+		
+	}
+
 	@GetMapping("getMyMessage")
 	public ResponseEntity<Object> getMyMessage(@AuthenticationPrincipal Member loginMember){
 		try {

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { axiosAPI } from "./axiosApi";
 
 // 기본 API 주소를 상수로 선언
 const BASE_URL = "/api/announce";
@@ -75,7 +76,7 @@ export const createPost = async (postData) => {
 export const updatePost = async (postId, postData) => {
   try {
     // ✅ 수정된 URL 경로 반영
-    const response = await axios.put(
+    const response = await axiosAPI.put(
       `/api/announce/edit/${postId}`, // 👈 변경된 edit 경로
       postData,
       { withCredentials: true }
@@ -95,7 +96,7 @@ export const updatePost = async (postId, postData) => {
 export const deletePost = async (postId) => {
   try {
     // DELETE 요청으로 공지사항 삭제, 쿠키 포함
-    const response = await axios.post(
+    const response = await axiosAPI.post(
       "http://localhost:8080/api/announce/detail/delete",
       { announceNo: postId },
       {

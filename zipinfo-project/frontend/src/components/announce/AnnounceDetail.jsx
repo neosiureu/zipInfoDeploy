@@ -7,7 +7,7 @@ import {
 
 import "../../css/announce/AnnounceDetail.css";
 import { toast } from "react-toastify";
-import { MemberContext } from "./../member/MemberContext";
+import { MemberContext } from "../member/MemberContext";
 
 const AnnounceDetail = () => {
   const { id } = useParams(); // URL 파라미터에서 공지사항 ID 획득

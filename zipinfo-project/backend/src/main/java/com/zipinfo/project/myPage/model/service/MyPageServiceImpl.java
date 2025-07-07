@@ -424,6 +424,7 @@ public class MyPageServiceImpl implements MyPageService{
 		return result;
 	}
 	
+
 	   @Override
 	   public int sendMessage(MultipartFile messageFile, HelpMessage message) {
 	      
