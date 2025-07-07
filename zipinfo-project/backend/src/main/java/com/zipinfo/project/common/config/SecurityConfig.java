@@ -60,7 +60,7 @@ public class SecurityConfig {
             	    // 공지사항 등록 (POST) 경로 수정
             		.requestMatchers(HttpMethod.POST, "/api/announce/write").hasRole("ADMIN")
 
-            	    // 공지사항 수정 (PUT) 경로 수정 (모든 write 하위 경로 포함)
+            	    // 공지사항 수정 (UPDATE) 경로 수정 (모든 write 하위 경로 포함)
             	    .requestMatchers(HttpMethod.POST, "/api/announce/edit/**").hasRole("ADMIN")
             	    
             	    // 공지사항 삭제 (DELETE) 경로 수정 (detail 하위 경로 포함)

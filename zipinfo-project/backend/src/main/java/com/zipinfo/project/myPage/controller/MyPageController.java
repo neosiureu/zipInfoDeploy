@@ -437,7 +437,8 @@ public class MyPageController {
 	}
 	
 	@PostMapping(value = "sendMessage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<Object> sendMessage(@AuthenticationPrincipal Member loginMember, @RequestParam("messageTitle") String messageTitle,@RequestParam("messageContent") String messageContent, @RequestParam("messageFile") MultipartFile messageFile){
+	public ResponseEntity<Object> sendMessage(@AuthenticationPrincipal Member loginMember, @RequestParam("messageTitle") String messageTitle,@RequestParam("messageContent") String messageContent,
+			 @RequestParam(value = "messageFile", required = false) MultipartFile messageFile){
 		
 		try {
 			

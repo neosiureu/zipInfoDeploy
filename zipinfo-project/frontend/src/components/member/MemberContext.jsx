@@ -3,6 +3,7 @@ import { AuthContext } from "../admin/AuthContext";
 import { axiosAPI } from "../../api/axiosApi";
 import { jwtDecode } from "jwt-decode";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export const MemberContext = createContext();
 
@@ -73,7 +74,9 @@ export const MemberProvider = ({ children }) => {
     const handleForceLogout = () => {
       if (window.stompClient?.connected) window.stompClient.disconnect();
       toast.error("이메일 또는 비밀번호가 다릅니다.");
-      localStorage.clear();
+      // localStorage.clear();
+      localStorage.remove("loginMember");
+      localStorage.remove("accessToken");
       setMember(null);
     };
 

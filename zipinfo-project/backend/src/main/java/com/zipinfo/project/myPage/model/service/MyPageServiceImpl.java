@@ -434,40 +434,40 @@ public class MyPageServiceImpl implements MyPageService{
 			String originalName = null;
 			String rename = null;
 			
-			MultipartFile file = messageFile;
-				
-			originalName = file.getOriginalFilename();
-			rename = Utility.fileRename(originalName);
-			File saveFile = new File(messageFolderPath, rename);
-			
-			// 디렉토리가 없으면 생성
-			saveFile.getParentFile().mkdirs();
-				
-			// /myPage/stock/변경된 파일명
-			finalPath = messageWebPath + rename;
-			file.transferTo(saveFile);
-			
-			List<HelpMessage> selectAuthMember = mapper.selectAuthMember();
-			
 			int sendResult = 0;
 			
-			for(HelpMessage messageINfo : selectAuthMember) {
-				int authMember = messageINfo.getMemberNo();
-				message.setReceiverNo(authMember);
-				int contentResult = mapper.sendMessageContent(message);
-				if(contentResult != 1) {
-					System.out.println("메세지 전송 실패");
-					return 0;
+			if(messageFile != null) {
+				MultipartFile file = messageFile;
+				
+				originalName = file.getOriginalFilename();
+				rename = Utility.fileRename(originalName);
+				File saveFile = new File(messageFolderPath, rename);
+				
+				// 디렉토리가 없으면 생성
+				saveFile.getParentFile().mkdirs();
+				
+				// /myPage/stock/변경된 파일명
+				finalPath = messageWebPath + rename;
+				file.transferTo(saveFile);
+				
+					int contentResult = mapper.sendMessageContent(message);
+					if(contentResult != 1) {
+						System.out.println("메세지 전송 실패");
+						return 0;
+					}
+					int messageNo = mapper.getMessageNo(message.getSenderNo());
+					int result = mapper.sendMessageFile(originalName, rename, finalPath, messageNo);
+					if(result == 1) sendResult++;
+				
+			}else {
+					int contentResult = mapper.sendMessageContent(message);
+					if(contentResult != 1) {
+						System.out.println("메세지 전송 실패");
+						return 0;
+					}else {
+						sendResult++;
+					}
 				}
-				int messageNo = mapper.getMessageNo(message.getSenderNo());
-				int result = mapper.sendMessageFile(originalName, rename, finalPath, messageNo);
-				if(result == 1) sendResult++;
-			}
-			
-			if(sendResult != selectAuthMember.size()) {
-				System.out.println("모든 메세지 전송이 성공적으로 이루어지지 않았습니다.");
-			}
-			
 			
 			return sendResult;
 		} catch (Exception e) {

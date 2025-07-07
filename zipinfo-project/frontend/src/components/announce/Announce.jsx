@@ -123,9 +123,7 @@ const Announce = () => {
                       {post.memberNickname ?? "관리자"}
                     </div>
                     <div className="an-cell an-cell-date">
-                      {post.announceWriteDate
-                        ? new Date(post.announceWriteDate).toLocaleDateString()
-                        : "날짜 없음"}
+                      {post.announceWriteDate.substring(0, 10)}
                     </div>
                     <div className="an-cell an-cell-views">
                       {post.announceReadCount ?? 0}

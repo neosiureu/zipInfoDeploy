@@ -41,6 +41,10 @@ const MyPost = () => {
     nav(`/myPage/myPost?cp=${page}`); // URL 업데이트
   };
 
+  const handleDate = (date) => {
+    return date.substring(0, 10);
+  };
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentPosts = posts.slice(indexOfFirstItem, indexOfLastItem);
@@ -103,7 +107,7 @@ const MyPost = () => {
                       )}
                     </div>
                     <div className="my-message-cell my-message-cell-date">
-                      {item.messageWriteDate}
+                      {handleDate(item.messageWriteDate)}
                     </div>
                   </div>
                 );

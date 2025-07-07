@@ -5,6 +5,7 @@ import Layout from "./components/common/Layout";
 import React, { useEffect, useContext, useRef } from "react";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
+import BlockAdmin from "./BlockAdmin";
 
 import Main from "./components/Main";
 import SalePage from "./components/sale/SalePage";
@@ -244,7 +245,9 @@ function App() {
                 path="myPage"
                 element={
                   <ProtectedRoute>
-                    <MyInfo />
+                    <BlockAdmin>
+                      <MyInfo />
+                    </BlockAdmin>
                   </ProtectedRoute>
                 }
               />
@@ -252,7 +255,9 @@ function App() {
                 path="myPage/updateInfo"
                 element={
                   <ProtectedRoute>
-                    <UpdateInfo />
+                    <BlockAdmin>
+                      <UpdateInfo />
+                    </BlockAdmin>
                   </ProtectedRoute>
                 }
               />
@@ -260,7 +265,9 @@ function App() {
                 path="myPage/myStock"
                 element={
                   <ProtectedRoute>
-                    <MyStock />
+                    <BlockAdmin>
+                      <MyStock />
+                    </BlockAdmin>
                   </ProtectedRoute>
                 }
               />
@@ -268,7 +275,9 @@ function App() {
                 path="myPage/updateMyStock"
                 element={
                   <ProtectedRoute>
-                    <UpdateMyStock />
+                    <BlockAdmin>
+                      <UpdateMyStock />
+                    </BlockAdmin>
                   </ProtectedRoute>
                 }
               />
@@ -276,7 +285,9 @@ function App() {
                 path="myPage/addStock"
                 element={
                   <ProtectedRoute>
-                    <AddStock />
+                    <BlockAdmin>
+                      <AddStock />
+                    </BlockAdmin>
                   </ProtectedRoute>
                 }
               />
@@ -284,7 +295,9 @@ function App() {
                 path="myPage/sawStock"
                 element={
                   <ProtectedRoute>
-                    <SawStock />
+                    <BlockAdmin>
+                      <SawStock />
+                    </BlockAdmin>
                   </ProtectedRoute>
                 }
               />
@@ -292,7 +305,9 @@ function App() {
                 path="myPage/likeStock"
                 element={
                   <ProtectedRoute>
-                    <LikeStock />
+                    <BlockAdmin>
+                      <LikeStock />
+                    </BlockAdmin>
                   </ProtectedRoute>
                 }
               />
@@ -300,7 +315,9 @@ function App() {
                 path="myPage/myMessage"
                 element={
                   <ProtectedRoute>
-                    <MyMessage />
+                    <BlockAdmin>
+                      <MyMessage />
+                    </BlockAdmin>
                   </ProtectedRoute>
                 }
               />
@@ -308,7 +325,9 @@ function App() {
                 path="myPage/seeMyMessage"
                 element={
                   <ProtectedRoute>
-                    <SeeMyMessage />
+                    <BlockAdmin>
+                      <SeeMyMessage />
+                    </BlockAdmin>
                   </ProtectedRoute>
                 }
               />
@@ -316,7 +335,9 @@ function App() {
                 path="myPage/detailMessage/:messageNo"
                 element={
                   <ProtectedRoute>
-                    <DetailMessage />
+                    <BlockAdmin>
+                      <DetailMessage />
+                    </BlockAdmin>
                   </ProtectedRoute>
                 }
               />
@@ -324,7 +345,9 @@ function App() {
                 path="myPage/myPost"
                 element={
                   <ProtectedRoute>
-                    <MyPost />
+                    <BlockAdmin>
+                      <MyPost />
+                    </BlockAdmin>
                   </ProtectedRoute>
                 }
               />
@@ -332,7 +355,9 @@ function App() {
                 path="myPage/updatePassword"
                 element={
                   <ProtectedRoute>
-                    <UpdatePassword />
+                    <BlockAdmin>
+                      <UpdatePassword />
+                    </BlockAdmin>
                   </ProtectedRoute>
                 }
               />
@@ -340,7 +365,9 @@ function App() {
                 path="myPage/withDraw"
                 element={
                   <ProtectedRoute>
-                    <WithDraw />
+                    <BlockAdmin>
+                      <WithDraw />
+                    </BlockAdmin>
                   </ProtectedRoute>
                 }
               />

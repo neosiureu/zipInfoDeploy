@@ -56,29 +56,27 @@ export default function MyStock() {
   };
 
   const handleSubmit = async (e) => {
-    if (messageFile !== null) {
-      const messageData = new FormData();
-      messageData.append("messageFile", messageFile);
-      messageData.append("messageTitle", message.messageTitle);
-      messageData.append("messageContent", message.messageContent);
-      const response = await axiosAPI.post(
-        "http://localhost:8080/myPage/sendMessage",
-        messageData,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-      if (response.status === 200) {
-        nav("/myPage/seeMyMessage");
-      } else {
-        toast.error(
-          <div>
-            <div className="toast-error-title">오류 알림!</div>
-            <div className="toast-error-body">문의 전송이 실패하였습니다.</div>
-          </div>
-        );
+    const messageData = new FormData();
+    messageData.append("messageFile", messageFile);
+    messageData.append("messageTitle", message.messageTitle);
+    messageData.append("messageContent", message.messageContent);
+    const response = await axiosAPI.post(
+      "http://localhost:8080/myPage/sendMessage",
+      messageData,
+      {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
       }
+    );
+    if (response.status === 200) {
+      nav("/myPage/seeMyMessage");
+    } else {
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">문의 전송이 실패하였습니다.</div>
+        </div>
+      );
     }
   };
 

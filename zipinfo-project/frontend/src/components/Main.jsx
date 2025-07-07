@@ -25,13 +25,164 @@ import { useState, useEffect, useRef } from "react";
 import { axiosAPI } from "../api/axiosApi";
 
 import { formatPrice } from "../components/common/priceConvert";
+import axios from "axios";
 import { convertToJSDate, getTimeAgo } from "../components/common/dateConvert";
+import { X } from "lucide-react";
+
 const Main = () => {
   const navigate = useNavigate();
 
   const [stockList, setStockList] = useState([]);
   const [saleList, setSaleList] = useState([]);
   const [mainAd, setMainAd] = useState(null);
+
+  const [searchContent, setSearchContent] = useState(null);
+
+  const searchRef = useRef(null);
+
+  const [isSearchActive, setIsSearchActive] = useState(false);
+
+  const [searchRegion, setSearchRegion] = useState([]);
+  const [searchStock, setSearchStock] = useState([]);
+  const [searchSale, setSearchSale] = useState([]);
+
+  const [recentSearch, setRecentSearch] = useState([]);
+
+  const handleSearchActive = () => {
+    setIsSearchActive(true);
+  };
+
+  const handleSearchResult = async (e) => {
+    const value = e.target.value;
+    setSearchContent(value);
+    if (!value.trim()) {
+      setSearchRegion("");
+      setSearchStock("");
+      setSearchSale("");
+      return;
+    }
+
+    const lastChar = value[value.length - 1];
+    const isKoreanComplete = lastChar && lastChar.match(/[가-힣]/);
+
+    if (!isKoreanComplete) {
+      // 완성된 글자가 아니라면 이전 검색결과 유지
+      return;
+    }
+
+    const response = await axiosAPI.post("/myPage/searchResult", value);
+    console.log(response.data);
+    setSearchStock(response.data.stock);
+    setSearchSale(response.data.sale);
+  };
+
+  const highlightMatch = (text, keyword) => {
+    if (!keyword || !text.includes(keyword)) return text;
+
+    const parts = text.split(new RegExp(`(${keyword})`, "gi"));
+    return parts.map((part, idx) =>
+      part.toLowerCase() === keyword.toLowerCase() ? (
+        <span key={idx} className="search-highlight">
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  };
+
+  const handleClickStock = (stock) => {
+    let history = JSON.parse(localStorage.getItem("recentSearch")) || [];
+
+    // stockNo 기준으로 중복 제거
+    history = history.filter((item) => {
+      if (stock.stockNo) {
+        // 일반 매물: stockNo 기준으로 비교
+        return item.stockNo !== stock.stockNo;
+      } else {
+        // 분양 매물: saleNo 기준으로 비교
+        return item.saleNo !== stock.saleStockNo;
+      }
+    });
+
+    const isStock = !!stock.stockNo;
+    const newItem = isStock
+      ? {
+          stockNo: stock.stockNo,
+          stockName: stock.stockName,
+          stockAddress: stock.stockAddress,
+          stockForm: stock.stockForm,
+        }
+      : {
+          saleNo: stock.saleStockNo,
+          saleName: stock.saleStockName,
+          saleAddress: stock.saleAddress,
+          saleStatus: stock.saleStatus,
+        };
+
+    // 최신 항목을 맨 앞에 추가
+    history.unshift(newItem);
+
+    // 최대 10개까지만 저장
+    if (history.length > 10) {
+      history = history.slice(0, 10);
+    }
+
+    // 다시 저장
+    localStorage.setItem("recentSearch", JSON.stringify(history));
+
+    stock.stockNo
+      ? navigate(`/stock/${stock.stockNo}`)
+      : navigate(`/sale/${stock.saleNo}`);
+  };
+
+  const deleteRecentSearch = (e) => {
+    let number = 0;
+    e.stockNo ? (number = e.stockNo) : (number = e.saleNo);
+    let history = JSON.parse(localStorage.getItem("recentSearch")) || [];
+
+    history = history.filter((item) =>
+      e.stockNo ? item.stockNo !== number : item.saleNo !== number
+    );
+
+    localStorage.setItem("recentSearch", JSON.stringify(history));
+
+    setRecentSearch(history);
+  };
+
+  const deleteAllSearch = () => {
+    let history = [];
+
+    localStorage.setItem("recentSearch", JSON.stringify(history));
+
+    setRecentSearch(history);
+  };
+
+  const returnAddress = (add) => {
+    const str = add;
+    const parts = str.split("^^^");
+    const address = parts[1]; // "서울 중랑구 중랑역로 272-6"
+
+    return address;
+  };
+
+  const returnForm = (form) => {
+    const forms = {
+      1: "아파트",
+      2: "빌라",
+      3: "오피스텔",
+    };
+    return forms[form] || "기타";
+  };
+
+  const returnSaleStatus = (status) => {
+    const result = {
+      1: "분양중",
+      2: "분양예정",
+      3: "분양완료",
+    };
+    return result[status] || "기타";
+  };
 
   // 배너 URL 처리
   const bannerPath = localStorage.getItem("mainBannerUrl");
@@ -41,6 +192,9 @@ const Main = () => {
       : banner;
 
   useEffect(() => {
+    const history = JSON.parse(localStorage.getItem("recentSearch")) || [];
+    setRecentSearch(history);
+
     const loadAd = async () => {
       const resp = await axiosAPI.get("/advertisement/getMainAd");
       setMainAd(resp.data);
@@ -61,74 +215,120 @@ const Main = () => {
     loadAd();
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        isSearchActive &&
+        searchRef.current &&
+        !searchRef.current.contains(e.target)
+      ) {
+        setIsSearchActive(false); // 외부 클릭 시 닫기
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSearchActive]);
+
+  /****************슬라이딩 애니메이션을 위한 전역변수 및 component(test중)************************ */
+
+  const CARD_WIDTH = 300;
+  const CARD_GAP = 16;
+  const AUTO_SLIDE_INTERVAL = 3000; // 3초
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const totalItems = stockList.length;
+  const trackRef = useRef(null);
+
+  const loopSlideTrack = (el) => {}; // 그냥 왼쪽으로 계속 sliding하기 위한 함수.
+  /********************************** */
+
   const StockSample = () => {
-    return stockList.map((item, index) => (
-      <div className="card" key={item.stockNo}>
-        <p className="card-index-transparent">
-          {getTimeAgo(convertToJSDate(item.registDate))}
-        </p>
-        <img
-          src={`http://localhost:8080${item.imgUrl}`}
-          alt="실거래 집 썸네일 이미지"
-          onClick={() => {
-            navigate(`/stock/${item.stockNo}`);
-          }}
-        />
-        <div
-          className="card-title"
-          onClick={() => {
-            navigate(`/stock/${item.stockNo}`);
-          }}
-        >
-          {item.stockForm === 1
-            ? "아파트"
-            : item.stockForm === 2
-            ? "빌라"
-            : item.stockForm === 3
-            ? "오피스텔"
-            : "기타"}{" "}
-          · {item.stockName} ·{" "}
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setCurrentIndex((prevIndex) =>
+          prevIndex === totalItems - 1 ? 0 : prevIndex + 1
+        );
+      }, AUTO_SLIDE_INTERVAL);
+
+      return () => clearInterval(interval);
+    }, [totalItems]);
+
+    const result = () =>
+      stockList.map((item, index) => (
+        <div className="card" key={item.stockNo}>
+          <p className="card-index-transparent">
+            {getTimeAgo(convertToJSDate(item.registDate))}
+          </p>
+          <img
+            src={`http://localhost:8080${item.imgUrl}`}
+            alt="실거래 집 썸네일 이미지"
+            onClick={() => {
+              navigate(`/stock/${item.stockNo}`);
+            }}
+          />
+          <div
+            className="card-title"
+            onClick={() => {
+              navigate(`/stock/${item.stockNo}`);
+            }}
+          >
+            {item.stockForm === 1
+              ? "아파트"
+              : item.stockForm === 2
+              ? "빌라"
+              : item.stockForm === 3
+              ? "오피스텔"
+              : "기타"}{" "}
+            · {item.stockName} ·{" "}
+          </div>
+          <div
+            className="card-price"
+            onClick={() => {
+              navigate(`/stock/${item.stockNo}`);
+            }}
+          >
+            {item.stockType === 0 ? (
+              <>
+                <span>매매 </span>
+                {formatPrice(item.stockSellPrice)}
+              </>
+            ) : item.stockType === 1 ? (
+              <>
+                <span>전세 </span>
+                {formatPrice(item.stockSellPrice)}
+              </>
+            ) : item.stockType === 2 ? (
+              <>
+                <span>월세 </span>
+                {formatPrice(item.stockSellPrice)} / {item.stockFeeMonth}
+              </>
+            ) : (
+              "기타"
+            )}
+          </div>
+          <div className="card-desc">
+            {item.currentFloor}/{item.floorTotalCount}층 <span>|</span>{" "}
+            {item.exclusiveArea}㎡ <span>|</span> 관리비{" "}
+            {item.stockManageFee !== 0
+              ? `${item.stockManageFee / 10000}만원`
+              : "없음"}
+          </div>
+          <div className="card-agent">
+            <span>
+              <img src={agent} alt="중개사 아이콘" />
+            </span>
+            {item.companyName}
+          </div>
         </div>
-        <div
-          className="card-price"
-          onClick={() => {
-            navigate(`/stock/${item.stockNo}`);
-          }}
-        >
-          {item.stockType === 0 ? (
-            <>
-              <span>매매 </span>
-              {formatPrice(item.stockSellPrice)}
-            </>
-          ) : item.stockType === 1 ? (
-            <>
-              <span>전세 </span>
-              {formatPrice(item.stockSellPrice)}
-            </>
-          ) : item.stockType === 2 ? (
-            <>
-              <span>월세 </span>
-              {formatPrice(item.stockSellPrice)} / {item.stockFeeMonth}
-            </>
-          ) : (
-            "기타"
-          )}
-        </div>
-        <div className="card-desc">
-          {item.currentFloor}/{item.floorTotalCount}층 <span>|</span>{" "}
-          {item.exclusiveArea}㎡ <span>|</span> 관리비{" "}
-          {item.stockManageFee !== 0
-            ? `${item.stockManageFee / 10000}만원`
-            : "없음"}
-        </div>
-        <div className="card-agent">
-          <span>
-            <img src={agent} alt="중개사 아이콘" />
-          </span>
-          {item.companyName}
-        </div>
-      </div>
-    ));
+      ));
+    return (
+      <>
+        {result()}
+        {result()}
+      </>
+    );
   };
 
   const showSales = () => {
@@ -178,10 +378,192 @@ const Main = () => {
             당신의 삶이 머무를 공간을 위해 믿을 수 있는 정보로 함께
             찾아드립니다.
           </p>
-          <div className="search-bar">
-            <img src={search} alt="검색 아이콘" className="main-search-icon" />
-            <input type="text" placeholder="검색어를 입력하세요" />
+          <div className="search-wrapper">
+            <div
+              ref={searchRef}
+              className={!isSearchActive ? "search-bar" : "search-bar-active"}
+            >
+              <img
+                src={search}
+                alt="검색 아이콘"
+                className="main-search-icon"
+              />
+              <input
+                onFocus={() => setIsSearchActive(true)}
+                onClick={() => handleSearchActive()}
+                onChange={handleSearchResult}
+                type="text"
+                placeholder="검색어를 입력하세요"
+                value={searchContent}
+              />
+              {isSearchActive && (
+                <div className="expanded-search-overlay">
+                  <div className="expanded-search-container">
+                    {!searchContent?.trim() && recentSearch.length === 0 && (
+                      <div className="no-search-result">
+                        <div className="no-result-info">
+                          원하는 검색 결과가 없나요?
+                        </div>
+                        <div className="no-result-info">
+                          검색어를 완성해주세요.
+                        </div>
+                        <div className="no-result-info">
+                          해당하는 매물이 없을 수 있습니다.
+                        </div>
+                        <div className="search-bottom-block"></div>
+                      </div>
+                    )}
+                    {searchContent?.trim() &&
+                      searchStock.length === 0 &&
+                      searchSale.length === 0 && (
+                        <div className="no-search-result">
+                          <div className="no-result-info">
+                            원하는 검색 결과가 없나요?
+                          </div>
+                          <div className="no-result-info">
+                            검색어를 완성해주세요.
+                          </div>
+                          <div className="no-result-info">
+                            해당하는 매물이 없을 수 있습니다.
+                          </div>
+                          <div className="search-bottom-block"></div>
+                        </div>
+                      )}
+                    {recentSearch.length > 0 && !searchContent && (
+                      <div className="search-column-1">
+                        <div className="search-bar-title">
+                          <div className="search-bar-result">최근 검색</div>
+                          <button
+                            type="button"
+                            className="search-bar-title-button"
+                            onClick={deleteAllSearch}
+                          >
+                            전체 삭제
+                          </button>
+                        </div>
+                        <ul>
+                          {recentSearch?.map((item, idx) => (
+                            <li
+                              key={idx}
+                              onClick={() => handleClickStock(item)}
+                            >
+                              <div className="search-result-info-div">
+                                <div className="stock-info-div">
+                                  <div className="stock-name-div">
+                                    {item.stockName
+                                      ? item.stockName
+                                      : item.saleName}
+                                  </div>
+                                  <div>
+                                    {item.stockAddress
+                                      ? returnAddress(item.stockAddress)
+                                      : item.saleAddress}
+                                  </div>
+                                </div>
+                                <div className="stock-form-ddiv">
+                                  <div className="stock-form-div">
+                                    {item.stockForm
+                                      ? returnForm(item.stockForm)
+                                      : returnSaleStatus(item.saleStatus)}
+                                  </div>
+                                  <X
+                                    className="delete-recent-search"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      deleteRecentSearch(item);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="search-bottom-block"></div>
+                      </div>
+                    )}
+                    {searchStock.length > 0 && (
+                      <div className="search-column-1">
+                        <div className="result-info">단지</div>
+                        <div className="scrollable-ul-wrapper">
+                          <ul>
+                            {searchStock?.map((item, idx) => (
+                              <li
+                                key={idx}
+                                onClick={() => handleClickStock(item)}
+                              >
+                                <div className="stock-info-div">
+                                  <div className="stock-name-div">
+                                    {highlightMatch(
+                                      item.stockName,
+                                      searchContent
+                                    )}
+                                  </div>
+                                  <div>
+                                    {highlightMatch(
+                                      returnAddress(item.stockAddress),
+                                      searchContent
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="stock-form-ddiv">
+                                  <div className="stock-form-div">
+                                    {returnForm(item.stockForm)}
+                                  </div>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="search-bottom-block"></div>
+                      </div>
+                    )}
+
+                    {searchSale.length > 0 && (
+                      <div
+                        className={
+                          searchRegion.length > 0 && searchStock.length > 0
+                            ? "search-column"
+                            : "search-column-1"
+                        }
+                      >
+                        <div className="result-info">분양</div>
+                        <ul>
+                          {searchSale?.map((item, idx) => (
+                            <li
+                              key={idx}
+                              onClick={() => handleClickStock(item)}
+                            >
+                              <div className="stock-info-div">
+                                <div className="stock-name-div">
+                                  {highlightMatch(
+                                    item.saleStockName,
+                                    searchContent
+                                  )}
+                                </div>
+                                <div>
+                                  {highlightMatch(
+                                    item.saleAddress,
+                                    searchContent
+                                  )}
+                                </div>
+                              </div>
+                              <div className="stock-form-ddiv">
+                                <div className="stock-form-div">
+                                  {returnSaleStatus(item.saleStatus)}
+                                </div>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="search-bottom-block"></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
+
           <div className="main-icons">
             <button
               className="apart-icons"
@@ -242,7 +624,17 @@ const Main = () => {
             모두 보기
           </button>
         </div>
-        <div className="card-list ">{StockSample()}</div>
+        <div
+          className="card-list card-slider-track"
+          ref={trackRef}
+          style={{
+            transform: `translateX(-${
+              currentIndex * (CARD_WIDTH + CARD_GAP)
+            }px)`,
+          }}
+        >
+          {StockSample()}
+        </div>
 
         <section className="sale">
           <div className="section-header">
