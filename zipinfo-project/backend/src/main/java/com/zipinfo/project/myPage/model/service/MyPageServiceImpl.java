@@ -424,58 +424,100 @@ public class MyPageServiceImpl implements MyPageService{
 		return result;
 	}
 	
-	@Override
-	public int sendMessage(MultipartFile messageFile, HelpMessage message) {
-		
-		try {
-			
-			String finalPath = null;
-			
-			String originalName = null;
-			String rename = null;
-			
-			MultipartFile file = messageFile;
-				
-			originalName = file.getOriginalFilename();
-			rename = Utility.fileRename(originalName);
-			File saveFile = new File(messageFolderPath, rename);
-			
-			// 디렉토리가 없으면 생성
-			saveFile.getParentFile().mkdirs();
-				
-			// /myPage/stock/변경된 파일명
-			finalPath = messageWebPath + rename;
-			file.transferTo(saveFile);
-			
-			List<HelpMessage> selectAuthMember = mapper.selectAuthMember();
-			
-			int sendResult = 0;
-			
-			for(HelpMessage messageINfo : selectAuthMember) {
-				int authMember = messageINfo.getMemberNo();
-				message.setReceiverNo(authMember);
-				int contentResult = mapper.sendMessageContent(message);
-				if(contentResult != 1) {
-					System.out.println("메세지 전송 실패");
-					return 0;
-				}
-				int messageNo = mapper.getMessageNo(message.getSenderNo());
-				int result = mapper.sendMessageFile(originalName, rename, finalPath, messageNo);
-				if(result == 1) sendResult++;
-			}
-			
-			if(sendResult != selectAuthMember.size()) {
-				System.out.println("모든 메세지 전송이 성공적으로 이루어지지 않았습니다.");
-			}
-			
-			
-			return sendResult;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return 0;
-		}
-		
-	}
+	   @Override
+	   public int sendMessage(MultipartFile messageFile, HelpMessage message) {
+	      
+	      try {
+	         
+	         String finalPath = null;
+	         
+	         String originalName = null;
+	         String rename = null;
+	         
+	         int sendResult = 0;
+	         
+	         if(messageFile != null) {
+	            MultipartFile file = messageFile;
+	            
+	            originalName = file.getOriginalFilename();
+	            
+	            // 파일 형식 검증
+	            if (!isValidFileType(originalName)) {
+	               System.out.println("지원하지 않는 파일 형식: " + originalName);
+	               return 0;
+	            }
+	            
+	            rename = Utility.fileRename(originalName);
+	            File saveFile = new File(messageFolderPath, rename);
+	            
+	            // 디렉토리가 없으면 생성
+	            File directory = saveFile.getParentFile();
+	            if (!directory.exists()) {
+	               boolean created = directory.mkdirs();
+	               if (!created) {
+	                  System.out.println("디렉토리 생성 실패: " + directory.getAbsolutePath());
+	                  return 0;
+	               }
+	               System.out.println("디렉토리 생성 성공: " + directory.getAbsolutePath());
+	            }
+	            
+	            // /message/messageFile/변경된 파일명
+	            finalPath = messageWebPath + rename;
+	            file.transferTo(saveFile);
+	            
+	               int contentResult = mapper.sendMessageContent(message);
+	               if(contentResult != 1) {
+	                  System.out.println("메세지 전송 실패");
+	                  return 0;
+	               }
+	               int messageNo = mapper.getMessageNo(message.getSenderNo());
+	               int result = mapper.sendMessageFile(originalName, rename, finalPath, messageNo);
+	               if(result == 1) sendResult++;
+	            
+	         }else {
+	               int contentResult = mapper.sendMessageContent(message);
+	               if(contentResult != 1) {
+	                  System.out.println("메세지 전송 실패");
+	                  return 0;
+	               }else {
+	                  sendResult++;
+	               }
+	            }
+	         
+	         return sendResult;
+	      } catch (Exception e) {
+	         e.printStackTrace();
+	         return 0;
+	      }
+	      
+	   }
+	   
+	   /**
+	    * 파일 형식 검증
+	    * @param fileName 파일명
+	    * @return 지원되는 형식이면 true, 아니면 false
+	    */
+	   private boolean isValidFileType(String fileName) {
+	      if (fileName == null || fileName.isEmpty()) {
+	         return false;
+	      }
+	      
+	      String extension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
+	      
+	      // 지원되는 파일 형식들
+	      String[] allowedExtensions = {
+	         ".jpg", ".jpeg", ".gif", ".png", ".pdf", ".doc", ".docx", 
+	         ".hwp", ".txt", ".csv", ".zip", ".rar", ".7z", ".xls", ".xlsx"
+	      };
+	      
+	      for (String allowedExt : allowedExtensions) {
+	         if (allowedExt.equals(extension)) {
+	            return true;
+	         }
+	      }
+	      
+	      return false;
+	   }
 	
 	@Override
 	public List<HelpMessage> getMyMessage(int memberNo) {

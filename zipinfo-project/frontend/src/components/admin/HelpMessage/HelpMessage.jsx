@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styles from "../../../css/admin/HelpMessage/HelpMessage.module.css";
+import { AuthContext } from "../AuthContext";
 
 const HelpMessage = () => {
   const [activeTab, setActiveTab] = useState("received");
@@ -12,6 +13,7 @@ const HelpMessage = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
   const fetchHelpMessages = async (showRefreshSpinner = false) => {
     try {
@@ -22,20 +24,14 @@ const HelpMessage = () => {
       }
       setError(null);
 
-      const currentUserId = 1; // 관리자로 로그인한 ID
+      const currentUserId = user?.memberNo || 26;
 
       const url =
-        activeTab === "received"
-          ? "/api/help/unanswered"
-          : "/api/help/answered";
+        activeTab === "received" ? "/api/help/unanswered" : "/api/help/replied";
 
-      const params =
-        activeTab === "received"
-          ? { adminId: currentUserId }
-          : { userNo: currentUserId };
+      const params = { adminId: currentUserId };
 
       const response = await axios.get(url, { params });
-
       setHelpMessages(response.data);
     } catch (err) {
       setError(
@@ -64,11 +60,9 @@ const HelpMessage = () => {
 
   const getStatusBadge = (replyYn) => {
     const baseClass = styles.statusBadge;
-    if (replyYn === "Y") {
-      return `${baseClass} ${styles.statusComplete}`;
-    } else {
-      return `${baseClass} ${styles.statusWaiting}`;
-    }
+    return replyYn === "Y"
+      ? `${baseClass} ${styles.statusComplete}`
+      : `${baseClass} ${styles.statusWaiting}`;
   };
 
   const renderPageNumbers = () => {
@@ -97,15 +91,9 @@ const HelpMessage = () => {
     return pages;
   };
 
-  const handleHelpMessageClick = async (msg) => {
-    console.log("클릭한 메시지:", msg);
-    try {
-      await axios.patch(`/api/help/message/read/${msg.messageNo}`);
-    } catch (e) {
-      console.warn("읽음 처리 실패", e);
-    }
+  const handleHelpMessageClick = (msg) => {
+    // 읽음 처리 요청은 제거됨
 
-    // 탭에 따라 viewOnly 쿼리 파라미터 포함 여부 결정
     if (activeTab === "sent") {
       const targetNo =
         msg.inquiredNo && msg.inquiredNo !== 0 ? msg.inquiredNo : msg.messageNo;
@@ -130,13 +118,14 @@ const HelpMessage = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>부동산 문의 관리</h1>
+        <h1 className={styles.title}></h1>
         <button
           className={styles.refreshButton}
           onClick={() => fetchHelpMessages(true)}
           disabled={refreshing}
+          aria-label="새로고침"
         >
-          {refreshing ? "새로고침 중..." : "새로고침"}
+          {refreshing ? "⏳" : "↻"}
         </button>
       </div>
 
@@ -193,13 +182,12 @@ const HelpMessage = () => {
               <div style={{ textAlign: "right", paddingRight: "10px" }}>
                 {msg.memberNickname || msg.senderNo}
               </div>
-
               <div>
                 {new Date(msg.messageWriteDate).toLocaleDateString("ko-KR")}
               </div>
               <div>
                 <span className={getStatusBadge(msg.replyYn)}>
-                  {msg.replyYn === "Y" ? "답변 완료" : "답변 대기"}
+                  {msg.replyYn === "Y" ? "답변 완료" : "답변 예정"}
                 </span>
               </div>
             </div>
