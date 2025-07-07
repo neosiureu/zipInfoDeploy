@@ -1,12 +1,15 @@
 package com.zipinfo.project.admin.model.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.zipinfo.project.admin.model.mapper.AdminMapper;
 import com.zipinfo.project.member.model.dto.Member;
 
 import lombok.RequiredArgsConstructor;
 
+
+@Transactional(rollbackFor = Exception.class)
 @Service
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
@@ -36,4 +39,16 @@ public class AdminServiceImpl implements AdminService {
             return null;
         }
     }
+
+	@Override
+	public int deleteCommentByAdmin(int commentNo) {
+		// TODO Auto-generated method stub
+		return mapper.deleteCommentByAdmin(commentNo);
+	}
+
+	@Override
+	public int deleteBoardByAdmin(int boardNo) {
+		// TODO Auto-generated method stub
+		return mapper.deleteBoardByAdmin(boardNo);
+	}
 }

@@ -72,6 +72,9 @@ AND MEMBER_DEL_FL ='N' AND MEMBER_LOGIN = #{memberLogin} </select>
 		    AND member_del_fl = 'N'
 		</select>
 
+<update id="updatePassword">
+UPDATE MEMBER SET MEMBER_PW = #{memberPw} WHERE MEMBER_EMAIL = #{memberEmail} AND MEMBER_LOGIN = #{memberLogin}
+</update>
 	
 
 </mapper>

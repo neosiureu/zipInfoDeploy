@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.zipinfo.project.announce.controller.AnnounceController;
 import com.zipinfo.project.common.config.JwtTokenProvider;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.member.model.service.MemberService;
@@ -32,8 +32,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class MemberController {
+
+    private final AnnounceController announceController;
 	private final MemberService service;
 	private final JwtTokenProvider jwtTokenProvider;
+
+ 
 
 	/**
 	 * @param session
@@ -57,8 +61,6 @@ public class MemberController {
 		if (loginMember == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 올바르지 않습니다.");
 		}
-		// 1) 세션은 이제 쓰지 않음
-//		    session.setAttribute("loginMember", loginMember);
 
 		// 2) JWT 발급
 		String token = jwtTokenProvider.createAccessToken(loginMember);
@@ -128,7 +130,7 @@ public class MemberController {
 	public ResponseEntity<Map<String, String>> logout(
 			@RequestHeader(value = "Authorization", required = false) String authHeader) {
 
-		/* 1) 서버 측 블랙리스트 – 만약 필요할 때만 */
+		// 1) 서버 측 블랙리스트 – 만약 필요할 때만 
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
 			String token = authHeader.substring(7);
 			// jwtBlacklistService.add(token); // 만료 시각까지 저장
@@ -150,25 +152,27 @@ public class MemberController {
 
 	@PostMapping("/setPw")
 	public ResponseEntity<Object> setPw(@RequestBody Member member) {
-		log.debug("멤버의 결과는"+member);
+		log.debug("멤버의 컨트롤러 도달 결과는" + member);
 
 		if (member.getMemberEmail() == null) {
 			return ResponseEntity.ok().body(0);
 		}
-		
+
 		try {
-	        // 비크립트를 이용한 비밀번호 암호화
-	        String encodedPassword = service.encode(member.getMemberPw());
-        member.setMemberPw(encodedPassword);
-	        
-	        // DB 업데이트
-	        int result = service.updatePassword(member);
-	        
-	        return ResponseEntity.ok().body(result > 0 ? 1 : 0);
-	    } catch (Exception e) {
-	        log.error("서버측 비밀번호 변경 오류", e);
-	        return ResponseEntity.ok().body(0);
-	    }
+			// 비크립트를 이용한 비밀번호 암호화
+			String encodedPassword = service.encode(member);
+			member.setMemberPw(encodedPassword);
+
+			// DB 업데이트
+			int result = service.updatePassword(member);
+			
+			member.setMemberPw(null);
+
+			return ResponseEntity.ok().body(result > 0 ? 1 : 0);
+		} catch (Exception e) {
+			log.error("서버측 비밀번호 변경 오류", e);
+			return ResponseEntity.ok().body(0);
+		}
 	}
 
 }

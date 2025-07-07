@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useRef,
+} from "react";
 import { useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoard.css";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +13,7 @@ import NeighborhoodFilters from "./NeighborhoodFilters";
 import { MemberContext } from "../member/MemberContext";
 import search from "../../assets/search-icon.svg";
 import arrowDown from "../../assets/arrow-down.svg";
+import refresh from "../../assets/refresh.svg";
 
 const NeighborhoodBoard = ({}) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -53,6 +60,36 @@ const NeighborhoodBoard = ({}) => {
   // 따로 서버에서 갔다와서 로드하는 기능을 가져온다음 페이지네이션은 그 이후에 진행하도록 한다
 
   // 페이지네이션 자체를 만들어내는 함수 만약 nextPage prevPage가 없다면 0이나 false를 반환한다.
+
+  // 새로고침 함수
+  const handleRefresh = () => {
+    setSelectedCity("-1");
+    setSelectedTown("-1");
+    setSelectedSubject("-1");
+    setCurrentPage("1");
+    setSearchParams({}, { replace: true });
+
+    // setSearchParams(
+    //   (prev) => {
+    //     const newParams = new URLSearchParams(prev);
+    //     newParams.delete("cp");
+    //     newParams.delete("query");
+    //     newParams.delete("key");
+    //     newParams.delete("subject");
+    //     newParams.delete("cityNo");
+    //     newParams.delete("townNo");
+    //     return newParams;
+    //   },
+    //   { replace: true }
+    // );
+    const elements = document.querySelectorAll(".glow-target"); // 모든 .glow-target 속성을 가진 select문 요소들을 저장.
+    if (elements) {
+      elements.forEach((el) => {
+        el.classList.add("select-glow");
+        setTimeout(() => el.classList.remove("select-glow"), 200);
+      }); // 400ms동안 해당 glow 효과 유지.
+    }
+  };
 
   // 초기값 변경
 
@@ -109,7 +146,7 @@ const NeighborhoodBoard = ({}) => {
 
     setTimeout(() => {
       boardData();
-    }, 0);
+    }, 100);
   };
 
   const handleSearchKeyChange = (e) => {
@@ -354,16 +391,21 @@ const NeighborhoodBoard = ({}) => {
     <div className="nb-container">
       <div className="nb-board-wrapper">
         <h1 className="nb-title">우리동네</h1>
-        {/* 여기에 검색 영역을 넣으라는 말인듯 */}
+        {/* 여기에 검색 영역을*/}
         {/* 공통 필터 컴포넌트 */}
-        <NeighborhoodFilters
-          selectedCity={selectedCity}
-          selectedTown={selectedTown}
-          selectedSubject={selectedSubject}
-          onCityChange={handleCityChange}
-          onTownChange={handleTownChange}
-          onSubjectChange={handleSubjectChange}
-        />
+        <div className="nb-filter-bar">
+          <NeighborhoodFilters
+            selectedCity={selectedCity}
+            selectedTown={selectedTown}
+            selectedSubject={selectedSubject}
+            onCityChange={handleCityChange}
+            onTownChange={handleTownChange}
+            onSubjectChange={handleSubjectChange}
+          />
+          <button className="searcbar-refresh-btn" onClick={handleRefresh}>
+            <img src={refresh} alt="새로고침" />
+          </button>
+        </div>
 
         <table className="nb-board-table">
           <thead>

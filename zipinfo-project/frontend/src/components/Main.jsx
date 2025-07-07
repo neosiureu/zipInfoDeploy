@@ -22,7 +22,7 @@ import saleMain04 from "../assets/sale-thumbnail-04.svg";
 
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import { axiosAPI } from "../api/axiosApi";
+import { axiosAPI } from "../api/axiosAPI";
 
 import { formatPrice } from "../components/common/priceConvert";
 import { convertToJSDate, getTimeAgo } from "../components/common/dateConvert";
