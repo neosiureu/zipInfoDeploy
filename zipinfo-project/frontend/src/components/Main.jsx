@@ -232,18 +232,6 @@ const Main = () => {
     };
   }, [isSearchActive]);
 
-  /****************슬라이딩 애니메이션을 위한 전역변수 및 component(test중)************************ */
-
-  const CARD_WIDTH = 300;
-  const CARD_GAP = 16;
-  const AUTO_SLIDE_INTERVAL = 3000; // 3초
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const totalItems = stockList.length;
-  const trackRef = useRef(null);
-
-  const loopSlideTrack = (el) => {}; // 그냥 왼쪽으로 계속 sliding하기 위한 함수.
-  /********************************** */
-
   const StockSample = () => {
     return stockList.map((item, index) => (
       <div className="card" key={item.stockNo}>
@@ -607,17 +595,7 @@ const Main = () => {
             모두 보기
           </button>
         </div>
-        <div
-          className="card-list card-slider-track"
-          ref={trackRef}
-          style={{
-            transform: `translateX(-${
-              currentIndex * (CARD_WIDTH + CARD_GAP)
-            }px)`,
-          }}
-        >
-          {StockSample()}
-        </div>
+        <div className="card-list ">{StockSample()}</div>
 
         <section className="sale">
           <div className="section-header">
