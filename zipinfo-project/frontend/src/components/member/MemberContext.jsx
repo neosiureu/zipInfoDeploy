@@ -36,19 +36,26 @@ export const MemberProvider = ({ children }) => {
   useEffect(() => {
     if (!member && token) {
       try {
-        const { sub, email, loginTp, auth } = jwtDecode(token);
+        const decoded = jwtDecode(token);
+        // exp: 초 단위 UNIX timestamp
+        if (decoded.exp * 1000 < Date.now()) {
+          // 만료된 토큰
+          localStorage.removeItem("accessToken");
+          navigate("/login");
+          return;
+        }
         setMember({
-          memberNo: Number(sub),
-          memberEmail: email,
-          memberLogin: loginTp,
-          memberAuth: auth,
+          memberNo: Number(decoded.sub),
+          memberEmail: decoded.email,
+          memberLogin: decoded.loginTp,
+          memberAuth: decoded.auth,
         });
       } catch {
         /* 디코딩 실패 = 토큰 폐기 */
         localStorage.removeItem("accessToken");
       }
     }
-  }, [token, member]);
+  }, [token, member, navigate]);
 
   /* 3) 서버에서 새로운 정보를 한 번만 가져오기 */
   useEffect(() => {

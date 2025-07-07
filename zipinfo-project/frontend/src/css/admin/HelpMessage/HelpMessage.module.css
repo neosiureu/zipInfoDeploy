@@ -2,7 +2,7 @@
 
 .container {
   min-height: 100vh;
-  background-color: #f9fafb; /* Tailwind gray-50 */
+  background-color: white;
   padding: 2rem;
 }
 

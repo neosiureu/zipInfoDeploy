@@ -1,3 +1,5 @@
+/* Reply.css */
+
 /* 전체 폼 컨테이너 */
 .form-container {
   max-width: 64rem;
@@ -5,14 +7,15 @@
   margin: 40px auto;
   padding: 30px;
   background-color: #fff;
-  border-radius: 12px;
+  border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
 }
 
 /* 헤더 */
 .form-header {
-  margin-bottom: 20px;
+  margin-bottom: 32px;
   text-align: center;
 }
 
@@ -26,18 +29,20 @@
 .form-content {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 24px;
 }
 
 /* 각 항목을 감싸는 박스 */
 .form-box {
   display: flex;
-  align-items: stretch;
-  border: 1px solid #ccc;
+  border: none;
   border-radius: 8px;
-  margin-bottom: 20px;
-  overflow: hidden;
-  background-color: #fff;
+  margin-bottom: 24px;
+  overflow: visible;
+  background-color: transparent;
+  box-sizing: border-box;
+  box-shadow: none;
+  gap: 8px;
 }
 
 /* 좌측 라벨 박스 */
@@ -47,20 +52,26 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 16px;
+  padding: 16px 20px 16px 16px;
   font-weight: 600;
   font-size: 0.95rem;
   color: #333;
-  border-right: 1px solid #ccc;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 /* 우측 콘텐츠 박스 */
 .form-content-col {
   flex: 1;
-  padding: 16px;
+  padding: 16px 16px 16px 20px;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  box-sizing: border-box;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
 }
 
 /* input */
@@ -71,6 +82,7 @@
   border-radius: 6px;
   background-color: #f9f9f9;
   color: #333;
+  box-sizing: border-box;
 }
 
 /* textarea */
@@ -83,6 +95,7 @@
   resize: none;
   color: #333;
   background-color: #fff;
+  box-sizing: border-box;
 }
 
 /* textarea - 뷰 전용 */
@@ -94,6 +107,7 @@
   padding: 12px;
   white-space: pre-wrap;
   color: #333;
+  box-sizing: border-box;
 }
 
 /* 첨부파일 다운로드 링크 */
@@ -132,4 +146,18 @@
 
 .submit-btn:hover {
   background-color: #4f46e5;
+}
+
+/* 로딩 및 에러 메시지 */
+.form-container > div:only-child {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* textarea와 textarea-view가 있는 content-col은 상단 정렬 */
+.form-content-col:has(.form-textarea),
+.form-content-col:has(.form-textarea-view) {
+  align-items: flex-start;
 }

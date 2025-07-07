@@ -17,65 +17,58 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Transactional(rollbackFor = Exception.class)
 @Slf4j
-public class MemberServiceImpl implements MemberService{
-	
-	
+public class MemberServiceImpl implements MemberService {
+
 	@Autowired
 	private MemberMapper mapper;
 
 	@Autowired
 	private BCryptPasswordEncoder bcrypt;
 
-	
-	/** 이주원
-	 * 로그인 서비스
+	/**
+	 * 이주원 로그인 서비스
 	 */
 	@Override
 	public Member login(Member inputMember) {
-    
-    inputMember.setMemberLogin("E");
-    Member loginMember = mapper.login(inputMember);
 
-	log.info("매퍼 들어간 이후"+ loginMember);
+		inputMember.setMemberLogin("E");
+		Member loginMember = mapper.login(inputMember);
 
-    log.info("db에서 꺼내온 값1: {}", loginMember);
-    log.info("프론트에서 온 값1: {}", inputMember);
+		log.info("매퍼 들어간 이후" + loginMember);
 
-    
-		if(loginMember ==null) {
-			 log.info("db에서 꺼내온 값2: {}", loginMember);
-			 log.info("프론트에서 온 값2: {}", inputMember);
+		log.info("db에서 꺼내온 값1: {}", loginMember);
+		log.info("프론트에서 온 값1: {}", inputMember);
+
+		if (loginMember == null) {
+			log.info("db에서 꺼내온 값2: {}", loginMember);
+			log.info("프론트에서 온 값2: {}", inputMember);
 			return null;
 		}
-		
 
-		if(!bcrypt.matches(inputMember.getMemberPw(), loginMember.getMemberPw())) {
-			 log.info("db에서 꺼내온 값3: {}", loginMember);
-			 log.info("프론트에서 온 값3: {}", inputMember);
+		if (!bcrypt.matches(inputMember.getMemberPw(), loginMember.getMemberPw())) {
+			log.info("db에서 꺼내온 값3: {}", loginMember);
+			log.info("프론트에서 온 값3: {}", inputMember);
 			return null;
 		}
-		
+
 		loginMember.setMemberPw(null);
-		
+
 		return loginMember;
 	}
 
-	
-	
-	/** 이주원 
-	 * 이메일 중복 체크
+	/**
+	 * 이주원 이메일 중복 체크
 	 */
 	@Override
 	public int checkEmail(String memberEmail) {
 		// TODO Auto-generated method stub
-		log.debug("이메일 체크중입니다"+memberEmail);
+		log.debug("이메일 체크중입니다" + memberEmail);
 		return mapper.checkEmail(memberEmail);
 
 	}
 
-	
-	/** 이주원 
-	 * 닉네임 중복 체크
+	/**
+	 * 이주원 닉네임 중복 체크
 	 */
 	@Override
 	public int checkNickname(String memberNickname) {
@@ -84,9 +77,8 @@ public class MemberServiceImpl implements MemberService{
 
 	}
 
-	
-	/** 이주원 
-	 * 중개사번호 중복 체크
+	/**
+	 * 이주원 중개사번호 중복 체크
 	 */
 	@Override
 	public int checkBrokerNo(String brokerNo) {
@@ -94,126 +86,84 @@ public class MemberServiceImpl implements MemberService{
 		return mapper.checkBrokerNo(brokerNo);
 	}
 
-
-
-	@Override
-	public int findMemberNoByEmail(String loginUserEmail) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-
-
-	
-	
 	@Override
 	public boolean isAdmin(int memberNo) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-
-
 	@Override
 	public int signup(Member member) {
-    	
-		member.setMemberLogin("E"); // 이 로직에서 회원가입하는건 공통적으로 이메일 회원가입이니까 
-    	// 멤버 또는 중개사의 location 필드를 채워 넣어 DB에 들어가기 좋게 만든다.
-    	
-    	if(member.getBrokerNo()!=null) {
-    		
-    		member.setPresidentName(member.getMemberName());
 
-        	member.setCompanyLocation(member.getCompanyPostcode()+"^^^"+member.getCompanyAddress() + "^^^"+ member.getCompanyDetailAddress());
-    		
+		member.setMemberLogin("E"); // 이 로직에서 회원가입하는건 공통적으로 이메일 회원가입이니까
+		// 멤버 또는 중개사의 location 필드를 채워 넣어 DB에 들어가기 좋게 만든다.
 
-        	member.setMemberAuth(2);
-        	
-        	String encPw = bcrypt.encode(member.getMemberPw());
-    		
-    		member.setMemberPw(encPw);
-    		
-    		
-    		int signupGeneral = mapper.signupGeneral(member);
-    		
-        	log.info("일반인 매퍼 들어간 후 결과"+signupGeneral);
+		if (member.getBrokerNo() != null) {
 
-    		
-        	int signupBroker = mapper.signupBroker(member);
+			member.setPresidentName(member.getMemberName());
 
-    		
-        	log.info("중개사 매퍼 들어간 후 결과"+signupBroker);
-        	
-        	
-        	
-    		return signupBroker;
+			member.setCompanyLocation(member.getCompanyPostcode() + "^^^" + member.getCompanyAddress() + "^^^"
+					+ member.getCompanyDetailAddress());
 
-    	}
-    	
-    	else {
-    		
-    		
-        	member.setMemberAuth(1);
+			member.setMemberAuth(2);
 
+			String encPw = bcrypt.encode(member.getMemberPw());
 
-    		String encPw = bcrypt.encode(member.getMemberPw());
-    		
-    		member.setMemberPw(encPw);
-    		
-    		log.info("매퍼 들어가기 전의 일반인 권한"+member);
+			member.setMemberPw(encPw);
 
-    		
-    		int signupGeneral = mapper.signupGeneral(member);
+			int signupGeneral = mapper.signupGeneral(member);
 
+			log.info("일반인 매퍼 들어간 후 결과" + signupGeneral);
 
-        	log.info("매퍼와 DB 후의 일반인 권한"+signupGeneral);
+			int signupBroker = mapper.signupBroker(member);
 
-    		return signupGeneral;
+			log.info("중개사 매퍼 들어간 후 결과" + signupBroker);
 
-    	}
+			return signupBroker;
+
+		}
+
+		else {
+
+			member.setMemberAuth(1);
+
+			String encPw = bcrypt.encode(member.getMemberPw());
+
+			member.setMemberPw(encPw);
+
+			log.info("매퍼 들어가기 전의 일반인 권한" + member);
+
+			int signupGeneral = mapper.signupGeneral(member);
+
+			log.info("매퍼와 DB 후의 일반인 권한" + signupGeneral);
+
+			return signupGeneral;
+
+		}
 	}
 
+	@Override
+	public String encode(Member member) {
 
-//	@Override
-//	public String encode(String memberPw) {
-//
-//		Member loginMember = mapper.login(inputMember);
-//
-//		log.info("매퍼 들어간 이후"+ loginMember);
-//
-//	    log.info("db에서 꺼내온 값1: {}", loginMember);
-//	    log.info("프론트에서 온 값1: {}", inputMember);
-//
-//	    
-//			if(loginMember ==null) {
-//				 log.info("db에서 꺼내온 값2: {}", loginMember);
-//				 log.info("프론트에서 온 값2: {}", inputMember);
-//				return null;
-//			}
-//			
-//
-//			if(!bcrypt.matches(inputMember.getMemberPw(), loginMember.getMemberPw())) {
-//				 log.info("db에서 꺼내온 값3: {}", loginMember);
-//				 log.info("프론트에서 온 값3: {}", inputMember);
-//				return null;
-//			}
-//			
-//			loginMember.setMemberPw(null);
-//		return null;
-//	}
+		bcrypt.encode(member.getMemberPw());
 
-//	@Override
-//	public int updatePassword(Member member) {
-//		// TODO Auto-generated method stub
-//		return 0;
-//	}
+		if (member.getMemberPw() == null) {
+			return null;
+		}
 
+		return bcrypt.encode(member.getMemberPw());
 
+	}
 
+	@Override
+	public int updatePassword(Member member) {
+		
+		member.setMemberLogin("E");
+		log.debug("매퍼에 들어가기 전 member  정보"+ member);
+		int result = mapper.updatePassword(member);
 
+		
+		return result;
+	}
 
-	
-	
-
-	
 }

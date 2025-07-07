@@ -125,6 +125,7 @@
 .comment-reply-area .comment-btn-area {
   position: static;
   margin-top: 8px;
+  justify-content: flex-end;
 }
 
 /* ─── 수정 textarea ─── */

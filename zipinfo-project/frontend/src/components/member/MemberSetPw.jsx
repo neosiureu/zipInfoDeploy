@@ -148,7 +148,7 @@ export default function MemberSetPw() {
 
     // 비밀번호 변경 API 호출 (백엔드에서 구현될 예정)
     const submitData = {
-      memberEmail: email,
+      memberEmail: email, // memberFindPw에서 넘겨받은 값
       memberPw: formData.memberPw,
     };
 
@@ -157,7 +157,7 @@ export default function MemberSetPw() {
       .post("/member/setPw", submitData)
       .then((response) => {
         const result = response.data;
-        if (result === "1" || result === "success") {
+        if (result === "1" || result === 1) {
           toast.success(
             <div>
               <div className="toast-success-title">성공 알림!</div>

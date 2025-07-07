@@ -72,7 +72,7 @@ const InfraMark = () => {
     NONE: 0, //선택 없음
     BANK: 1 << 0, //은행
     MART: 1 << 1, //마트
-    PHARM: 1 << 2, //약국
+    HOSP: 1 << 2, //약국--> 병원
     OIL: 1 << 3, //주유소
     CAFE: 1 << 4, //카페
     CONSTORE: 1 << 5, //편의점
@@ -81,7 +81,7 @@ const InfraMark = () => {
   const CATEGORY_CODE_MAP = {
     [CategoryEnum.BANK]: "BK9",
     [CategoryEnum.MART]: "MT1",
-    [CategoryEnum.PHARM]: "PM9",
+    [CategoryEnum.HOSP]: "HP8",
     [CategoryEnum.OIL]: "OL7",
     [CategoryEnum.CAFE]: "CE7",
     [CategoryEnum.CONSTORE]: "CS2",
@@ -97,7 +97,7 @@ const InfraMark = () => {
   useEffect(() => {
     infraMarkersRef.current.forEach((marker) => marker.setMap(null)); // 이전에 itemMarkersRef에 저장해둔 markers 하나하나 취소
     infraMarkersRef.current = []; // infraMarkersRef 초기화
-
+    console.log("infraMarkersRef:", infraMarkersRef.current);
     if (clickedCategory === CategoryEnum.NONE || !isInfraCategoryVisible)
       return; // 카테고리 선택이 없거나 주변시설 보기 버튼을 누르지 않았다면 여기서 중단
     else {
@@ -152,20 +152,6 @@ const InfraMark = () => {
   /*kakaoMap addEventListener로 맵을 옮길때, 맵을 zoom 할때 동작들을 설정*/
   useEffect(() => {
     if (mapReady) {
-      /*window.kakao.maps.event.addListener(
-        mapInstanceRef.current,
-        "zoom_changed",
-        () => {
-          if (mapInstanceRef.current.getLevel() < 5) {
-            // 지도의 zoom 레벨이 1 또는 2일때 주변시설 표시기능 사용
-            console.log("getLevel: ", mapInstanceRef.current.getLevel);
-            setIsCategoryVisible(true);
-          } else {
-            console.log("getLevel: ", mapInstanceRef.current.getLevel);
-            setIsCategoryVisible(false); // 지도의 zoom 레벨이 3 이상일때 주변시설 표시기능 사용안함
-          }
-        }
-      );*/
       window.kakao.maps.event.addListener(
         mapInstanceRef.current,
         "idle",
@@ -175,7 +161,7 @@ const InfraMark = () => {
 
           if (
             clickedCategoryRef.current === CategoryEnum.NONE ||
-            !isCategoryVisibleRef.current
+            !isInfraCategoryVisibleRef.current
           ) {
             return; // 카테고리 선택이 없거나 줌 레벨이 3 이상이면 모든 마커들을 지운다.
           } else {
@@ -194,24 +180,26 @@ const InfraMark = () => {
           }
         }
       );
+      window.kakao.maps.event.addListener(
+        mapInstanceRef.current,
+        "zoom_changed",
+        () => {
+          if (mapInstanceRef.current.getLevel() < 5) {
+            // 지도의 zoom 레벨이 1 또는 2일때 주변시설 표시기능 사용
+
+            setIsInfraCategoryVisible(true);
+          } else {
+            console.log("getLevel: ", mapInstanceRef.current.getLevel);
+            infraMarkersRef.current.forEach((marker) => marker.setMap(null)); // 이전에 itemMarkersRef에 저장해둔 markers 하나하나 취소
+            infraMarkersRef.current = []; // infraMarkersRef 초기화
+            setIsInfraCategoryVisible(false); // 지도의 zoom 레벨이 3 이상일때 주변시설 표시기능 사용안함
+          }
+        }
+      );
     }
   }, [mapReady]);
   const infraMarkersRef = useRef([]); //주변 편의시설 Marker개체를 저장하는 STATE함수
-  useEffect(() => {
-    //todo : Map의 Level이 5 이하일떄만 주변 편의시설을 표시할수 있도록.
-  }, []);
-
-  const handleZoomChanged = () => {
-    const map = mapInstanceRef.current;
-    if (!map) return;
-
-    const handler = () => {
-      const level = map.getLevel();
-      setZoomLevel(level); // 상태 저장하고 UI 반영 등
-    };
-
-    window.kakao.maps.event.addListener(map, "zoom_changed", handler);
-  };
+  //const infraIdCacheRef = useRef(new Set()); // 서버로부터 주변 편의시설 Marker개체의 고유 id를 저장해,캐싱하는(중복체크 포함) STATE함수
 
   // onClickCategory() 내부에서 장소검색(ps.categorySearch())이 완료됐을 때 호출되는 콜백함수 입니다
   /*@param : data	장소 정보 배열 (검색된 장소들)
@@ -227,17 +215,77 @@ const InfraMark = () => {
         const itemCoord = new kakao.maps.LatLng(item.y, item.x); // x, y가 거꾸로 된거아니야????
 
         /*********************** */
-
+        /*
         const content = ` 
         <div class="custom-overlay" >
-          <div class="area">${item.category_group_name}</div>
-          ${item.place_name}
+          <div class="overlay-map-icon category_bg ${
+            item.category_group_code === "BK9"
+              ? "bank"
+              : item.category_group_code === "MT1"
+              ? "mart" // 지금은 마트 향후 수정 요망
+              : item.category_group_code === "HP8"
+              ? "pharm"
+              : item.category_group_code === "OL7"
+              ? "oil"
+              : item.category_group_code === "CE7"
+              ? "cafe"
+              : item.category_group_code === "CS2"
+              ? "conv"
+              : ""
+          }" 
+          ></div>
+          <div class="area">${item.category_group_code}</div>
+            ${item.place_name}
         </div>
-      `; // 커스텀 마커 저장
+      `; */ // 커스텀 마커 저장
+        // tip : ${item.category_name} --> ""
+        const content = ` 
+        <div class="hover-marker">
+          <div class="custom-overlay transparent">${item.place_name}</div>
+          <div class="overlay-map-icon category_bg ${
+            item.category_group_code === "BK9"
+              ? "bank" //은행
+              : /****************************************************** */
+              item.category_group_code === "MT1"
+              ? "mart" // 마트
+              : item.category_group_code === "CS2"
+              ? "store" // 편의점
+              : /****************************************************** */
 
+              item.category_group_code === "HP8"
+              ? "pharm" // 병원(향후 이름 바꿀것)
+              : /****************************************************** */
+              item.category_group_code === "OL7"
+              ? "oil" // 주유소/충전소
+              : item.category_group_code === "PK6"
+              ? "dummy" //주차장
+              : /****************************************************** */
+              item.category_group_code === "CE7"
+              ? "cafe" // 카페
+              : item.category_group_code === "CT1"
+              ? "dummy" // 문화시설
+              : item.category_group_code === "AT4"
+              ? "dummy" // 관광명소
+              : item.category_group_code === "AD5"
+              ? "dummy" // 숙소
+              : /****************************************************** */
+              item.category_group_code === "SC4"
+              ? "dummy" // 학교
+              : item.category_group_code === "AC5"
+              ? "dummy" // 학원
+              : item.category_group_code === "PS3"
+              ? "dummy" // 어린이집/유치원
+              : /****************************************************** */
+                ""
+          }" 
+          ></div>
+          
+        </div>
+      `; /// 커스텀 마커 저장  --> 간단히 수정
         //클릭 이벤트 리스너 바인딩을 위한 코드
         const customOverlay = document.createElement("div");
         customOverlay.innerHTML = content;
+
         /************************ */
         const itemMarker = new window.kakao.maps.CustomOverlay({
           position: itemCoord,
@@ -254,9 +302,17 @@ const InfraMark = () => {
     if (status === kakao.maps.services.Status.OK) {
       // 정상적으로 검색이 완료됐으면 처리해야할 코드를 이곳에 작성해 주세요
       displayPlaces(data);
+      if (pagination.hasNextPage) {
+        console.log("nextPage");
+        pagination.nextPage(); // 자동으로 placesSearchCB를 다시 호출
+      }
     } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
       // 검색결과가 없는경우 해야할 처리가 있다면 이곳에 작성해 주세요
       displayPlaces(data);
+      if (pagination.hasNextPage) {
+        console.log("nextPage");
+        pagination.nextPage(); // 자동으로 placesSearchCB를 다시 호출
+      }
     } else if (status === kakao.maps.services.Status.ERROR) {
       // 에러로 인해 검색결과가 나오지 않은 경우 해야할 처리가 있다면 이곳에 작성해 주세요
     }
@@ -321,25 +377,25 @@ const InfraMark = () => {
             마트
           </div>
           <div
-            id="PM9"
+            id="HP8"
             className={`infra-item ${
-              clickedCategory & CategoryEnum.PHARM ? "on" : ""
+              clickedCategory & CategoryEnum.HOSP ? "on" : ""
             }`} // 약국 선택시 "on이란 css 속성 추가"( 다른것과 중복선택 가능.)
-            data-category="PM9"
+            data-category="HP8"
             //onClick={() => onClickCategory("PM9")}
             onClick={() =>
               setClickedCategory((prev) =>
-                prev & CategoryEnum.PHARM
-                  ? prev & ~CategoryEnum.PHARM
-                  : prev | CategoryEnum.PHARM
+                prev & CategoryEnum.HOSP
+                  ? prev & ~CategoryEnum.HOSP
+                  : prev | CategoryEnum.HOSP
               )
             }
           >
             <span
-              className="category_bg pharmacy"
+              className="category_bg pharm"
               style={{ backgroundImage: `url(${pharm})` }}
             ></span>
-            약국
+            병원
           </div>
           <div
             id="OL7"

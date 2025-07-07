@@ -82,7 +82,9 @@ const AnnounceDetail = () => {
             {post.announceTitle || post.title}
           </h2>
           <div className="an-detail-meta">
-            <span>작성자 : {post.memberNickname || post.author}</span>
+            <span>
+              작성자 : {post.memberNickname || post.author || "관리자"}
+            </span>
             <span className="an-detail-separator">|</span>
             <span>
               작성일 :{" "}

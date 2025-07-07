@@ -1,5 +1,5 @@
 package com.zipinfo.project.oauth.token;
-
+// 카카오톡 및 네이버 로그인용임. 일반 이메일할 때 jwt는 따로 있음 JWT토큰 프로바이더를 참고 
 import java.util.Date;
 
 import javax.crypto.SecretKey;

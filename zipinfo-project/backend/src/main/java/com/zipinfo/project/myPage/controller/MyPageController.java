@@ -464,7 +464,7 @@ public class MyPageController {
 		}
 		
 	}
-	
+
 	@GetMapping("getMyMessage")
 	public ResponseEntity<Object> getMyMessage(@AuthenticationPrincipal Member loginMember){
 		try {

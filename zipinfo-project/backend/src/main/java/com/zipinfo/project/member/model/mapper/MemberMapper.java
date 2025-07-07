@@ -23,6 +23,8 @@ public interface MemberMapper {
 
 	Member selectByEmail(String email);
 
+	int updatePassword(Member member);
+
 
 
 	

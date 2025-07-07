@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   define: {
-    global: 'window',
+    global: "window",
   },
   plugins: [react()],
   server: {
@@ -20,6 +20,13 @@ export default defineConfig({
         target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
+      },
+      "/vworld": {
+        target: "https://api.vworld.kr",
+        changeOrigin: true,
+        secure: true,
+        // 요청 경로에서 /vworld 만 떼고 뒤는 그대로 전달
+        rewrite: (path) => path.replace(/^\/vworld/, ""),
       },
       // 아래처럼 따로 특정 경로를 명시해도 무방함 (필요시)
       /*

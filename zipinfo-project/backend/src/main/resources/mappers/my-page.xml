@@ -318,7 +318,7 @@
 		INSERT INTO "HELP_MESSAGE"
 		VALUES(SEQ_MESSAGE_NO.NEXTVAL, #{senderNo}, #{messageTitle}, #{messageContent}, SYSDATE, NULL, 'N', NULL)
 	</insert>
-	
+
 	<select id="getMessageNo">
 		SELECT MESSAGE_NO FROM "HELP_MESSAGE"
 		WHERE SENDER_NO = #{senderNo}

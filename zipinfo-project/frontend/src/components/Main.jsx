@@ -245,90 +245,73 @@ const Main = () => {
   /********************************** */
 
   const StockSample = () => {
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setCurrentIndex((prevIndex) =>
-          prevIndex === totalItems - 1 ? 0 : prevIndex + 1
-        );
-      }, AUTO_SLIDE_INTERVAL);
-
-      return () => clearInterval(interval);
-    }, [totalItems]);
-
-    const result = () =>
-      stockList.map((item, index) => (
-        <div className="card" key={item.stockNo}>
-          <p className="card-index-transparent">
-            {getTimeAgo(convertToJSDate(item.registDate))}
-          </p>
-          <img
-            src={`http://localhost:8080${item.imgUrl}`}
-            alt="실거래 집 썸네일 이미지"
-            onClick={() => {
-              navigate(`/stock/${item.stockNo}`);
-            }}
-          />
-          <div
-            className="card-title"
-            onClick={() => {
-              navigate(`/stock/${item.stockNo}`);
-            }}
-          >
-            {item.stockForm === 1
-              ? "아파트"
-              : item.stockForm === 2
-              ? "빌라"
-              : item.stockForm === 3
-              ? "오피스텔"
-              : "기타"}{" "}
-            · {item.stockName} ·{" "}
-          </div>
-          <div
-            className="card-price"
-            onClick={() => {
-              navigate(`/stock/${item.stockNo}`);
-            }}
-          >
-            {item.stockType === 0 ? (
-              <>
-                <span>매매 </span>
-                {formatPrice(item.stockSellPrice)}
-              </>
-            ) : item.stockType === 1 ? (
-              <>
-                <span>전세 </span>
-                {formatPrice(item.stockSellPrice)}
-              </>
-            ) : item.stockType === 2 ? (
-              <>
-                <span>월세 </span>
-                {formatPrice(item.stockSellPrice)} / {item.stockFeeMonth}
-              </>
-            ) : (
-              "기타"
-            )}
-          </div>
-          <div className="card-desc">
-            {item.currentFloor}/{item.floorTotalCount}층 <span>|</span>{" "}
-            {item.exclusiveArea}㎡ <span>|</span> 관리비{" "}
-            {item.stockManageFee !== 0
-              ? `${item.stockManageFee / 10000}만원`
-              : "없음"}
-          </div>
-          <div className="card-agent">
-            <span>
-              <img src={agent} alt="중개사 아이콘" />
-            </span>
-            {item.companyName}
-          </div>
+    return stockList.map((item, index) => (
+      <div className="card" key={item.stockNo}>
+        <p className="card-index-transparent">
+          {getTimeAgo(convertToJSDate(item.registDate))}
+        </p>
+        <img
+          src={`http://localhost:8080${item.imgUrl}`}
+          alt="실거래 집 썸네일 이미지"
+          onClick={() => {
+            navigate(`/stock/${item.stockNo}`);
+          }}
+        />
+        <div
+          className="card-title"
+          onClick={() => {
+            navigate(`/stock/${item.stockNo}`);
+          }}
+        >
+          {item.stockForm === 1
+            ? "아파트"
+            : item.stockForm === 2
+            ? "빌라"
+            : item.stockForm === 3
+            ? "오피스텔"
+            : "기타"}{" "}
+          · {item.stockName} ·{" "}
         </div>
-      ));
-    return (
-      <>
-        {result()}
-        {result()}
-      </>
-    );
+        <div
+          className="card-price"
+          onClick={() => {
+            navigate(`/stock/${item.stockNo}`);
+          }}
+        >
+          {item.stockType === 0 ? (
+            <>
+              <span>매매 </span>
+              {formatPrice(item.stockSellPrice)}
+            </>
+          ) : item.stockType === 1 ? (
+            <>
+              <span>전세 </span>
+              {formatPrice(item.stockSellPrice)}
+            </>
+          ) : item.stockType === 2 ? (
+            <>
+              <span>월세 </span>
+              {formatPrice(item.stockSellPrice)} / {item.stockFeeMonth}
+            </>
+          ) : (
+            "기타"
+          )}
+        </div>
+        <div className="card-desc">
+          {item.currentFloor}/{item.floorTotalCount}층 <span>|</span>{" "}
+          {item.exclusiveArea}㎡ <span>|</span> 관리비{" "}
+          {item.stockManageFee !== 0
+            ? `${item.stockManageFee / 10000}만원`
+            : "없음"}
+        </div>
+        <div className="card-agent">
+          <span>
+            <img src={agent} alt="중개사 아이콘" />
+          </span>
+          {item.companyName}
+        </div>
+      </div>
+    ));
   };
 
   const showSales = () => {

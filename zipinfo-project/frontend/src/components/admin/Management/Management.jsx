@@ -19,57 +19,79 @@ const Management = () => {
 
   // 응답 데이터가 배열인지 확인하고 없으면 빈 배열로 처리하는 헬퍼
   const handleResponse = (res, setDataFunc, errorMessage) => {
-
+    console.log("[handleResponse] 응답 데이터:", res);
     if (Array.isArray(res.data)) {
       setDataFunc(res.data);
+      setError(null);
     } else if (res.data && Array.isArray(res.data.data)) {
       setDataFunc(res.data.data);
+      setError(null);
     } else {
       setError(errorMessage + " (데이터 형식 오류)");
       setDataFunc([]);
     }
+    console.log("[handleResponse] error:", error);
+    console.log("[handleResponse] setDataFunc 값:", res.data);
   };
 
   useEffect(() => {
     setError(null);
     setLoading(true);
+    console.log("[useEffect] activeTab:", activeTab);
 
     if (activeTab === "members") {
       axios
         .get("http://localhost:8080/admin/management/members", {
           withCredentials: true,
         })
-        .then((res) =>
-          handleResponse(res, setMembers, "회원 목록 불러오기 실패")
-        )
-        .catch(() => setError("회원 목록 불러오기 실패"))
+        .then((res) => {
+          console.log("[then] 회원 목록 응답:", res);
+          handleResponse(res, setMembers, "회원 목록 불러오기 실패");
+        })
+        .catch((err) => {
+          console.log("[catch] 회원 목록 에러:", err);
+          setError("회원 목록 불러오기 실패");
+        })
         .finally(() => setLoading(false));
     } else if (activeTab === "deleted") {
       axios
         .get("/admin/management/members/deleted")
-        .then((res) =>
+        .then((res) => {
+          console.log("[then] 삭제된 회원 목록 응답:", res);
           handleResponse(
             res,
             setDeletedMembers,
             "삭제된 회원 목록 불러오기 실패"
-          )
-        )
-        .catch(() => setError("삭제된 회원 목록 불러오기 실패"))
+          );
+        })
+        .catch((err) => {
+          console.log("[catch] 삭제된 회원 목록 에러:", err);
+          setError("삭제된 회원 목록 불러오기 실패");
+        })
         .finally(() => setLoading(false));
     } else if (activeTab === "applications") {
       axios
         .get("/admin/management/broker-applications")
-        .then((res) =>
+        .then((res) => {
+          console.log("[then] 중개인 권한 신청 목록 응답:", res);
           handleResponse(
             res,
             setBrokerApplications,
             "중개인 권한 신청 목록 불러오기 실패"
-          )
-        )
-        .catch(() => setError("중개인 권한 신청 목록 불러오기 실패"))
+          );
+        })
+        .catch((err) => {
+          console.log("[catch] 중개인 권한 신청 목록 에러:", err);
+          setError("중개인 권한 신청 목록 불러오기 실패");
+        })
         .finally(() => setLoading(false));
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    console.log("[state] error:", error);
+    console.log("[state] brokerApplications:", brokerApplications);
+  }, [error, brokerApplications]);
 
   return (
     <div className="management-container">
