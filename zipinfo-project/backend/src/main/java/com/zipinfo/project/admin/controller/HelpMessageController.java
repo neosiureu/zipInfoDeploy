@@ -2,9 +2,7 @@ package com.zipinfo.project.admin.controller;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -40,28 +38,21 @@ public class HelpMessageController {
     @Value("${my.message.folder-path}")
     private String messageFolderPath;
 
-    /** 문의 리스트
-     * @return
-     */
+    /** 문의 리스트 */
     @GetMapping("/list")
     public ResponseEntity<List<HelpMessage>> getAllMessages() {
         return ResponseEntity.ok(helpMessageService.getAllMessages());
     }
 
-    /** 문의 답변 조회
-     * @param messageNo
-     * @return
-     */
+    /** 문의 답변 상세 조회 */
     @GetMapping("/reply")
     public ResponseEntity<?> getInquiryReply(@RequestParam("messageNo") int messageNo) {
         try {
-            HelpMessage reply = helpMessageService.getHelpMessageById(messageNo);
-            if (reply == null) {
+            HelpMessage fullMessage = helpMessageService.getMessageWithReply(messageNo);
+            if (fullMessage == null) {
                 return ResponseEntity.notFound().build();
             }
-
-            return ResponseEntity.ok(reply);
-
+            return ResponseEntity.ok(fullMessage);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -69,18 +60,16 @@ public class HelpMessageController {
         }
     }
 
-
-    /** 답변 등록
-     * @param session
-     * @param message
-     * @return
-     */
+    /** 답변 등록 */
     @PostMapping("/reply")
     public ResponseEntity<?> postReply(@AuthenticationPrincipal Member loginMember,
                                        @RequestBody HelpMessage message) {
         if (loginMember == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
+        
+        System.out.println("로그인 회원 번호: " + loginMember.getMemberNo());
+        System.out.println("받은 메시지 내용: " + message);
 
         message.setSenderNo(loginMember.getMemberNo());
         boolean success = helpMessageService.saveReply(message);
@@ -89,52 +78,41 @@ public class HelpMessageController {
             ? ResponseEntity.ok("답변 등록 성공")
             : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("답변 등록 실패");
     }
-    
 
-    /** 관리자가 읽음 상태
-     * @param messageNo
-     * @return
-     */
-    @PatchMapping("/message/read/{messageNo}")
-    public ResponseEntity<?> updateReadFlag(@PathVariable("messageNo") int messageNo) {
-        boolean result = helpMessageService.updateReadFlag(messageNo);
-        return result ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
-    }
 
-    /** 미답변
-     * @param adminId
-     * @return
-     */
+
+    /** 미답변 목록 조회 */
     @GetMapping("/unanswered")
     public List<HelpMessage> getUnanswered(@RequestParam("adminId") int adminId) {
         return helpMessageService.getUnansweredMessages(adminId);
     }
 
-    /** 답변하면 y
-     * @param userNo
-     * @return
-     */
-    @GetMapping("/answered")
-    public List<HelpMessage> getAnsweredMessages(@RequestParam(name = "userNo") int userNo) {
-        return helpMessageService.getAnsweredMessagesByUser(userNo);
+    /** 답변한 문의 목록 조회 (새로 추가한 API) */
+    @GetMapping("/replied")
+    public ResponseEntity<List<HelpMessage>> getRepliedMessages(@RequestParam("adminId") int adminId) {
+        try {
+            System.out.println("=== getRepliedMessages 호출됨 ===");
+            System.out.println("받은 adminId: " + adminId);
+            
+            List<HelpMessage> repliedList = helpMessageService.getRepliedMessagesByAdmin(adminId);
+            System.out.println("조회된 답변 목록 개수: " + (repliedList != null ? repliedList.size() : 0));
+            
+            return ResponseEntity.ok(repliedList);
+        } catch (Exception e) {
+            System.out.println("=== getRepliedMessages 오류 발생 ===");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
-
-    /** 문의글 상세 조회 시, 해당 문의글과 그 문의에 달린 답변을 함께 불러오는 API
-     * @param messageNo
-     * @return
-     */
+    /** 문의글 상세 및 답변 함께 조회 */
     @GetMapping("/detailWithReply/{messageNo}")
     public ResponseEntity<HelpMessage> getMessageWithReply(@PathVariable int messageNo) {
         HelpMessage message = helpMessageService.getMessageWithReply(messageNo);
         return ResponseEntity.ok(message);
     }
 
-    
-    /** 파일 다운로드
-     * @param filename
-     * @return
-     */
+    /** 파일 다운로드 */
     @GetMapping("/message/messageFile/{filename:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable("filename") String filename) {
         try {

@@ -397,13 +397,6 @@ export default function MemberFindPw() {
           >
             로그인으로 돌아가기
           </button>
-          <button
-            type="button"
-            onClick={() => navigate("/memberSetPw")}
-            className="find-pw-back-btn"
-          >
-            임시로 비밀번호 설정 화면으로 이동
-          </button>
         </div>
       </div>
     </div>

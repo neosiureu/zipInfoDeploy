@@ -3,6 +3,7 @@ import { AuthContext } from "../admin/AuthContext";
 import { axiosAPI } from "../../api/axiosApi";
 import { jwtDecode } from "jwt-decode";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export const MemberContext = createContext();
 
@@ -35,19 +36,26 @@ export const MemberProvider = ({ children }) => {
   useEffect(() => {
     if (!member && token) {
       try {
-        const { sub, email, loginTp, auth } = jwtDecode(token);
+        const decoded = jwtDecode(token);
+        // exp: 초 단위 UNIX timestamp
+        if (decoded.exp * 1000 < Date.now()) {
+          // 만료된 토큰
+          localStorage.removeItem("accessToken");
+          navigate("/login");
+          return;
+        }
         setMember({
-          memberNo: Number(sub),
-          memberEmail: email,
-          memberLogin: loginTp,
-          memberAuth: auth,
+          memberNo: Number(decoded.sub),
+          memberEmail: decoded.email,
+          memberLogin: decoded.loginTp,
+          memberAuth: decoded.auth,
         });
       } catch {
         /* 디코딩 실패 = 토큰 폐기 */
         localStorage.removeItem("accessToken");
       }
     }
-  }, [token, member]);
+  }, [token, member, navigate]);
 
   /* 3) 서버에서 새로운 정보를 한 번만 가져오기 */
   useEffect(() => {
@@ -72,7 +80,7 @@ export const MemberProvider = ({ children }) => {
   useEffect(() => {
     const handleForceLogout = () => {
       if (window.stompClient?.connected) window.stompClient.disconnect();
-      toast.error("이메일 또는 비밀번호가 다릅니다.");
+      toast.error("세션이 만료되어 로그아웃 됩니다.");
       localStorage.clear();
       setMember(null);
     };

@@ -98,13 +98,15 @@ const Header = () => {
           >
             <Link to="/announce">공지사항</Link>
           </li>
-          <li
-            className={
-              location.pathname.startsWith("/myPage/myStock") ? "active" : ""
-            }
-          >
-            <Link to="/myPage/myStock">관심목록</Link>
-          </li>
+          {member?.memberAuth !== 0 && (
+            <li
+              className={
+                location.pathname.startsWith("/myPage/myStock") ? "active" : ""
+              }
+            >
+              <Link to="/myPage/myStock">관심목록</Link>
+            </li>
+          )}
           {member?.memberAuth === 0 && (
             <li
               className={

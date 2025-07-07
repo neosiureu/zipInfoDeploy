@@ -14,19 +14,16 @@ public class HelpMessage {
     private String messageWriteDate;
     private String messageReadFl;
     private String userDelFl;
-    private String adminDelFl;
     private int senderNo;
     private int receiverNo;
     private int memberNo;
     private String replyYn;
-    private int inquiredNo;
     
     private int fileNo;
     private String fileUrl;
     private String fileOriginName;
     private String fileRename;
     
-    private MultipartFile messageFile;
     private String memberNickname;
     private String replyContent;
 }

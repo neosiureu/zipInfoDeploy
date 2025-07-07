@@ -11,4 +11,8 @@ public interface AdminService {
 	 * @return
 	 */
 	Member login(Member inputMember);
+
+	int deleteCommentByAdmin(int commentNo);
+
+	int deleteBoardByAdmin(int boardNo);
 }
