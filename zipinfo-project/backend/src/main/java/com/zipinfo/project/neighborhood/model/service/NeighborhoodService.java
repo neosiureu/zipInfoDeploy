@@ -10,8 +10,6 @@ public interface NeighborhoodService {
 	Map<String, Object> getBoardList(int cp, String key, String query);
 
 
-
-
 	Neighborhood selectOne(Map<String, Integer> map);
 
 
