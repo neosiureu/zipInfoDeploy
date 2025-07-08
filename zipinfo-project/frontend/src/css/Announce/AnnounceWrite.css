@@ -26,6 +26,8 @@
   box-sizing: border-box;
   transition: border-color 0.3s ease;
   margin-bottom: 25px;
+  position: relative;
+  padding-right: 80px; /* 글자수 표시 공간 확보 */
 }
 
 .announce-write-title-input:focus {
@@ -37,6 +39,36 @@
   background-color: #f0f0f0;
   color: #999;
   cursor: not-allowed;
+}
+
+/* 제목 글자수 표시 */
+.title-char-count {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* 내용 글자수 표시 */
+.content-char-count {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 10;
 }
 
 .announce-write-editor {

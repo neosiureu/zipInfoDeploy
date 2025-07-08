@@ -68,6 +68,15 @@ public class HelpMessageController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
         
+        // 답변 내용 검증
+        if (message.getReplyContent() == null || message.getReplyContent().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("답변 내용을 입력해주세요.");
+        }
+        
+        if (message.getReplyContent().length() > 2000) {
+            return ResponseEntity.badRequest().body("답변은 2000자 이내로 작성해주세요.");
+        }
+        
         System.out.println("로그인 회원 번호: " + loginMember.getMemberNo());
         System.out.println("받은 메시지 내용: " + message);
 
