@@ -54,7 +54,7 @@ public class JwtTokenProvider {
         );
         m.setMemberNickname( (String)claims.get("nick") );
 
-        /* 면 권한도 claim 에서 → SimpleGrantedAuthority 로 */
+        /* 일반인 대기자 중개자 관리자 권한도 claim 에서 => SimpleGrantedAuthority 로 */
         String role = switch (m.getMemberAuth()) {
         case 0 -> "ROLE_ADMIN";
         case 1 -> "ROLE_USER";

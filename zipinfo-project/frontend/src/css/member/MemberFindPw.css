@@ -53,6 +53,7 @@
   border: 1px solid #dbdbdb;
   border-radius: 4px;
   font-size: 14px;
+  box-sizing: border-box;
 }
 
 .find-pw-form-input:focus {
@@ -62,6 +63,19 @@
 
 .find-pw-form-input::placeholder {
   color: #999;
+}
+
+/* 비밀번호 설정 단계에서 사용할 더 큰 입력 필드 스타일 */
+.find-pw-form-input.password-input {
+  padding: 16px;
+  font-size: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.find-pw-form-input.password-input:focus {
+  border-color: #495cf8;
 }
 
 /* 인증 버튼 */
@@ -78,21 +92,34 @@
   transition: background-color 0.3s ease;
 }
 
+.find-pw-verify-button:hover {
+  background-color: #333;
+}
+
 /* 메시지 */
 .find-pw-message {
   font-size: 12px;
+  margin-top: 4px;
+  display: block;
+  line-height: 1.4;
 }
 
 .find-pw-message.error {
-  color: red;
+  color: #e74c3c;
 }
 
 .find-pw-message.confirm {
-  color: green;
+  color: #27ae60;
 }
 
 .find-pw-message:not(.error):not(.confirm) {
-  color: gray;
+  color: #666;
+}
+
+/* 비밀번호 설정 단계에서 사용할 더 큰 메시지 스타일 */
+.find-pw-message.password-message {
+  font-size: 14px;
+  margin-top: 8px;
 }
 
 .find-pw-message-div {
@@ -116,7 +143,16 @@
 }
 
 .find-pw-submit-button:hover {
-  background-color: #495cf8;
+  background-color: #3a4de8;
+}
+
+/* 비밀번호 설정 단계에서 사용할 더 큰 버튼 스타일 */
+.find-pw-submit-button.password-submit {
+  padding: 18px;
+  font-size: 18px;
+  border-radius: 8px;
+  margin-top: 30px;
+  transition: background-color 0.3s ease;
 }
 
 /* 하단 버튼 영역 */
@@ -132,6 +168,18 @@
   font-size: 14px;
   cursor: pointer;
   margin: 0 10px;
+  transition: color 0.3s ease;
+}
+
+.find-pw-back-btn:hover {
+  color: #333;
+}
+
+/* 비밀번호 설정 단계에서 사용할 더 큰 버튼 스타일 */
+.find-pw-back-btn.password-back {
+  font-size: 16px;
+  text-decoration: underline;
+  color: #666;
 }
 
 /* 이메일 정보 박스 */
@@ -150,7 +198,103 @@
   text-align: center;
 }
 
+/* 비밀번호 설정 단계에서 사용할 더 큰 이메일 정보 박스 스타일 */
+.find-pw-email-info-box.password-info {
+  background-color: #e9ecef;
+  padding: 20px;
+  border: 1px solid #dee2e6;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto 30px auto;
+}
+
+.find-pw-email-info.password-info {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* 비밀번호 설정 단계 전용 스타일 */
+.find-pw-container.password-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 40px;
+  max-width: none;
+}
+
+.find-pw-title.password-step {
+  font-size: 32px;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.find-pw-form.password-step {
+  background: white;
+  padding: 80px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.find-pw-form-group.password-step {
+  margin-bottom: 25px;
+}
+
+.find-pw-form-label.password-step {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+/* 공통 스타일 */
 input::placeholder,
 textarea::placeholder {
   color: #999;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .find-pw-container {
+    padding: 40px 15px;
+  }
+
+  .find-pw-container.password-step {
+    padding: 20px 15px;
+  }
+
+  .find-pw-form.password-step {
+    padding: 40px 20px;
+  }
+
+  .find-pw-title {
+    font-size: 20px;
+  }
+
+  .find-pw-title.password-step {
+    font-size: 24px;
+  }
+
+  .find-pw-input-wrapper {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .find-pw-verify-button {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .find-pw-email-info-box.password-info {
+    padding: 16px;
+  }
+
+  .find-pw-back-btn {
+    display: block;
+    margin: 5px 0;
+  }
 }

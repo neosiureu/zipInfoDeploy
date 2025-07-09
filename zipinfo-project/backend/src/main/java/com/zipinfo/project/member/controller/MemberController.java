@@ -38,7 +38,6 @@ public class MemberController {
 	private final JwtTokenProvider jwtTokenProvider;
 
  
-
 	/**
 	 * @param session
 	 * @return 이주원 세션 내 멤버의 존재 여부를 체크하는 로직
