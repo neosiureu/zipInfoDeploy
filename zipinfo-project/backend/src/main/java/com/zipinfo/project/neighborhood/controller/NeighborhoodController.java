@@ -188,30 +188,6 @@ public class NeighborhoodController {
 		return ResponseEntity.ok(like);
 	}
 	
-//	@PostMapping("/like")
-//	public ResponseEntity<Object> like(@RequestBody Map<String, Object> paramMap, @AuthenticationPrincipal Member loginMember) {
-//	    
-//	    // 로그인 여부 확인
-//	    if (loginMember == null) {
-//	        log.warn("로그인되지 않은 사용자의 좋아요 요청");
-//	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
-//	    }
-//	    
-//	    paramMap.put("memberNo", loginMember.getMemberNo());
-//	    log.info("현재 파라미터 맵에 들어있는 정보: " + paramMap);
-//	    
-//	    try {
-//	        int like = neighborhoodService.like(paramMap);
-//	        if (like != 1) {
-//	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("좋아요 처리 실패");
-//	        }
-//	        
-//	        return ResponseEntity.ok(like);
-//	    } catch (Exception e) {
-//	        log.error("좋아요 처리 중 오류 발생", e);
-//	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
-//	    }
-//	}		
-//			
+	
 	
 }

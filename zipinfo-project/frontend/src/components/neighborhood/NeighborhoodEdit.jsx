@@ -10,11 +10,56 @@ import { useContext, useEffect, useState } from "react";
 import NeighborhoodFilters from "./NeighborhoodFilters";
 import { MemberContext } from "../member/MemberContext";
 import { toast } from "react-toastify";
-// 2000 byte 계산용 공통 함수
-const byteLength = (str) => new TextEncoder().encode(str).length;
+
+// 2000 글자 계산용 공통 함수
+const MAX_LENGTH = 2000;
+
 const NeighborhoodEdit = () => {
   const location = useLocation();
   const { cityNo, townNo, boardSubject } = location.state || {};
+
+  // 순수 텍스트만 추출하는 함수 (이미지 태그 제외)
+  const getTextOnlyLength = (html) => {
+    if (!html) return 0;
+
+    // 임시 div 요소 생성
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+
+    // 모든 img 태그 제거
+    const images = tempDiv.querySelectorAll("img");
+    images.forEach((img) => img.remove());
+
+    // 순수 텍스트만 추출
+    const textOnly = tempDiv.textContent || tempDiv.innerText || "";
+    tempDiv.remove();
+
+    return textOnly.trim().length;
+  };
+
+  // 내용이 실질적으로 비어있는지 확인하는 함수
+  const isContentEmpty = (html) => {
+    if (!html) return true;
+
+    // 임시 div 요소 생성
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+
+    // 이미지가 있는지 확인
+    const hasImage = tempDiv.querySelectorAll("img").length > 0;
+
+    // 리스트 요소가 있는지 확인
+    const hasListContent = tempDiv.querySelectorAll("ul, ol, li").length > 0;
+
+    // 순수 텍스트 추출 및 trim
+    const textContent = (tempDiv.textContent || tempDiv.innerText || "").trim();
+
+    tempDiv.remove();
+
+    // 텍스트가 없고, 이미지도 없고, 리스트도 없으면 비어있음
+    return textContent.length === 0 && !hasImage && !hasListContent;
+  };
+
   // 시도 선택 핸들러
   const handleCityChange = (e) => {
     setSelectedCity(e.target.value);
@@ -30,6 +75,7 @@ const NeighborhoodEdit = () => {
   const handleSubjectChange = (e) => {
     setSelectedSubject(e.target.value);
   };
+
   const { boardNo } = useParams();
   const [searchParams] = useSearchParams();
   const cp = Number(searchParams.get("cp") ?? 1);
@@ -75,7 +121,6 @@ const NeighborhoodEdit = () => {
         .finally(() => {
           setLoading(false);
         });
-    } else {
     }
   }, [boardNo, isEdit]);
 
@@ -92,16 +137,29 @@ const NeighborhoodEdit = () => {
       );
       return;
     }
+
+    // 제목 길이 검증 (49자 제한)
+    if (title.trim().length > 49) {
+      toast.error(
+        <div>
+          <div className="toast-error-title">제목 길이 초과</div>
+          <div className="toast-error-body">
+            제목은 50자 이내로 작성해주세요.
+          </div>
+        </div>
+      );
+      return;
+    }
+
+    // 에디터에서 HTML 내용 가져오기
     const html = window
       .$(".note-editor") // 첫 번째 에디터
       .first()
       .find(".note-editable") // 실제 편집 영역
       .html();
-    if (byteLength(html) > 2000) {
-      toast.error(<div>… 2000byte 초과 …</div>);
-      return;
-    }
-    if (!html.trim() || html.trim() === "<p><br></p>") {
+
+    // 내용이 비어있는지 확인
+    if (isContentEmpty(html)) {
       toast.error(
         <div>
           <div className="toast-error-title">오류 알림!</div>
@@ -110,6 +168,22 @@ const NeighborhoodEdit = () => {
       );
       return;
     }
+
+    // 순수 텍스트 길이만 체크 (이미지 태그 제외)
+    const textLength = getTextOnlyLength(html);
+    if (textLength > MAX_LENGTH) {
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            텍스트는 최대 2000글자까지 입력할 수 있습니다. (현재: {textLength}
+            글자)
+          </div>
+        </div>
+      );
+      return;
+    }
+
     // 선택값 검증: -1이면 미선택 상태이므로 막기
     if (selectedCity === -1) {
       toast.error(
@@ -153,7 +227,11 @@ const NeighborhoodEdit = () => {
         };
         const { data: result } = await axiosAPI.put("/editBoard", params);
 
-        if (result > 0) {
+        // ResponseEntity로 변경된 서버 응답 처리
+        const actualResult =
+          typeof result === "object" ? result.data || result : result;
+
+        if (actualResult > 0) {
           toast.success(
             <div>
               <div className="toast-success-title">수정 성공 알림!</div>
@@ -175,14 +253,18 @@ const NeighborhoodEdit = () => {
       } else {
         const params = {
           boardTitle: title.trim(),
-          boardContent: content,
+          boardContent: html, // content가 아닌 html 사용
           cityNo: selectedCity, // 시도 코드 (숫자)
           townNo: selectedTown, // 시군구 코드 (숫자)
           boardSubject: selectedSubject, // 주제 코드 (QRE중 하나)
         };
         const { data: result } = await axiosAPI.post("/editBoard", params);
 
-        if (result > 0) {
+        // ResponseEntity로 변경된 서버 응답 처리
+        const actualResult =
+          typeof result === "object" ? result.data || result : result;
+
+        if (actualResult > 0) {
           toast.success(
             <div>
               <div className="toast-success-title">게시글 등록 알림!</div>
@@ -202,15 +284,37 @@ const NeighborhoodEdit = () => {
               </div>
             </div>
           );
-          return; // 실패시  중단
+          return; // 실패시 중단
         }
       }
     } catch (error) {
-      console.error(" 저장 오류:", error);
+      console.error("저장 오류:", error);
+
+      let errorMessage = "저장 중 오류가 발생했습니다.";
+
+      // 400 에러 (서버에서 보낸 비즈니스 로직 에러)
+      if (error.response && error.response.status === 400) {
+        const serverMessage = error.response.data;
+
+        // 사용자 친화적인 메시지만 표시 (기술적 에러 필터링)
+        if (
+          typeof serverMessage === "string" &&
+          serverMessage.length < 200 &&
+          !serverMessage.includes("Exception") &&
+          !serverMessage.includes("ORA-") &&
+          !serverMessage.includes("java.")
+        ) {
+          errorMessage = serverMessage;
+        } else {
+          // 기술적 에러는 사용자 친화적 메시지로 변경
+          errorMessage = "내용이 너무 깁니다. 텍스트나 이미지를 줄여주세요.";
+        }
+      }
+
       toast.error(
         <div>
           <div className="toast-error-title">오류 알림!</div>
-          <div className="toast-error-body">저장 중 오류가 발생했습니다..</div>
+          <div className="toast-error-body">{errorMessage}</div>
         </div>
       );
     } finally {
@@ -246,7 +350,8 @@ const NeighborhoodEdit = () => {
         onTownChange={handleTownChange}
         onSubjectChange={handleSubjectChange}
       />
-      <form onSubmit={handleSubmit}>
+
+      <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
         {/* 제목 입력 */}
         <div style={{ marginBottom: "20px" }}>
           <input

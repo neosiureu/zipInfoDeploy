@@ -44,7 +44,7 @@ public class EditneighborhoodServiceImpl implements EditneighborhoodService {
 	    if (content == null || !content.contains("data:image")) {
 	        return content;
 	    }
-
+	    
 	    // Base64 이미지 패턴 찾기
 	    Pattern pattern = Pattern.compile("data:image/([^;]+);base64,([^\"]+)");
 	    Matcher matcher = pattern.matcher(content);
@@ -63,7 +63,15 @@ public class EditneighborhoodServiceImpl implements EditneighborhoodService {
 	    }
 	    
 	    matcher.appendTail(processedContent);
-	    return processedContent.toString();
+	    String finalContent = processedContent.toString();
+	    
+	    //  길이 체크 및 예외 던지기
+	    System.out.println(" 이미지 처리 후 최종 길이: " + finalContent.length());
+	    if (finalContent.length() > 2000) {
+	        throw new RuntimeException("내용이 너무 깁니다. 텍스트나 이미지를 줄여주세요.");
+	    }
+	    
+	    return finalContent;
 	}
 
 	/**
