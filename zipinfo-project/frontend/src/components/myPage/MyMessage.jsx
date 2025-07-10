@@ -107,6 +107,7 @@ export default function MyStock() {
                 onChange={handleChange}
                 placeholder="제목을 입력하세요"
                 className="my-message-form-input"
+                maxLength={30}
               />
             </div>
 
@@ -115,6 +116,7 @@ export default function MyStock() {
               <div className="my-message-textarea-container">
                 <textarea
                   name="messageContent"
+                  maxLength={1500}
                   value={message.messageContent}
                   onChange={handleChange}
                   placeholder="내용을 입력하세요"
