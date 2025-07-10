@@ -47,8 +47,6 @@ public interface MyPageMapper {
 
 	List<Stock> getMyStock(int memberNo);
 
-	List<Stock> selectImgUrl(int stockNo);
-
 	int deleteStockInfo(int stockNo);
 
 	Stock selectStockCoord(int stockNo);

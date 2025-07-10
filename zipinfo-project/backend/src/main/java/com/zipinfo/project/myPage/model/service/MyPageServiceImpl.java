@@ -187,26 +187,6 @@ public class MyPageServiceImpl implements MyPageService{
 		
 		List<Stock> stock = mapper.getMyStock(memberNo);
 
-	    for (Stock i : stock) {
-	        int stockNo = i.getStockNo();
-
-	        // 예: 이미지 리스트 조회
-	        Stock coord = mapper.selectStockCoord(stockNo);
-	        List<Stock> imageUrl = mapper.selectImgUrl(stockNo);
-	        List<String> imageUrls = new ArrayList<>();
-	        List<String> imageNames = new ArrayList<>();
-	        for(Stock img : imageUrl) {
-	        	imageUrls.add(img.getImgUrl());
-	        	imageNames.add(img.getImgOriginName());
-	        }
-	        i.setImgUrls(imageUrls);
-	        i.setImgOriginNames(imageNames);
-	        i.setLat(coord.getLat());
-	        i.setLng(coord.getLng());
-
-	        // 필요시 다른 정보도 추가 조회 가능
-	    }
-
 	    return stock;
 	}
 	
@@ -361,13 +341,7 @@ public class MyPageServiceImpl implements MyPageService{
 	        List<Stock> stockInfoList = mapper.getSawStockInfo(stockNo);
 
 	        for (Stock s : stockInfoList) {
-	            List<Stock> imageUrl = mapper.selectImgUrl(stockNo);
-	            List<String> imageUrls = new ArrayList<>();
-	            for (Stock img : imageUrl) {
-	                imageUrls.add(img.getImgUrl());
-	            }
-	            s.setImgUrls(imageUrls);
-	            stockList.add(s); // ✅ 누적 추가
+	            stockList.add(s);
 	        }
 	    }
 
@@ -383,13 +357,8 @@ public class MyPageServiceImpl implements MyPageService{
 	        List<Stock> stockInfoList = mapper.getSawStockInfo(stockNo);
 
 	        for (Stock s : stockInfoList) {
-	            List<Stock> imageUrl = mapper.selectImgUrl(stockNo);
-	            List<String> imageUrls = new ArrayList<>();
-	            for (Stock img : imageUrl) {
-	                imageUrls.add(img.getImgUrl());
-	            }
-	            s.setImgUrls(imageUrls);
-	            stockList.add(s); // ✅ 누적 추가
+
+	            stockList.add(s); 
 	        }
 	    }
 

@@ -42,6 +42,7 @@ public class Stock {
     private List<MultipartFile> stockImg;
     private List<String> imgOriginNames;
     private List<String> imgUrls;
+    private List<Stock> imgList;
     
     private String companyName;//사무소이름
     private String companyLocation;//사무소주소
