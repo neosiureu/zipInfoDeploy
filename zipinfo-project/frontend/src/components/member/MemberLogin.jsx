@@ -180,14 +180,14 @@ export default function MemberLogin() {
 
         <form onSubmit={handleSubmit}>
           {/* 이메일 */}
-          <div className="form-group">
+          <div className="login-form-group">
             <label htmlFor="email">이메일</label>
             <input
               id="email"
               name="email"
               type="email"
               placeholder="이메일을 입력해주세요"
-              className="form-input"
+              className="login-form-input"
               value={formData.email}
               onChange={handleChange}
               required
@@ -195,14 +195,14 @@ export default function MemberLogin() {
           </div>
 
           {/* 비밀번호 */}
-          <div className="form-group">
+          <div className="login-form-group">
             <label htmlFor="password">비밀번호</label>
             <input
               id="password"
               name="password"
               type="password"
               placeholder="비밀번호를 입력해주세요"
-              className="form-input"
+              className="login-form-input"
               value={formData.password}
               onChange={handleChange}
               required
@@ -210,7 +210,7 @@ export default function MemberLogin() {
           </div>
 
           {/* 옵션/버튼 */}
-          <div className="form-options">
+          <div className="login-form-options">
             <label className="checkbox-label">
               <input
                 type="checkbox"

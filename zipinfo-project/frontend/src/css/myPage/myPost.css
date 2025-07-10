@@ -113,7 +113,8 @@
   justify-content: center;
   align-items: center;
   background-color: black;
-  padding: 4px 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
   margin: 0 12px;
   font-size: 14px;
   color: #fff;

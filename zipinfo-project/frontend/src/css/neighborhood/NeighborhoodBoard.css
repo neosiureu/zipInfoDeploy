@@ -22,19 +22,17 @@
 .nb-filters {
   display: flex;
   gap: 12px;
-  margin-bottom: 20px;
   align-items: center;
 }
 
 .nb-filter-bar {
   display: flex;
-  align-items: center; /* 자식들을 수직 중앙 정렬 */
   gap: 12px;
   margin-bottom: 20px; /* 기존 필터 아래 여백 유지 */
 }
 
 .nb-filters select:focus {
-  border-color: #007bff;
+  border-color: #495cf8;
   outline: none;
 }
 
@@ -266,7 +264,8 @@
 }
 
 .member-location-select {
-  border-radius: 5px;
+  border-radius: 4px;
+  border: 1px solid #dbdbdb;
 }
 
 /* ───────── 검색 · 필터 바 ───────── */

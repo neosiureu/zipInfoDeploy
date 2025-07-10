@@ -44,15 +44,13 @@
 .signup-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
 }
 
 /* 폼 그룹 */
 .signup-form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 48px;
+  margin-bottom: 24px;
 }
 
 /* 라벨 */
@@ -60,15 +58,23 @@
   font-size: 14px;
   font-weight: 500;
   color: #111;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 /* 입력 필드 래퍼 */
-.input-wrapper {
+.signup-input-wrapper {
   display: flex;
   gap: 8px;
   align-items: center;
   justify-content: center;
+}
+
+.signup-auth-input-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
 }
 
 /* 입력 필드 */
@@ -80,6 +86,20 @@
   font-size: 14px;
   background-color: #fff;
   transition: border-color 0.2s ease;
+}
+
+.signup-info-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
+}
+
+.signup-info-label {
+  display: block;
+  font-weight: 500;
+  color: #111;
+  font-size: 14px;
+  margin-bottom: 8px;
 }
 
 .signup-form-input:focus {
@@ -139,6 +159,7 @@
 .message {
   font-size: 12px;
   padding-left: 4px;
+  margin-top: 4px;
 }
 
 .message.error {
