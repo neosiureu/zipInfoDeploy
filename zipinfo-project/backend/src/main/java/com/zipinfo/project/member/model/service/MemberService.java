@@ -1,13 +1,14 @@
 package com.zipinfo.project.member.model.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 
 import com.zipinfo.project.member.model.dto.Member;
 
 public interface MemberService {
-	Member login(Member inputMember);
+	Map<String, Object> login(Member inputMember);
 
 	int checkEmail(String memberEmail);
 

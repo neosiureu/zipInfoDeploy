@@ -4,6 +4,7 @@ import "../../../css/admin/HelpMessage/Reply.css";
 import { axiosAPI } from "./../../../api/axiosApi";
 import { toast } from "react-toastify";
 import { AuthContext } from "../AuthContext";
+import { MemberContext } from "../../member/MemberContext";
 
 const Reply = () => {
   const { messageNo } = useParams();
@@ -13,7 +14,7 @@ const Reply = () => {
   const originalSenderNo = queryParams.get("senderNo"); // 문의 보낸 사람
   const viewOnly = queryParams.get("viewOnly") === "true";
 
-  const { user } = useContext(AuthContext);
+  const { member } = useContext(MemberContext);
 
   const [inquiry, setInquiry] = useState(null);
   const [reply, setReply] = useState("");
@@ -70,7 +71,7 @@ const Reply = () => {
       return;
     }
 
-    if (!user?.memberNo) {
+    if (!member?.memberNo) {
       toast.error("로그인이 필요합니다.");
       return;
     }
@@ -79,13 +80,13 @@ const Reply = () => {
       console.log("답변 등록 요청 데이터:", {
         messageNo: parseInt(messageNo, 10),
         replyContent: reply,
-        receiverNo: user.memberNo, // 로그인한 관리자 번호
+        receiverNo: member.memberNo, // 로그인한 관리자 번호
       });
 
       await axiosAPI.post("/api/help/reply", {
         messageNo: parseInt(messageNo, 10),
         replyContent: reply,
-        receiverNo: user.memberNo, // 로그인한 관리자 번호
+        receiverNo: member.memberNo, // 로그인한 관리자 번호
       });
       toast.success("답변이 등록되었습니다.");
       navigate("/admin/helpMessage");

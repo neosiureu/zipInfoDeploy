@@ -112,8 +112,6 @@ public interface MyPageMapper {
 
 	HelpMessage getMessageContent(int messageNo);
 
-	HelpMessage getInquiredMessage(int messageNo);
-
 	HelpMessage getMessageFile(int messageNo);
 
 	int addSawStock(Stock stock);

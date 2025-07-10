@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import MemberLocationFilter from "../member/MemberLocationFilter";
 import { CITY, TOWN } from "../common/Gonggong";
 
-
 export default function MemberSignUp() {
   const navigate = useNavigate();
 
@@ -664,7 +663,7 @@ export default function MemberSignUp() {
         if (result === "1" || result === "success") {
           toast.success(
             <div>
-              <div className="toast-success-title">오류 알림!</div>
+              <div className="toast-success-title">회원가입 성공 알림!</div>
               <div className="toast-success-body">
                 회원가입이 완료되었습니다.
               </div>

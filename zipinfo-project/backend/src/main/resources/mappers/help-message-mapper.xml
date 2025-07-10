@@ -76,7 +76,7 @@
     LEFT JOIN MEMBER m ON hm.SENDER_NO = m.MEMBER_NO
     WHERE hm.REPLY_YN = 'N'
       AND hm.SENDER_NO != #{adminId}
-    ORDER BY hm.MESSAGE_NO DESC
+    ORDER BY hm.REPLY_DATE DESC
   </select>
 
   <!-- 관리자 답변 완료 목록 조회 -->
@@ -90,7 +90,7 @@
     LEFT JOIN MEMBER m ON hm.SENDER_NO = m.MEMBER_NO
     WHERE hm.RECEIVER_NO = #{adminId}
       AND hm.REPLY_YN = 'Y'
-    ORDER BY hm.MESSAGE_NO DESC
+    ORDER BY hm.REPLY_DATE DESC
   </select>
 
 </mapper>

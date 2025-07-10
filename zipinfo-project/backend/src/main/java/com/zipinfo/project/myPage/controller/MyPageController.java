@@ -498,22 +498,7 @@ public class MyPageController {
 					.body("불러오는 중 예외 발생 : " + e.getMessage());
 		}
 	}
-	
-	@PostMapping("getInquiredMessage")
-	public ResponseEntity<Object> getInquiredMessage(@RequestBody HelpMessage message){
-		try {
-			
-			int messageNo = message.getMessageNo();
-			
-			HelpMessage messageResult = service.getInquiredMessage(messageNo);
-			
-			return ResponseEntity.status(HttpStatus.OK) // 200
-					.body(messageResult); 
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("불러오는 중 예외 발생 : " + e.getMessage());
-		}
-	}
+
 	
 	@PostMapping("getMessageFile")
 	public ResponseEntity<Object> getMessageFile(@RequestBody HelpMessage message){

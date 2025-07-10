@@ -1,6 +1,7 @@
 package com.zipinfo.project.member.model.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.http.ResponseEntity;
 
 import com.zipinfo.project.member.model.dto.Member;
@@ -24,6 +25,11 @@ public interface MemberMapper {
 	Member selectByEmail(String email);
 
 	int updatePassword(Member member);
+
+	int createTokenTable(int memberNo);
+
+	int setTokenInfo(@Param("memberNo") int memberNo,
+            @Param("token") String token);
 
 
 

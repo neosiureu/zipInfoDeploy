@@ -56,19 +56,12 @@ public class MemberController {
 	@PostMapping("/login")
 	public ResponseEntity<Object> login(@RequestBody Member inputMember) {
 
-		Member loginMember = service.login(inputMember);
+		Map<String, Object> loginMember = service.login(inputMember);
 		if (loginMember == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 올바르지 않습니다.");
 		}
 
-		// 2) JWT 발급
-		String token = jwtTokenProvider.createAccessToken(loginMember);
-
-		// 3) 응답
-		Map<String, Object> body = new HashMap<>();
-		body.put("loginMember", loginMember);
-		body.put("accessToken", token);
-		return ResponseEntity.ok(body);
+		return ResponseEntity.ok(loginMember);
 	}
 
 	/**
