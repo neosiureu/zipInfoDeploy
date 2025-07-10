@@ -59,25 +59,6 @@ public class EditAnnounceController {
     	
     	System.out.println("응애" + loginMember.getMemberAuth());
 
-        // 글자수 제한 검증
-        if (announce.getAnnounceTitle() == null || announce.getAnnounceTitle().trim().isEmpty()) {
-            throw new IllegalArgumentException("제목을 입력해주세요.");
-        }
-        
-        if (announce.getAnnounceTitle().length() > 50) {
-            throw new IllegalArgumentException("제목은 50자 이내로 입력해주세요.");
-        }
-        
-        if (announce.getAnnounce() == null || announce.getAnnounce().trim().isEmpty()) {
-            throw new IllegalArgumentException("내용을 입력해주세요.");
-        }
-        
-        // HTML 태그 제거 후 텍스트 길이 확인
-        String strippedContent = announce.getAnnounce().replaceAll("<[^>]+>", "");
-        if (strippedContent.length() > 2000) {
-            throw new IllegalArgumentException("내용은 2000자 이내로 작성해주세요.");
-        }
-
         announce.setMemberNo(loginMember.getMemberNo());
 
         String processedContent = editneighborhoodService.processImagesInContent(announce.getAnnounce());
@@ -132,25 +113,6 @@ public class EditAnnounceController {
         @AuthenticationPrincipal Member loginMember
     ) throws Exception {
     	
-        // 글자수 제한 검증
-        if (announce.getAnnounceTitle() == null || announce.getAnnounceTitle().trim().isEmpty()) {
-            throw new IllegalArgumentException("제목을 입력해주세요.");
-        }
-        
-        if (announce.getAnnounceTitle().length() > 50) {
-            throw new IllegalArgumentException("제목은 50자 이내로 입력해주세요.");
-        }
-        
-        if (announce.getAnnounce() == null || announce.getAnnounce().trim().isEmpty()) {
-            throw new IllegalArgumentException("내용을 입력해주세요.");
-        }
-        
-        // HTML 태그 제거 후 텍스트 길이 확인
-        String strippedContent = announce.getAnnounce().replaceAll("<[^>]+>", "");
-        if (strippedContent.length() > 2000) {
-            throw new IllegalArgumentException("내용은 2000자 이내로 작성해주세요.");
-        }
-
         announce.setMemberNo(loginMember.getMemberNo());
 
         String processedContent = editneighborhoodService.processImagesInContent(announce.getAnnounce());

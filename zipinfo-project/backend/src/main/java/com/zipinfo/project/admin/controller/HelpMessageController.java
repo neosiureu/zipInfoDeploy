@@ -81,6 +81,7 @@ public class HelpMessageController {
         System.out.println("받은 메시지 내용: " + message);
 
         message.setSenderNo(loginMember.getMemberNo());
+        message.setReceiverNo(loginMember.getMemberNo()); // 반드시 로그인한 관리자 번호로 저장
         boolean success = helpMessageService.saveReply(message);
 
         return success
