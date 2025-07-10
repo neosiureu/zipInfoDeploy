@@ -37,8 +37,6 @@ public class NeighborhoodController {
 	public ResponseEntity<Map<String, Object>> getNeighborhoodList(@RequestParam(value = "cp", required = false, defaultValue = "1") int cp,
 			 @RequestParam Map<String, String> paramMap) {
 		
-		 List<Neighborhood> boardList;
-		 Pagination pagination;
 		 Map<String, Object> map;
 		 String key     = paramMap.get("key");       // t, c, tc, w 등의 검색 타입
 		 String query   = paramMap.get("query");     // 검색어 자체

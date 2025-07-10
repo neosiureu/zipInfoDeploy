@@ -43,18 +43,18 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
         Claims claims = parse(token);
-        /* === Member 객체를 직접 만들어서 === */
+        //Member 객체를 직접 만들어서 
         Member m = new Member();
-        m.setMemberNo( Integer.parseInt(claims.getSubject()) );          // sub
-        m.setMemberEmail( (String)claims.get("email") );
-        m.setMemberLogin( (String)claims.get("loginType") );           // K / N / E
-        m.setMemberAuth( (Integer)claims.get("auth") );                // 0,1,2,3 …
+        m.setMemberNo( Integer.parseInt(claims.getSubject()) ); // 주제
+        m.setMemberEmail( (String)claims.get("email") ); // 이메일
+        m.setMemberLogin( (String)claims.get("loginType") );  // K / N / E
+        m.setMemberAuth( (Integer)claims.get("auth") ); // 0 관리자,1 일반인,2 중개대기자,3 중개자
         m.setMemberLocation(
         		claims.get("loc") == null ? 0 : ((Number)claims.get("loc")).intValue()
         );
         m.setMemberNickname( (String)claims.get("nick") );
 
-        /* 면 권한도 claim 에서 → SimpleGrantedAuthority 로 */
+        // 일반인 대기자 중개자 관리자 권한도 claim 에서 => SimpleGrantedAuthority 로 
         String role = switch (m.getMemberAuth()) {
         case 0 -> "ROLE_ADMIN";
         case 1 -> "ROLE_USER";
@@ -67,7 +67,7 @@ public class JwtTokenProvider {
             new SimpleGrantedAuthority(role)
         );
 
-        /* === principal 로 Member 를 넘김 === */
+        // principal 로 Member 를 넘김 
         return new UsernamePasswordAuthenticationToken(m, token, auths);
     }
     
