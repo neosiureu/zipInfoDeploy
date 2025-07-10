@@ -15,17 +15,14 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
   const isComposing = useRef(false);
 
   // 개선된 텍스트 추출 함수
+  // 컴포넌트 최상단 근처에 추가
+  const MAX_LENGTH = 2000;
+
   const extractTextContent = (htmlContent) => {
     if (!htmlContent) return "";
-
-    // 임시 DOM 요소를 생성하여 정확한 텍스트 추출
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = htmlContent;
-
-    // textContent를 사용하여 실제 텍스트만 추출
     const textOnly = tempDiv.textContent || tempDiv.innerText || "";
-
-    // 정리 후 반환
     tempDiv.remove();
     return textOnly.trim();
   };
@@ -246,6 +243,27 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
       return;
     }
 
+    // 글자수 제한 체크
+    const textContent = extractTextContent(contents);
+    if (textContent.length > MAX_LENGTH) {
+      // 2000자 초과 시 경고 메시지 표시
+      toast.warn("내용은 최대 2000자까지 입력할 수 있습니다.");
+
+      // 이전 상태로 되돌리기 (2000자 이하인 상태)
+      const $editable = window
+        .$(editorRef.current)
+        .next(".note-editor")
+        .find(".note-editable");
+
+      // 현재 내용을 2000자로 제한
+      const limitedContent = limitContentToMaxLength(contents, MAX_LENGTH);
+      $editable.html(limitedContent);
+
+      // 제한된 내용으로 onChange 호출
+      if (onChange) onChange(limitedContent);
+      return;
+    }
+
     // 커서 위치 먼저 저장
     const currentCursor = saveCursorPosition();
     isProcessingChange.current = true;
@@ -283,6 +301,48 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
     }
 
     isProcessingChange.current = false;
+  };
+
+  // HTML 내용을 최대 길이로 제한하는 함수
+  const limitContentToMaxLength = (htmlContent, maxLength) => {
+    if (!htmlContent) return htmlContent;
+
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = htmlContent;
+
+    let currentLength = 0;
+    const walker = document.createTreeWalker(
+      tempDiv,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+
+    let currentNode;
+    while ((currentNode = walker.nextNode())) {
+      const nodeLength = currentNode.textContent.length;
+      if (currentLength + nodeLength > maxLength) {
+        // 이 노드에서 잘라야 할 문자 수 계산
+        const remainingLength = maxLength - currentLength;
+        currentNode.textContent = currentNode.textContent.substring(
+          0,
+          remainingLength
+        );
+
+        // 이 노드 이후의 모든 텍스트 노드 제거
+        let nextNode = walker.nextNode();
+        while (nextNode) {
+          nextNode.textContent = "";
+          nextNode = walker.nextNode();
+        }
+        break;
+      }
+      currentLength += nodeLength;
+    }
+
+    const result = tempDiv.innerHTML;
+    tempDiv.remove();
+    return result;
   };
 
   // 진짜 썸머노츠 동적 로딩

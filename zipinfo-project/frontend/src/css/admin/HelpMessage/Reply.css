@@ -96,6 +96,22 @@
   color: #333;
   background-color: #fff;
   box-sizing: border-box;
+  position: relative;
+  padding-bottom: 30px; /* 글자수 표시 공간 확보 */
+}
+
+/* 글자수 표시 */
+.char-count {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
 }
 
 /* textarea - 뷰 전용 */
