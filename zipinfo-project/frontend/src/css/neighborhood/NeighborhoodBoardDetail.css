@@ -158,3 +158,9 @@
   color: #767676;
   font-weight: 400;
 }
+.nb-detail-text,
+.nb-detail-text * {
+  overflow-wrap: anywhere; /* 표준: 어디서든 자를 수 있음 */
+  word-break: break-all; /* 구형 IE 백업 */
+  white-space: normal !important; /* 혹시 상위에서 nowrap 을 준 경우 무효화 */
+}

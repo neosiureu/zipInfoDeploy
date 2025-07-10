@@ -176,15 +176,7 @@ const NeighborhoodBoard = ({}) => {
   const boardData = useCallback(async () => {
     try {
       setLoading(true);
-      console.log("📡 API 호출:", {
-        currentPage,
-        searchKey,
-        searchQuery: searchQuery.trim(),
-        selectedCity,
-        selectedTown,
-        selectedSubject,
-      });
-
+     
       //  수정: URL params에서 실제 값 가져오기
       const urlSearchKey = searchParams.get("key") || searchKey;
       const urlSearchQuery = searchParams.get("query") || "";
@@ -205,15 +197,11 @@ const NeighborhoodBoard = ({}) => {
         params.append("boardSubject", selectedSubject);
       }
 
-      console.log("📤 실제 전송 파라미터:", params.toString());
 
       const resp = await axiosAPI.get(`/board/neighborhoodList?${params}`);
       const { boardList = [], pagination = {} } = resp.data;
 
-      console.log("📥 응답 데이터:", {
-        boardList: boardList.length,
-        pagination,
-      });
+    
 
       setBoardList(boardList);
       setPagination(pagination);

@@ -411,7 +411,11 @@ function App() {
               />
               <Route
                 path="neighborhoodBoard/edit/:boardNo?"
-                element={<NeighborhoodEdit />}
+                element={
+                  <ProtectedRoute>
+                    <NeighborhoodEdit />
+                  </ProtectedRoute>
+                }
               />
 
               {/* 선택 파라미터 문법으로 ?가 있을 때는 있을수도 없을수도 있다.
