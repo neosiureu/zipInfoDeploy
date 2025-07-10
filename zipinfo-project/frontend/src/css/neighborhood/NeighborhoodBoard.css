@@ -22,19 +22,17 @@
 .nb-filters {
   display: flex;
   gap: 12px;
-  margin-bottom: 20px;
   align-items: center;
 }
 
 .nb-filter-bar {
   display: flex;
-  align-items: center; /* 자식들을 수직 중앙 정렬 */
-  gap: 15px; /* 주제분류 옆으로 15px 띄우기 */
+  gap: 12px;
   margin-bottom: 20px; /* 기존 필터 아래 여백 유지 */
 }
 
 .nb-filters select:focus {
-  border-color: #007bff;
+  border-color: #495cf8;
   outline: none;
 }
 
@@ -44,22 +42,19 @@
   display: inline-block;
 }
 
-.searcbar-refresh-btn {
+.nb-searcbar-refresh-btn {
   width: 36px;
   height: 36px;
   border: 1.5px solid #ddd;
   background: #fff;
   border-radius: 2px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 0;
   box-sizing: border-box;
   cursor: pointer;
   position: relative;
-  top: -10px;
 }
 
 .select-wrap select,
@@ -268,9 +263,9 @@
   font-weight: 500;
 }
 
-
 .member-location-select {
-  border-radius: 5px;
+  border-radius: 4px;
+  border: 1px solid #dbdbdb;
 }
 
 /* ───────── 검색 · 필터 바 ───────── */

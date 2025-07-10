@@ -716,7 +716,7 @@ export default function MemberSignUp() {
         {/* 이메일 + 인증번호 */}
         <div className="signup-form-group">
           <label className="signup-form-label">이메일</label>
-          <div className="input-wrapper">
+          <div className="signup-input-wrapper">
             <input
               type="email"
               id="memberEmail"
@@ -741,7 +741,7 @@ export default function MemberSignUp() {
           </span>
 
           {/* 인증번호 입력 */}
-          <div className="input-wrapper">
+          <div className="signup-auth-input-wrapper">
             <input
               type="text"
               id="authKey"
@@ -802,8 +802,8 @@ export default function MemberSignUp() {
           </span>
         </div>
 
-        <div className="my-page-info-field">
-          <label className="my-page-info-label">선호 지역</label>
+        <div className="signup-info-field">
+          <label className="signup-info-label">선호 지역</label>
           <MemberLocationFilter
             selectedCity={selectedCity}
             selectedTown={selectedTown}
@@ -906,7 +906,7 @@ export default function MemberSignUp() {
             {/* 중개사만: 중개사 주소 */}
             <div className="signup-form-group">
               <label className="signup-form-label">중개사 주소</label>
-              <div className="input-wrapper">
+              <div className="signup-input-wrapper">
                 <input
                   type="text"
                   id="companyPostcode"

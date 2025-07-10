@@ -65,6 +65,9 @@ import NeighborhoodEdit from "./components/neighborhood/NeighborhoodEdit";
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
 import { ToastContainer, toast } from "react-toastify";
+import TermsOfService from "./components/common/TermsOfService";
+import PrivacyPolicy from "./components/common/PrivacyPolicy";
+import CustomerService from "./components/common/CustomerService";
 
 function MessageListener() {
   const { setMember } = useContext(MemberContext);
@@ -237,6 +240,9 @@ function App() {
               <Route path="signUp" element={<MemberSignup />} />
               <Route path="findPassword" element={<MemberFindPw />} />
               <Route path="gonggong" element={<Gonggong />} />
+              <Route path="terms" element={<TermsOfService />} />
+              <Route path="privacy" element={<PrivacyPolicy />} />
+              <Route path="customer" element={<CustomerService />} />
 
               {/* 마이페이지 */}
               <Route
@@ -411,7 +417,11 @@ function App() {
               />
               <Route
                 path="neighborhoodBoard/edit/:boardNo?"
-                element={<NeighborhoodEdit />}
+                element={
+                  <ProtectedRoute>
+                    <NeighborhoodEdit />
+                  </ProtectedRoute>
+                }
               />
 
               {/* 선택 파라미터 문법으로 ?가 있을 때는 있을수도 없을수도 있다.

@@ -61,8 +61,8 @@ const Reply = () => {
       reply
     );
 
-    if (reply.length > 2000) {
-      toast.error("답변은 2000자 이내로 작성해주세요.");
+    if (reply.length > 400) {
+      toast.error("답변은 400자 이내로 작성해주세요.");
       return; // 제한 초과 시 제출 중단
     }
 
@@ -155,24 +155,25 @@ const Reply = () => {
               {reply || "등록된 답변이 없습니다."}
             </div>
           ) : (
-            <div style={{ position: "relative", width: "100%" }}>
-              <textarea
-                value={reply}
-                onChange={(e) => {
-                  const newValue = e.target.value;
-                  if (newValue.length <= 2000) {
-                    setReply(newValue);
-                  } else {
-                    setReply(newValue.slice(0, 2000));
-                    toast.warn("답변은 최대 2000자까지 입력할 수 있습니다.");
-                  }
-                }}
-                className="form-textarea"
-                placeholder="답변을 입력하세요"
-                rows={8}
-              />
-              <div className="char-count">{reply.length} / 2000자</div>
-            </div>
+            <textarea
+              value={reply}
+              onChange={(e) => setReply(e.target.value)}
+              className="form-textarea"
+              placeholder="답변을 입력하세요"
+              maxLength={400} // 답변 제한
+              rows={8}
+            />
+          )}
+        </div>
+      </div>
+
+      <div className="form-box">
+        <div className="form-label-col">답변일</div>
+        <div className="form-content-col">
+          {inquiry.replyDate ? (
+            <span>{new Date(inquiry.replyDate).toLocaleString("ko-KR")}</span>
+          ) : (
+            <span>답변이 등록되지 않았습니다.</span>
           )}
         </div>
       </div>

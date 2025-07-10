@@ -370,10 +370,10 @@ const Main = () => {
                     {!searchContent?.trim() && recentSearch.length === 0 && (
                       <div className="no-search-result">
                         <div className="no-result-info">
-                          원하는 검색 결과가 없나요?
+                          아직 원하는 검색 결과가 없나요?
                         </div>
                         <div className="no-result-info">
-                          검색어를 완성해주세요.
+                          검색어를 완성해주세요 :)
                         </div>
                         <div className="no-result-info">
                           해당하는 매물이 없을 수 있습니다.

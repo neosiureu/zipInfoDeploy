@@ -121,6 +121,7 @@
   align-items: center;
   justify-content: center;
   background-color: #111;
+  border-radius: 4px;
   color: white;
   font-size: 12px;
   margin-right: 10px;
@@ -132,6 +133,7 @@
   align-items: center;
   justify-content: center;
   background-color: #51c6c6;
+  border-radius: 4px;
   color: white;
   font-size: 12px;
   margin-right: 10px;

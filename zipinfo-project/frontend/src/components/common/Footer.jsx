@@ -1,15 +1,21 @@
 import "../../css/common/Footer.css";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer-menu">
-        <a href="#">프로젝트 소개</a>
-        <a href="#">이용약관</a>
-        <a href="#" className="privacy-policy">
-          개인정보처리방침
+        <a
+          href="https://www.notion.so/21f87aa768e581e6b276dfa48c7c3fa4"
+          target="_blank"
+        >
+          프로젝트 소개
         </a>
-        <a href="#">고객센터</a>
+        <Link to="/terms">이용약관</Link>
+        <Link to="/privacy" className="privacy-policy">
+          개인정보처리방침
+        </Link>
+        <Link to="/customer">고객센터</Link>
       </div>
       <div className="footer-info">
         <div>

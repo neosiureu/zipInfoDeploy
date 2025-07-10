@@ -110,7 +110,7 @@ public class EditNeighborhoodController {
 		String processedContent = editneighborhoodService.processImagesInContent(inputBoard.getBoardContent());
 		inputBoard.setBoardContent(processedContent);
 
-//		System.out.println("서버에서 받은 수정해야 할 우리동네게시판 보드는: " + inputBoard);
+		log.debug("서버에서 받은 수정해야 할 우리동네게시판 보드는: " + inputBoard);
 
 		int boardNo = editneighborhoodService.boardUpdate(inputBoard);
 //		log.info("수정의 결과" + boardNo);
