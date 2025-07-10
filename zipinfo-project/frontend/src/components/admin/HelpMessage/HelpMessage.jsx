@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styles from "../../../css/admin/HelpMessage/HelpMessage.module.css";
-import { AuthContext } from "../AuthContext";
+import { MemberContext } from "./../../member/MemberContext";
 
 const HelpMessage = () => {
   const [activeTab, setActiveTab] = useState("received");
@@ -13,7 +13,8 @@ const HelpMessage = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+
+  const { member } = useContext(MemberContext);
 
   const fetchHelpMessages = async (showRefreshSpinner = false) => {
     try {
@@ -24,7 +25,7 @@ const HelpMessage = () => {
       }
       setError(null);
 
-      const currentUserId = user?.memberNo || 26;
+      const currentUserId = member?.memberNo || 26;
 
       const url =
         activeTab === "received" ? "/api/help/unanswered" : "/api/help/replied";
@@ -46,9 +47,11 @@ const HelpMessage = () => {
   };
 
   useEffect(() => {
+    if (!member?.memberNo) return; // memberNo가 없으면 API 호출하지 않음
     setCurrentPage(1);
     fetchHelpMessages();
-  }, [activeTab]);
+    // eslint-disable-next-line
+  }, [activeTab, member]);
 
   const itemsPerPage = 10;
   const totalPages = Math.ceil(helpMessages.length / itemsPerPage);

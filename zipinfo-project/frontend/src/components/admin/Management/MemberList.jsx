@@ -159,9 +159,10 @@ const MemberList = ({ initialMembers }) => {
                   <td>{member.memberEmail || member.memberId}</td>
                   <td>{authMap[member.memberAuth] || "알 수 없음"}</td>
                   <td>
-                    {new Date(
-                      member.joinDate || member.createdAt
-                    ).toLocaleDateString()}
+                    {member.enrollDate ||
+                      member.joinDate ||
+                      member.createdAt ||
+                      "-"}
                   </td>
                   <td>
                     {member.lastLoginDate

@@ -179,11 +179,7 @@ const DeletedMembers = () => {
                 <tr key={member.memberNo}>
                   <td>{member.memberNo}</td>
                   <td>{member.memberEmail || member.memberId}</td>
-                  <td>
-                    {member.joinDate
-                      ? new Date(member.joinDate).toLocaleDateString()
-                      : "-"}
-                  </td>
+                  <td>{member.enrollDate || member.joinDate || "-"}</td>
                   <td>
                     <select
                       className="filter-select"

@@ -18,6 +18,7 @@ public class HelpMessage {
     private int receiverNo;
     private int memberNo;
     private String replyYn;
+    private String replyDate;
     
     private int fileNo;
     private String fileUrl;
@@ -26,4 +27,12 @@ public class HelpMessage {
     
     private String memberNickname;
     private String replyContent;
+    private String adminNickname;
+
+    public String getReplyDate() {
+        return replyDate;
+    }
+    public void setReplyDate(String replyDate) {
+        this.replyDate = replyDate;
+    }
 }
