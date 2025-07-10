@@ -4,6 +4,41 @@
 
 <mapper namespace="com.zipinfo.project.myPage.model.mapper.MyPageMapper">
 
+	<resultMap id="stockMap" type="com.zipinfo.project.stock.model.dto.Stock">
+    	<id property="stockNo" column="STOCK_NO"/>
+    	<result property="stockName" column="STOCK_NAME"/>
+    	<result property="memberNo" column="MEMBER_NO"/>
+    	<result property="stockName" column="STOCK_NAME"/>
+    	<result property="stockSellPrice" column="STOCK_SELL_PRICE"/>
+    	<result property="stockManageFee" column="STOCK_MANAGE_FEE"/>
+    	<result property="stockFeeMonth" column="STOCK_FEE_MONTH"/>
+    	<result property="stockInfo" column="STOCK_INFO"/>
+    	<result property="stockType" column="STOCK_TYPE"/>
+    	<result property="stockForm" column="STOCK_FORM"/>
+    	<result property="exclusiveArea" column="EXCLUSIVE_AREA"/>
+    	<result property="supplyArea" column="SUPPLY_AREA"/>
+    	<result property="currentFloor" column="CURRENT_FLOOR"/>
+    	<result property="floorTotalCount" column="FLOOR_TOTAL_COUNT"/>
+    	<result property="roomCount" column="ROOM_COUNT"/>
+    	<result property="bathCount" column="BATH_COUNT"/>
+    	<result property="stockDirection" column="STOCK_DIRECTION"/>
+    	<result property="ableDate" column="ABLE_DATE"/>
+    	<result property="useApprovalDate" column="USE_APPROVAL_DATE"/>
+    	<result property="registDate" column="REGIST_DATE"/>
+    	<result property="stockDetail" column="STOCK_DETAIL"/>
+    	<result property="stockAddress" column="STOCK_ADDRESS"/>
+    	<result property="regionNo" column="REGION_NO"/>
+
+    	<result property="lat" column="LAT"/>
+    	<result property="lng" column="LNG"/>
+    
+    	<collection property="imgList" ofType="com.zipinfo.project.stock.model.dto.Stock">
+      	  	<result property="imgUrl" column="IMG_URL"/>
+     	  	<result property="imgOriginName" column="IMG_ORIGIN_NAME"/>
+    	</collection>
+	</resultMap>
+
+
 	<select id="getMemberInfo">
 		SELECT MEMBER_NO, MEMBER_NAME, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_AUTH, MEMBER_LOCATION <if test="memberAuth eq 3">, COMPANY_NAME, COMPANY_LOCATION, PRESIDENT_NAME, BROKER_NO, PRESIDENT_PHONE</if>
 		FROM MEMBER M
@@ -94,21 +129,16 @@
 		VALUES(#{stockNo}, #{lat}, #{lng})
 	</insert>
 	
-	<select id="getMyStock">
-		SELECT * FROM "STOCK_INFO"
-		WHERE MEMBER_NO = #{memberNo}
-		ORDER BY STOCK_NO DESC
-	</select>
-	
-	<select id="selectImgUrl">
-		SELECT IMG_URL, IMG_ORIGIN_NAME FROM "STOCK_IMG"
-		WHERE STOCK_NO = #{stockNo}
-		ORDER BY IMG_ORDER
-	</select>
-	
-	<select id="selectStockCoord">
-		SELECT * FROM "STOCK_COORD"
-		WHERE STOCK_NO = #{stockNo}
+	<select id="getMyStock" resultMap="stockMap">
+		SELECT s.STOCK_NO, s.MEMBER_NO, s.STOCK_NAME, s.STOCK_SELL_PRICE, s.STOCK_MANAGE_FEE, s.STOCK_FEE_MONTH, s.STOCK_INFO, s.STOCK_TYPE
+		, s.STOCK_FORM, s.EXCLUSIVE_AREA, s.SUPPLY_AREA, s.CURRENT_FLOOR, s.FLOOR_TOTAL_COUNT,
+		s.ROOM_COUNT, s.BATH_COUNT, s.STOCK_DIRECTION, s.ABLE_DATE, s.USE_APPROVAL_DATE, s.REGIST_DATE,
+		s.STOCK_DETAIL, s.STOCK_ADDRESS, s.REGION_NO, i.IMG_URL, i.IMG_ORIGIN_NAME, c.LAT, c.LNG     
+  		FROM STOCK_INFO s
+  		JOIN STOCK_COORD c ON s.STOCK_NO = c.STOCK_NO
+  		LEFT JOIN STOCK_IMG i ON s.STOCK_NO = i.STOCK_NO
+  		WHERE s.MEMBER_NO = #{memberNo}
+  		ORDER BY s.STOCK_NO DESC, i.IMG_ORDER
 	</select>
 	
 	<delete id="deleteStockInfo">
@@ -202,9 +232,16 @@
 		ORDER BY LIKE_DATE DESC
 	</select>
 	
-	<select id="getSawStockInfo">
-		SELECT * FROM "STOCK_INFO"
-		WHERE STOCK_NO = #{stockNo}
+	<select id="getSawStockInfo" resultMap="stockMap">
+		SELECT s.STOCK_NO, s.MEMBER_NO, s.STOCK_NAME, s.STOCK_SELL_PRICE, s.STOCK_MANAGE_FEE, s.STOCK_FEE_MONTH, s.STOCK_INFO, s.STOCK_TYPE
+		, s.STOCK_FORM, s.EXCLUSIVE_AREA, s.SUPPLY_AREA, s.CURRENT_FLOOR, s.FLOOR_TOTAL_COUNT,
+		s.ROOM_COUNT, s.BATH_COUNT, s.STOCK_DIRECTION, s.ABLE_DATE, s.USE_APPROVAL_DATE, s.REGIST_DATE,
+		s.STOCK_DETAIL, s.STOCK_ADDRESS, s.REGION_NO, i.IMG_URL, i.IMG_ORIGIN_NAME, c.LAT, c.LNG  
+  		FROM STOCK_INFO s
+  		JOIN STOCK_COORD c ON s.STOCK_NO = c.STOCK_NO
+  		LEFT JOIN STOCK_IMG i ON s.STOCK_NO = i.STOCK_NO
+  		WHERE s.STOCK_NO = #{stockNo}
+  		ORDER BY s.STOCK_NO DESC, i.IMG_ORDER
 	</select>
 	
 	<select id="getMyPost">

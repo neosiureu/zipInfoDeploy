@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import "../../css/myPage/menu.css";
 import "../../css/myPage/addStock.css";
@@ -86,13 +86,13 @@ export default function AddStock() {
   //---------------------- 이미지 관련 구문입니다-------------------------
 
   const [previewTumbImgName, setPreviewTumbImgName] = useState(
-    property.imgOriginNames[0]
+    property.imgList[0].imgOriginName
   );
   const [previewBalanceImgName, setPreviewBalanceImgName] = useState(
-    property.imgOriginNames[1]
+    property.imgList[1].imgOriginName
   );
   const [previewImgName, setPreviewImgName] = useState(
-    property.imgOriginNames.slice(2)
+    property.imgList.slice(2).map((img) => img.imgOriginName)
   );
 
   const [stockTumbImg, setStockTumbImg] = useState(null);

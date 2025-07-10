@@ -178,7 +178,7 @@ export default function MyStock() {
                       >
                         <div className="property-image-item">
                           <img
-                            src={`http://localhost:8080${property.imgUrls[0]}`}
+                            src={`http://localhost:8080${property.imgList[0].imgUrl}`}
                             className="property-image"
                             alt="매물 이미지"
                             loading="eager"
