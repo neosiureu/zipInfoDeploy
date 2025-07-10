@@ -631,12 +631,13 @@ export default function AddStock() {
                   <div className="my-page-stock-input-row">
                     <label className="my-page-stock-input-label">매매가</label>
                     <input
-                      type="text"
+                      type="number"
                       placeholder="매매가를 입력해주세요(숫자만 입력하세요)"
                       className="my-page-stock-input-field"
                       value={formData.stockSellPrice}
                       onChange={handleStockInfo}
                       name="stockSellPrice"
+                      maxLength={12}
                     />
                   </div>
 
@@ -649,6 +650,7 @@ export default function AddStock() {
                       value={formData.stockName}
                       onChange={handleStockInfo}
                       name="stockName"
+                      maxLength={50}
                     />
                   </div>
 
@@ -663,6 +665,7 @@ export default function AddStock() {
                       value={formData.stockInfo}
                       onChange={handleStockInfo}
                       name="stockInfo"
+                      maxLength={100}
                     />
                   </div>
                 </>
@@ -673,12 +676,13 @@ export default function AddStock() {
                   <div className="my-page-stock-input-row">
                     <label className="my-page-stock-input-label">전세가</label>
                     <input
-                      type="text"
+                      type="number"
                       placeholder="전세가를 입력해주세요(숫자만 입력하세요)"
                       className="my-page-stock-input-field"
                       value={formData.stockSellPrice}
                       onChange={handleStockInfo}
                       name="stockSellPrice"
+                      maxLength={12}
                     />
                   </div>
 
@@ -691,6 +695,7 @@ export default function AddStock() {
                       value={formData.stockName}
                       onChange={handleStockInfo}
                       name="stockName"
+                      maxLength={50}
                     />
                   </div>
 
@@ -705,6 +710,7 @@ export default function AddStock() {
                       value={formData.stockInfo}
                       onChange={handleStockInfo}
                       name="stockInfo"
+                      maxLength={100}
                     />
                   </div>
                 </>
@@ -715,24 +721,26 @@ export default function AddStock() {
                   <div className="my-page-stock-input-row">
                     <label className="my-page-stock-input-label">보증금</label>
                     <input
-                      type="text"
+                      type="number"
                       placeholder="보증금을 입력해주세요(숫자만 입력하세요)"
                       className="my-page-stock-input-field"
                       value={formData.stockSellPrice}
                       onChange={handleStockInfo}
                       name="stockSellPrice"
+                      maxLength={12}
                     />
                   </div>
 
                   <div className="my-page-stock-input-row">
                     <label className="my-page-stock-input-label">월세가</label>
                     <input
-                      type="text"
+                      type="number"
                       placeholder="월세가를 입력해주세요(숫자만 입력하세요)"
                       className="my-page-stock-input-field"
                       value={formData.stockFeeMonth}
                       onChange={handleStockInfo}
                       name="stockFeeMonth"
+                      maxLength={8}
                     />
                   </div>
 
@@ -745,6 +753,7 @@ export default function AddStock() {
                       value={formData.stockName}
                       onChange={handleStockInfo}
                       name="stockName"
+                      maxLength={50}
                     />
                   </div>
 
@@ -759,6 +768,7 @@ export default function AddStock() {
                       value={formData.stockInfo}
                       onChange={handleStockInfo}
                       name="stockInfo"
+                      maxLength={100}
                     />
                   </div>
                 </>
@@ -809,6 +819,7 @@ export default function AddStock() {
                   value={detailAddress}
                   name="detailAddress"
                   onChange={handleDetailAddress}
+                  maxLength={30}
                 />
               </div>
               <div className="my-page-stock-input-row">
@@ -826,67 +837,73 @@ export default function AddStock() {
               <div className="my-page-stock-input-row">
                 <label className="my-page-stock-input-label">전용면적</label>
                 <input
-                  type="text"
+                  type="number"
                   placeholder="전용면적을 입력하세요(숫자만 입력하세요)"
                   className="my-page-stock-input-field"
                   value={formData.exclusiveArea}
                   onChange={handleStockInfo}
                   name="exclusiveArea"
+                  maxLength={8}
                 />
               </div>
               <div className="my-page-stock-input-row">
                 <label className="my-page-stock-input-label">공급면적</label>
                 <input
-                  type="text"
+                  type="number"
                   placeholder="공급면적을 입력하세요(숫자만 입력하세요)"
                   className="my-page-stock-input-field"
                   value={formData.supplyArea}
                   onChange={handleStockInfo}
                   name="supplyArea"
+                  maxLength={8}
                 />
               </div>
               <div className="my-page-stock-input-row">
                 <label className="my-page-stock-input-label">해당층</label>
                 <input
-                  type="text"
+                  type="number"
                   placeholder="해당층을 입력하세요(숫자만 입력하세요)"
                   className="my-page-stock-input-field"
                   value={formData.currentFloor}
                   onChange={handleStockInfo}
                   name="currentFloor"
+                  maxLength={3}
                 />
               </div>
               <div className="my-page-stock-input-row">
                 <label className="my-page-stock-input-label">건물층</label>
                 <input
-                  type="text"
+                  type="number"
                   placeholder="건물층을 입력하세요(숫자만 입력하세요)"
                   className="my-page-stock-input-field"
                   value={formData.floorTotalCount}
                   onChange={handleStockInfo}
                   name="floorTotalCount"
+                  maxLength={3}
                 />
               </div>
               <div className="my-page-stock-input-row">
                 <label className="my-page-stock-input-label">방 개수</label>
                 <input
-                  type="text"
+                  type="number"
                   placeholder="방 개수를 입력하세요(숫자만 입력하세요)"
                   className="my-page-stock-input-field"
                   value={formData.roomCount}
                   onChange={handleStockInfo}
                   name="roomCount"
+                  maxLength={3}
                 />
               </div>
               <div className="my-page-stock-input-row">
                 <label className="my-page-stock-input-label">욕실 개수</label>
                 <input
-                  type="text"
+                  type="number"
                   placeholder="욕실 개수를 입력하세요(숫자만 입력하세요)"
                   className="my-page-stock-input-field"
                   value={formData.bathCount}
                   onChange={handleStockInfo}
                   name="bathCount"
+                  maxLength={3}
                 />
               </div>
               <div className="my-page-stock-input-row">
@@ -898,17 +915,19 @@ export default function AddStock() {
                   value={formData.stockDirection}
                   onChange={handleStockInfo}
                   name="stockDirection"
+                  maxLength={3}
                 />
               </div>
               <div className="my-page-stock-input-row">
                 <label className="my-page-stock-input-label">관리비</label>
                 <input
-                  type="text"
+                  type="number"
                   placeholder="관리비를 입력해주세요(숫자만 입력하세요)"
                   className="my-page-stock-input-field"
                   value={formData.stockManageFee}
                   onChange={handleStockInfo}
                   name="stockManageFee"
+                  maxLength={8}
                 />
               </div>
               <div className="my-page-stock-input-row">
@@ -942,6 +961,7 @@ export default function AddStock() {
                   value={formData.stockDetail}
                   onChange={handleStockInfo}
                   name="stockDetail"
+                  maxLength={1999}
                 />
               </div>
             </div>

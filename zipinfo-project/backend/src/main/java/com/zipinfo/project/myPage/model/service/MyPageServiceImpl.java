@@ -498,12 +498,7 @@ public class MyPageServiceImpl implements MyPageService{
 	public HelpMessage getMessageContent(int messageNo) {
 		return mapper.getMessageContent(messageNo);
 	}
-	
-	@Override
-	public HelpMessage getInquiredMessage(int messageNo) {
-		return mapper.getInquiredMessage(messageNo);
-	}
-	
+
 	@Override
 	public HelpMessage getMessageFile(int messageNo) {
 		return mapper.getMessageFile(messageNo);

@@ -8,6 +8,12 @@
 FROM MEMBER WHERE MEMBER_EMAIL = #{memberEmail} 
 AND MEMBER_DEL_FL ='N' AND MEMBER_LOGIN = #{memberLogin} </select>
 
+<update id="setTokenInfo">
+	UPDATE "TOKEN_INFO" SET
+	TOKEN_INFO = #{token}
+	WHERE MEMBER_NO = #{memberNo}
+</update>
+
 <select id="checkEmail"> SELECT COUNT(*)
 	FROM "MEMBER"
 	WHERE MEMBER_EMAIL = #{memberEmail}
@@ -26,7 +32,7 @@ AND MEMBER_DEL_FL ='N' AND MEMBER_LOGIN = #{memberLogin} </select>
 </select>
 
 
-<insert id="signupGeneral" >
+<insert id="signupGeneral" parameterType="Member" useGeneratedKeys="true" keyProperty="memberNo" keyColumn="MEMBER_NO">
   	 INSERT INTO "MEMBER"
      VALUES(SEQ_MEMBER.NEXTVAL, 
 			 #{memberEmail},
@@ -55,6 +61,11 @@ AND MEMBER_DEL_FL ='N' AND MEMBER_LOGIN = #{memberLogin} </select>
 			 			 
                     )
   	</insert>
+
+<insert id="createTokenTable">
+	INSERT INTO "TOKEN_INFO"
+	VALUES(#{memberNo}, NULL)
+</insert>
 
 <!-- 관리자 인증 -->
 	<select id="selectByEmail" parameterType="string" resultType="com.zipinfo.project.member.model.dto.Member">

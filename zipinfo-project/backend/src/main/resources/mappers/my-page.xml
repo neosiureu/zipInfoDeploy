@@ -23,7 +23,7 @@
     	<result property="bathCount" column="BATH_COUNT"/>
     	<result property="stockDirection" column="STOCK_DIRECTION"/>
     	<result property="ableDate" column="ABLE_DATE"/>
-    	<result property="useApprovalDate" column="USE_APPROVAL_DATE"/>
+    	<result property="useApprovalDate" column="USE_APPROVAL_SDATE"/>
     	<result property="registDate" column="REGIST_DATE"/>
     	<result property="stockDetail" column="STOCK_DETAIL"/>
     	<result property="stockAddress" column="STOCK_ADDRESS"/>
@@ -353,7 +353,7 @@
 	
 	<insert id="sendMessageContent">
 		INSERT INTO "HELP_MESSAGE"
-		VALUES(SEQ_MESSAGE_NO.NEXTVAL, #{senderNo}, #{messageTitle}, #{messageContent}, SYSDATE, NULL, 'N', NULL)
+		VALUES(SEQ_MESSAGE_NO.NEXTVAL, #{senderNo}, #{messageTitle}, #{messageContent}, SYSDATE, NULL, 'N', NULL, NULL)
 	</insert>
 
 	<select id="getMessageNo">
@@ -372,11 +372,6 @@
 	<select id="getMessageContent">
 		SELECT * FROM "HELP_MESSAGE"
 		WHERE MESSAGE_NO = #{messageNo}
-	</select>
-	
-	<select id="getInquiredMessage">
-		SELECT * FROM "HELP_MESSAGE"
-		WHERE INQUIRED_NO = #{messageNo}
 	</select>
 	
 	<select id="getMessageFile">

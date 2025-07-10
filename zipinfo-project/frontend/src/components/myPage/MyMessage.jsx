@@ -56,6 +56,26 @@ export default function MyStock() {
   };
 
   const handleSubmit = async (e) => {
+    if (message.messageTitle.trim().length === 0) {
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">문의 제목을 입력하세요.</div>
+        </div>
+      );
+      return;
+    }
+
+    if (message.messageContent.trim().length === 0) {
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">문의 내용을 입력하세요.</div>
+        </div>
+      );
+      return;
+    }
+
     const messageData = new FormData();
     messageData.append("messageFile", messageFile);
     messageData.append("messageTitle", message.messageTitle);
@@ -135,7 +155,7 @@ export default function MyStock() {
                     {messageFile === null ? (
                       <>
                         <Plus size={16} className="plus-icon" />
-                        <span>이미지추가</span>
+                        <span>파일추가</span>
                       </>
                     ) : (
                       <span>{messageFile?.name}</span>

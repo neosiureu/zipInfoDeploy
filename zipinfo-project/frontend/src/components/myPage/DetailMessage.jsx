@@ -14,7 +14,6 @@ export default function MyStock() {
   const nav = useNavigate();
 
   const [message, setMessage] = useState("");
-  const [inquiredMessage, setInquiredMessage] = useState("");
   const [messageFile, setMessageFile] = useState(null);
 
   const getMessageContent = async () => {
@@ -25,17 +24,6 @@ export default function MyStock() {
       setMessage(response.data);
     } catch (err) {
       console.error("문의 불러오기 실패:", err);
-    }
-  };
-
-  const getInquiredMessage = async () => {
-    try {
-      const response = await axiosAPI.post("/myPage/getInquiredMessage", {
-        messageNo,
-      });
-      setInquiredMessage(response.data);
-    } catch (err) {
-      console.error("문의답변 불러오기 실패:", err);
     }
   };
 
@@ -52,7 +40,6 @@ export default function MyStock() {
 
   useEffect(() => {
     getMessageContent();
-    getInquiredMessage();
     getMessageFile();
   }, []);
 
@@ -105,7 +92,7 @@ export default function MyStock() {
             </div>
           </div>
           <div>
-            {inquiredMessage && (
+            {message.replyContent && (
               <div className="my-detail-message-contact-form">
                 <div className="my-detail-message-form-section">
                   <div className="my-detail-message-inquired">답변</div>
@@ -117,7 +104,7 @@ export default function MyStock() {
                 <div className="my-detail-message-content">
                   <div className="my-detail-message-content-area">
                     <div className="my-detail-message-form-textarea">
-                      {inquiredMessage.messageContent}
+                      {message.replyContent}
                     </div>
                   </div>
                 </div>
