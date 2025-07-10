@@ -80,10 +80,15 @@ export const MemberProvider = ({ children }) => {
   useEffect(() => {
     const handleForceLogout = () => {
       if (window.stompClient?.connected) window.stompClient.disconnect();
-      toast.error("이메일 또는 비밀번호가 다릅니다.");
-      // localStorage.clear();
-      localStorage.remove("loginMember");
-      localStorage.remove("accessToken");
+      toast.error("세션이 만료되어 로그아웃 됩니다.");
+      localStorage.removeItem("loginMember");
+      localStorage.removeItem("accessToken");
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key.startsWith("kakao_")) {
+          localStorage.removeItem(key);
+        }
+      }
       setMember(null);
     };
 

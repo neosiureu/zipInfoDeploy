@@ -402,7 +402,7 @@ const NeighborhoodBoard = ({}) => {
             onTownChange={handleTownChange}
             onSubjectChange={handleSubjectChange}
           />
-          <button className="searcbar-refresh-btn" onClick={handleRefresh}>
+          <button className="nb-searcbar-refresh-btn" onClick={handleRefresh}>
             <img src={refresh} alt="새로고침" />
           </button>
         </div>
