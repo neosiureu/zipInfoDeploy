@@ -64,24 +64,24 @@ export default function MemberFindPw() {
     };
   }, [authTimer]);
 
-  // 이메일 메시지 업데이트 헬퍼 함수
+  // 이메일 메시지 업데이트 반영을 위한 함수
   const updateEmailMessage = (field, message, className = "") => {
     setEmailMessages((prev) => ({ ...prev, [field]: message }));
     setEmailMessageClasses((prev) => ({ ...prev, [field]: className }));
   };
 
-  // 비밀번호 메시지 업데이트 헬퍼 함수
+  // 비밀번호 메시지 업데이트 반영을 위한 함수
   const updatePasswordMessage = (field, message, className = "") => {
     setPasswordMessages((prev) => ({ ...prev, [field]: message }));
     setPasswordMessageClasses((prev) => ({ ...prev, [field]: className }));
   };
 
-  // 이메일 체크 상태 업데이트 헬퍼 함수
+  // 이메일 체크 상태 업데이트 반영을 위한 함수
   const updateEmailCheckObj = (field, isValid) => {
     setEmailCheckObj((prev) => ({ ...prev, [field]: isValid }));
   };
 
-  // 비밀번호 체크 상태 업데이트 헬퍼 함수
+  // 비밀번호 체크 상태 업데이트 반영을 위한 함수
   const updatePasswordCheckObj = (field, isValid) => {
     setPasswordCheckObj((prev) => ({ ...prev, [field]: isValid }));
   };
