@@ -21,7 +21,7 @@ const NeighborhoodBoardDetail = () => {
   const [loading, setLoading] = useState(true);
   const loginMemberNo = member?.memberNo;
   const [like, setLike] = useState(new Set());
-
+  const [likeCount, setLikeCount] = useState(0);
   // 이 글에 들어온 프론트 경로: navigate(`/neighborhoodBoard/detail/${item.boardNo}`);
   // 이 글에서 서버로 보낼 url 주소: /board/detail/boardNo
 
@@ -67,9 +67,9 @@ const NeighborhoodBoardDetail = () => {
   };
 
   const handleBoardDeleteClick = async (boardNo) => {
-    const { data: result } = await axiosAPI.delete(`/editBoard/${boardNo}`);
-    if (result > 0) {
-      if (confirm("글을 삭제하시겠습니까?")) {
+    if (confirm("글을 삭제하시겠습니까?")) {
+      const { data: result } = await axiosAPI.delete(`/editBoard/${boardNo}`);
+      if (result > 0) {
         toast.success(
           <div>
             <div className="toast-success-title">삭제 성공 알림!</div>
@@ -82,9 +82,7 @@ const NeighborhoodBoardDetail = () => {
       toast.error(
         <div>
           <div className="toast-error-title">오류 알림!</div>
-          <div className="toast-error-body">
-            게시글 삭제 실패. 본인의 게시글이 아닙니다!
-          </div>
+          <div className="toast-error-body">게시글 삭제 실패!</div>
         </div>
       );
       return; // 실패시 페이지 이동 막기
@@ -178,11 +176,13 @@ const NeighborhoodBoardDetail = () => {
               <span className="nb-detail-author">
                 작성자 : {memberNickName}
               </span>
-
               <span className="nb-detail-separator">|</span>
               <span className="nb-detail-date">등록일 : {boardWriteDate}</span>
               <span className="nb-detail-separator">|</span>
               <span className="nb-detail-views">조회수 : {readCount}</span>
+              {/* <span className="nb-detail-separator">|</span>
+              <span className="nb-detail-likes">좋아요 : {likeCount}</span>{" "} */}
+              {/* 추가 */}
               <span
                 onClick={(e) => {
                   e.stopPropagation(); // nav 방지
