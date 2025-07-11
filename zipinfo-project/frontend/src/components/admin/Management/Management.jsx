@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Shield, User, Trash2, UserPlus } from "lucide-react";
+import { Shield, User, Trash2, UserPlus, FileX, Crown } from "lucide-react"; // 🔄 Crown 아이콘 추가
 import "../../../css/admin/Management/Management.css";
+import { Link } from "react-router-dom";
 
 import MemberList from "./MemberList";
 import DeletedMembers from "./DeletedMembers";
 import BrokerApplications from "./BrokerApplications";
-import { axiosAPI } from "../../../api/axiosApi";
+import DeletedBoard from "./DeletedBoard"; // ✅ 추가
+import Manager from "./Manager"; // ✅ 추가
 
 const Management = () => {
   const [activeTab, setActiveTab] = useState("members");
@@ -14,11 +16,16 @@ const Management = () => {
   const [members, setMembers] = useState([]);
   const [deletedMembers, setDeletedMembers] = useState([]);
   const [brokerApplications, setBrokerApplications] = useState([]);
+  const [deletedBoards, setDeletedBoards] = useState([]); // ✅ 추가
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const [adminName, setAdminName] = useState("");
+  const [adminId, setAdminId] = useState("");
+
   // 응답 데이터가 배열인지 확인하고 없으면 빈 배열로 처리하는 헬퍼
+
   const handleResponse = (res, setDataFunc, errorMessage) => {
     console.log("[handleResponse] 응답 데이터:", res);
     if (Array.isArray(res.data)) {
@@ -41,7 +48,7 @@ const Management = () => {
     console.log("[useEffect] activeTab:", activeTab);
 
     if (activeTab === "members") {
-      axiosAPI
+      axios
         .get("http://localhost:8080/admin/management/members", {
           withCredentials: true,
         })
@@ -55,7 +62,7 @@ const Management = () => {
         })
         .finally(() => setLoading(false));
     } else if (activeTab === "deleted") {
-      axiosAPI
+      axios
         .get("http://localhost:8080/admin/management/members/deleted")
         .then((res) => {
           console.log("[then] 삭제된 회원 목록 응답:", res);
@@ -71,7 +78,7 @@ const Management = () => {
         })
         .finally(() => setLoading(false));
     } else if (activeTab === "applications") {
-      axiosAPI
+      axios
         .get("http://localhost:8080/admin/management/broker-applications")
         .then((res) => {
           console.log("[then] 중개인 권한 신청 목록 응답:", res);
@@ -86,23 +93,43 @@ const Management = () => {
           setError("중개인 권한 신청 목록 불러오기 실패");
         })
         .finally(() => setLoading(false));
+    } else if (activeTab === "deletedBoards") {
+      // ✅ 추가된 조건
+      axios
+        .get("http://localhost:8080/admin/management/boards/deleted")
+        .then((res) => {
+          console.log("[then] 삭제된 게시글 목록 응답:", res);
+          handleResponse(
+            res,
+            setDeletedBoards,
+            "삭제된 게시글 목록 불러오기 실패"
+          );
+        })
+        .catch((err) => {
+          console.log("[catch] 삭제된 게시글 목록 에러:", err);
+          setError("삭제된 게시글 목록 불러오기 실패");
+        })
+        .finally(() => setLoading(false));
+    } else if (activeTab === "manager") {
+      // ✅ manager 탭은 API 호출이 필요 없으므로 로딩을 즉시 false로 설정
+      setLoading(false);
     }
   }, [activeTab]);
-
-  useEffect(() => {
-    console.log("[state] error:", error);
-    console.log("[state] brokerApplications:", brokerApplications);
-  }, [error, brokerApplications]);
 
   return (
     <div className="management-container">
       <div className="management-header">
-        <h2>
-          <Shield className="header-icon" />
-          관리자 페이지
-        </h2>
+        <h2 className="management-title">관리자 페이지</h2>
       </div>
-
+      <div className="management-admin-box">
+        <p>
+          현재 <span className="management-admin-name">{adminName}</span> 으로
+          접속중입니다.
+        </p>
+        <p>
+          접속 ID : <span className="management-admin-id">{adminId}</span>
+        </p>
+      </div>
       <div className="tab-menu">
         <button
           className={`tab-button ${activeTab === "members" ? "active" : ""}`}
@@ -127,13 +154,27 @@ const Management = () => {
           <UserPlus className="tab-icon" />
           중개인 권한 신청
         </button>
+        <button
+          className={`tab-button ${
+            activeTab === "deletedBoards" ? "active" : ""
+          }`} // ✅ 탭 추가
+          onClick={() => setActiveTab("deletedBoards")}
+        >
+          <FileX className="tab-icon" /> {/* 적절한 아이콘 선택 */}
+          삭제된 게시글 목록
+        </button>
+        <button
+          className={`tab-button ${activeTab === "manager" ? "active" : ""}`} // ✅ 새로운 탭 추가
+          onClick={() => setActiveTab("manager")}
+        >
+          <Crown className="tab-icon" />
+          관리자 권한 관리
+        </button>
       </div>
-
       {/* 로딩 및 에러 메시지 */}
       {loading && <div>로딩 중...</div>}
       {error && <div className="text-red-500 mb-4">{error}</div>}
-
-      {/* 컴포넌트는 항상 렌더링 (로딩/에러 여부 상관없이) */}
+      {/* 탭별 컴포넌트 렌더링 */}
       {activeTab === "members" && <MemberList initialMembers={members} />}
       {activeTab === "deleted" && (
         <DeletedMembers initialDeletedMembers={deletedMembers} />
@@ -141,6 +182,10 @@ const Management = () => {
       {activeTab === "applications" && (
         <BrokerApplications initialApplications={brokerApplications} />
       )}
+      {activeTab === "deletedBoards" && (
+        <DeletedBoard initialDeletedBoards={deletedBoards} />
+      )}
+      {activeTab === "manager" && <Manager />} {/* ✅ 새로운 컴포넌트 추가 */}
     </div>
   );
 };

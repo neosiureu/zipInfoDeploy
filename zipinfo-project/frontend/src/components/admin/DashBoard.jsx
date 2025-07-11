@@ -7,10 +7,9 @@ import "../../css/admin/DashBoard.css";
 
 import Header from "../common/Header";
 import Footer from "../common/Footer";
-import { MemberContext } from "../member/MemberContext";
 
 export default function DashBoard() {
-  const globalState = useContext(MemberContext);
+  const globalState = useContext(AuthContext);
   const navigate = useNavigate();
 
   const goDashBoardMain = () => {
@@ -63,14 +62,8 @@ export default function DashBoard() {
         </div>
 
         <div className="admin-dash-info">
-          {globalState && globalState.member ? (
-            <>
-              <p>현재 {globalState.member.memberNickname} 으로 접속중입니다.</p>
-              <p>계정 ID: {globalState.member.memberId}</p>
-            </>
-          ) : (
-            <p>로그인 정보가 없습니다.</p>
-          )}
+          <p>현재 관리자로 접속중입니다.</p>
+          <p>계정 ID: user01</p>
         </div>
 
         {/* 중첩 라우트 컴포넌트 렌더링 */}
