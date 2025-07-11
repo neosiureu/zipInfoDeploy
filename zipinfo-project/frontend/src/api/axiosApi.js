@@ -50,8 +50,8 @@ axiosAPI.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 || error.response?.status === 403) {
       window.dispatchEvent(new CustomEvent("forceLogout"));
+      toast.error("다른 PC의 로그인이 감지되어 로그아웃 되었습니다.");
     }
-    toast.error("다른 PC의 로그인이 감지되어 로그아웃 되었습니다.");
     return Promise.reject(error);
   }
 );
