@@ -75,6 +75,12 @@ public class StockServiceImpl implements StockService{
 	public List<Stock> selectAnyFour(){
 		
 		return mapper.selectAnyFour();
+	}
+
+	@Override
+	public Stock selectStockDetail(int stockNo) {
+		// TODO Auto-generated method stub
+		return mapper.selectOneStock(stockNo);
 	};
 	
 }

@@ -43,4 +43,6 @@ public interface StockMapper {
 	 * @return
 	 */
 	List<Stock> selectAnyFour();
+
+	Stock selectOneStock(@Param("stockNo") int stockNo);
 }

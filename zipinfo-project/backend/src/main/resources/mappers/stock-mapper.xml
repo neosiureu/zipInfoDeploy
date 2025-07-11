@@ -215,4 +215,14 @@ FROM (
 )
 WHERE ROWNUM &lt;= 4
 	</select>
+	
+	<select id="selectOneStock"><!--위치 상관 x-->
+SELECT *
+    FROM STOCK_COORD c
+ 	
+INNER JOIN STOCK_INFO i ON c.STOCK_NO = i.STOCK_NO
+WHERE c.STOCK_NO = #{stockNo}
+
+
+	</select>
 </mapper>
