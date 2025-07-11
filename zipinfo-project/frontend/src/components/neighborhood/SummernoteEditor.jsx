@@ -13,11 +13,11 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
   const changeQueue = useRef([]); // 변경사항 큐
   const [isCSSReady, setIsCSSReady] = useState(false);
   const isComposing = useRef(false);
+  const lastValidHtml = useRef(""); // 마지막 정상 HTML
+  const savedCursor = useRef(null); // 마지막 커서 위치
+  const isProgrammatic = useRef(false);
 
   // 개선된 텍스트 추출 함수
-  // 컴포넌트 최상단 근처에 추가
-  const MAX_LENGTH = 2000;
-
   const extractTextContent = (htmlContent) => {
     if (!htmlContent) return "";
     const tempDiv = document.createElement("div");
@@ -30,7 +30,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
   // 내용이 비어있는지 확인하는 함수
   const isContentEmpty = (htmlContent) => {
     if (!htmlContent) return true;
-
     const textContent = extractTextContent(htmlContent);
     const hasImage = htmlContent.includes("<img");
 
@@ -128,14 +127,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
         .find(".note-editable");
 
       if ($editable[0] && $editable[0].contains(range.startContainer)) {
-        // 기존 노드 참조 방식
-        // const nodeBasedCursor = {
-        //   startContainer: range.startContainer,
-        //   startOffset: range.startOffset,
-        //   endContainer: range.endContainer,
-        //   endOffset: range.endOffset,
-        // };
-
         // 새로운 텍스트 오프셋 방식
         const textOffset = getTextOffset(
           $editable[0],
@@ -149,8 +140,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
         );
 
         const cursor = {
-          // // 기존 방식 (백업용)
-          // ...nodeBasedCursor,
           // 새로운 방식 (메인)
           textOffset: textOffset,
           endTextOffset: endTextOffset,
@@ -158,9 +147,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
         };
 
         return cursor;
-      } else {
       }
-    } else {
     }
     return null;
   };
@@ -181,8 +168,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
     }
 
     try {
-      // 1단계: 기존 노드 참조 방식 시도
-
       const startPos = getNodeFromTextOffset(
         $editable[0],
         savedPosition.textOffset || 0
@@ -202,7 +187,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
         selection.removeAllRanges();
         selection.addRange(range);
         return true;
-      } else {
       }
     } catch (e) {}
 
@@ -211,7 +195,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
   // 타이핑 상태 관리 함수
   const startTyping = () => {
-    const wasTyping = isTyping.current;
     isTyping.current = true;
 
     // 이전 타임아웃 클리어
@@ -219,7 +202,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
       clearTimeout(typingTimeout.current);
     }
 
-    // 200ms 후 타이핑 종료로 간주 (안정성 향상)
+    // 200ms 후 타이핑 종료로 간주
     typingTimeout.current = setTimeout(() => {
       isTyping.current = false;
       processQueuedChanges();
@@ -237,35 +220,12 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
     processChange(latestChange.contents);
   };
 
-  // 개선된 변경사항 처리 함수
+  // 간소화된 변경사항 처리 함수 (바이트 체크 제거)
   const processChange = (contents) => {
     if (isProcessingChange.current) {
       return;
     }
 
-    // 글자수 제한 체크
-    const textContent = extractTextContent(contents);
-    if (textContent.length > MAX_LENGTH) {
-      // 2000자 초과 시 경고 메시지 표시
-      toast.warn("내용은 최대 2000자까지 입력할 수 있습니다.");
-
-      // 이전 상태로 되돌리기 (2000자 이하인 상태)
-      const $editable = window
-        .$(editorRef.current)
-        .next(".note-editor")
-        .find(".note-editable");
-
-      // 현재 내용을 2000자로 제한
-      const limitedContent = limitContentToMaxLength(contents, MAX_LENGTH);
-      $editable.html(limitedContent);
-
-      // 제한된 내용으로 onChange 호출
-      if (onChange) onChange(limitedContent);
-      return;
-    }
-
-    // 커서 위치 먼저 저장
-    const currentCursor = saveCursorPosition();
     isProcessingChange.current = true;
 
     // 플레이스홀더 처리
@@ -287,7 +247,8 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
       }
     }
 
-    // 커서 복원 (isComposing 체크 제거, 타이핑 중이 아닐 때만)
+    // 커서 복원 (타이핑 중이 아닐 때만)
+    const currentCursor = saveCursorPosition();
     if (currentCursor && !isTyping.current) {
       requestAnimationFrame(() => {
         // 커서 복원 후 React 상태 업데이트
@@ -301,48 +262,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
     }
 
     isProcessingChange.current = false;
-  };
-
-  // HTML 내용을 최대 길이로 제한하는 함수
-  const limitContentToMaxLength = (htmlContent, maxLength) => {
-    if (!htmlContent) return htmlContent;
-
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = htmlContent;
-
-    let currentLength = 0;
-    const walker = document.createTreeWalker(
-      tempDiv,
-      NodeFilter.SHOW_TEXT,
-      null,
-      false
-    );
-
-    let currentNode;
-    while ((currentNode = walker.nextNode())) {
-      const nodeLength = currentNode.textContent.length;
-      if (currentLength + nodeLength > maxLength) {
-        // 이 노드에서 잘라야 할 문자 수 계산
-        const remainingLength = maxLength - currentLength;
-        currentNode.textContent = currentNode.textContent.substring(
-          0,
-          remainingLength
-        );
-
-        // 이 노드 이후의 모든 텍스트 노드 제거
-        let nextNode = walker.nextNode();
-        while (nextNode) {
-          nextNode.textContent = "";
-          nextNode = walker.nextNode();
-        }
-        break;
-      }
-      currentLength += nodeLength;
-    }
-
-    const result = tempDiv.innerHTML;
-    tempDiv.remove();
-    return result;
   };
 
   // 진짜 썸머노츠 동적 로딩
@@ -467,6 +386,11 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
         ],
         callbacks: {
           onChange: function (contents) {
+            if (isProgrammatic.current) {
+              // 첫 change 무시
+              isProgrammatic.current = false; // 플래그 해제
+              return;
+            }
             const currentTime = Date.now();
             const timeDiff = currentTime - lastChangeTime.current;
 
@@ -503,24 +427,42 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
             }
           },
 
-          // 키보드 이벤트로 타이핑 감지
+          // 키보드 이벤트 (바이트 체크 제거)
           onKeydown: function (e) {
-            // 실제 문자 입력 키만 감지
+            /* Enter 처리 : 무조건 <p> 생성 */
+            if (e.key === "Enter" && !e.shiftKey && !e.altKey && !e.ctrlKey) {
+              e.preventDefault();
+              document.execCommand("formatBlock", false, "p");
+            }
+
+            /* 타이핑 감지 로직 */
             if (e.key && e.key.length === 1 && !isComposing.current) {
               startTyping();
             }
           },
 
           onKeyup: function (e) {
-            // 연속 입력 감지를 위한 타이핑 상태 갱신
+            // 타이핑 감지
             if (e.key && e.key.length === 1 && !isComposing.current) {
               startTyping();
             }
           },
 
+          // 붙여넣기 (바이트 체크 제거)
+          onPaste: function (e) {
+            // 바이트 체크 제거, 그냥 허용
+          },
+
+          onDrop: function (e) {
+            e.preventDefault(); // 이미지·파일 끌어놓기 자체 차단
+          },
+
+          // 이미지 업로드 (바이트 체크 제거)
           onImageUpload: function (files) {
             for (let i = 0; i < files.length; i++) {
               const file = files[i];
+
+              // 서버 업로드 (기존 로직)
               const formData = new FormData();
               formData.append("image", file);
 
@@ -536,6 +478,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
                   console.error("서버 업로드 실패:", error);
                 });
 
+              // 이미지 삽입 (바이트 체크 제거)
               const reader = new FileReader();
               reader.onload = (e) => {
                 const img = new Image();
@@ -551,6 +494,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
                         margin: "5px 0",
                       });
 
+                      // 커서 이동
                       setTimeout(() => {
                         const range = document.createRange();
                         const sel = window.getSelection();
@@ -566,12 +510,15 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
                 };
                 img.src = e.target.result;
               };
+
               reader.readAsDataURL(file);
             }
           },
 
+          // 이미지 링크 삽입 (바이트 체크 제거)
           onImageLinkInsert: function (url) {
             const img = new Image();
+
             img.onload = () => {
               $editor.summernote("insertImage", url, function ($image) {
                 $image.css({
@@ -581,6 +528,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
                   margin: "5px 0",
                 });
 
+                // 커서 이동
                 setTimeout(() => {
                   const range = document.createRange();
                   const sel = window.getSelection();
@@ -593,6 +541,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
                 }, 10);
               });
             };
+
             img.onerror = () => {
               toast.error(
                 <div>
@@ -603,6 +552,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
                 </div>
               );
             };
+
             img.src = url;
           },
 
@@ -751,7 +701,9 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
                   .note-editable ol ol {
                     margin: 5px 0 !important;
                     padding-left: 20px !important;
-                  }`;
+                  }
+                  `;
+
               document.head.appendChild(style);
             }
 
@@ -773,9 +725,12 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
             }
 
             if (value) {
+              isProgrammatic.current = true;
               $editor.summernote("code", value);
             }
-
+            if (value && !isContentEmpty(value)) {
+              $editable.removeClass("force-placeholder");
+            }
             if (disabled) {
               $editor.summernote("disable");
             }
@@ -841,8 +796,11 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
         !isProcessingChange.current &&
         !isTyping.current
       ) {
+        isProgrammatic.current = true;
         $editor.summernote("code", value || "");
-      } else {
+        const $editable = $editor.next(".note-editor").find(".note-editable");
+        if (value && !isContentEmpty(value))
+          $editable.removeClass("force-placeholder");
       }
     }
   }, [value, isReady]);
