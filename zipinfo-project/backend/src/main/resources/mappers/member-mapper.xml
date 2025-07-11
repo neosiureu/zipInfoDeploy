@@ -4,91 +4,120 @@
 
 <mapper
 	namespace="com.zipinfo.project.member.model.mapper.MemberMapper">
-<select id="login"> SELECT *
-FROM MEMBER WHERE MEMBER_EMAIL = #{memberEmail} 
-AND MEMBER_DEL_FL ='N' AND MEMBER_LOGIN = #{memberLogin} </select>
-
-<update id="setTokenInfo">
-	UPDATE "TOKEN_INFO" SET
-	TOKEN_INFO = #{token}
-	WHERE MEMBER_NO = #{memberNo}
-</update>
-
-<select id="checkEmail"> SELECT COUNT(*)
-	FROM "MEMBER"
-	WHERE MEMBER_EMAIL = #{memberEmail}
-	AND MEMBER_DEL_FL = 'N'AND MEMBER_LOGIN = 'E'
+	<select id="login"> SELECT *
+		FROM MEMBER WHERE MEMBER_EMAIL = #{memberEmail}
+		AND MEMBER_DEL_FL ='N' AND MEMBER_LOGIN = #{memberLogin}
 	</select>
-<select id="checkNickname">
-  	SELECT COUNT(*)
-  	FROM "MEMBER"
-  	WHERE MEMBER_NICKNAME = #{checkNickname}
-  	</select>
 
-<select id="checkBrokerNo">
-  SELECT COUNT(*)
-  FROM BROKER_INFO bi
-  WHERE bi.BROKER_NO = #{brokerNo}
-</select>
+	<update id="setTokenInfo">
+		UPDATE "TOKEN_INFO" SET
+		TOKEN_INFO = #{token}
+		WHERE MEMBER_NO = #{memberNo}
+	</update>
 
+	<select id="checkEmail"> SELECT COUNT(*)
+		FROM "MEMBER"
+		WHERE MEMBER_EMAIL = #{memberEmail}
+		AND MEMBER_DEL_FL = 'N'AND MEMBER_LOGIN = 'E'
+	</select>
+	<select id="checkNickname">
+		SELECT COUNT(*)
+		FROM "MEMBER"
+		WHERE MEMBER_NICKNAME = #{checkNickname}
+	</select>
 
-<insert id="signupGeneral" parameterType="Member" useGeneratedKeys="true" keyProperty="memberNo" keyColumn="MEMBER_NO">
-  	 INSERT INTO "MEMBER"
-     VALUES(SEQ_MEMBER.NEXTVAL, 
-			 #{memberEmail},
-			 #{memberPw},
-			 DEFAULT,
-			 DEFAULT,
-			 DEFAULT,
-			 #{memberLogin},
-			 #{memberNickname},
-			 #{memberName},
-			 1,
-			 DEFAULT,
-			 #{memberLocation}			 
-                    )
-  	</insert>
+	<select id="checkBrokerNo">
+		SELECT COUNT(*)
+		FROM BROKER_INFO bi
+		WHERE bi.BROKER_NO = #{brokerNo}
+	</select>
 
 
-<insert id="signupBroker" >
-  	 INSERT INTO "BROKER_INFO"
-     VALUES(SEQ_MEMBER.CURRVAL, 
-			 #{companyLocation},
-			 #{companyName},
-			 #{presidentName},
-			 #{brokerNo},
-			 #{presidentPhone}			 
-			 			 
-                    )
-  	</insert>
+	<insert id="signupGeneral" parameterType="Member"
+		useGeneratedKeys="true" keyProperty="memberNo" keyColumn="MEMBER_NO">
+		INSERT INTO "MEMBER"
+		VALUES(SEQ_MEMBER.NEXTVAL,
+		#{memberEmail},
+		#{memberPw},
+		DEFAULT,
+		DEFAULT,
+		DEFAULT,
+		#{memberLogin},
+		#{memberNickname},
+		#{memberName},
+		1,
+		DEFAULT,
+		#{memberLocation},
+		NULL
+		)
+	</insert>
 
-<insert id="createTokenTable">
-	INSERT INTO "TOKEN_INFO"
-	VALUES(#{memberNo}, NULL)
-</insert>
 
-<!-- 관리자 인증 -->
-	<select id="selectByEmail" parameterType="string" resultType="com.zipinfo.project.member.model.dto.Member">
-		  SELECT 
-		    member_no,
-		    member_email,
-		    member_pw,
-		    member_auth,
-		    member_name,
-		    member_nickname,
-		    member_location,
-		    member_del_fl
-		  FROM member
-		  WHERE member_email = #{email}
-		    AND member_del_fl = 'N'
-		</select>
+	<insert id="signupBroker">
+		INSERT INTO "BROKER_INFO"
+		VALUES(SEQ_MEMBER.CURRVAL,
+		#{companyLocation},
+		#{companyName},
+		#{presidentName},
+		#{brokerNo},
+		#{presidentPhone}
 
-<update id="updatePassword">
-UPDATE MEMBER SET MEMBER_PW = #{memberPw} WHERE MEMBER_EMAIL = #{memberEmail} AND MEMBER_LOGIN = #{memberLogin}
-</update>
-	
-<select id="getTokenNo">
-	SELECT TOKEN_INFO FROM "TOKEN_INFO"
-	WHERE MEMBER_NO = #{memberNo}
-</select>
+		)
+	</insert>
+
+	<insert id="createTokenTable">
+		INSERT INTO "TOKEN_INFO"
+		VALUES(#{memberNo}, NULL)
+	</insert>
+
+	<!-- 관리자 인증 -->
+	<select id="selectByEmail" parameterType="string"
+		resultType="com.zipinfo.project.member.model.dto.Member">
+		SELECT
+		member_no,
+		member_email,
+		member_pw,
+		member_auth,
+		member_name,
+		member_nickname,
+		member_location,
+		member_del_fl
+		FROM member
+		WHERE member_email = #{email}
+		AND member_del_fl = 'N'
+	</select>
+
+	<update id="updatePassword">
+		UPDATE MEMBER SET MEMBER_PW = #{memberPw} WHERE MEMBER_EMAIL =
+		#{memberEmail} AND MEMBER_LOGIN = #{memberLogin}
+	</update>
+
+	<select id="getTokenNo">
+		SELECT TOKEN_INFO FROM "TOKEN_INFO"
+		WHERE MEMBER_NO = #{memberNo}
+	</select>
+
+	<select id="signupChart" resultType="map">
+<![CDATA[
+SELECT TO_CHAR(ENROLL_DATE, 'YYYY-MM-DD') AS chart_date, COUNT(*) AS signupCount
+FROM "MEMBER"
+WHERE ENROLL_DATE >= SYSDATE - 7
+AND ENROLL_DATE IS NOT NULL
+GROUP BY TO_CHAR(ENROLL_DATE, 'YYYY-MM-DD')
+ORDER BY TO_CHAR(ENROLL_DATE, 'YYYY-MM-DD')
+]]>
+	</select>
+
+	<select id="withdrawChart" resultType="map">
+<![CDATA[
+SELECT TO_CHAR(MEMBER_WITHDRAW_DATE, 'YYYY-MM-DD') AS chart_date, COUNT(*) AS withdrawCount
+FROM "MEMBER"
+WHERE MEMBER_WITHDRAW_DATE >= SYSDATE - 7
+AND MEMBER_WITHDRAW_DATE IS NOT NULL
+GROUP BY TO_CHAR(MEMBER_WITHDRAW_DATE, 'YYYY-MM-DD')
+ORDER BY TO_CHAR(MEMBER_WITHDRAW_DATE, 'YYYY-MM-DD')
+]]>
+	</select>
+
+
 </mapper>

@@ -43,4 +43,6 @@ public interface StockMapper {
 	 * @return
 	 */
 	List<Stock> selectAnyFour();
+
+	List<Map<String, Object>> stockChart();
 }

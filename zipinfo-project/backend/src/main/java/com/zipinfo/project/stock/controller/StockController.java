@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -128,4 +129,16 @@ public class StockController {
 		}
 	}
 	
+	
+	@GetMapping("/stockChart")  // URL 경로 수정
+	public ResponseEntity<List<Map<String, Object>>> stockChart() {
+	    try {
+	        List<Map<String, Object>> stockData = service.stockChart();
+	        log.debug("스톡차트에서 가져온 내용" + stockData);
+	        return ResponseEntity.ok(stockData);
+	    } catch (Exception e) {
+	        log.error("실거래 차트 조회 오류", e);
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	    }
+	}
 }

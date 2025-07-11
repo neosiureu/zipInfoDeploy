@@ -17,5 +17,7 @@ public interface OauthMapper {
 	void insertNaverMember(Member member);
 
 	Member selectByNaverEmail(@Param("memberEmail") String email);
+
+	void createTokenTable();
 	
 }

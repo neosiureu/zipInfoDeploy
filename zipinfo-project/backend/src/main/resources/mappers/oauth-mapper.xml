@@ -68,7 +68,10 @@ INSERT INTO MEMBER (
   WHERE MEMBER_EMAIL = #{memberEmail}
 </update>
 
-
+<insert id="createTokenTable">
+		INSERT INTO "TOKEN_INFO"
+		VALUES(#{memberNo}, NULL)
+	</insert>
 
 
 </mapper>

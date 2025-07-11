@@ -47,10 +47,31 @@ public interface MemberService {
 	 */
 	boolean isAdmin(int memberNo); // 추가 메서드 선언
 
+	
+	/** 이주원
+	 * @param member
+	 * 회원가입 로직
+	 */
 	int signup(Member member);
 
+	
+	/**
+	 * 비밀번호 변경 로직
+	 */
 	int updatePassword(Member member);
 
 	String encode(Member member);
+	
+	
+
+	/** 이주원
+	 * 회원가입 통계
+	 */
+	List<Map<String, Object>> signupChart();
+	
+	/** 이주원
+	 * 회원탈퇴 통계
+	 */
+	List<Map<String, Object>> withDrawChart();
 
 }

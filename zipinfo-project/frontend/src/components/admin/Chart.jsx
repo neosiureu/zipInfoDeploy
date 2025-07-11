@@ -8,112 +8,304 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-// https://recharts.org/en-US
-// npm install recharts
+import { axiosAPI } from "../../api/axiosAPI";
+import { toast } from "react-toastify";
+import refresh from "../../assets/refresh.svg";
 
 function Chart() {
-  // // useEffect -> 함수형 컴포넌트에서 생명주기를 다룰 수 있는 hook
-  // useEffect(() => {
-  //   // 컴포넌트가 화면에 마운트 되었을때, 업데이트가 일어날때
+  const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  //   return() // 클리어! chart 컴포넌트가 화면상에서 삭제될때
-  // }, [])
+  // 가입/탈퇴/분양 데이터를 하나로 합치는 함수
+  const mergeChartData = (signupData, withdrawData, stockData) => {
+    const dataMap = new Map();
 
-  const data = [
-    // 오늘기준으로 일주일(7일내)의 데이터를 얻어옴
-    {
-      name: "신규,이탈,접속현황",
-      date: "2025.01.01",
-      in: "5",
-      out: "1",
-      visitor: "31",
-    },
-    {
-      name: "신규,이탈,접속현황",
-      date: "2025.01.02",
-      in: "2",
-      out: "0",
-      visitor: "14",
-    },
-    {
-      name: "신규,이탈,접속현황",
-      date: "2025.01.03",
-      in: "30",
-      out: "7",
-      visitor: "23",
-    },
-    {
-      name: "신규,이탈,접속현황",
-      date: "2025.01.04",
-      in: "37",
-      out: "0",
-      visitor: "37",
-    },
-    {
-      name: "신규,이탈,접속현황",
-      date: "2025.01.05",
-      in: "17",
-      out: "2",
-      visitor: "86",
-    },
-    {
-      name: "신규,이탈,접속현황",
-      date: "2025.01.06",
-      in: "39",
-      out: "1",
-      visitor: "70",
-    },
-    {
-      name: "신규,이탈,접속현황",
-      date: "2025.01.07",
-      in: "50",
-      out: "6",
-      visitor: "30",
-    },
-  ];
+    // 가입 데이터 추가
+    signupData.forEach((item) => {
+      dataMap.set(item.CHART_DATE, {
+        date: item.CHART_DATE,
+        signupCount: item.SIGNUPCOUNT || 0,
+        withdrawCount: 0,
+        stockCount: 0,
+      });
+    });
+
+    // 탈퇴 데이터 추가
+    withdrawData.forEach((item) => {
+      if (dataMap.has(item.CHART_DATE)) {
+        dataMap.get(item.CHART_DATE).withdrawCount = item.WITHDRAWCOUNT || 0;
+      } else {
+        dataMap.set(item.CHART_DATE, {
+          date: item.CHART_DATE,
+          signupCount: 0,
+          withdrawCount: item.WITHDRAWCOUNT || 0,
+          stockCount: 0,
+        });
+      }
+    });
+
+    // 분양 데이터 추가
+    stockData.forEach((item) => {
+      if (dataMap.has(item.CHART_DATE)) {
+        dataMap.get(item.CHART_DATE).stockCount = item.STOCKCOUNT || 0;
+      } else {
+        dataMap.set(item.CHART_DATE, {
+          date: item.CHART_DATE,
+          signupCount: 0,
+          withdrawCount: 0,
+          stockCount: item.STOCKCOUNT || 0,
+        });
+      }
+    });
+
+    // Map을 배열로 변환하고 날짜순 정렬
+    return Array.from(dataMap.values()).sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
+  };
+
+  // API 호출 함수
+  const fetchChartData = async () => {
+    let loadingToastId;
+    try {
+      // 데이터 로딩 시작 toast (자동 닫힘)
+      loadingToastId = toast.info(
+        <div>
+          <div className="toast-info-body">차트 데이터를 불러오는 중...</div>
+        </div>,
+        { autoClose: false }
+      );
+
+      const [signupResponse, withdrawResponse, stockResponse] =
+        await Promise.all([
+          axiosAPI.get("member/signupChart"),
+          axiosAPI.get("member/withdrawChart"),
+          axiosAPI.get("stock/stockChart"),
+        ]);
+
+      const mergedData = mergeChartData(
+        signupResponse.data || [],
+        withdrawResponse.data || [],
+        stockResponse.data || []
+      );
+
+      setChartData(mergedData);
+
+      // 로딩 토스트 닫기
+      toast.dismiss(loadingToastId);
+
+      // 데이터 로딩 성공 toast
+      toast.success(
+        <div>
+          <div className="toast-success-title">데이터 로딩 완료!</div>
+          <div className="toast-success-body">
+            회원 가입/탈퇴 및 분양정보 차트 데이터를 성공적으로 불러왔습니다.
+          </div>
+        </div>,
+        { autoClose: 3000 }
+      );
+    } catch (err) {
+      console.error("차트 데이터 로딩 에러:", err);
+      setError(err.message || "데이터 로드 중 오류가 발생했습니다.");
+
+      // 로딩 토스트 닫기
+      if (loadingToastId) {
+        toast.dismiss(loadingToastId);
+      }
+    }
+  };
+
+  // 데이터 새로고침 함수
+  const handleRefresh = async () => {
+    setError(null);
+    setChartData([]);
+
+    const refreshToastId = toast.warning(
+      <div>
+        <div className="toast-warning-body">
+          차트 데이터를 다시 불러옵니다...
+        </div>
+      </div>,
+      { autoClose: false }
+    );
+
+    try {
+      await fetchChartData();
+      toast.dismiss(refreshToastId);
+    } catch (err) {
+      toast.dismiss(refreshToastId);
+    }
+  };
+
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        await fetchChartData();
+      } catch (err) {
+        setError(err.message || "데이터 로드 중 오류가 발생했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", padding: "20px" }}>
+        <h2>데이터 로딩 중...</h2>
+        <p>회원 가입/탈퇴 및 분양정보 차트를 준비하고 있습니다.</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ textAlign: "center", padding: "20px" }}>
+        <h2>오류가 발생했습니다</h2>
+        <p>{error}</p>
+        <button
+          onClick={handleRefresh}
+          style={{
+            padding: "10px 20px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          다시 불러오기
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
-      <h2>Zipinfo 회원 유입/이탈 추이</h2>
-      {/* 높이의 경우 100%라고 문자열로 쓰면 화면에 렌더링 불가 */}
-      <ResponsiveContainer width="100%" height={500}>
-        <AreaChart
-          data={data}
-          margin={{
-            top: 10,
-            right: 30,
-            left: 0,
-            bottom: 0,
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+        }}
+      >
+        <h2>Zipinfo 회원 가입/탈퇴 및 분양정보 추이</h2>
+        <button
+          className="nb-searcbar-refresh-btn"
+          onClick={handleRefresh}
+          style={{
+            padding: "8px",
+            backgroundColor: "transparent",
+            border: "1px solid #dee2e6",
+            borderRadius: "4px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
-          {/* x축의 기준이 되고 싶은 키 dataKey=date */}
-          <YAxis domain={[0, 100]} />
-          <Tooltip />
-          <Area
-            type="monotone"
-            dataKey="in"
-            stackId="1"
-            stroke="#8884d8"
-            fill="#8884d8"
+          <img
+            src={refresh}
+            alt="새로고침"
+            style={{ width: "20px", height: "20px" }}
           />
-          <Area
-            type="monotone"
-            dataKey="out"
-            stackId="1"
-            stroke="#82ca9d"
-            fill="#82ca9d"
-          />
-          <Area
-            type="monotone"
-            dataKey="visitor"
-            stackId="1"
-            stroke="#ffc658"
-            fill="#ffc658"
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+        </button>
+      </div>
+
+      {/* 데이터가 없을 때 메시지 */}
+      {chartData.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "40px" }}>
+          <p>표시할 데이터가 없습니다.</p>
+          <button
+            onClick={handleRefresh}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: "#28a745",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            데이터 다시 불러오기
+          </button>
+        </div>
+      ) : (
+        /* 차트 렌더링 */
+        <ResponsiveContainer width="100%" height={500}>
+          <AreaChart
+            data={chartData}
+            margin={{
+              top: 20,
+              right: 30,
+              left: 20,
+              bottom: 20,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis dataKey="date" stroke="#888" fontSize={12} />
+            <YAxis domain={[0, 20]} stroke="#888" fontSize={12} />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+              }}
+            />
+            <Area
+              type="monotone"
+              dataKey="signupCount"
+              stroke="#4ecdc4"
+              fill="url(#signupGradient)"
+              fillOpacity={1}
+              strokeWidth={2}
+              name="가입회원"
+            />
+            <Area
+              type="monotone"
+              dataKey="withdrawCount"
+              stroke="#ff6b6b"
+              fill="url(#withdrawGradient)"
+              fillOpacity={1}
+              strokeWidth={2}
+              name="탈퇴회원"
+            />
+            <Area
+              type="monotone"
+              dataKey="stockCount"
+              stroke="#ffa726"
+              fill="url(#stockGradient)"
+              fillOpacity={1}
+              strokeWidth={2}
+              name="분양등록"
+            />
+            {/* 그라데이션 정의 */}
+            <defs>
+              <linearGradient id="signupGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#4ecdc4" stopOpacity={0.8} />
+                <stop offset="100%" stopColor="#4ecdc4" stopOpacity={0.1} />
+              </linearGradient>
+              <linearGradient id="withdrawGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#ff6b6b" stopOpacity={0.8} />
+                <stop offset="100%" stopColor="#ff6b6b" stopOpacity={0.1} />
+              </linearGradient>
+              <linearGradient id="stockGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#ffa726" stopOpacity={0.8} />
+                <stop offset="100%" stopColor="#ffa726" stopOpacity={0.1} />
+              </linearGradient>
+            </defs>
+          </AreaChart>
+        </ResponsiveContainer>
+      )}
     </>
   );
 }
