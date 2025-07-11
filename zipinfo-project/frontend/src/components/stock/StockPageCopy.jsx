@@ -8,6 +8,7 @@ import { useStockContext } from "./StockContext";
 import InfraMark from "./infraMark";
 import { Bookmark } from "lucide-react";
 import { MemberContext } from "../member/MemberContext";
+import { useParams } from "react-router-dom";
 
 const StockPageCopy = () => {
   const {
