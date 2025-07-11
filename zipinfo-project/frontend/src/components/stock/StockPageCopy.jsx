@@ -222,6 +222,7 @@ const StockPageCopy = () => {
     fetchData();
   }, [searchKeyWord, searchLocationCode, searchStockForm, searchStockType]);
   /*********************Kakao map 로드 & 초기화***************************/
+
   useEffect(() => {
     // 카카오 지도 API가 로드되었는지 확인
     if (window.kakao && window.kakao.maps) {

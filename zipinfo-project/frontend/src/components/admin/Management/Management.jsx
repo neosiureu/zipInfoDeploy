@@ -120,6 +120,7 @@ const Management = () => {
     <div className="management-container">
       <div className="management-header">
         <h2 className="management-title">관리자 페이지</h2>
+
       </div>
 
       <div className="management-admin-box">
@@ -131,6 +132,7 @@ const Management = () => {
           접속 ID : <span className="management-admin-id">{adminId}</span>
         </p>
       </div>
+
       <div className="tab-menu">
         <button
           className={`tab-button ${activeTab === "members" ? "active" : ""}`}

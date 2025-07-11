@@ -1,12 +1,22 @@
 package com.zipinfo.project.common.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.zipinfo.project.common.interceptor.JwtInterceptor;
+
+import lombok.RequiredArgsConstructor;
+
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
+	
+	@Autowired
+    private JwtInterceptor jwtAuthInterceptor;
 
 	// CORS 설정
 	@Override
@@ -44,5 +54,12 @@ public class WebConfig implements WebMvcConfigurer {
 		// 문의 파일
 		registry.addResourceHandler("/message/messageFile/**").addResourceLocations("file:///C:/uploadFiles/message/");
 	}
+	
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(jwtAuthInterceptor)
+                .addPathPatterns("/myPage/**", "/api/**", "/admin/**", "/", "/board/neighborhoodList*", "/editBoard")
+                .excludePathPatterns("/myPage/searchResult");
+    }
 
 }

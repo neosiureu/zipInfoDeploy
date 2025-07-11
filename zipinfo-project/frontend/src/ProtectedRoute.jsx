@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { MemberContext } from "./components/member/MemberContext";
+import { toast } from "react-toastify";
 
 const ProtectedRoute = ({ children }) => {
   const { member } = useContext(MemberContext);
@@ -8,10 +9,14 @@ const ProtectedRoute = ({ children }) => {
   const alerted = useRef(false); // Stric Mode에서 alert창이 두번 떠서 어쩔수 없이 이걸 써야 함. 한번 실행되었는지 일종의 플래그를 설정하는 것
 
   useEffect(() => {
-
     if (!member && !alerted.current) {
       alerted.current = true; // 플래그 설정
-      alert("로그인 후 이용해주세요");
+      toast.error(
+        <div>
+          <div className="toast-success-title">로그인 오류 알림!</div>
+          <div className="toast-success-body">로그인 후 이용해주세요.</div>
+        </div>
+      );
       navigate("/login", { replace: true });
     }
   }, [member, navigate]);

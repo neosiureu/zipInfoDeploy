@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "../../css/admin/Advertisement.css";
 import { toast } from "react-toastify";
+import { axiosAPI } from "../../api/axiosApi";
 
 const Advertisement = () => {
   // 🔒 고정된 관리자 정보
@@ -19,7 +20,9 @@ const Advertisement = () => {
   // 컴포넌트 마운트 시 서버에서 광고 리스트 불러오기
   const fetchAds = async () => {
     try {
-      const resp = await axios.get("http://localhost:8080/advertisement/list");
+      const resp = await axiosAPI.get(
+        "http://localhost:8080/advertisement/list"
+      );
       // 서버에서 받아오는 데이터가 아래 형태라 가정
       // [{ id, imageUrl, author, isMain }, ...]
       setAds(resp.data);
@@ -72,7 +75,7 @@ const Advertisement = () => {
       formData.append("file", selectedFile);
 
       // 서버에 이미지 파일 전송, 이미지 경로(String) 응답 받음
-      const response = await axios.post(
+      const response = await axiosAPI.post(
         "http://localhost:8080/advertisement/register",
         formData,
         { withCredentials: true }
@@ -102,7 +105,7 @@ const Advertisement = () => {
 
   // ✅ 광고 메인 등록/해제 토글
   const handleToggleMain = async (adNo) => {
-    const response = await axios.post(
+    const response = await axiosAPI.post(
       "http://localhost:8080/advertisement/updateMain",
       { adNo: parseInt(adNo) },
       { withCredentials: true }
@@ -113,7 +116,7 @@ const Advertisement = () => {
 
   // ✅ 광고 삭제 (클라이언트 상태에서만 삭제)
   const handleDelete = async (adNo) => {
-    const response = await axios.post(
+    const response = await axiosAPI.post(
       "http://localhost:8080/advertisement/delete",
       { adNo: parseInt(adNo) },
       { withCredentials: true }

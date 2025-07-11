@@ -87,5 +87,8 @@ AND MEMBER_DEL_FL ='N' AND MEMBER_LOGIN = #{memberLogin} </select>
 UPDATE MEMBER SET MEMBER_PW = #{memberPw} WHERE MEMBER_EMAIL = #{memberEmail} AND MEMBER_LOGIN = #{memberLogin}
 </update>
 	
-
+<select id="getTokenNo">
+	SELECT TOKEN_INFO FROM "TOKEN_INFO"
+	WHERE MEMBER_NO = #{memberNo}
+</select>
 </mapper>

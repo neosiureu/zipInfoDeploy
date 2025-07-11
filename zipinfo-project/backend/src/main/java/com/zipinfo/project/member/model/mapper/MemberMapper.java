@@ -31,6 +31,8 @@ public interface MemberMapper {
 	int setTokenInfo(@Param("memberNo") int memberNo,
             @Param("token") String token);
 
+	String getTokenNo(int memberNo);
+
 
 
 	
