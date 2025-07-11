@@ -51,6 +51,9 @@ const StockPageCopy = () => {
     isInfraCategoryVisibleRef, // InfraMark.jsx에서 StockContext로 옮김
   } = useStockContext();
 
+  const { stockNo } = useParams(); // 매물번호를 주소에서 받아옴(/stock/:stockNo)
+
+  // 매물번호 주소기능 구현중
   /*******************마커 겹침 처리기능 관련 변수***************** */
   // ⚙️ 격자 셀의 크기를 설정 (화면 픽셀 기준)
   // 마커가 겹친다고 판단할 최소 거리보다 약간 큰 값이 좋습니다.
@@ -824,7 +827,13 @@ const StockPageCopy = () => {
       </section>
     );
   };
+  /************주소의 stock/:stockNo에 따라 detail창 보여주지 말지 결정. */
+  /*useEffect(() => {
+    console.log("stockNo : ", stockNo);
 
+    setClickedStockItem(stockNo);
+    if (stockNo) setIsAsideVisible(true);
+  }, [stockNo]);*/
   /******************매물 List 초기화***************** **/
   /*
   const [stockItems, setStockItems] = useState(null);
