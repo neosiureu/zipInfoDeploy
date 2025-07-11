@@ -4,7 +4,7 @@ import "../../css/sale/salePage.css";
 import SearchBar from "../common/SearchBar";
 import warning from "../../assets/circle_warning.svg";
 
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useSaleContext } from "./SaleContext"; // Context 사용
 
 const SalePage = () => {
@@ -35,6 +35,8 @@ const SalePage = () => {
   } = useSaleContext();
 
   const { saleStockNo } = useParams();
+
+  const [searchParamsLocal] = useSearchParams(); // 쿼리스트링 가져오기
 
   // 분양가 표기 함수
   const formatPrice = (price) => {
@@ -214,15 +216,18 @@ const SalePage = () => {
           setIsAsideVisible(true);
 
           const map = mapInstanceRef.current;
-          if (map && res.data.lat && res.data.lng) {
-            const offsetLng = -0.07;
+          const shouldFocus = searchParamsLocal.get("focus") === "true";
+
+          if (shouldFocus && map && res.data.lat && res.data.lng) {
+            const offsetLng = -0.07; // 기존 지도 이동 기준
             const movedLatLng = new window.kakao.maps.LatLng(
               res.data.lat,
               res.data.lng + offsetLng
             );
-            map.panTo(movedLatLng);
-            updateMarker([res.data]);
+            map.panTo(movedLatLng); // 해당 매물 위치로 이동
           }
+
+          updateMarker(stockList); // 전체 마커 다시 그림
         }
       } catch (e) {
         console.error("상세 매물 조회 실패:", e);
@@ -230,7 +235,7 @@ const SalePage = () => {
     };
 
     if (saleStockNo) fetchDetail();
-  }, [saleStockNo]);
+  }, [saleStockNo, stockList]);
 
   useEffect(() => {
     updateMarker();
@@ -259,7 +264,9 @@ const SalePage = () => {
       div.addEventListener("click", () => {
         setClickedStockItem(item);
         setIsAsideVisible(true);
-        navigate(`/sale/${item.saleStockNo}`);
+        navigate(`/sale/${item.saleStockNo}`, {
+          state: { lat: item.lat, lng: item.lng },
+        });
       });
 
       const overlay = new window.kakao.maps.CustomOverlay({
@@ -275,7 +282,9 @@ const SalePage = () => {
   const handleItemClick = (item) => {
     setIsAsideVisible(true);
     setClickedStockItem(item);
-    navigate(`/sale/${item.saleStockNo}`);
+    navigate(`/sale/${item.saleStockNo}`, {
+      state: { lat: item.lat, lng: item.lng },
+    });
   };
 
   const closeDetail = () => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Shield, User, Trash2, UserPlus, FileX, Crown } from "lucide-react"; // 🔄 Crown 아이콘 추가
 import "../../../css/admin/Management/Management.css";
+import { Link } from "react-router-dom";
 
 import MemberList from "./MemberList";
 import DeletedMembers from "./DeletedMembers";
@@ -19,6 +20,11 @@ const Management = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const [adminName, setAdminName] = useState("");
+  const [adminId, setAdminId] = useState("");
+
+  // 응답 데이터가 배열인지 확인하고 없으면 빈 배열로 처리하는 헬퍼
 
   const handleResponse = (res, setDataFunc, errorMessage) => {
     console.log("[handleResponse] 응답 데이터:", res);
@@ -113,10 +119,17 @@ const Management = () => {
   return (
     <div className="management-container">
       <div className="management-header">
-        <h2>
-          <Shield className="header-icon" />
-          관리자 페이지
-        </h2>
+        <h2 className="management-title">관리자 페이지</h2>
+      </div>
+
+      <div className="management-admin-box">
+        <p>
+          현재 <span className="management-admin-name">{adminName}</span> 으로
+          접속중입니다.
+        </p>
+        <p>
+          접속 ID : <span className="management-admin-id">{adminId}</span>
+        </p>
       </div>
       <div className="tab-menu">
         <button
