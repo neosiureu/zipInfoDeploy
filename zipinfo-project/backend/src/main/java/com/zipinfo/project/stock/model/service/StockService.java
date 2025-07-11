@@ -18,6 +18,8 @@ public interface StockService {
 	CoordsStatInfo getCoordsFromStock(
 			SearchRequest sr);
 	List<Stock> selectAnyFour();
+
+	List<Map<String, Object>> stockChart();
 	
 	
 	

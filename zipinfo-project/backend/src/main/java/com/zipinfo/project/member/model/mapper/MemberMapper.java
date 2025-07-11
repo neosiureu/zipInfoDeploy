@@ -1,5 +1,8 @@
 package com.zipinfo.project.member.model.mapper;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +35,10 @@ public interface MemberMapper {
             @Param("token") String token);
 
 	String getTokenNo(int memberNo);
+
+	List<Map<String, Object>> signupChart();
+
+	List<Map<String, Object>> withdrawChart();
 
 
 

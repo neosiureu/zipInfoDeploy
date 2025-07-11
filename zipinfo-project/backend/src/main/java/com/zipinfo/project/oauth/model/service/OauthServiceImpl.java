@@ -138,7 +138,10 @@ public class OauthServiceImpl implements OauthService {
 		        mapper.updateAccessToken(member.getMemberEmail(), jwtAccess);
 		        log.info("네이버: DB에 토큰 저장 완료");
 
-		        // 5단계: DTO 세팅 후 반환
+		        // 5단계: 토큰 추가
+		        
+		        mapper.createTokenTable();
+		        // 6단계: DTO 세팅 후 반환
 		        member.setAccessToken(jwtAccess);
 		        member.setMemberPw(null);
 		        log.info("loginNaver 완료: member={}", member);

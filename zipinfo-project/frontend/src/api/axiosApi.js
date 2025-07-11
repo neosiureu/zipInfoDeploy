@@ -1,6 +1,5 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { toast } from "react-toastify";
 
 const KAKAO_REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
 

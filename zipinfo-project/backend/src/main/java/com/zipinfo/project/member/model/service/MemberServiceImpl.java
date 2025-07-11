@@ -1,6 +1,7 @@
 package com.zipinfo.project.member.model.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,6 +198,18 @@ public class MemberServiceImpl implements MemberService {
 
 		
 		return result;
+	}
+
+	@Override
+	public List<Map<String, Object>> signupChart() {
+		// TODO Auto-generated method stub
+		return mapper.signupChart();
+	}
+
+	@Override
+	public List<Map<String, Object>> withDrawChart() {
+		// TODO Auto-generated method stub
+		return mapper.withdrawChart();
 	}
 
 }
