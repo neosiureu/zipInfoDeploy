@@ -2,6 +2,7 @@ package com.zipinfo.project.admin.controller;
 
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.admin.model.dto.BrokerApplicationDTO;
+import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
 import com.zipinfo.project.admin.model.service.ManagementService;
 
 import org.springframework.http.HttpStatus;
@@ -140,5 +141,57 @@ public class ManagementController {
         return ResponseEntity.badRequest().body("회원 복원 실패");
     }
 
+    /**
+     * 삭제된 게시글 목록 조회
+     * GET /admin/management/boards/deleted
+     */
+    @GetMapping("/boards/deleted")
+    public ResponseEntity<List<Neighborhood>> getDeletedBoards() {
+        List<Neighborhood> deletedBoards = managementService.getDeletedBoards();
+        return ResponseEntity.ok(deletedBoards);
+    }
 
+    /**
+     * 삭제된 게시글 복구
+     * PUT /admin/management/boards/{boardNo}/restore
+     * @param boardNo 게시글 번호
+     */
+    @PutMapping("/boards/{boardNo}/restore")
+    public ResponseEntity<String> restoreBoard(@PathVariable("boardNo") Long boardNo) {
+        int result = managementService.restoreBoard(boardNo);
+        if (result > 0) {
+            return ResponseEntity.ok("게시글이 복구되었습니다.");
+        }
+        return ResponseEntity.badRequest().body("게시글 복구 실패");
+    }
+
+    /**
+     * 삭제된 게시글 상세 조회
+     * GET /admin/management/boards/{boardNo}/detail
+     * @param boardNo 게시글 번호
+     */
+    @GetMapping("/boards/{boardNo}/detail")
+    public ResponseEntity<Neighborhood> getDeletedBoardDetail(@PathVariable("boardNo") Long boardNo) {
+        Neighborhood board = managementService.getDeletedBoardDetail(boardNo);
+        if (board != null) {
+            return ResponseEntity.ok(board);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    /**
+     * 삭제된 게시글 영구 삭제
+     * DELETE /admin/management/boards/{boardNo}/permanent
+     * @param boardNo 게시글 번호
+     */
+    @DeleteMapping("/boards/{boardNo}/permanent")
+    public ResponseEntity<String> permanentlyDeleteBoard(@PathVariable("boardNo") Long boardNo) {
+        int result = managementService.permanentlyDeleteBoard(boardNo);
+        if (result > 0) {
+            return ResponseEntity.ok("게시글이 영구적으로 삭제되었습니다.");
+        }
+        return ResponseEntity.badRequest().body("게시글 영구 삭제 실패");
+    }
+
+    
 }

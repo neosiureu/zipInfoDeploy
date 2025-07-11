@@ -2,6 +2,7 @@ package com.zipinfo.project.admin.model.service;
 
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.admin.model.dto.BrokerApplicationDTO;
+import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
 
 import java.util.List;
 
@@ -84,4 +85,31 @@ public interface ManagementService {
      * @return 복원 결과 (1 이상 성공)
      */
     int restoreMember(Long memberNo);
+
+    /**
+     * 삭제된 게시글 목록 조회
+     * @return 삭제된 게시글 리스트
+     */
+    List<Neighborhood> getDeletedBoards();
+
+    /**
+     * 삭제된 게시글 복구 처리
+     * @param boardNo 게시글 번호
+     * @return 복구 성공 건수 (1 이상 성공)
+     */
+    int restoreBoard(Long boardNo);
+
+    /**
+     * 삭제된 게시글 상세 조회
+     * @param boardNo 게시글 번호
+     * @return 삭제된 게시글 상세 정보
+     */
+    Neighborhood getDeletedBoardDetail(Long boardNo);
+
+    /**
+     * 삭제된 게시글 영구 삭제 처리
+     * @param boardNo 게시글 번호
+     * @return 삭제 성공 건수 (1 이상 성공)
+     */
+    int permanentlyDeleteBoard(Long boardNo);
 }

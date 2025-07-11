@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import com.zipinfo.project.editneighborhood.model.service.EditneighborhoodService;
@@ -45,23 +46,25 @@ public class EditNeighborhoodController {
 	 * @throws Exception
 	 */
 	@PostMapping("")
-	public int boardInsert(@RequestBody Neighborhood inputBoard, @AuthenticationPrincipal Member loginMember)
-			throws Exception {
+	public ResponseEntity<?> boardInsert(@RequestBody Neighborhood inputBoard, @AuthenticationPrincipal Member loginMember)
+	        throws Exception {
 
-		int boardCode = 1;
-		inputBoard.setBoardCode(boardCode);
-		inputBoard.setMemberNo(loginMember.getMemberNo());
+	    int boardCode = 1;
+	    inputBoard.setBoardCode(boardCode);
+	    inputBoard.setMemberNo(loginMember.getMemberNo());
 
-		// 이미지 처리: Base64 => 파일 저장 => URL 변경
-		String processedContent = editneighborhoodService.processImagesInContent(inputBoard.getBoardContent());
-		inputBoard.setBoardContent(processedContent);
+	    try {
+	        // 이미지 처리 (길이 체크 포함)
+	        String processedContent = editneighborhoodService.processImagesInContent(inputBoard.getBoardContent());
+	        inputBoard.setBoardContent(processedContent);
 
-		System.out.println("서버에서 받은 우리동네게시판 보드는: " + inputBoard);
+	        int boardNo = editneighborhoodService.boardInsert(inputBoard);
+	        log.info("삽입할 보드 넘버" + boardNo);
 
-		int boardNo = editneighborhoodService.boardInsert(inputBoard);
-		log.info("삽입할 보드 넘버" + boardNo);
-
-		return boardNo;
+	        return ResponseEntity.ok(boardNo);
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.badRequest().body(e.getMessage());
+	    }
 	}
 
 	/** 이주원
@@ -98,27 +101,26 @@ public class EditNeighborhoodController {
 	 * @param loginMember : 로그인한 회원 번호를 얻어오는 용도(세션에 등록되어있음)
 	 * @throws Exception
 	 */
-	@PutMapping("")
-	public int boardUpdate(@RequestBody Neighborhood inputBoard, @AuthenticationPrincipal Member loginMember)
-			throws Exception {
 
-		int boardCode = 1;
-		inputBoard.setBoardCode(boardCode);
-		inputBoard.setMemberNo(loginMember.getMemberNo());
+	@PutMapping("")  
+	public ResponseEntity<?> boardUpdate(@RequestBody Neighborhood inputBoard, @AuthenticationPrincipal Member loginMember)
+	        throws Exception {
 
-		// 이미지 처리: Base64 => 파일 저장 => URL 변경
-		String processedContent = editneighborhoodService.processImagesInContent(inputBoard.getBoardContent());
-		inputBoard.setBoardContent(processedContent);
+	    int boardCode = 1;
+	    inputBoard.setBoardCode(boardCode);
+	    inputBoard.setMemberNo(loginMember.getMemberNo());
 
-		log.debug("서버에서 받은 수정해야 할 우리동네게시판 보드는: " + inputBoard);
+	    try {
+	        // 이미지 처리 (길이 체크 포함)
+	        String processedContent = editneighborhoodService.processImagesInContent(inputBoard.getBoardContent());
+	        inputBoard.setBoardContent(processedContent);
 
-		int boardNo = editneighborhoodService.boardUpdate(inputBoard);
-//		log.info("수정의 결과" + boardNo);
-
-		return boardNo;
+	        int boardNo = editneighborhoodService.boardUpdate(inputBoard);
+	        return ResponseEntity.ok(boardNo);
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.badRequest().body(e.getMessage());
+	    }
 	}
-	
-
 	@PostMapping("/uploadImage")
 	@ResponseBody
 	public String uploadImage(@RequestParam("image") MultipartFile image) throws Exception {

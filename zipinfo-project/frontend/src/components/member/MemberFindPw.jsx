@@ -124,7 +124,15 @@ export default function MemberFindPw() {
       updateEmailCheckObj("memberEmail", false);
       return;
     }
-
+    if (inputEmail.length > 50) {
+      updateEmailMessage(
+        "emailMessage",
+        "이메일은 50자 이내로 입력해주세요.",
+        "error"
+      );
+      updateEmailCheckObj("memberEmail", false);
+      return;
+    }
     // 정규식 검사
     const regExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -174,6 +182,15 @@ export default function MemberFindPw() {
         "pwMessage",
         "영어,숫자,특수문자(!,@,#,-,_) 6~20글자 사이로 입력해주세요.",
         ""
+      );
+      updatePasswordCheckObj("memberPw", false);
+      return;
+    }
+    if (inputPw.length < 6 || inputPw.length > 20) {
+      updatePasswordMessage(
+        "pwMessage",
+        "비밀번호는 6~20자 사이로 입력해주세요.",
+        "error"
       );
       updatePasswordCheckObj("memberPw", false);
       return;
@@ -527,6 +544,7 @@ export default function MemberFindPw() {
               value={emailFormData.memberEmail}
               onChange={handleEmailInputChange}
               placeholder="가입하신 이메일을 입력해주세요"
+              maxLength={50} 
               className="find-pw-form-input"
               required
             />
@@ -618,6 +636,7 @@ export default function MemberFindPw() {
             onChange={handlePasswordInputChange}
             placeholder="새 비밀번호를 입력해주세요"
             className="find-pw-form-input"
+            maxLength={20}
             required
           />
           <span
@@ -639,6 +658,7 @@ export default function MemberFindPw() {
             onChange={handlePasswordInputChange}
             placeholder="새 비밀번호를 다시 입력해주세요"
             className="find-pw-form-input"
+            maxLength={20}
             required
           />
           <span
