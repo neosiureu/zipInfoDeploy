@@ -37,6 +37,7 @@ const SalePage = () => {
   const { saleStockNo } = useParams();
 
   const [searchParamsLocal] = useSearchParams(); // 쿼리스트링 가져오기
+  const [shouldFocus, setShouldFocus] = useState(false);
 
   // 분양가 표기 함수
   const formatPrice = (price) => {
@@ -145,6 +146,23 @@ const SalePage = () => {
       const map = new window.kakao.maps.Map(container, options);
       mapInstanceRef.current = map;
 
+      // 사용자가 지도 이동 시 포커싱 해제
+      window.kakao.maps.event.addListener(map, "dragstart", () => {
+        setShouldFocus(false);
+
+        const params = new URLSearchParams(searchParams);
+        if (params.has("focus")) {
+          params.delete("focus");
+          navigate(
+            {
+              pathname: `/sale/${saleStockNo}`,
+              search: params.toString() ? `?${params.toString()}` : "",
+            },
+            { replace: true }
+          );
+        }
+      });
+
       // 지도 생성 직후 첫 API 호출
       const fetchInitialData = async () => {
         const bounds = map.getBounds();
@@ -204,37 +222,68 @@ const SalePage = () => {
     }
   }, [searchParams]);
 
-  // 4. URL에 매물 번호가 있을 경우 상세 정보 표시
+  useEffect(() => {
+    const focusParam = searchParamsLocal.get("focus");
+    if (focusParam === "true") {
+      setShouldFocus(true);
+    }
+  }, [searchParamsLocal]);
+
+  // 4. URL에 매물 번호(saleStockNo)가 있을 경우 상세 정보 조회 및 포커싱 처리
   useEffect(() => {
     const fetchDetail = async () => {
       try {
         const res = await axiosAPI.get("/sale/detail", {
           params: { saleStockNo },
         });
+
         if (res.status === 200) {
-          setClickedStockItem(res.data);
-          setIsAsideVisible(true);
+          setClickedStockItem(res.data); // 상세 정보 상태 저장
+          setIsAsideVisible(true); // 상세 패널 열기
 
           const map = mapInstanceRef.current;
-          const shouldFocus = searchParamsLocal.get("focus") === "true";
+          const focusParam = searchParamsLocal.get("focus");
 
-          if (shouldFocus && map && res.data.lat && res.data.lng) {
-            const offsetLng = -0.07; // 기존 지도 이동 기준
-            const movedLatLng = new window.kakao.maps.LatLng(
+          // 포커싱 조건: 쿼리스트링에 focus=true & shouldFocus가 true & 지도/좌표가 유효할 경우
+          if (
+            focusParam === "true" &&
+            shouldFocus &&
+            map &&
+            res.data.lat &&
+            res.data.lng
+          ) {
+            const projection = map.getProjection();
+            const markerLatLng = new window.kakao.maps.LatLng(
               res.data.lat,
-              res.data.lng + offsetLng
+              res.data.lng
             );
-            map.panTo(movedLatLng); // 해당 매물 위치로 이동
+
+            // ⬇️ 화면 기준 지도 영역 중심을 계산하기 위한 보정 로직
+            const totalWidth = window.innerWidth;
+            const sidePanelWidth = 460; // 좌우 사이드 패널 너비
+            const mapWidth = totalWidth - sidePanelWidth * 2;
+            const mapCenterX = sidePanelWidth + mapWidth / 2;
+            const offsetX = mapCenterX - totalWidth / 2;
+
+            const point = projection.pointFromCoords(markerLatLng);
+            point.x -= offsetX; // 마커를 지도 중앙으로 이동하도록 보정
+            const newCenter = projection.coordsFromPoint(point);
+
+            map.setCenter(newCenter); // 지도 중심 이동
+            map.setLevel(5); // 줌 레벨 설정
+
+            // UX 개선: setTimeout 제거 → 드래그 충돌 방지
+            // 기존에는 setTimeout으로 지연 후 다시 setCenter했으나, UX 충돌을 유발하여 제거함
           }
 
-          updateMarker(stockList); // 전체 마커 다시 그림
+          updateMarker(stockList); // 마커 재생성
         }
       } catch (e) {
         console.error("상세 매물 조회 실패:", e);
       }
     };
 
-    if (saleStockNo) fetchDetail();
+    if (saleStockNo) fetchDetail(); // 매물 번호 있을 경우만 실행
   }, [saleStockNo, stockList]);
 
   useEffect(() => {
@@ -282,7 +331,8 @@ const SalePage = () => {
   const handleItemClick = (item) => {
     setIsAsideVisible(true);
     setClickedStockItem(item);
-    navigate(`/sale/${item.saleStockNo}`, {
+    setShouldFocus(true);
+    navigate(`/sale/${item.saleStockNo}?focus=true`, {
       state: { lat: item.lat, lng: item.lng },
     });
   };
