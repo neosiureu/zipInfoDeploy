@@ -3,8 +3,7 @@ import { axiosAPI } from "../../api/axiosApi";
 import "../../css/stock/stockPage.css";
 import "../../css/stock/infraMark.css";
 import SearchBar from "../common/SearchBar";
-import warning from "../../assets/circle_warning.svg"; // 미검색 결과 아이콘
-import saleThumbnail from "../../assets/sale-page-thumbnail.svg"; // 썸네일 이미지 추가
+import deleteBtn from "../../assets/delete-icon.svg";
 import {
   useNavigate,
   useLocation,
@@ -95,11 +94,15 @@ const InfraMark = () => {
   //주변시설 유형 클릭시 실행하는 함수.
 
   useEffect(() => {
-    infraMarkersRef.current.forEach((marker) => marker.setMap(null)); // 이전에 itemMarkersRef에 저장해둔 markers 하나하나 취소
+    infraMarkersRef.current.forEach((marker) => {
+      marker.setMap(null);
+    }); // 이전에 itemMarkersRef에 저장해둔 markers 하나하나 취소
     infraMarkersRef.current = []; // infraMarkersRef 초기화
     console.log("infraMarkersRef:", infraMarkersRef.current);
-    if (clickedCategory === CategoryEnum.NONE || !isInfraCategoryVisible)
-      return; // 카테고리 선택이 없거나 주변시설 보기 버튼을 누르지 않았다면 여기서 중단
+    if (clickedCategory === CategoryEnum.NONE || !isInfraCategoryVisible) {
+      console.log("return executed");
+      return;
+    } // 카테고리 선택이 없거나 주변시설 보기 버튼을 누르지 않았다면 여기서 중단
     else {
       Object.entries(CATEGORY_CODE_MAP).forEach(([bit, code]) => {
         const selected = parseInt(bit, 10); // 문자열을 숫자로 변환
@@ -111,6 +114,7 @@ const InfraMark = () => {
         }
       });
       itemMarkersRef.current.map((itemMarker) => {
+        //
         itemMarker.setMap(mapInstanceRef.current);
       });
       //itemMarker.setMap(mapInstanceRef.current);
@@ -158,11 +162,12 @@ const InfraMark = () => {
         () => {
           infraMarkersRef.current.forEach((marker) => marker.setMap(null)); // 이전에 itemMarkersRef에 저장해둔 markers 하나하나 취소
           infraMarkersRef.current = []; // infraMarkersRef 초기화
-
+          console.log("idle Event 실행됨");
           if (
             clickedCategoryRef.current === CategoryEnum.NONE ||
             !isInfraCategoryVisibleRef.current
           ) {
+            console.log("return2 executed");
             return; // 카테고리 선택이 없거나 줌 레벨이 3 이상이면 모든 마커들을 지운다.
           } else {
             Object.entries(CATEGORY_CODE_MAP).forEach(([bit, code]) => {
@@ -186,18 +191,31 @@ const InfraMark = () => {
         () => {
           if (mapInstanceRef.current.getLevel() < 5) {
             // 지도의 zoom 레벨이 1 또는 2일때 주변시설 표시기능 사용
-
+            console.log(
+              "isInfraCategoryVisible : true, getLevel: ",
+              mapInstanceRef.current.getLevel()
+            );
             setIsInfraCategoryVisible(true);
           } else {
-            console.log("getLevel: ", mapInstanceRef.current.getLevel);
-            infraMarkersRef.current.forEach((marker) => marker.setMap(null)); // 이전에 itemMarkersRef에 저장해둔 markers 하나하나 취소
-            infraMarkersRef.current = []; // infraMarkersRef 초기화
+            console.log(
+              "isInfraCategoryVisible : false, getLevel: ",
+              mapInstanceRef.current.getLevel()
+            );
+
             setIsInfraCategoryVisible(false); // 지도의 zoom 레벨이 3 이상일때 주변시설 표시기능 사용안함
           }
         }
       );
     }
   }, [mapReady]);
+  useEffect(() => {
+    if (isInfraCategoryVisible === true) {
+      return;
+    } else {
+      infraMarkersRef.current.forEach((marker) => marker.setMap(null)); // 이전에 itemMarkersRef에 저장해둔 markers 하나하나 취소
+      infraMarkersRef.current = []; // infraMarkersRef 초기화
+    }
+  }, [isInfraCategoryVisible]);
   const infraMarkersRef = useRef([]); //주변 편의시설 Marker개체를 저장하는 STATE함수
   //const infraIdCacheRef = useRef(new Set()); // 서버로부터 주변 편의시설 Marker개체의 고유 id를 저장해,캐싱하는(중복체크 포함) STATE함수
 
@@ -331,8 +349,7 @@ const InfraMark = () => {
             //onClick={() => onClickCategory("")}
             onClick={() => setClickedCategory(CategoryEnum.NONE)}
           >
-            <span className="category_bg none"></span>
-            선택 없음
+            <span className="none-text">선택 없음</span>
           </div>
           <div
             id="BK9"

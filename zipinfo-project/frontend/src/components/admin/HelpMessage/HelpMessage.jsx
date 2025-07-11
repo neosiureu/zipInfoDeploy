@@ -187,7 +187,9 @@ const HelpMessage = () => {
                 {msg.memberNickname || msg.senderNo}
               </div>
               <div>
-                {new Date(msg.messageWriteDate).toLocaleDateString("ko-KR")}
+                {msg.replyYn === "Y" && msg.replyDate
+                  ? new Date(msg.replyDate).toLocaleDateString("ko-KR")
+                  : new Date(msg.messageWriteDate).toLocaleDateString("ko-KR")}
               </div>
               <div>
                 <span className={getStatusBadge(msg.replyYn)}>

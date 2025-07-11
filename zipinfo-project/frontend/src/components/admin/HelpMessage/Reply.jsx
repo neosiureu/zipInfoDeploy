@@ -88,8 +88,16 @@ const Reply = () => {
         replyContent: reply,
         receiverNo: member.memberNo, // 로그인한 관리자 번호
       });
+
+      // 답변 등록 후 현재 날짜를 inquiry에 추가
+      const currentDate = new Date().toISOString();
+      setInquiry((prev) => ({
+        ...prev,
+        replyDate: currentDate,
+      }));
+
       toast.success("답변이 등록되었습니다.");
-      navigate("/admin/helpMessage");
+      // navigate("/admin/helpMessage"); // 페이지 이동 제거하여 답변일 확인 가능
     } catch (err) {
       console.error("답변 등록 오류:", err);
       toast.error("답변 등록 중 오류가 발생했습니다.");
@@ -163,17 +171,6 @@ const Reply = () => {
               maxLength={400} // 답변 제한
               rows={8}
             />
-          )}
-        </div>
-      </div>
-
-      <div className="form-box">
-        <div className="form-label-col">답변일</div>
-        <div className="form-content-col">
-          {inquiry.replyDate ? (
-            <span>{new Date(inquiry.replyDate).toLocaleString("ko-KR")}</span>
-          ) : (
-            <span>답변이 등록되지 않았습니다.</span>
           )}
         </div>
       </div>

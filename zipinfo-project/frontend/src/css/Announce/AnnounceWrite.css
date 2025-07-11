@@ -1,59 +1,121 @@
 .announce-write-container {
-  max-width: 1500px;
-  margin: 0 auto;
+  max-width: 1040px; /* 일반 게시판과 동일한 너비 */
+  margin: 0 auto; /* 중앙 정렬 */
   padding: 20px;
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px; /* 모서리 둥글기 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 그림자 */
+  box-sizing: border-box;
 }
 
-.announce-write-container h2 {
-  margin-bottom: 25px;
-  font-size: 28px;
-  font-weight: 700;
-  color: #222;
-  text-align: center;
+.announce-write-header {
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+  text-align: left; /* 헤더 전체를 왼쪽 정렬 */
+}
+
+.announce-write-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: left; /* 왼쪽 정렬로 변경 */
+}
+
+.announce-write-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 제목 입력 영역 */
+.title-input-container {
+  position: relative;
+  width: 100%;
 }
 
 .announce-write-title-input {
   width: 100%;
-  height: 50px;
-  padding: 0 18px;
-  font-size: 18px;
-  border: 2px solid #ddd;
+  height: 60px;
+  padding: 15px 20px;
+  font-size: 16px;
+  border: 2px solid #e1e5e9;
   border-radius: 8px;
   outline: none;
-  box-sizing: border-box;
   transition: border-color 0.3s ease;
-  margin-bottom: 25px;
-  position: relative;
-  padding-right: 80px; /* 글자수 표시 공간 확보 */
+  box-sizing: border-box;
+  resize: none;
 }
 
 .announce-write-title-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
 }
 
 .announce-write-title-input:disabled {
-  background-color: #f0f0f0;
+  background-color: #f5f5f5;
   color: #999;
   cursor: not-allowed;
 }
 
-/* 제목 글자수 표시 */
+.announce-write-title-input::placeholder {
+  color: #999;
+  font-size: 16px;
+}
+
 .title-char-count {
   position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
-  font-size: 0.75rem;
-  color: #6b7280;
-  font-weight: 500;
-  background-color: rgba(255, 255, 255, 0.9);
+  right: 15px;
+  bottom: 15px;
+  font-size: 12px;
+  color: #666;
+  background: #fff;
   padding: 2px 6px;
   border-radius: 4px;
-  pointer-events: none;
+}
+
+/* 에디터 영역 */
+.content-editor-container {
+  min-height: 400px;
+  position: relative; /* 글자수 카운터를 위해 추가 */
+}
+
+/* Summernote 커스터마이징 */
+.note-editor {
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.note-editor:focus-within {
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+}
+
+.note-toolbar {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e1e5e9;
+  padding: 10px;
+}
+
+.note-editing-area {
+  min-height: 300px;
+}
+
+.note-editable {
+  min-height: 300px;
+  padding: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.note-editable:empty:before {
+  content: "내용을 입력하세요...";
+  color: #999;
+  font-style: italic;
 }
 
 /* 내용 글자수 표시 */
@@ -61,28 +123,22 @@
   position: absolute;
   bottom: 8px;
   right: 12px;
-  font-size: 0.75rem;
-  color: #6b7280;
-  font-weight: 500;
-  background-color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  color: #666;
+  background: rgba(255, 255, 255, 0.9);
   padding: 2px 6px;
   border-radius: 4px;
   pointer-events: none;
   z-index: 10;
 }
 
-.announce-write-editor {
-  min-height: 350px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 30px;
-}
-
-.announce-write-editor .note-editor {
-  height: 100% !important;
-  border: none !important;
-  border-radius: 8px !important;
+/* 버튼 영역 */
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
 }
 
 .announce-write-submit-button {
@@ -94,18 +150,214 @@
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 100px;
-  color: #fff;
-  background-color: #3b82f6;
-  margin-left: auto;
-  display: block; /* inline이 기본이니까 block 또는 inline-block으로 */
+  background: #4285f4;
+  color: white;
 }
 
 .announce-write-submit-button:hover:not(:disabled) {
-  background-color: #2563eb;
+  background: #3367d6;
 }
 
 .announce-write-submit-button:disabled {
-  background-color: #a5b4fc;
+  opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* 로딩 상태 */
+.content-editor-container .note-editor.disabled {
   opacity: 0.7;
+  pointer-events: none;
+}
+
+/* 에디터 로딩 상태 스타일 */
+.editor-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  background: #f8f9fa;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* 일반 게시글 편집 스타일 (참고용) */
+.neighborhood-edit-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.neighborhood-edit-header {
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.neighborhood-edit-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.neighborhood-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 제목 입력 영역 */
+.title-input-container {
+  position: relative;
+}
+
+.title-input {
+  width: 100%;
+  height: 60px;
+  padding: 15px 20px;
+  font-size: 16px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  resize: none;
+}
+
+.title-input:focus {
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+}
+
+.title-input:disabled {
+  background-color: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.title-input::placeholder {
+  color: #999;
+  font-size: 16px;
+}
+
+.title-counter {
+  position: absolute;
+  right: 15px;
+  bottom: 15px;
+  font-size: 12px;
+  color: #666;
+  background: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* 에디터 영역 */
+.content-editor-container {
+  min-height: 400px;
+}
+
+/* Summernote 커스터마이징 */
+.note-editor {
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.note-editor:focus-within {
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+}
+
+.note-toolbar {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e1e5e9;
+  padding: 10px;
+}
+
+.note-editing-area {
+  min-height: 300px;
+}
+
+.note-editable {
+  min-height: 300px;
+  padding: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.note-editable:empty:before {
+  content: "내용을 입력하세요...";
+  color: #999;
+  font-style: italic;
+}
+
+/* 버튼 영역 */
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.cancel-button,
+.submit-button {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.cancel-button {
+  background: #f8f9fa;
+  color: #666;
+  border: 1px solid #e1e5e9;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background: #e9ecef;
+  border-color: #ced4da;
+}
+
+.submit-button {
+  background: #4285f4;
+  color: white;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #3367d6;
+}
+
+.cancel-button:disabled,
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 로딩 상태 */
+.content-editor-container .note-editor.disabled {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* 에디터 로딩 상태 스타일 */
+.editor-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  background: #f8f9fa;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  color: #666;
+  font-size: 14px;
 }

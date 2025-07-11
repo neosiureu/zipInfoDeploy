@@ -10,10 +10,17 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     try {
-      const storedUser = localStorage.getItem("loginMember");
+      const storedUser = localStorage.getItem("adminMember");
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
-        startLogoutTimer();
+        const userData = JSON.parse(storedUser);
+        // 관리자 권한 재확인
+        if (userData.memberAuth === 0 || userData.memberAuth === "0") {
+          setUser(userData);
+          startLogoutTimer();
+        } else {
+          localStorage.removeItem("adminMember");
+          setUser(null);
+        }
       }
     } catch {
       setUser(null);
@@ -25,7 +32,7 @@ export function AuthProvider({ children }) {
   const startLogoutTimer = () => {
     if (logoutTimer.current) clearTimeout(logoutTimer.current);
     logoutTimer.current = setTimeout(() => {
-      localStorage.removeItem("loginMember");
+      localStorage.removeItem("adminMember");
       setUser(null);
       toast.success(
         <div>
@@ -41,7 +48,7 @@ export function AuthProvider({ children }) {
 
   const handleLogin = async (email, password) => {
     try {
-      const response = await fetch("http://localhost:8080/member/login", {
+      const response = await fetch("http://localhost:8080/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -60,13 +67,19 @@ export function AuthProvider({ children }) {
 
       const loginUser = await response.json();
 
-      // if (loginUser.memberAuth !== 0 && loginUser.memberAuth !== "0") {
-      //   alert("관리자 권한이 없습니다.");
-      //   return false;
-      // }
+      // 관리자 권한 체크 (memberAuth가 0이어야 관리자)
+      if (loginUser.memberAuth !== 0 && loginUser.memberAuth !== "0") {
+        toast.error(
+          <div>
+            <div className="toast-error-title">권한 오류!</div>
+            <div className="toast-error-body">관리자 권한이 없습니다.</div>
+          </div>
+        );
+        return false;
+      }
 
       setUser(loginUser);
-      localStorage.setItem("loginMember", JSON.stringify(loginUser));
+      localStorage.setItem("adminMember", JSON.stringify(loginUser));
       startLogoutTimer();
       return true;
     } catch (error) {
@@ -90,7 +103,7 @@ export function AuthProvider({ children }) {
         credentials: "include",
       });
       if (response.ok) {
-        localStorage.removeItem("loginMember");
+        localStorage.removeItem("adminMember");
         setUser(null);
         if (logoutTimer.current) clearTimeout(logoutTimer.current);
         window.location.href = "/";

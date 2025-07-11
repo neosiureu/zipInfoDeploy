@@ -7,7 +7,7 @@ import { axiosAPI } from "../../api/axiosApi";
 const Advertisement = () => {
   // 🔒 고정된 관리자 정보
   const [adminName] = useState("관리자");
-  const [adminId] = useState("admin01");
+  const [adminId] = useState("user01");
 
   const fileInputRef = useRef(null);
 

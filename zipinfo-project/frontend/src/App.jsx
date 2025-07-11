@@ -388,7 +388,10 @@ function App() {
               />
 
               {/*매물페이지*/}
-              <Route path="stock/:stockNo" element={<StockProviderWrapper />} />
+              <Route
+                path="/stock/:stockNo"
+                element={<StockProviderWrapper />}
+              />
 
               {/* 분양페이지 */}
               <Route

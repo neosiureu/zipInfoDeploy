@@ -2,18 +2,8 @@ import { useContext, useEffect, useRef, useState } from "react"; // useRef 추�
 import { axiosAPI } from "../../api/axiosApi";
 import "../../css/stock/stockPage.css";
 import SearchBar from "../common/SearchBar";
-import floor from "../../assets/floor.svg"; // 평면도 이미지 추가
 import agent from "../../assets/agent-icon.svg"; // 중개사 아이콘
 import warning from "../../assets/circle_warning.svg"; // 미검색 결과 아이콘
-import saleThumbnail from "../../assets/sale-page-thumbnail.svg"; // 썸네일 이미지 추가
-import stockImgLeft from "../../assets/main-thumbnail-01.svg";
-import stockImgRight from "../../assets/main-thumbnail-02.svg";
-import {
-  useNavigate,
-  useLocation,
-  useSearchParams,
-  useParams,
-} from "react-router-dom";
 import { useStockContext } from "./StockContext";
 import InfraMark from "./infraMark";
 import { Bookmark } from "lucide-react";
@@ -51,6 +41,9 @@ const StockPageCopy = () => {
     isInfraCategoryVisibleRef, // InfraMark.jsx에서 StockContext로 옮김
   } = useStockContext();
 
+  const { stockNo } = useParams(); // 매물번호를 주소에서 받아옴(/stock/:stockNo)
+
+  // 매물번호 주소기능 구현중
   /*******************마커 겹침 처리기능 관련 변수***************** */
   // ⚙️ 격자 셀의 크기를 설정 (화면 픽셀 기준)
   // 마커가 겹친다고 판단할 최소 거리보다 약간 큰 값이 좋습니다.
@@ -599,7 +592,7 @@ const StockPageCopy = () => {
               <div className="stock-detail-desc">
                 {item.stockInfo}
                 <button
-                  style={{ margin: "0px 0px 0px 50px" }}
+                  className="stock-around-info-btn"
                   onClick={async () => {
                     var coord = new kakao.maps.LatLng(item.lat, item.lng);
                     await mapInstanceRef.current.setLevel(4); // 4레벨로 줌 후
@@ -825,7 +818,13 @@ const StockPageCopy = () => {
       </section>
     );
   };
+  /************주소의 stock/:stockNo에 따라 detail창 보여주지 말지 결정. */
+  /*useEffect(() => {
+    console.log("stockNo : ", stockNo);
 
+    setClickedStockItem(stockNo);
+    if (stockNo) setIsAsideVisible(true);
+  }, [stockNo]);*/
   /******************매물 List 초기화***************** **/
   /*
   const [stockItems, setStockItems] = useState(null);
