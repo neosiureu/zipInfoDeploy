@@ -20,7 +20,11 @@ public interface StockService {
 			SearchRequest sr);
 	List<Stock> selectAnyFour();
 
+
 	Stock selectStockDetail(int saleStockNo);
+
+	List<Map<String, Object>> stockChart();
+
 	
 	
 	

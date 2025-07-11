@@ -66,6 +66,9 @@ public class SecurityConfig {
             	    // 공지사항 삭제 (DELETE) 경로 수정 (detail 하위 경로 포함)
             	    .requestMatchers(HttpMethod.POST, "/api/announce/detail/**").hasRole("ADMIN")
             	    
+            	    // 관리자계정 생성
+            	    .requestMatchers(HttpMethod.POST, "/admin/createAdminAccount").hasRole("ADMIN")
+            	    
             	    // 조회는 모두 허용
             	    .requestMatchers(HttpMethod.GET, "/api/announce/**").permitAll()
             	    

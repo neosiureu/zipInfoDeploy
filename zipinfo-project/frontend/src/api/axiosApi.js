@@ -1,6 +1,5 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { toast } from "react-toastify";
 
 const KAKAO_REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
 
@@ -50,8 +49,8 @@ axiosAPI.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 || error.response?.status === 403) {
       window.dispatchEvent(new CustomEvent("forceLogout"));
+      toast.error("다른 PC의 로그인이 감지되어 로그아웃 되었습니다.");
     }
-    toast.error("다른 PC의 로그인이 감지되어 로그아웃 되었습니다.");
     return Promise.reject(error);
   }
 );

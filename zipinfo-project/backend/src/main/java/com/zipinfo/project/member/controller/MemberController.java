@@ -1,6 +1,7 @@
 package com.zipinfo.project.member.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -136,12 +137,18 @@ public class MemberController {
 
 		return ResponseEntity.ok(result);
 	}
+	
+	
+	
 
 	@GetMapping("/check-session")
 	public ResponseEntity<Boolean> checkSession(Authentication auth) {
 		return ResponseEntity.ok(auth != null && auth.isAuthenticated());
 	}
 
+	
+	
+	
 	@PostMapping("/setPw")
 	public ResponseEntity<Object> setPw(@RequestBody Member member) {
 		log.debug("멤버의 컨트롤러 도달 결과는" + member);
@@ -167,4 +174,33 @@ public class MemberController {
 		}
 	}
 
+	/** 이주원
+	 * 가입회원 차트 데이터 조회
+	 */
+	@GetMapping("/signupChart")
+	public ResponseEntity<List<Map<String, Object>>> signupChart() {
+		try {
+			List<Map<String, Object>> signupData = service.signupChart();
+			log.debug("회원가입 차트에서 가져온 내용"+signupData);
+			return ResponseEntity.ok(signupData);
+		} catch (Exception e) {
+			log.error("가입회원 차트 조회 오류", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
+
+	/** 이주원
+	 * 탈퇴회원 차트 데이터 조회  
+	 */
+	@GetMapping("/withdrawChart")
+	public ResponseEntity<List<Map<String, Object>>> withDrawChart() {
+		try {
+			List<Map<String, Object>> withdrawData = service.withDrawChart();
+			log.debug("탈퇴회원 차트에서 가져온 내용"+withdrawData);
+			return ResponseEntity.ok(withdrawData);
+		} catch (Exception e) {
+			log.error("탈퇴회원 차트 조회 오류", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
 }

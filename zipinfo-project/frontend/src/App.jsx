@@ -68,6 +68,8 @@ import { ToastContainer, toast } from "react-toastify";
 import TermsOfService from "./components/common/TermsOfService";
 import PrivacyPolicy from "./components/common/PrivacyPolicy";
 import CustomerService from "./components/common/CustomerService";
+import ScrollToTop from "./components/common/ScrollToTop";
+import { getLocationName } from "./components/common/getLocationName";
 
 function MessageListener() {
   const { setMember } = useContext(MemberContext);
@@ -88,18 +90,6 @@ function MessageListener() {
   }, [setMember, navigate]);
 
   return null;
-}
-
-export function getLocationName(code) {
-  const codeStr = String(code);
-  if (codeStr.length === 2) {
-    const city = CITY.find((c) => c.code === Number(code));
-    return city?.name || "알 수 없음";
-  } else if (codeStr.length === 5) {
-    const town = TOWN.find((t) => t.fullcode === String(code));
-    return town?.name || "알 수 없음";
-  }
-  return "유효하지 않은 코드";
 }
 
 function GlobalWebSocketListener() {
@@ -237,6 +227,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <MemberProvider>
           <MessageListener />
           <GlobalWebSocketListener />

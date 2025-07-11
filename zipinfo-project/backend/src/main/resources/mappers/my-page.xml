@@ -96,7 +96,7 @@
 	
 	<update id="withDraw">
 		UPDATE "MEMBER" SET
-		MEMBER_DEL_FL = 'Y'
+		MEMBER_DEL_FL = 'Y', MEMBER_WITHDRAW_DATE = SYSDATE
 		WHERE MEMBER_NO = #{memberNo}
 	</update>
 	

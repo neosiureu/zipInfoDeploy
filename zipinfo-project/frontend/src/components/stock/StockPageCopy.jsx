@@ -9,12 +9,16 @@ import InfraMark from "./infraMark";
 import { Bookmark } from "lucide-react";
 import { MemberContext } from "../member/MemberContext";
 import { useParams } from "react-router-dom";
+import { CITY, TOWN } from "../common/Gonggong";
 
 const StockPageCopy = () => {
   const {
     mapRef,
     mapInstanceRef,
     itemMarkersRef,
+    sigunguMarkersRef,
+    sidoMarkersRef,
+    currentModeRef,
     isAsideVisible,
     setIsAsideVisible,
     stockList,
@@ -44,6 +48,9 @@ const StockPageCopy = () => {
 
   const { stockNo } = useParams(); // 매물번호를 주소에서 받아옴(/stock/:stockNo)
 
+  const [sigunguClusters, setSigunguClusters] = useState([]);
+  const [sidoClusters, setSidoClusters] = useState([]);
+
   // 매물번호 주소기능 구현중
   /*******************마커 겹침 처리기능 관련 변수***************** */
   // ⚙️ 격자 셀의 크기를 설정 (화면 픽셀 기준)
@@ -53,6 +60,13 @@ const StockPageCopy = () => {
   // 📦 각 셀에 어떤 마커들이 들어있는지를 저장하는 해시맵
   // 키: "셀X,셀Y", 값: 그 셀에 속한 마커들의 정보 배열
   const cellMap = {};
+
+  //-------------------------------------------------------------- 줌 레벨에 따라 currentModeRef에 들어갈 값을 반환한다.
+  function calcMode(level) {
+    if (level >= 10) return "sido"; // 아주 멀리서 보면 시‧도 단위
+    if (level >= 7) return "sigungu"; // 중간 거리면 시군구 단위
+    return "item"; // 더 확대되면 개별 매물
+  }
 
   /*******************마커 겹침 처리기능 관련 함수***************** */
   // 📌 현재 마커의 화면 좌표가 속한 셀의 고유 키를 생성하는 함수
@@ -236,39 +250,34 @@ const StockPageCopy = () => {
       mapInstanceRef.current = map; // ✅ map 저장
       //화면을 움직였을떄 서버에 itemList를 요청하는 addListener
       window.kakao.maps.event.addListener(map, "idle", async () => {
-        // "bounds_changed는 마우스를 떼지 않아도 요청이 가기떄문에, 서버에 가는 요청의 개수가 너무 많음. "idle"을 쓰면 마우스가 떼어지면 요청을 보내게 수정함.
+        const level = map.getLevel();
+        const mode = calcMode(level);
+
         const bounds = map.getBounds();
         const sw = bounds.getSouthWest();
         const ne = bounds.getNorthEast();
 
-        console.log("현재 화면 범위:");
-        console.log("좌하단(SW):", sw.getLat(), sw.getLng());
-        console.log("우상단(NE):", ne.getLat(), ne.getLng());
-        try {
-          const resp = await axiosAPI.post("/stock/items", {
-            coords: {
-              swLat: sw.getLat(),
-              swLng: sw.getLng(),
-              neLat: ne.getLat(),
-              neLng: ne.getLng(),
-            },
-            searchKeyWord: searchKeyWordRef.current || "", //keyword ||
-            locationCode: locationCodeRef.current ?? -1, // -1 : 서버측에서 무시하는 value selectedLocation ||
-            stockType: searchStockFormRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedType ||
-            stockForm: searchStockTypeRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
-          });
-          console.log("locationCode:", locationCodeRef.current);
+        const { data } = await axiosAPI.post("/stock/items", {
+          coords: {
+            swLat: sw.getLat(),
+            swLng: sw.getLng(),
+            neLat: ne.getLat(),
+            neLng: ne.getLng(),
+          },
+          searchKeyWord: searchKeyWordRef.current || "",
+          locationCode: locationCodeRef.current ?? -1,
+          stockType: searchStockFormRef.current ?? -1,
+          stockForm: searchStockTypeRef.current ?? -1,
+        });
 
-          if (resp.status === 200) {
-            console.log(resp.data);
+        setStockList(data); // → 클러스터 useEffect 가 실행됨
 
-            setStockList(resp.data);
-            updateMarker();
-
-            // same code : 매물 좌표를 받아서 지도상에 마커로 매물 위치 추가
-          }
-        } catch (error) {
-          console.log("매물 items 조회 중 error 발생 : ", error);
+        if (mode !== currentModeRef.current) {
+          currentModeRef.current = mode;
+          renderByMode(mode); // 모드 전환
+        } else if (mode === "item") {
+          // 모드는 그대로인데 item 모드라면, 새 데이터를 바로 그려 줌
+          updateMarker(); // ★
         }
       });
 
@@ -284,11 +293,126 @@ const StockPageCopy = () => {
     getLikeStock();
   }, []);
 
+  function renderByMode(mode) {
+    // 일단 전부 지움
+    clearMarkers(itemMarkersRef);
+    clearMarkers(sigunguMarkersRef);
+    clearMarkers(sidoMarkersRef);
+
+    if (mode === "item") updateMarker(); // 기존 함수
+    else if (mode === "sigungu")
+      drawClusterMarkers(sigunguClusters, sigunguMarkersRef, "sigungu-cluster");
+    else if (mode === "sido")
+      drawClusterMarkers(sidoClusters, sidoMarkersRef, "sido-cluster");
+  }
+
   useEffect(() => {
-    updateMarker();
+    // （예시）시군구 코드 5자리 기준
+    const bySigungu = {};
+    const bySido = {};
+
+    stockList.forEach((s) => {
+      const sigungu = String(s.regionNo).padStart(5, "0"); // 12345
+      const sido = sigungu.slice(0, 2); // 12
+      if (!bySigungu[sigungu]) bySigungu[sigungu] = { cnt: 0, lat: 0, lng: 0 };
+      if (!bySido[sido]) bySido[sido] = { cnt: 0, lat: 0, lng: 0 };
+
+      bySigungu[sigungu].cnt++;
+      bySigungu[sigungu].lat += s.lat;
+      bySigungu[sigungu].lng += s.lng;
+      bySido[sido].cnt++;
+      bySido[sido].lat += s.lat;
+      bySido[sido].lng += s.lng;
+    });
+
+    // 평균 좌표 계산
+    const sigList = Object.entries(bySigungu).map(([code, v]) => ({
+      code,
+      cnt: v.cnt,
+      lat: v.lat / v.cnt,
+      lng: v.lng / v.cnt,
+    }));
+    const siList = Object.entries(bySido).map(([code, v]) => ({
+      code,
+      cnt: v.cnt,
+      lat: v.lat / v.cnt,
+      lng: v.lng / v.cnt,
+    }));
+
+    setSigunguClusters(sigList);
+    setSidoClusters(siList);
+    renderByMode(currentModeRef.current);
   }, [stockList]); // stockList(맨 왼쪽에 있는 매물 Item들을 저장하는 state변수), searchLocationCode(검색창SearchBox에서 선택한 지역을 저장하는 state변수)
   // updateMarker : 요청을 보낼때마다 지도에 표시되는 마커들을 새로 세팅하는 함수
+
+  function clearMarkers(list) {
+    list.current.forEach((m) => m.setMap(null));
+    list.current = [];
+  }
+
+  function getRegionName(code) {
+    if (code === undefined || code === null) return null;
+
+    const codeStr = String(code).trim();
+
+    // ---------- ① 시군구(5자리) ----------
+    if (codeStr.length === 5) {
+      const town = TOWN.find((t) => t.fullcode === codeStr);
+      if (!town) return null;
+
+      const city = CITY.find((c) => c.code === town.code);
+      if (!city) return town.name; // 시·도 못 찾으면 시군구명만
+
+      return `${town.name}`;
+    }
+
+    // ---------- ② 시·도(2자리) ----------
+    if (codeStr.length === 2) {
+      const num = Number(codeStr);
+      const city = CITY.find((c) => c.code === num);
+      return city ? city.name : null;
+    }
+
+    // ---------- ③ 지원하지 않는 코드 형식 ----------
+    return null;
+  }
+
+  function drawClusterMarkers(clusters, ref, className) {
+    const map = mapInstanceRef.current;
+    clearMarkers(ref);
+
+    clusters.forEach((c) => {
+      const pos = new kakao.maps.LatLng(c.lat, c.lng);
+      const el = document.createElement("div");
+
+      const content = `
+        <div class="big-custom-overlay" >
+          <div class="big-area">${getRegionName(c.code)}</div>
+        ${c.cnt}
+        </div>
+      `;
+
+      el.className = className; // CSS로 원형/숫자 배지 등 스타일
+      el.innerHTML = content;
+
+      el.addEventListener("click", () => {
+        // 한 단계 더 확대 + 중심 이동
+        map.setLevel(map.getLevel() - 2);
+        map.panTo(pos);
+      });
+
+      const ov = new kakao.maps.CustomOverlay({
+        position: pos,
+        content: el,
+        yAnchor: 0.5,
+      });
+      ov.setMap(map);
+      ref.current.push(ov);
+    });
+  }
+
   const updateMarker = () => {
+    if (currentModeRef.current !== "item") return;
     const map = mapInstanceRef.current;
     itemMarkersRef.current.forEach((marker) => marker.setMap(null)); // 이전에 itemMarkersRef에 저장해둔 markers 하나하나 취소
     itemMarkersRef.current = []; // itemMarkersRef 초기화
@@ -809,6 +933,7 @@ const StockPageCopy = () => {
         ) : (
           stockList?.map((item, index) => (
             <div
+              key={index}
               className="stock-item-list"
               onClick={() => handleItemClick(item, index)}
             >

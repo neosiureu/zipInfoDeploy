@@ -36,19 +36,17 @@ public interface AdminMapper {
 	 */
 	int deleteBoardByAdmin(int boardNo);
 
-	/**
-	 * 관리자 계정 생성
-	 * @param member 생성할 관리자 정보
-	 * @return 생성 성공 건수
-	 */
-	int createAdminAccount(Member member);
-
-	/**
-	 * 이메일 중복 확인
-	 * @param memberEmail 확인할 이메일
-	 * @return 중복된 이메일 개수
+	/**  관리자 이메일 중복 여부 검사
+	 * @param memberEmail
+	 * @return
 	 */
 	int checkEmail(String memberEmail);
+
+	/** 관리자 계정 발급
+	 * @param member
+	 * @return
+	 */
+	int createAdminAccount(Member member);
 
 	/**
 	 * 관리자 계정 목록 조회
@@ -56,7 +54,4 @@ public interface AdminMapper {
 	 */
 	List<Member> selectAdminList();
 
-	
-	
-   
 }

@@ -78,9 +78,15 @@ public class StockServiceImpl implements StockService{
 	}
 
 	@Override
+
 	public Stock selectStockDetail(int stockNo) {
 		// TODO Auto-generated method stub
 		return mapper.selectOneStock(stockNo);
+
+	public List<Map<String, Object>> stockChart() {
+		// TODO Auto-generated method stub
+		return mapper.stockChart();
+
 	};
 	
 }
