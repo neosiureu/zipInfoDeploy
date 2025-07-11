@@ -176,8 +176,7 @@ const NeighborhoodEdit = () => {
         <div>
           <div className="toast-error-title">오류 알림!</div>
           <div className="toast-error-body">
-            텍스트는 최대 2000글자까지 입력할 수 있습니다. (현재: {textLength}
-            글자)
+            텍스트는 최대 2000글자까지 입력할 수 있습니다.
           </div>
         </div>
       );
