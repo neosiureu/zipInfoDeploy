@@ -164,34 +164,6 @@
   pointer-events: none;
 }
 
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .neighborhood-edit-container {
-    margin: 10px;
-    padding: 15px;
-  }
-
-  .title-input {
-    height: 50px;
-    padding: 12px 15px;
-    font-size: 14px;
-  }
-
-  .note-editable {
-    min-height: 250px;
-    padding: 15px;
-  }
-
-  .button-container {
-    flex-direction: column;
-  }
-
-  .cancel-button,
-  .submit-button {
-    width: 100%;
-  }
-}
-
 /* 에디터 로딩 상태 스타일 */
 .editor-loading {
   display: flex;

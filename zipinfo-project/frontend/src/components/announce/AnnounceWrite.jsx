@@ -91,52 +91,56 @@ export default function AnnounceWrite() {
     <div className="announce-write-container">
       <h2>{isEditMode ? "공지사항 수정" : "공지사항 작성"}</h2>
 
-      {/* 제목 입력 - 최대 50자 제한 */}
-      <div style={{ position: "relative", marginBottom: "25px" }}>
-        <input
-          type="text"
-          placeholder="제목을 입력하세요"
-          value={title}
-          onChange={(e) => {
-            const newValue = e.target.value;
-            if (newValue.length <= 50) {
-              setTitle(newValue);
-            } else {
-              setTitle(newValue.slice(0, 50));
-              toast.warn("제목은 최대 50자까지 입력할 수 있습니다.");
-            }
-          }}
-          className="announce-write-title-input"
-          disabled={isSubmitting}
-        />
-        <div className="title-char-count">{title.length} / 50자</div>
-      </div>
+      <div className="announce-write-form">
+        {/* 제목 입력 */}
+        <div className="title-input-container">
+          <input
+            type="text"
+            placeholder="제목을 입력하세요"
+            value={title}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              if (newValue.length <= 50) {
+                setTitle(newValue);
+              } else {
+                setTitle(newValue.slice(0, 50));
+                toast.warn("제목은 최대 50자까지 입력할 수 있습니다.");
+              }
+            }}
+            className="announce-write-title-input"
+            disabled={isSubmitting}
+          />
+          <div className="title-char-count">{title.length} / 50자</div>
+        </div>
 
-      {/* Summernote 에디터 (2000자 제한 포함됨) */}
-      <div style={{ position: "relative", marginBottom: "30px" }}>
-        <SummernoteEditor
-          value={content}
-          onChange={setContent}
-          disabled={isSubmitting}
-        />
-        <div className="content-char-count">
-          {content.replace(/<[^>]+>/g, "").length} / 2000자
+        {/* Summernote 에디터 */}
+        <div className="content-editor-container">
+          <SummernoteEditor
+            value={content}
+            onChange={setContent}
+            disabled={isSubmitting}
+          />
+          <div className="content-char-count">
+            {content.replace(/<[^>]+>/g, "").length} / 2000자
+          </div>
+        </div>
+
+        <div className="button-container">
+          <button
+            onClick={onSubmit}
+            disabled={isSubmitting}
+            className="announce-write-submit-button"
+          >
+            {isSubmitting
+              ? isEditMode
+                ? "수정 중..."
+                : "등록 중..."
+              : isEditMode
+              ? "공지사항 수정"
+              : "공지사항 등록"}
+          </button>
         </div>
       </div>
-
-      <button
-        onClick={onSubmit}
-        disabled={isSubmitting}
-        className="announce-write-submit-button"
-      >
-        {isSubmitting
-          ? isEditMode
-            ? "수정 중..."
-            : "등록 중..."
-          : isEditMode
-          ? "공지사항 수정"
-          : "공지사항 등록"}
-      </button>
     </div>
   );
 }

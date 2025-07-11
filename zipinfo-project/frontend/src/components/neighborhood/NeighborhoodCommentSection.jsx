@@ -21,6 +21,7 @@ const CommentItem = ({ comment, loginMember, reload }) => {
   const [edit, setEdit] = useState(false);
   const [reply, setReply] = useState(false);
   const [text, setText] = useState("");
+
   const isMine = loginMember && loginMember.memberNo === comment.memberNo;
   const isAdmin = loginMember && loginMember.memberAuth === 0;
 
@@ -40,6 +41,16 @@ const CommentItem = ({ comment, loginMember, reload }) => {
           <div className="toast-error-body">내용을 입력해주세요.</div>
         </div>
       );
+    if (text.length >= 500) {
+      return toast.error(
+        <div>
+          <div className="toast-error-title">오류알림!</div>
+          <div className="toast-error-body">
+            답글은 500자 이내로 작성해주세요.
+          </div>
+        </div>
+      );
+    }
     const params = {
       commentContent: text,
       memberNo: loginMember?.memberNo,
@@ -87,6 +98,16 @@ const CommentItem = ({ comment, loginMember, reload }) => {
           <div className="toast-error-body">내용을 입력해주세요.</div>
         </div>
       );
+    if (text.length >= 500) {
+      return toast.error(
+        <div>
+          <div className="toast-error-title">오류알림!</div>
+          <div className="toast-error-body">
+            댓글은 500자 이내로 작성해주세요.
+          </div>
+        </div>
+      );
+    }
     const { data: result } = await axiosAPI.put(
       `/boardComment/${comment.commentNo}`,
       { commentContent: text }
@@ -248,6 +269,17 @@ const NeighborhoodCommentSection = ({ boardNo }) => {
           <div className="toast-error-body">내용을 작성해주세요.</div>
         </div>
       );
+
+    if (content.length >= 500) {
+      return toast.error(
+        <div>
+          <div className="toast-error-title">오류알림!</div>
+          <div className="toast-error-body">
+            댓글은 500자 이내로 작성해주세요.
+          </div>
+        </div>
+      );
+    }
 
     // 뭘 서버로 보낼래?
     const params = {

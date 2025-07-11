@@ -195,6 +195,15 @@ export default function MemberSignUp() {
       updateCheckObj("memberEmail", false);
       return;
     }
+    if (inputEmail.length >= 50) {
+      updateMessage(
+        "emailMessage",
+        "이메일은 50자 이내로 입력해주세요.",
+        "error"
+      );
+      updateCheckObj("memberEmail", false);
+      return;
+    }
 
     // 정규식 검사
     const regExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -528,6 +537,12 @@ export default function MemberSignUp() {
       return;
     }
 
+    if (inputNickname.length < 2 || inputNickname.length > 8) {
+      updateMessage("nickMessage", "닉네임은 2~8글자로 입력해주세요.", "error");
+      updateCheckObj("memberNickname", false);
+      return;
+    }
+
     const regExp = /^[가-힣\w\d]{2,8}$/;
 
     if (!regExp.test(inputNickname)) {
@@ -574,7 +589,15 @@ export default function MemberSignUp() {
   // 폼 제출
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    if (
+      activeTab === "agent" &&
+      formData.companyDetailAddress &&
+      formData.companyDetailAddress.length > 20
+    ) {
+      toast.error("상세주소는 20자 이내로 입력해주세요.");
+      document.querySelector('[name="companyDetailAddress"]')?.focus();
+      return;
+    }
     // 탭에 따라 검증할 필드 결정
     const requiredFields =
       activeTab === "general"
@@ -647,7 +670,43 @@ export default function MemberSignUp() {
       delete submitData.companyAddress;
       delete submitData.companyDetailAddress;
     }
+    if (formData.memberName && formData.memberName.length >= 10) {
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            이름은 10자 이내로 입력해주세요.
+          </div>
+        </div>
+      );
+      document.querySelector('[name="memberName"]')?.focus();
+      return;
+    }
+    if (formData.memberEmail && formData.memberEmail.length > 50) {
+      toast.error("이메일은 50자 이내로 입력해주세요.");
+      return;
+    }
+    if (formData.memberNickname && formData.memberNickname.length > 8) {
+      toast.error("닉네임은 8자 이내로 입력해주세요.");
+      return;
+    }
 
+    if (
+      activeTab === "agent" &&
+      formData.companyName &&
+      formData.companyName.length > 50
+    ) {
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">
+            중개사명은 50자 이내로 입력해주세요.
+          </div>
+        </div>
+      );
+      document.querySelector('[name="companyName"]')?.focus();
+      return;
+    }
     // 서버로 전송
     const endpoint = "/member/signup";
 
@@ -725,6 +784,7 @@ export default function MemberSignUp() {
               onChange={handleInputChange}
               placeholder="이메일을 입력해 주세요"
               className="signup-form-input"
+              maxLength={50}
               required
             />
             <button
@@ -777,6 +837,7 @@ export default function MemberSignUp() {
             onChange={handleInputChange}
             placeholder="영어+숫자+특수문자를 포함한 6자리 이상"
             className="signup-form-input"
+            maxLength={20}
             required
           />
           <span className={`message ${messageClasses.pwMessage || ""}`}>
@@ -795,6 +856,7 @@ export default function MemberSignUp() {
             onChange={handleInputChange}
             placeholder="비밀번호를 재입력해 주세요"
             className="signup-form-input"
+            maxLength={20}
             required
           />
           <span className={`message ${messageClasses.pwMessageConfirm || ""}`}>
@@ -822,6 +884,7 @@ export default function MemberSignUp() {
             value={formData.memberName}
             onChange={handleInputChange}
             placeholder="이름을 입력해 주세요"
+            maxLength={10}
             className="signup-form-input"
           />
         </div>
@@ -836,6 +899,7 @@ export default function MemberSignUp() {
             value={formData.memberNickname}
             onChange={handleInputChange}
             placeholder="닉네임을 입력해 주세요"
+            maxLength={8}
             className="signup-form-input"
           />
           <span className={`message ${messageClasses.nickMessage || ""}`}>
@@ -857,6 +921,7 @@ export default function MemberSignUp() {
                 onChange={handleInputChange}
                 placeholder="중개사명을 입력해 주세요"
                 className="signup-form-input"
+                maxLength={50}
                 required
               />
             </div>

@@ -85,7 +85,27 @@ const NeighborhoodBoard = ({}) => {
 
   //  수정: 검색 함수 개선
   const handleSearch = useCallback(() => {
-    console.log("🔍 검색 실행:", { searchKey, searchQuery });
+    if (!searchQuery.trim()) {
+      setIsSearching(false);
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">검색어를 입력해주세요</div>
+        </div>
+      );
+      return;
+    }
+
+    if (searchQuery.trim().length > 50) {
+      setIsSearching(false);
+
+      <div>
+        <div className="toast-error-title">오류 알림!</div>
+        <div className="toast-error-body">검색어는 50자 이내로 해주세요!</div>
+      </div>;
+      return;
+    }
+    console.log("검색 실행:", { searchKey, searchQuery });
 
     setCurrentPage(1);
     setIsSearching(true);
@@ -176,7 +196,7 @@ const NeighborhoodBoard = ({}) => {
   const boardData = useCallback(async () => {
     try {
       setLoading(true);
-     
+
       //  수정: URL params에서 실제 값 가져오기
       const urlSearchKey = searchParams.get("key") || searchKey;
       const urlSearchQuery = searchParams.get("query") || "";
@@ -197,11 +217,8 @@ const NeighborhoodBoard = ({}) => {
         params.append("boardSubject", selectedSubject);
       }
 
-
       const resp = await axiosAPI.get(`/board/neighborhoodList?${params}`);
       const { boardList = [], pagination = {} } = resp.data;
-
-    
 
       setBoardList(boardList);
       setPagination(pagination);
@@ -461,15 +478,20 @@ const NeighborhoodBoard = ({}) => {
               type="text"
               value={searchQuery}
               onChange={handleSearchQueryChange}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearch();
+                }
+              }}
               placeholder="검색어를 입력하세요"
               disabled={isSearching}
+              maxLength={50}
             />
           </div>
           <button
             className="nb-search-btn"
             onClick={handleSearch}
-            disabled={isSearching}
+            disabled={isSearching || !searchQuery.trim()}
           >
             {isSearching ? "검색 중..." : "검색"}
           </button>

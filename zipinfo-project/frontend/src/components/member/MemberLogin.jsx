@@ -52,6 +52,26 @@ export default function MemberLogin() {
   // 그냥 로그인
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // 클라이언트 측 검증 추가
+    if (!formData.email.trim()) {
+      toast.error("이메일을 입력해주세요.");
+      return;
+    }
+
+    if (formData.email.length > 50) {
+      toast.error("이메일은 50자 이내로 입력해주세요.");
+      return;
+    }
+
+    if (!formData.password.trim()) {
+      toast.error("비밀번호를 입력해주세요.");
+      return;
+    }
+
+    if (formData.password.length < 6 || formData.password.length > 20) {
+      toast.error("비밀번호는 6~20자 사이로 입력해주세요.");
+      return;
+    }
 
     try {
       const resp = await axiosAPI.post("http://localhost:8080/member/login", {
@@ -190,6 +210,7 @@ export default function MemberLogin() {
               className="login-form-input"
               value={formData.email}
               onChange={handleChange}
+              maxLength={50}
               required
             />
           </div>
@@ -205,6 +226,7 @@ export default function MemberLogin() {
               className="login-form-input"
               value={formData.password}
               onChange={handleChange}
+              maxLength={20}
               required
             />
           </div>
