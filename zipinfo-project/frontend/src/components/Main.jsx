@@ -306,7 +306,7 @@ const Main = () => {
         <div
           className="card-sale"
           key={item.saleStockNo}
-          onClick={() => navigate(`/sale/${item.saleStockNo}`)}
+          onClick={() => navigate(`/sale/${item.saleStockNo}?focus=true`)}
         >
           <img src={imgUrl} alt="분양 썸네일 이미지" />
           <div className="card-title">
