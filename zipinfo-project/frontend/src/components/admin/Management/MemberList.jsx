@@ -77,7 +77,7 @@ const MemberList = ({ initialMembers }) => {
     if (!confirmed) return;
 
     try {
-      await axios.delete(`${BASE_URL}/admin/management/members/${memberNo}`);
+      await axiosAPI.delete(`${BASE_URL}/admin/management/members/${memberNo}`);
       toast.success(
         <div>
           <div className="toast-success-title">삭제 성공 알림!</div>

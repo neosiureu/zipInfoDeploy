@@ -48,7 +48,7 @@ const Management = () => {
     console.log("[useEffect] activeTab:", activeTab);
 
     if (activeTab === "members") {
-      axios
+      axiosAPI
         .get("http://localhost:8080/admin/management/members", {
           withCredentials: true,
         })
@@ -62,7 +62,7 @@ const Management = () => {
         })
         .finally(() => setLoading(false));
     } else if (activeTab === "deleted") {
-      axios
+      axiosAPI
         .get("http://localhost:8080/admin/management/members/deleted")
         .then((res) => {
           console.log("[then] 삭제된 회원 목록 응답:", res);
@@ -78,7 +78,7 @@ const Management = () => {
         })
         .finally(() => setLoading(false));
     } else if (activeTab === "applications") {
-      axios
+      axiosAPI
         .get("http://localhost:8080/admin/management/broker-applications")
         .then((res) => {
           console.log("[then] 중개인 권한 신청 목록 응답:", res);
@@ -95,7 +95,7 @@ const Management = () => {
         .finally(() => setLoading(false));
     } else if (activeTab === "deletedBoards") {
       // ✅ 추가된 조건
-      axios
+      axiosAPI
         .get("http://localhost:8080/admin/management/boards/deleted")
         .then((res) => {
           console.log("[then] 삭제된 게시글 목록 응답:", res);
@@ -120,9 +120,7 @@ const Management = () => {
     <div className="management-container">
       <div className="management-header">
         <h2 className="management-title">관리자 페이지</h2>
-
       </div>
-
       <div className="management-admin-box">
         <p>
           현재 <span className="management-admin-name">{adminName}</span> 으로
@@ -132,7 +130,6 @@ const Management = () => {
           접속 ID : <span className="management-admin-id">{adminId}</span>
         </p>
       </div>
-
       <div className="tab-menu">
         <button
           className={`tab-button ${activeTab === "members" ? "active" : ""}`}

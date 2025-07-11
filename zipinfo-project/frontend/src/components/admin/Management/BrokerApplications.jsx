@@ -43,7 +43,7 @@ const BrokerApplications = () => {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const response = await axios.get(
+        const response = await axiosAPI.get(
           `${BASE_URL}/admin/management/broker-applications`
         );
         const data = response?.data || [];
