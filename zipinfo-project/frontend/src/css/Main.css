@@ -88,7 +88,7 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
 }
 
-.search-icon {
+.main-search-icon {
   margin-right: 12px;
   display: block;
 }
@@ -355,7 +355,7 @@
   padding: 0 16px;
   min-width: 0;
   max-width: 400px;
-  border-top: 1px solid black;
+  border-top: 1px solid #111;
   max-height: 300px;
   min-height: 300px;
   overflow-y: auto;
@@ -390,7 +390,7 @@
 .expanded-search-body {
   margin-top: 20px;
   font-size: 14px;
-  color: #666;
+  color: #767676;
 }
 
 .card-slider-container {
@@ -408,7 +408,7 @@
   z-index: 10;
   top: 20px; /* 원하는 위치 조정 */
   left: 20px;
-  color: #0000002c; /* 텍스트 색상 */
+  color: #111; /* 텍스트 색상 */
 
   padding: 8px 12px;
   border-radius: 4px;
@@ -425,11 +425,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 50px;
+  width: 54px;
   height: 20px;
   border-radius: 20px;
-  border: 1px solid black;
-  font-size: 10px;
+  border: 1.5px solid #dbdbdb;
+  font-size: 11px;
 }
 
 .stock-info-div {
@@ -449,31 +449,38 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 20px;
+  margin-bottom: 8px;
 }
 
 .search-bar-result {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: black;
-  font-size: 20px;
-  font-weight: bold;
+  color: #111;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .search-bar-title-button {
   border: none;
   background-color: white;
   height: 30px;
-}
-
-.search-bar-title-button :hover {
   cursor: pointer;
 }
 
 .delete-recent-search {
-  margin-left: 5px;
-  font-size: 14px;
-  color: #e5e5ec;
+  display: flex;
+  align-items: center; /* 세로 중앙 정렬 */
+  justify-content: center; /* 가로 중앙 정렬(선택) */
+  margin-left: 8px;
+  font-size: 12px;
+  color: #dbdbdb;
+  height: 100%; /* 부모 높이만큼 */
+}
+
+.delete-recent-search img {
+  display: block;
 }
 
 .no-search-result {
@@ -498,6 +505,7 @@
   font-size: 14px;
   font-weight: 400;
   margin-top: 8px;
+  color: #767676;
 }
 
 .result-info {
@@ -505,9 +513,9 @@
   justify-content: start;
   color: #111;
   font-size: 18px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   margin-top: 20px;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .search-highlight {

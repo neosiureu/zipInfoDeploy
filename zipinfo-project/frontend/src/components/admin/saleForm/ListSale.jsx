@@ -10,8 +10,8 @@ const ListSale = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const [adminName] = useState("홍길동");
-  const [adminId] = useState("admin01");
+  const [adminName] = useState("관리자");
+  const [adminId] = useState("user01");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,13 +91,19 @@ const ListSale = () => {
               currentItems.map((sale) => (
                 <tr key={sale.saleStockNo}>
                   <td>
-                    <Link to={`/sale/${sale.saleStockNo}`} className="ls-link">
+                    <Link
+                      to={`/sale/${sale.saleStockNo}?focus=true`}
+                      className="ls-link"
+                    >
                       {sale.saleStockNo}
                     </Link>
                   </td>
                   <td>{saleTypeMap[sale.saleStockForm] || "기타"}</td>
                   <td>
-                    <Link to={`/sale/${sale.saleStockNo}`} className="ls-link">
+                    <Link
+                      to={`/sale/${sale.saleStockNo}?focus=true`}
+                      className="ls-link"
+                    >
                       {sale.saleStockName}
                     </Link>
                   </td>

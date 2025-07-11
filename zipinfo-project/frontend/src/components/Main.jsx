@@ -7,18 +7,8 @@ import officetel from "../assets/officetel-icon.svg";
 import sale from "../assets/sale-icon.svg";
 
 import banner from "../assets/banner.svg";
-
-import main01 from "../assets/main-thumbnail-01.svg";
-import main02 from "../assets/main-thumbnail-02.svg";
-import main03 from "../assets/main-thumbnail-03.svg";
-import main04 from "../assets/main-thumbnail-04.svg";
-
 import agent from "../assets/agent-icon.svg";
-
-import saleMain01 from "../assets/sale-thumbnail-01.svg";
-import saleMain02 from "../assets/sale-thumbnail-02.svg";
-import saleMain03 from "../assets/sale-thumbnail-03.svg";
-import saleMain04 from "../assets/sale-thumbnail-04.svg";
+import deleteBtn from "../assets/delete-icon.svg";
 
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
@@ -386,10 +376,10 @@ const Main = () => {
                       searchSale.length === 0 && (
                         <div className="no-search-result">
                           <div className="no-result-info">
-                            원하는 검색 결과가 없나요?
+                            아직 원하는 검색 결과가 없나요?
                           </div>
                           <div className="no-result-info">
-                            검색어를 완성해주세요.
+                            검색어를 완성해주세요 :)
                           </div>
                           <div className="no-result-info">
                             해당하는 매물이 없을 수 있습니다.
@@ -434,13 +424,15 @@ const Main = () => {
                                       ? returnForm(item.stockForm)
                                       : returnSaleStatus(item.saleStatus)}
                                   </div>
-                                  <X
+                                  <div
                                     className="delete-recent-search"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       deleteRecentSearch(item);
                                     }}
-                                  />
+                                  >
+                                    <img src={deleteBtn} alt="검색 삭제 버튼" />
+                                  </div>
                                 </div>
                               </div>
                             </li>

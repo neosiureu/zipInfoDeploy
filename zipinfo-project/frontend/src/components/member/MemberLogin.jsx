@@ -1,5 +1,5 @@
 import React, { memo, useContext, useEffect, useState } from "react";
-import { axiosAPI } from "../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosApi";
 import "../../css/member/MemberLogin.css";
 import { MemberContext } from "../member/MemberContext";
 import NaverCallback from "../auth/NaverCallback";
@@ -52,12 +52,60 @@ export default function MemberLogin() {
   // 그냥 로그인
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // 클라이언트 측 검증 추가
+    if (!formData.email.trim()) {
+      toast.error("이메일을 입력해주세요.");
+      return;
+    }
+
+    if (formData.email.length > 50) {
+      toast.error("이메일은 50자 이내로 입력해주세요.");
+      return;
+    }
+
+    if (!formData.password.trim()) {
+      toast.error("비밀번호를 입력해주세요.");
+      return;
+    }
+
+    if (formData.password.length < 6 || formData.password.length > 20) {
+      toast.error("비밀번호는 6~20자 사이로 입력해주세요.");
+      return;
+    }
 
     try {
-      const resp = await axiosAPI.post("http://localhost:8080/member/login", {
-        memberEmail: formData.email, //  DTO 필드명과 동일
-        memberPw: formData.password,
-      });
+      // 먼저 관리자 계정인지 확인
+      let resp;
+      try {
+        // 관리자 로그인 시도
+        resp = await axiosAPI.post("http://localhost:8080/admin/login", {
+          memberEmail: formData.email,
+          memberPw: formData.password,
+        });
+
+        // 관리자 로그인 성공
+        const loginMember = resp.data;
+
+        // 아이디 저장 check 후 localStorage를 뒤져보는 경우
+        if (formData.saveId) {
+          localStorage.setItem("saveId", formData.email);
+        } else {
+          localStorage.removeItem("saveId");
+        }
+
+        // 관리자 로그인 정보 저장
+        localStorage.setItem("adminMember", JSON.stringify(loginMember));
+        setMember(loginMember);
+
+        navigate("/admin"); // 관리자 페이지로 이동
+        return;
+      } catch (adminErr) {
+        // 관리자 로그인 실패 시 일반 회원 로그인 시도
+        resp = await axiosAPI.post("http://localhost:8080/member/login", {
+          memberEmail: formData.email, //  DTO 필드명과 동일
+          memberPw: formData.password,
+        });
+      }
 
       // 200 OK
       const { loginMember, accessToken } = resp.data; // 백엔드가 돌려준 Member
@@ -190,6 +238,7 @@ export default function MemberLogin() {
               className="login-form-input"
               value={formData.email}
               onChange={handleChange}
+              maxLength={50}
               required
             />
           </div>
@@ -205,6 +254,7 @@ export default function MemberLogin() {
               className="login-form-input"
               value={formData.password}
               onChange={handleChange}
+              maxLength={20}
               required
             />
           </div>

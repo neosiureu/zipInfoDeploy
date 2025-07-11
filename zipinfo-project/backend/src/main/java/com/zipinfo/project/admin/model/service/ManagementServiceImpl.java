@@ -2,6 +2,7 @@ package com.zipinfo.project.admin.model.service;
 
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.admin.model.dto.BrokerApplicationDTO;
+import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
 import com.zipinfo.project.admin.model.mapper.ManagementMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -145,6 +146,55 @@ public class ManagementServiceImpl implements ManagementService {
         } catch (Exception e) {
             log.error("회원 복원 중 오류 발생: memberNo={}, error={}", memberNo, e.getMessage(), e);
             throw e;  // 또는 적절히 예외 처리 후 반환
+        }
+    }
+
+    /**
+     * 삭제된 게시글 목록 조회
+     * @return 삭제된 게시글 리스트
+     */
+    @Override
+    public List<Neighborhood> getDeletedBoards() {
+        return managementMapper.selectDeletedBoards();
+    }
+
+    /**
+     * 삭제된 게시글 복구 처리
+     * @param boardNo 게시글 번호
+     * @return 복구 성공 건수 (1 이상 성공)
+     */
+    @Override
+    public int restoreBoard(Long boardNo) {
+        try {
+            return managementMapper.restoreBoard(boardNo);
+        } catch (Exception e) {
+            log.error("게시글 복구 중 오류 발생: boardNo={}, error={}", boardNo, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    /**
+     * 삭제된 게시글 상세 조회
+     * @param boardNo 게시글 번호
+     * @return 삭제된 게시글 상세 정보
+     */
+    @Override
+    public Neighborhood getDeletedBoardDetail(Long boardNo) {
+        return managementMapper.selectDeletedBoardDetail(boardNo);
+    }
+
+    /**
+     * 삭제된 게시글 영구 삭제 처리
+     * @param boardNo 게시글 번호
+     * @return 삭제 성공 건수 (1 이상 성공)
+     */
+    @Override
+    public int permanentlyDeleteBoard(Long boardNo) {
+        try {
+            return managementMapper.permanentlyDeleteBoard(boardNo);
+        } catch (Exception e) {
+            log.error("게시글 영구 삭제 중 오류 발생: boardNo={}, error={}", boardNo, e.getMessage(), e);
+            throw e;
         }
     }
 }
