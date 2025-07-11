@@ -181,7 +181,13 @@ const Main = () => {
       ? `http://localhost:8080${bannerPath}`
       : banner;
 
+  const refreshSet = async () => {
+    await axiosAPI.get("/catch/request");
+  };
+
   useEffect(() => {
+    refreshSet();
+
     const history = JSON.parse(localStorage.getItem("recentSearch")) || [];
     setRecentSearch(history);
 

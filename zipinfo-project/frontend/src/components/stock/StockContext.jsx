@@ -14,10 +14,14 @@ export const StockProvider = ({ children, searchParams, navigate }) => {
   const mapRef = useRef(null); // 지도를 담을 div의 ref
   const mapInstanceRef = useRef(null); //생성한 map instance를 저장 -- const map = new window.kakao.maps.Map(container, options);
   const itemMarkersRef = useRef([]); // 지도내 표시된 마커 배열 저장
+  const sigunguMarkersRef = useRef([]); // 시군구 클러스터
+  const sidoMarkersRef = useRef([]); // 시‧도  클러스터
+  const currentModeRef = useRef("item"); // "item" | "sigungu" | "sido"
+
   /***************side-panel 관련 상태변수들******************************** */
   const [isAsideVisible, setIsAsideVisible] = useState(false); // 지정한 side-panel 숨김여부 저장 state
   /***************매물(item) 로딩 관련 상태변수들******************************** */
-  const [stockList, setStockList] = useState(null); // spring 서버에서 받아오는 매물 List
+  const [stockList, setStockList] = useState([]); // spring 서버에서 받아오는 매물 List
 
   const [clickedStockItem, setClickedStockItem] = useState(null); // 자세히 보기창에 띄울 매물
   /*****************검색창 관련 상태변수들************************** */
@@ -61,6 +65,9 @@ export const StockProvider = ({ children, searchParams, navigate }) => {
         mapRef,
         mapInstanceRef,
         itemMarkersRef,
+        sigunguMarkersRef,
+        sidoMarkersRef,
+        currentModeRef,
         isAsideVisible,
         setIsAsideVisible,
         stockList,
