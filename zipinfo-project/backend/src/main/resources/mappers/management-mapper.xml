@@ -53,6 +53,68 @@
      WHERE MEMBER_NO = #{memberNo}
   </update>
 
+  <!-- 삭제된 게시글 목록 조회 -->
+  <select id="selectDeletedBoards" resultType="com.zipinfo.project.neighborhood.model.dto.Neighborhood">
+    SELECT B.BOARD_NO,
+           B.BOARD_TITLE,
+           B.BOARD_CONTENT,
+           TO_CHAR(B.BOARD_WRITE_DATE, 'YYYY-MM-DD') as BOARD_WRITE_DATE,
+           B.READ_COUNT,
+           B.BOARD_DEL_FL,
+           B.MEMBER_NO,
+           M.MEMBER_NICKNAME as memberNickName,
+           B.BOARD_SUBJECT,
+           (SELECT BT.TOWN_NAME FROM BOARD_TOWN BT WHERE BT.TOWN_NO = B.TOWN_NO) as townName,
+           (SELECT BC.CITY_NAME FROM BOARD_CITY BC WHERE BC.CITY_NO = (SELECT BT.CITY_NO FROM BOARD_TOWN BT WHERE BT.TOWN_NO = B.TOWN_NO)) as cityName,
+           B.TOWN_NO,
+           (SELECT BT.CITY_NO FROM BOARD_TOWN BT WHERE BT.TOWN_NO = B.TOWN_NO) as cityNo,
+           0 as boardCode,
+           (SELECT COUNT(*) FROM "LIKE" L WHERE L.BOARD_NO = B.BOARD_NO) as likeCount,
+           0 as likeCheck
+      FROM BOARD B
+      LEFT JOIN MEMBER M ON B.MEMBER_NO = M.MEMBER_NO
+     WHERE B.BOARD_DEL_FL = 'Y'
+     ORDER BY B.BOARD_NO DESC
+  </select>
+
+  <!-- 삭제된 게시글 복구 -->
+  <update id="restoreBoard">
+    UPDATE BOARD
+       SET BOARD_DEL_FL = 'N'
+     WHERE BOARD_NO = #{boardNo}
+  </update>
+
+  <!-- 삭제된 게시글 상세 조회 -->
+  <select id="selectDeletedBoardDetail" parameterType="long" resultType="com.zipinfo.project.neighborhood.model.dto.Neighborhood">
+    SELECT B.BOARD_NO,
+           B.BOARD_TITLE,
+           B.BOARD_CONTENT,
+           TO_CHAR(B.BOARD_WRITE_DATE, 'YYYY"년" MM"월" DD"일" HH24:MI:SS') as BOARD_WRITE_DATE,
+           B.READ_COUNT,
+           B.BOARD_DEL_FL,
+           B.MEMBER_NO,
+           M.MEMBER_NICKNAME as memberNickName,
+           B.BOARD_SUBJECT,
+           (SELECT BT.TOWN_NAME FROM BOARD_TOWN BT WHERE BT.TOWN_NO = B.TOWN_NO) as townName,
+           (SELECT BC.CITY_NAME FROM BOARD_CITY BC WHERE BC.CITY_NO = (SELECT BT.CITY_NO FROM BOARD_TOWN BT WHERE BT.TOWN_NO = B.TOWN_NO)) as cityName,
+           B.TOWN_NO,
+           (SELECT BT.CITY_NO FROM BOARD_TOWN BT WHERE BT.TOWN_NO = B.TOWN_NO) as cityNo,
+           0 as boardCode,
+           (SELECT COUNT(*) FROM "LIKE" L WHERE L.BOARD_NO = B.BOARD_NO) as likeCount,
+           0 as likeCheck
+      FROM BOARD B
+      LEFT JOIN MEMBER M ON B.MEMBER_NO = M.MEMBER_NO
+     WHERE B.BOARD_DEL_FL = 'Y'
+       AND B.BOARD_NO = #{boardNo}
+  </select>
+
+  <!-- 삭제된 게시글 영구 삭제 -->
+  <delete id="permanentlyDeleteBoard" parameterType="long">
+    DELETE FROM BOARD
+     WHERE BOARD_NO = #{boardNo}
+       AND BOARD_DEL_FL = 'Y'
+  </delete>
+
   <!-- 중개인 신청 회원 목록 조회 -->
   <select id="selectBrokerApplications" resultType="com.zipinfo.project.admin.model.dto.BrokerApplicationDTO">
     SELECT

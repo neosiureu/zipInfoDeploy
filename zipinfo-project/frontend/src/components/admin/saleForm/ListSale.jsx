@@ -10,8 +10,8 @@ const ListSale = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const [adminName] = useState("홍길동");
-  const [adminId] = useState("admin01");
+  const [adminName] = useState("관리자");
+  const [adminId] = useState("user01");
 
   useEffect(() => {
     const fetchData = async () => {
