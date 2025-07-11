@@ -19,11 +19,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Transactional(rollbackFor = Exception.class)
 @Slf4j
-public class StockServiceImpl implements StockService{
+public class StockServiceImpl implements StockService {
+	
 	@Autowired
 	private StockMapper mapper;
+	
 	@Autowired
 	private SearchBarMapper searchBarMapper;
+	
 	/** 좌표 내부에 있는 매물들을 반환하는 함수.
 	 *
 	 */
@@ -71,22 +74,20 @@ public class StockServiceImpl implements StockService{
 				sr.getStockForm(),
 				sr.getStockType());
 	}
+	
 	@Override
 	public List<Stock> selectAnyFour(){
-		
 		return mapper.selectAnyFour();
 	}
 
 	@Override
-
 	public Stock selectStockDetail(int stockNo) {
-		// TODO Auto-generated method stub
-		return mapper.selectOneStock(stockNo);
+		return mapper.selectOneStock(stockNo);	
+	}
 
+	@Override
 	public List<Map<String, Object>> stockChart() {
-		// TODO Auto-generated method stub
 		return mapper.stockChart();
-
-	};
+	}
 	
 }
