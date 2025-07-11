@@ -2,6 +2,7 @@ package com.zipinfo.project.admin.model.mapper;
 
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.admin.model.dto.BrokerApplicationDTO;
+import com.zipinfo.project.neighborhood.model.dto.Neighborhood;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -80,4 +81,31 @@ public interface ManagementMapper {
      * @return 영향 받은 행 수 반환
      */
     int restoreMember(@Param("memberNo") Long memberNo);
+
+    /**
+     * 삭제된 게시글 목록 조회
+     * @return 삭제된 게시글 목록 반환
+     */
+    List<Neighborhood> selectDeletedBoards();
+
+    /**
+     * 삭제된 게시글 복구
+     * @param boardNo 게시글 번호 (PK)
+     * @return 영향 받은 행 수 반환
+     */
+    int restoreBoard(@Param("boardNo") Long boardNo);
+
+    /**
+     * 삭제된 게시글 상세 조회
+     * @param boardNo 게시글 번호 (PK)
+     * @return 삭제된 게시글 상세 정보
+     */
+    Neighborhood selectDeletedBoardDetail(@Param("boardNo") Long boardNo);
+
+    /**
+     * 삭제된 게시글 영구 삭제
+     * @param boardNo 게시글 번호 (PK)
+     * @return 영향 받은 행 수 반환
+     */
+    int permanentlyDeleteBoard(@Param("boardNo") Long boardNo);
 }

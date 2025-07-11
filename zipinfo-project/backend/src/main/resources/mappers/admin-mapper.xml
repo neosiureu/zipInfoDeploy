@@ -7,11 +7,18 @@
   
 
   <!-- 관리자 로그인 처리 -->
-  <!-- MEMBER_ID와 MEMBER_PW를 이용하여 회원 정보 조회 -->
-  <select id="login" parameterType="com.zipinfo.project.member.model.dto.Member" resultType="com.zipinfo.project.member.model.dto.Member">
-    SELECT * FROM MEMBER
-    WHERE MEMBER_ID = #{memberId}
-      AND MEMBER_PW = #{memberPw}
+  <!-- MEMBER_EMAIL로 회원 정보 조회 -->
+  <select id="login" parameterType="string" resultType="com.zipinfo.project.member.model.dto.Member">
+    SELECT MEMBER_NO,
+           MEMBER_EMAIL,
+           MEMBER_PW,
+           MEMBER_NICKNAME,
+           MEMBER_NAME,
+           MEMBER_AUTH,
+           ENROLL_DATE,
+           MEMBER_DEL_FL
+    FROM MEMBER
+    WHERE MEMBER_EMAIL = #{memberEmail}
       AND MEMBER_DEL_FL = 'N'
   </select>
 
@@ -25,5 +32,45 @@ UPDATE "COMMENT" SET COMMENT_DEL_FL = 'Y' WHERE COMMENT_NO =  #{commentNo} AND C
 <update id="deleteBoardByAdmin">
 UPDATE "BOARD" SET BOARD_DEL_FL = 'Y' WHERE BOARD_NO =  #{boardNo} AND BOARD_DEL_FL = 'N' 
 </update>
+
+<!-- 관리자 계정 생성 -->
+<insert id="createAdminAccount" parameterType="com.zipinfo.project.member.model.dto.Member" useGeneratedKeys="true" keyProperty="memberNo" keyColumn="MEMBER_NO">
+  INSERT INTO "MEMBER"
+  VALUES(SEQ_MEMBER.NEXTVAL, 
+         #{memberEmail},
+         #{memberPw},
+         DEFAULT,
+         DEFAULT,
+         DEFAULT,
+         'E',
+         #{memberNickname},
+         #{memberName},
+         #{memberAuth},
+         DEFAULT,
+         0
+  )
+</insert>
+
+<!-- 이메일 중복 확인 -->
+<select id="checkEmail" parameterType="string" resultType="int">
+  SELECT COUNT(*)
+  FROM MEMBER
+  WHERE MEMBER_EMAIL = #{memberEmail}
+    AND MEMBER_DEL_FL = 'N'
+</select>
+
+<!-- 관리자 계정 목록 조회 -->
+<select id="selectAdminList" resultType="com.zipinfo.project.member.model.dto.Member">
+  SELECT MEMBER_NO,
+         MEMBER_EMAIL,
+         MEMBER_NICKNAME,
+         MEMBER_NAME,
+         MEMBER_AUTH,
+         ENROLL_DATE
+  FROM MEMBER
+  WHERE MEMBER_AUTH = 0
+    AND MEMBER_DEL_FL = 'N'
+  ORDER BY MEMBER_NO DESC
+</select>
 
 </mapper>
