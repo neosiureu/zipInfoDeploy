@@ -33,23 +33,40 @@ UPDATE "COMMENT" SET COMMENT_DEL_FL = 'Y' WHERE COMMENT_NO =  #{commentNo} AND C
 UPDATE "BOARD" SET BOARD_DEL_FL = 'Y' WHERE BOARD_NO =  #{boardNo} AND BOARD_DEL_FL = 'N' 
 </update>
 
-<!-- 관리자 계정 생성 -->
-<insert id="createAdminAccount" parameterType="com.zipinfo.project.member.model.dto.Member" useGeneratedKeys="true" keyProperty="memberNo" keyColumn="MEMBER_NO">
-  INSERT INTO "MEMBER"
-  VALUES(SEQ_MEMBER.NEXTVAL, 
-         #{memberEmail},
-         #{memberPw},
-         DEFAULT,
-         DEFAULT,
-         DEFAULT,
-         'E',
-         #{memberNickname},
-         #{memberName},
-         #{memberAuth},
-         DEFAULT,
-         0
-  )
+	<!--  관리자 계정 발급 -->
+  <insert id="createAdminAccount" parameterType="com.zipinfo.project.member.model.dto.Member" useGeneratedKeys="true" keyProperty="memberNo" keyColumn="MEMBER_NO">
+  INSERT INTO MEMBER (
+  MEMBER_NO,
+  MEMBER_EMAIL,
+  MEMBER_PW,
+  MEMBER_IMG,
+  ENROLL_DATE,
+  MEMBER_DEL_FL,
+  MEMBER_LOGIN,
+  MEMBER_NICKNAME,
+  MEMBER_NAME,
+  MEMBER_AUTH,
+  ACCESS_TOKEN,
+  MEMBER_LOCATION,
+  MEMBER_WITHDRAW_DATE
+) VALUES (
+  seq_member.NEXTVAL,
+  #{memberEmail},
+  #{memberPw},
+  NULL,
+  SYSDATE,
+  'N',
+  'E',
+  #{memberNickname},
+  #{memberName},
+  #{memberAuth},
+  NULL,
+  #{memberLocation},
+  NULL
+)
+
 </insert>
+
 
 <!-- 이메일 중복 확인 -->
 <select id="checkEmail" parameterType="string" resultType="int">
@@ -72,5 +89,6 @@ UPDATE "BOARD" SET BOARD_DEL_FL = 'Y' WHERE BOARD_NO =  #{boardNo} AND BOARD_DEL
     AND MEMBER_DEL_FL = 'N'
   ORDER BY MEMBER_NO DESC
 </select>
+
 
 </mapper>

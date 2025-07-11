@@ -1,14 +1,15 @@
 package com.zipinfo.project.admin.model.service;
 
-import java.security.SecureRandom;
 import java.util.List;
-import java.util.Random;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.zipinfo.project.admin.model.mapper.AdminMapper;
+import com.zipinfo.project.common.utility.Utility;
 import com.zipinfo.project.member.model.dto.Member;
+import com.zipinfo.project.member.model.mapper.MemberMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +20,9 @@ import lombok.RequiredArgsConstructor;
 public class AdminServiceImpl implements AdminService {
 
     private final AdminMapper mapper;
+    private final MemberMapper mMapper;
+    private final BCryptPasswordEncoder bcrypt; // ✅ 여기에 추가
+
 
     /**
      * 관리자 로그인 처리
@@ -73,41 +77,34 @@ public class AdminServiceImpl implements AdminService {
 	 * @param member 생성할 관리자 정보
 	 * @return 생성된 비밀번호
 	 */
-	@Override
-	public String createAdminAccount(Member member) {
-		// 랜덤 비밀번호 생성 (8자리)
-		String generatedPassword = generateRandomPassword();
-		
-		// 관리자 정보 설정
-		member.setMemberPw(generatedPassword);
-		member.setMemberAuth(0); // 관리자 권한
-		member.setMemberName(member.getMemberNickname()); // 닉네임을 이름으로 설정
-		
-		// 관리자 계정 생성
-		int result = mapper.createAdminAccount(member);
-		
-		if (result > 0) {
-			return generatedPassword;
-		} else {
-			throw new RuntimeException("관리자 계정 생성에 실패했습니다.");
+	// 관리자 계정 발급
+		@Override
+		public String createAdminAccount(Member member) {
+			
+			// 1. 영어 (대소문자) , 숫자도 포함 6자리 난수로 만든 비밀번호를 암호화 한 값 구하기
+			String rawPw = Utility.generatePassword(); // 평문 비번
+			
+			// 2. 평문 비밀번호를 암호화하여 저장
+			String encPw = bcrypt.encode(rawPw);
+			
+			// 3. member에 암호화 된 비밀 번호 세팅
+			member.setMemberPw(encPw);
+			
+			// 4. DB에 암호화된 비밀번호가 세팅된 member를 전달하여 계정 발급
+			int result = mapper.createAdminAccount(member); 
+			
+			int memberNo = member.getMemberNo();
+			
+			int createTokenInfo = mMapper.createTokenTable(memberNo);
+			
+			// 5. 계정 발급 정상 처리 되었다면, 발급된 (평문) 비밀번호 리턴
+			if(result > 0) {
+				return rawPw;
+			} else {
+				return null;
+			}
+			
 		}
-	}
-
-	/**
-	 * 랜덤 비밀번호 생성 (8자리)
-	 * @return 생성된 비밀번호
-	 */
-	private String generateRandomPassword() {
-		String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-		Random random = new SecureRandom();
-		StringBuilder password = new StringBuilder();
-		
-		for (int i = 0; i < 8; i++) {
-			password.append(chars.charAt(random.nextInt(chars.length())));
-		}
-		
-		return password.toString();
-	}
 
 	/**
 	 * 이메일 중복 확인
@@ -127,4 +124,6 @@ public class AdminServiceImpl implements AdminService {
 	public List<Member> selectAdminList() {
 		return mapper.selectAdminList();
 	}
+
+
 }

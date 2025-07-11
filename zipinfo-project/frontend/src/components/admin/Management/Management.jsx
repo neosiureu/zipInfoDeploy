@@ -9,6 +9,7 @@ import DeletedMembers from "./DeletedMembers";
 import BrokerApplications from "./BrokerApplications";
 import DeletedBoard from "./DeletedBoard"; // ✅ 추가
 import Manager from "./Manager"; // ✅ 추가
+import { axiosAPI } from "../../../api/axiosApi";
 
 const Management = () => {
   const [activeTab, setActiveTab] = useState("members");

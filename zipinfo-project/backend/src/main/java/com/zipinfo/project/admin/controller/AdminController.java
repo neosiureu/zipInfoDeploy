@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("admin")
+@RequestMapping("/admin")
 @Slf4j
 @RequiredArgsConstructor
 
@@ -75,26 +75,24 @@ public class AdminController {
     @PostMapping("/createAdminAccount")
     public ResponseEntity<String> createAdminAccount(@RequestBody Member member) {
         try {
-            
-            // 1. 기존에 있는 이메일인지 검사
             int checkEmail = service.checkEmail(member.getMemberEmail());
-            
-            // 2. 있으면 발급 안함
+
             if(checkEmail > 0) {
-                // HttpStatus.CONFLICT (409) : 요청이 서버의 현재 상태와 충돌할 때 사용
-                // == 이미 존재하는 리소스 (email) 때문에 새로운 리소스를 만들 수 없다.
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body("이미 사용중인 이메일 입니다.");
             }
-            
-            // 3. 없으면 새로 발급 
+
             String accountPw = service.createAdminAccount(member);
+
             return ResponseEntity.status(HttpStatus.CREATED).body(accountPw);
         } catch (Exception e) {
-            // 기타 오류
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("관리자 계정 생성 중 오류가 발생했습니다.");
+            log.error("관리자 계정 생성 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("관리자 계정 생성 중 오류가 발생했습니다.");
         }
     }
+
+
 
     /**
      * 관리자 계정 목록 조회
