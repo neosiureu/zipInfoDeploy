@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Shield, User, Trash2, UserPlus } from "lucide-react";
 import "../../../css/admin/Management/Management.css";
+import { Link } from "react-router-dom";
 
 import MemberList from "./MemberList";
 import DeletedMembers from "./DeletedMembers";
@@ -16,6 +17,9 @@ const Management = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const [adminName, setAdminName] = useState("");
+  const [adminId, setAdminId] = useState("");
 
   // 응답 데이터가 배열인지 확인하고 없으면 빈 배열로 처리하는 헬퍼
   const handleResponse = (res, setDataFunc, errorMessage) => {
@@ -93,13 +97,38 @@ const Management = () => {
     console.log("[state] brokerApplications:", brokerApplications);
   }, [error, brokerApplications]);
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/admin/management/admin-info", {
+        withCredentials: true,
+      })
+      .then((res) => {
+        console.log("[then] 관리자 정보 응답:", res);
+        if (res.data && res.data.name && res.data.id) {
+          setAdminName(res.data.name);
+          setAdminId(res.data.id);
+        }
+      })
+      .catch((err) => {
+        console.log("[catch] 관리자 정보 에러:", err);
+        setError("관리자 정보 불러오기 실패");
+      });
+  }, []);
+
   return (
     <div className="management-container">
       <div className="management-header">
-        <h2>
-          <Shield className="header-icon" />
-          관리자 페이지
-        </h2>
+        <h2 className="management-title">관리자 페이지</h2>
+      </div>
+
+      <div className="management-admin-box">
+        <p>
+          현재 <span className="management-admin-name">{adminName}</span> 으로
+          접속중입니다.
+        </p>
+        <p>
+          접속 ID : <span className="management-admin-id">{adminId}</span>
+        </p>
       </div>
 
       <div className="tab-menu">

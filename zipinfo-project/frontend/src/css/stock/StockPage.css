@@ -188,6 +188,8 @@
 }
 
 .stock-detail-desc {
+  display: flex;
+  align-items: center;
   font-size: 14px;
   font-weight: 500;
   color: #767676;
@@ -305,4 +307,17 @@
 
 .stock-detail-info-block {
   padding: 24px;
+}
+
+.stock-around-info-btn {
+  border: 1px solid #495cf8;
+  color: #495cf8;
+  text-align: center;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: auto;
 }

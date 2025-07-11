@@ -2,18 +2,8 @@ import { useContext, useEffect, useRef, useState } from "react"; // useRef 추�
 import { axiosAPI } from "../../api/axiosApi";
 import "../../css/stock/stockPage.css";
 import SearchBar from "../common/SearchBar";
-import floor from "../../assets/floor.svg"; // 평면도 이미지 추가
 import agent from "../../assets/agent-icon.svg"; // 중개사 아이콘
 import warning from "../../assets/circle_warning.svg"; // 미검색 결과 아이콘
-import saleThumbnail from "../../assets/sale-page-thumbnail.svg"; // 썸네일 이미지 추가
-import stockImgLeft from "../../assets/main-thumbnail-01.svg";
-import stockImgRight from "../../assets/main-thumbnail-02.svg";
-import {
-  useNavigate,
-  useLocation,
-  useSearchParams,
-  useParams,
-} from "react-router-dom";
 import { useStockContext } from "./StockContext";
 import InfraMark from "./infraMark";
 import { Bookmark } from "lucide-react";
@@ -598,7 +588,7 @@ const StockPageCopy = () => {
               <div className="stock-detail-desc">
                 {item.stockInfo}
                 <button
-                  style={{ margin: "0px 0px 0px 50px" }}
+                  className="stock-around-info-btn"
                   onClick={async () => {
                     var coord = new kakao.maps.LatLng(item.lat, item.lng);
                     await mapInstanceRef.current.setLevel(4); // 4레벨로 줌 후

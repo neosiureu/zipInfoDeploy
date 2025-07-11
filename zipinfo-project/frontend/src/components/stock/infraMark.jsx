@@ -3,8 +3,7 @@ import { axiosAPI } from "../../api/axiosApi";
 import "../../css/stock/stockPage.css";
 import "../../css/stock/infraMark.css";
 import SearchBar from "../common/SearchBar";
-import warning from "../../assets/circle_warning.svg"; // 미검색 결과 아이콘
-import saleThumbnail from "../../assets/sale-page-thumbnail.svg"; // 썸네일 이미지 추가
+import deleteBtn from "../../assets/delete-icon.svg";
 import {
   useNavigate,
   useLocation,
@@ -331,8 +330,7 @@ const InfraMark = () => {
             //onClick={() => onClickCategory("")}
             onClick={() => setClickedCategory(CategoryEnum.NONE)}
           >
-            <span className="category_bg none"></span>
-            선택 없음
+            <span className="none-text">선택 없음</span>
           </div>
           <div
             id="BK9"

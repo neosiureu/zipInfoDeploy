@@ -91,13 +91,19 @@ const ListSale = () => {
               currentItems.map((sale) => (
                 <tr key={sale.saleStockNo}>
                   <td>
-                    <Link to={`/sale/${sale.saleStockNo}`} className="ls-link">
+                    <Link
+                      to={`/sale/${sale.saleStockNo}?focus=true`}
+                      className="ls-link"
+                    >
                       {sale.saleStockNo}
                     </Link>
                   </td>
                   <td>{saleTypeMap[sale.saleStockForm] || "기타"}</td>
                   <td>
-                    <Link to={`/sale/${sale.saleStockNo}`} className="ls-link">
+                    <Link
+                      to={`/sale/${sale.saleStockNo}?focus=true`}
+                      className="ls-link"
+                    >
                       {sale.saleStockName}
                     </Link>
                   </td>
