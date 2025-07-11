@@ -635,7 +635,46 @@ const StockPageCopy = () => {
     setClickedStockItem(null);
     navigate("/stock", { replace: true });
   };
+  //  URL에 매물 번호가 있을 경우 상세 정보 표시 --> 파쿠리!!
+  useEffect(() => {
+    const fetchDetail = async () => {
+      try {
+        const res = await axiosAPI.get("/stock/detail", {
+          params: { stockNo },
+        });
+        if (res.status === 200) {
+          setClickedStockItem(res.data);
+          setIsAsideVisible(true);
+          const movedLatLng = new window.kakao.maps.LatLng(
+            res.data.lat,
+            res.data.lng
+          );
 
+          mapInstanceRef.current.panTo(movedLatLng); // 해당 매물 위치로 이동
+          mapInstanceRef.current.setDraggable(true);
+          mapInstanceRef.current.setZoomable(true);
+          /*
+          const map = mapInstanceRef.current;
+          const shouldFocus = searchParamsLocal.get("focus") === "true";
+
+          if (shouldFocus && map && res.data.lat && res.data.lng) {
+            const offsetLng = -0.07; // 기존 지도 이동 기준
+            const movedLatLng = new window.kakao.maps.LatLng(
+              res.data.lat,
+              res.data.lng + offsetLng
+            );
+            map.panTo(movedLatLng); // 해당 매물 위치로 이동
+          }
+
+          updateMarker(stockList); // 전체 마커 다시 그림*/
+        }
+      } catch (e) {
+        console.error("상세 매물 조회 실패:", e);
+      }
+    };
+
+    if (stockNo) fetchDetail();
+  }, [stockNo]);
   //updateMarker() 뒤에 queryString 조건에 따라 화면전환하는 useEffect() 사용
 
   const StockItemDetail = ({ item }) => {
@@ -654,7 +693,7 @@ const StockPageCopy = () => {
         <>
           <div className="stock-detail-panel">
             {/* 상단 이미지 2장 (예시) */}
-            <div className="stock-detail-images">
+            {/*<div className="stock-detail-images">
               <img
                 src={`http://localhost:8080${item.imgUrls[0]}`}
                 alt="상세1"
@@ -665,8 +704,25 @@ const StockPageCopy = () => {
                 alt="상세2"
                 className="stock-detail-mainimg"
               />
-            </div>
-
+            </div>*/}
+            {item?.imgUrls?.length >= 3 ? (
+              <div className="stock-detail-panel">
+                <div className="stock-detail-images">
+                  <img
+                    src={`http://localhost:8080${item.imgUrls[0]}`}
+                    alt="상세1"
+                    className="stock-detail-mainimg"
+                  />
+                  <img
+                    src={`http://localhost:8080${item.imgUrls[2]}`}
+                    alt="상세2"
+                    className="stock-detail-mainimg"
+                  />
+                </div>
+              </div>
+            ) : (
+              <p>이미지를 불러오는 중입니다...</p>
+            )}
             <div className="sale-section-divider" />
 
             {/* Block 1: 매매/가격/찜 */}
@@ -738,10 +794,12 @@ const StockPageCopy = () => {
             {/* Block 2: 평면도 */}
             <div className="stock-detail-info-block">
               <div className="stock-detail-plan">
-                <img
-                  src={`http://localhost:8080${item.imgUrls[1]}`}
-                  alt="평면도 이미지"
-                />
+                {item?.imgUrls?.[1] > 1 && (
+                  <img
+                    src={`http://localhost:8080${item.imgUrls[1]}`}
+                    alt="평면도 이미지"
+                  />
+                )}
               </div>
             </div>
 

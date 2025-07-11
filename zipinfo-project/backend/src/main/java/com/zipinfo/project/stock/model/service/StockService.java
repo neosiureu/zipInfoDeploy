@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 
+import com.zipinfo.project.sale.model.dto.Sale;
 import com.zipinfo.project.stock.model.dto.CoordsStatInfo;
 import com.zipinfo.project.stock.model.dto.SearchRequest;
 import com.zipinfo.project.stock.model.dto.Stock;
@@ -19,7 +20,11 @@ public interface StockService {
 			SearchRequest sr);
 	List<Stock> selectAnyFour();
 
+
+	Stock selectStockDetail(int saleStockNo);
+
 	List<Map<String, Object>> stockChart();
+
 	
 	
 	

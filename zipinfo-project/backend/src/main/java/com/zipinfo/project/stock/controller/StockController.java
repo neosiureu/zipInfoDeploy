@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.zipinfo.project.oauth.controller.OauthController;
+import com.zipinfo.project.sale.model.dto.Sale;
 import com.zipinfo.project.stock.model.dto.CoordsStatInfo;
 import com.zipinfo.project.stock.model.dto.SearchRequest;
 import com.zipinfo.project.stock.model.dto.Stock;
@@ -129,6 +131,30 @@ public class StockController {
 		}
 	}
 	
+	/** 단일 분양 매물 조회하기
+	 * @param stockNo
+	 * @return
+	 */
+	@GetMapping("detail")
+	public ResponseEntity<?> selectStockDetail(@RequestParam("stockNo") int stockNo) {
+	    try {
+	    	
+	        Stock stockDetail = service.selectStockDetail(stockNo);
+	        
+	        if (stockDetail != null) {
+	            return ResponseEntity.ok(stockDetail);
+	            
+	        } else {
+	            return ResponseEntity.notFound().build();
+	        }
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	    }
+	}
+	
+
 	
 	@GetMapping("/stockChart")  // URL 경로 수정
 	public ResponseEntity<List<Map<String, Object>>> stockChart() {
@@ -141,4 +167,5 @@ public class StockController {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 	    }
 	}
+
 }
