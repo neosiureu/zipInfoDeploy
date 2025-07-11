@@ -18,16 +18,6 @@ const UpdateInfo = () => {
 
   const [updateUser, setUpdateUser] = useState(user || {});
 
-  const [postcode, setPostcode] = useState(
-    updateUser.stockAddress?.split("^^^")[0] || ""
-  );
-  const [address, setAddress] = useState(
-    updateUser.stockAddress?.split("^^^")[1] || ""
-  );
-  const [detailAddress, setDetailAddress] = useState(
-    updateUser.stockAddress?.split("^^^")[2] || ""
-  );
-
   const cityNo =
     user.memberLocation !== null
       ? parseInt(String(user.memberLocation).substring(0, 2))

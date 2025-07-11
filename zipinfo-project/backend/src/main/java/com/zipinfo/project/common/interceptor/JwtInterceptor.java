@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import com.zipinfo.project.common.utility.JwtUtil;
 import com.zipinfo.project.member.model.mapper.MemberMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +13,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
-public class LoginInterceptor implements HandlerInterceptor {
+public class JwtInterceptor implements HandlerInterceptor {
 
     @Autowired
     private MemberMapper mapper;
@@ -25,19 +26,19 @@ public class LoginInterceptor implements HandlerInterceptor {
             throws Exception {
 
         String authHeader = request.getHeader("Authorization");
-
+        
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return false;
+            return true;                       // ★ NPE 방지
         }
 
         String token = authHeader.substring(7); // "Bearer " 제거
+        
 
         try {
             int memberNo = jwtUtil.extractMemberNo(token); // JWT에서 memberNo 추출
 
-            String savedToken = accessTokenMapper.findTokenByMemberNo(memberNo);
-
+            String savedToken = mapper.getTokenNo(memberNo);
+            
             if (!token.equals(savedToken)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return false;

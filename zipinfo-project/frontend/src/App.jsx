@@ -221,6 +221,17 @@ function App() {
       window.Kakao.init(import.meta.env.VITE_KAKAO_JS_KEY);
       console.log("Kakao SDK 초기화", window.Kakao.isInitialized());
     }
+
+    const handleForceLogout = () => {
+      // 1) 저장된 토큰 제거
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("loginMember");
+
+      window.location.href = "/login";
+    };
+
+    window.addEventListener("forceLogout", handleForceLogout);
+    return () => window.removeEventListener("forceLogout", handleForceLogout);
   }, []);
 
   return (

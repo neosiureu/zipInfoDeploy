@@ -3,6 +3,7 @@ import axios from "axios";
 import { Search, RefreshCw } from "lucide-react";
 import "../../../css/admin/Management/DeletedMembers.css";
 import { toast } from "react-toastify";
+import { axiosAPI } from "../../../api/axiosApi";
 
 const roleOptions = ["일반회원", "중개인", "관리자"];
 const BASE_URL = "http://localhost:8080"; // API 주소 맞게 조정하세요
@@ -18,7 +19,7 @@ const DeletedMembers = () => {
   // 서버에서 삭제된 회원 목록 불러오기
   const fetchDeletedMembers = async () => {
     try {
-      const response = await axios.get(
+      const response = await axiosAPI.get(
         `${BASE_URL}/admin/management/members/deleted`
       );
       setDeletedMembers(response.data);
@@ -62,7 +63,7 @@ const DeletedMembers = () => {
   // 회원 복구 함수
   const handleRestoreMember = async (memberNo) => {
     try {
-      const response = await axios.put(
+      const response = await axiosAPI.put(
         `${BASE_URL}/admin/management/members/${memberNo}/restore`
       );
 

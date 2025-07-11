@@ -3,6 +3,7 @@ import axios from "axios";
 import { Search, RefreshCw, XCircle } from "lucide-react";
 import "../../../css/admin/Management/BrokerApplications.css";
 import { toast } from "react-toastify";
+import { axiosAPI } from "../../../api/axiosApi";
 
 const roleOptions = ["관리자", "일반회원", "중개인 신청", "중개인"];
 
@@ -76,7 +77,7 @@ const BrokerApplications = () => {
   const handleRoleChange = async (memberNumber, newRoleStr) => {
     const newRole = reverseRoleMap[newRoleStr];
     try {
-      await axios.put(
+      await axiosAPI.put(
         `${BASE_URL}/admin/management/members/${memberNumber}/role`,
         null,
         { params: { authId: newRole } }
@@ -101,10 +102,10 @@ const BrokerApplications = () => {
 
   const handleReject = async (memberNumber) => {
     try {
-      await axios.put(
+      await axiosAPI.put(
         `${BASE_URL}/admin/management/broker-applications/${memberNumber}/reject`
       );
-      await axios.put(
+      await axiosAPI.put(
         `${BASE_URL}/admin/management/members/${memberNumber}/role`,
         null,
         { params: { authId: 1 } }

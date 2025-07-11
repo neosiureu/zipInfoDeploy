@@ -6,6 +6,7 @@ import "../../../css/admin/Management/Management.css";
 import MemberList from "./MemberList";
 import DeletedMembers from "./DeletedMembers";
 import BrokerApplications from "./BrokerApplications";
+import { axiosAPI } from "../../../api/axiosApi";
 
 const Management = () => {
   const [activeTab, setActiveTab] = useState("members");
@@ -40,7 +41,7 @@ const Management = () => {
     console.log("[useEffect] activeTab:", activeTab);
 
     if (activeTab === "members") {
-      axios
+      axiosAPI
         .get("http://localhost:8080/admin/management/members", {
           withCredentials: true,
         })
@@ -54,7 +55,7 @@ const Management = () => {
         })
         .finally(() => setLoading(false));
     } else if (activeTab === "deleted") {
-      axios
+      axiosAPI
         .get("http://localhost:8080/admin/management/members/deleted")
         .then((res) => {
           console.log("[then] 삭제된 회원 목록 응답:", res);
@@ -70,7 +71,7 @@ const Management = () => {
         })
         .finally(() => setLoading(false));
     } else if (activeTab === "applications") {
-      axios
+      axiosAPI
         .get("http://localhost:8080/admin/management/broker-applications")
         .then((res) => {
           console.log("[then] 중개인 권한 신청 목록 응답:", res);

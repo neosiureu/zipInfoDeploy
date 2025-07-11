@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styles from "../../../css/admin/HelpMessage/HelpMessage.module.css";
 import { MemberContext } from "./../../member/MemberContext";
+import { axiosAPI } from "../../../api/axiosApi";
 
 const HelpMessage = () => {
   const [activeTab, setActiveTab] = useState("received");
@@ -32,7 +33,7 @@ const HelpMessage = () => {
 
       const params = { adminId: currentUserId };
 
-      const response = await axios.get(url, { params });
+      const response = await axiosAPI.get(url, { params });
       setHelpMessages(response.data);
     } catch (err) {
       setError(

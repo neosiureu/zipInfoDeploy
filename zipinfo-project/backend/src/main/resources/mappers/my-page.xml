@@ -23,7 +23,7 @@
     	<result property="bathCount" column="BATH_COUNT"/>
     	<result property="stockDirection" column="STOCK_DIRECTION"/>
     	<result property="ableDate" column="ABLE_DATE"/>
-    	<result property="useApprovalDate" column="USE_APPROVAL_SDATE"/>
+    	<result property="useApprovalDate" column="USE_APPROVAL_DATE"/>
     	<result property="registDate" column="REGIST_DATE"/>
     	<result property="stockDetail" column="STOCK_DETAIL"/>
     	<result property="stockAddress" column="STOCK_ADDRESS"/>

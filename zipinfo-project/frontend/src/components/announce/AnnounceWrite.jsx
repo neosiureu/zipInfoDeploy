@@ -62,7 +62,7 @@ export default function AnnounceWrite() {
       };
 
       if (isEditMode) {
-        await axios.put(
+        await axiosAPI.put(
           `http://localhost:8080/api/announce/edit/${id}`,
           payload,
           { withCredentials: true }

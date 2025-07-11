@@ -10,8 +10,7 @@ import { useContext, useEffect, useState } from "react";
 import NeighborhoodFilters from "./NeighborhoodFilters";
 import { MemberContext } from "../member/MemberContext";
 import { toast } from "react-toastify";
-// 2000 byte 계산용 공통 함수
-const byteLength = (str) => new TextEncoder().encode(str).length;
+
 const NeighborhoodEdit = () => {
   const location = useLocation();
   const { cityNo, townNo, boardSubject } = location.state || {};
@@ -92,16 +91,8 @@ const NeighborhoodEdit = () => {
       );
       return;
     }
-    const html = window
-      .$(".note-editor") // 첫 번째 에디터
-      .first()
-      .find(".note-editable") // 실제 편집 영역
-      .html();
-    if (byteLength(html) > 2000) {
-      toast.error(<div>… 2000byte 초과 …</div>);
-      return;
-    }
-    if (!html.trim() || html.trim() === "<p><br></p>") {
+
+    if (!content.trim() || content.trim() === "<p><br></p>") {
       toast.error(
         <div>
           <div className="toast-error-title">오류 알림!</div>
@@ -146,7 +137,7 @@ const NeighborhoodEdit = () => {
         const params = {
           boardNo: boardNo,
           boardTitle: title.trim(),
-          boardContent: html,
+          boardContent: content,
           cityNo: selectedCity, // 시도 코드 (숫자)
           townNo: selectedTown, // 시군구 코드 (숫자)
           boardSubject: selectedSubject, // 주제 코드 (QRE중 하나)
@@ -219,11 +210,7 @@ const NeighborhoodEdit = () => {
   };
 
   const handleCancel = () => {
-    if (isEdit) {
-      navigate(`/neighborhoodBoard/detail/${boardNo}?cp=${cp}`);
-    } else {
-      navigate(`/neighborhoodBoard?cp=${cp}`);
-    }
+    navigate(`/neighborhoodBoard?cp=${cp}`);
   };
 
   return (
