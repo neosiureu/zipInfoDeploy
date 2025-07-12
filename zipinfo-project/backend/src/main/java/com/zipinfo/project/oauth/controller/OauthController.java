@@ -40,8 +40,8 @@ public class OauthController {
 	            Member member = oauthService.loginKakao(kakaoAccessToken);
 
 	            /* 2) JWT 발급 */
-	            String jwt = jwtTokenProvider.createAccessToken(member);
-
+//	            String jwt = jwtTokenProvider.createAccessToken(member);
+	            String jwt = member.getAccessToken();
 	            /* 3) 응답 */
 	            Map<String,Object> result = Map.of(
 	                    "loginMember",  member,
