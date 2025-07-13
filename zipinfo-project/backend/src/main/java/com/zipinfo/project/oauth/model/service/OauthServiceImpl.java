@@ -1,5 +1,7 @@
 package com.zipinfo.project.oauth.model.service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import org.springframework.core.ParameterizedTypeReference;
@@ -54,6 +56,7 @@ public class OauthServiceImpl implements OauthService {
 
 	        // 3단계: 회원 조회/등록
 	        Member member = mapper.selectByKakaoEmail(email);
+	        validateWithdraw(member);
 	        log.info("DB 조회 member={}", member);
 	        if (member == null) {
 	            log.info("신규 회원 등록");
@@ -152,5 +155,19 @@ public class OauthServiceImpl implements OauthService {
 		        throw e;  
 		    }
 	}
+	
+	private void validateWithdraw(Member m) {
 
+	    if (m == null || !"Y".equals(m.getMemberDelFl())) return;
+
+	    // 14 일 미만이면 예외
+	    if (m.getMemberWithdrawDate().plusDays(14).isAfter(LocalDate.now())) {
+	        throw new IllegalStateException("WITHDRAW_14D");
+	    }
+
+	    // 14 일 경과 => 계정 복구
+	    mapper.recoverMember(m.getMemberNo());
+	    m.setMemberDelFl("N");
+	    m.setMemberWithdrawDate(null);
+	}
 }
