@@ -48,7 +48,7 @@ public class Member implements UserDetails {
     private String companyPostcode;
     private String companyAddress;
     private String companyDetailAddress;
-    
+    private String memberWithdrawDate;
     public String getRole() {
         return switch (this.memberAuth) {
             case 0 -> "ROLE_ADMIN";

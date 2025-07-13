@@ -36,7 +36,7 @@ public class OauthController {
 	        log.info("카카오 로그인 요청, code={}", kakaoAccessToken);
 
 	        try {
-	            /* 1) 카카오 토큰 → 우리 서비스 회원 */
+	            /* 1) 카카오 토큰 => 우리 서비스 회원 */
 	            Member member = oauthService.loginKakao(kakaoAccessToken);
 
 	            /* 2) JWT 발급 */

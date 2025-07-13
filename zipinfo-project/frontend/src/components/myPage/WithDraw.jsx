@@ -9,33 +9,23 @@ import { toast } from "react-toastify";
 
 const PasswordChange = () => {
   const nav = useNavigate();
+  const { setMember } = useContext(MemberContext);
 
-  const { member, setMember } = useContext(MemberContext);
+  /* ▼ 카카오 로그인 여부 판별 */
+  const kakaoKey = Object.keys(localStorage).find((k) =>
+    k.startsWith("kakao_")
+  );
+  const isKakaoLogin = Boolean(kakaoKey);
 
   const [password, setPassword] = useState("");
-
   const [agreed, setAgreed] = useState(false);
 
-  const handleCheck = (e) => {
-    setAgreed(e.target.checked);
-  };
+  const handleCheck = (e) => setAgreed(e.target.checked);
+  const handlePass = (e) => setPassword(e.target.value);
 
-  const handlePass = (e) => {
-    setPassword(e.target.value);
-  };
-
+  /* 탈퇴 처리 */
   const handleWithdrawal = async () => {
     try {
-      if (password.trim().length === 0) {
-        toast.error(
-          <div>
-            <div className="toast-error-title">오류 알림!</div>
-            <div className="toast-error-body">비밀번호를 입력하세요.</div>
-          </div>
-        );
-        return;
-      }
-
       if (!agreed) {
         toast.error(
           <div>
@@ -43,40 +33,56 @@ const PasswordChange = () => {
             <div className="toast-error-body">약관에 동의하세요.</div>
           </div>
         );
+        return;
       }
 
-      const response = await axiosAPI.post("/myPage/checkPassword", {
-        memberPw: password,
-      });
-
-      if (response.status === 200 && response.data === 1) {
-        const resp = await axiosAPI.get("/myPage/withDraw");
-        if (resp.status === 200 && resp.data === 1) {
-          toast.success(
+      /* 일반 로그인 → 비밀번호 확인 */
+      if (!isKakaoLogin) {
+        if (password.trim().length === 0) {
+          toast.error(
             <div>
-              <div className="toast-success-title">탈퇴 성공 알림!</div>
-              <div className="toast-success-body">
-                회원 탈퇴가 완료되었습니다.
+              <div className="toast-error-title">오류 알림!</div>
+              <div className="toast-error-body">비밀번호를 입력하세요.</div>
+            </div>
+          );
+          return;
+        }
+
+        const pwResp = await axiosAPI.post("/myPage/checkPassword", {
+          memberPw: password,
+        });
+        if (!(pwResp.status === 200 && pwResp.data === 1)) {
+          toast.error(
+            <div>
+              <div className="toast-error-title">오류 알림!</div>
+              <div className="toast-error-body">
+                비밀번호가 일치하지 않습니다.
               </div>
             </div>
           );
-          setMember(null);
-          localStorage.removeItem("loginMember");
-          nav("/");
+          setPassword("");
+          return;
         }
-      } else {
-        toast.error(
+      }
+
+      /* 실제 탈퇴 */
+      const resp = await axiosAPI.get("/myPage/withDraw");
+      if (resp.status === 200 && resp.data === 1) {
+        toast.success(
           <div>
-            <div className="toast-error-title">오류 알림!</div>
-            <div className="toast-error-body">
-              비밀번호가 일치하지 않습니다.
+            <div className="toast-success-title">탈퇴 성공 알림!</div>
+            <div className="toast-success-body">
+              회원 탈퇴가 완료되었습니다.
             </div>
           </div>
         );
-        setPassword("");
+        setMember(null);
+        localStorage.removeItem("loginMember");
+        if (kakaoKey) localStorage.removeItem(kakaoKey);
+        nav("/");
       }
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -86,17 +92,32 @@ const PasswordChange = () => {
         <Menu />
 
         <div className="with-draw-container">
-          <div className="with-draw-password-section">
-            <div className="with-draw-section-title">비밀번호</div>
-            <input
-              type="password"
-              onChange={handlePass}
-              value={password}
-              className="with-draw-password-input"
-              placeholder="비밀번호를 입력해주세요"
-            />
-          </div>
+          {/* 비밀번호 입력 : 일반 로그인만 */}
+          {!isKakaoLogin && (
+            <div className="with-draw-password-section">
+              <div className="with-draw-section-title">비밀번호</div>
+              <input
+                type="password"
+                onChange={handlePass}
+                value={password}
+                className="with-draw-password-input"
+                placeholder="비밀번호를 입력해주세요"
+              />
+            </div>
+          )}
 
+          {/* 카카오 안내 : 카카오 로그인만 */}
+          {isKakaoLogin && (
+            <div className="kakao-withdraw-info">
+              카카오 간편 로그인 계정은 비밀번호가 설정되어 있지 않습니다.
+              <br />
+              <strong>
+                탈퇴 후 14일 동안 동일 카카오 계정으로 재가입이 제한됩니다.
+              </strong>
+            </div>
+          )}
+
+          {/* 약관 전체 */}
           <div className="with-draw-work-section">
             <div className="with-draw-section-title">회원 탈퇴 약관</div>
             <div className="with-draw-work-intro">
@@ -135,6 +156,7 @@ const PasswordChange = () => {
             </div>
           </div>
 
+          {/* 약관 동의 체크 */}
           <div className="with-draw-agreement-section">
             <div className="with-draw-agreement-item">
               <input
@@ -144,10 +166,7 @@ const PasswordChange = () => {
                 checked={agreed}
                 onChange={handleCheck}
               />
-              <label
-                htmlFor="agree"
-                className="with-draw-agreement-label"
-              ></label>
+              <label htmlFor="agree" className="with-draw-agreement-label" />
               <span className="withdraw-span">위 약관에 동의합니다</span>
             </div>
           </div>
