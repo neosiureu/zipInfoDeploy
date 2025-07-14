@@ -21,7 +21,7 @@ const NeighborhoodBoard = ({}) => {
 
   const initCp = Number(searchParams.get("cp") ?? 1);
 
-  const [currentPage, setCurrentPage] = useState(initCp);
+  const cp = Number(searchParams.get("cp") ?? 1);
   const [selectedCity, setSelectedCity] = useState(
     searchParams.get("cityNo") || "-1"
   );
@@ -52,7 +52,7 @@ const NeighborhoodBoard = ({}) => {
     setSelectedCity("-1");
     setSelectedTown("-1");
     setSelectedSubject("-1");
-    setCurrentPage(1);
+    // setCurrentPage(1);
     setSearchQuery("");
     setSearchKey("t");
     setSearchParams({}, { replace: true });
@@ -165,19 +165,22 @@ const NeighborhoodBoard = ({}) => {
   ];
 
   const handlePaginationChange = (page) => {
-    setCurrentPage(page);
-    const params = new URLSearchParams(searchParams);
-    params.set("cp", page);
+    // setCurrentPage(page);
+
+    // URL 쿼리 파라미터 동기화
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set("cp", page); // 추가
+      return newParams;
+    });
   };
 
   const handleBoardClick = (item) => {
-    navigate(`/neighborhoodBoard/detail/${item.boardNo}?cp=${currentPage}`);
+    navigate(`/neighborhoodBoard/detail/${item.boardNo}?cp=${cp}`);
   };
 
   const handleBoardWriteClick = (board) => {
-    navigate(
-      `/neighborhoodBoard/edit${currentPage ? `?cp=${currentPage}` : ""}`
-    );
+    navigate(`/neighborhoodBoard/edit${cp ? `?cp=${cp}` : ""}`);
   };
 
   const renderPagination = () => {
@@ -201,8 +204,7 @@ const NeighborhoodBoard = ({}) => {
       const urlSearchKey = searchParams.get("key") || searchKey;
       const urlSearchQuery = searchParams.get("query") || "";
 
-      const params = new URLSearchParams({ cp: currentPage });
-
+      const params = new URLSearchParams({ cp });
       if (urlSearchQuery.trim()) {
         params.append("key", urlSearchKey);
         params.append("query", urlSearchQuery);
@@ -229,7 +231,7 @@ const NeighborhoodBoard = ({}) => {
       setLoading(false);
       setIsSearching(false);
     }
-  }, [currentPage, searchParams, selectedCity, selectedTown, selectedSubject]);
+  }, [cp, searchParams, selectedCity, selectedTown, selectedSubject]);
 
   // 시도 선택 핸들러
   const handleCityChange = async (e) => {
@@ -405,7 +407,7 @@ const NeighborhoodBoard = ({}) => {
             <button
               className="nb-page-btn nb-page-prev"
               onClick={() => handlePaginationChange(1)}
-              disabled={currentPage === 1}
+              disabled={cp === 1}
             >
               ‹‹
             </button>
@@ -420,9 +422,7 @@ const NeighborhoodBoard = ({}) => {
             {pages.map((page) => (
               <button
                 key={page}
-                className={`nb-page-btn ${
-                  page === currentPage ? "nb-page-active" : ""
-                }`}
+                className={`nb-page-btn ${page === cp ? "nb-page-active" : ""}`}
                 onClick={() => handlePaginationChange(page)}
               >
                 {page.toString().padStart(2, "0")}

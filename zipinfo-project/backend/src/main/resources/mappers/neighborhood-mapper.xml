@@ -409,6 +409,7 @@
 		INSERT INTO "LIKE"
 		VALUES(#{memberNo}, #{boardNo})
 	</insert>
+	
 	<!-- 총 좋아요 수 조회 -->
 	<select id="selectBoardLike">
 		SELECT COUNT(*) FROM "LIKE"

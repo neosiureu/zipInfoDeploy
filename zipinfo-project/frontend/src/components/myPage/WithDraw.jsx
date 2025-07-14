@@ -54,19 +54,14 @@ export default function PasswordChange() {
       const url = isKakaoLogin ? "/oauth/kakaoWithdraw" : "/myPage/withDraw";
       const res = await axiosAPI.post(url);
 
-      if (res.status === 200 && res.data === 1) {
+      if (res.status === 200 || res.data === 1) {
         toast.success("회원 탈퇴가 완료되었습니다.");
         /* 클라이언트 상태 정리 */
         setMember(null);
         localStorage.removeItem("loginMember");
+        localStorage.removeItem("accessToken");
         if (kakaoKey) localStorage.removeItem(kakaoKey);
         nav("/");
-        return;
-      }
-
-      /* 14 일 내 재가입 제한(카카오 전용) */
-      if (res.status === 401 && res.data?.msg === "WITHDRAW_14D") {
-        toast.error("탈퇴 후 14일 동안 재가입이 제한됩니다.");
         return;
       }
 
@@ -74,7 +69,7 @@ export default function PasswordChange() {
       toast.error("탈퇴 처리 중 오류가 발생했습니다.");
     } catch (err) {
       console.error(err);
-      toast.error("서버 통신 오류가 발생했습니다.");
+      toast.error("서버 통신 중 알 수 없는 오류가 발생했습니다.");
     }
   };
 
@@ -104,9 +99,7 @@ export default function PasswordChange() {
             <div className="kakao-withdraw-info">
               카카오 로그인 계정은 비밀번호가 설정되어 있지 않습니다.
               <br />
-              <strong>
-                탈퇴 후 14일 동안 동일 카카오 계정으로 재가입이 제한됩니다.
-              </strong>
+              <strong>탈퇴 시 모든 계정 정보가 영구적으로 삭제됩니다.</strong>
             </div>
           )}
 

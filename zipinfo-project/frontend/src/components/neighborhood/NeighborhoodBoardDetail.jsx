@@ -77,7 +77,7 @@ const NeighborhoodBoardDetail = () => {
           </div>
         );
       }
-      navigate(`/neighborhoodBoard?cp=${cp}`);
+      handleGoToList();
     } else {
       toast.error(
         <div>
@@ -88,7 +88,16 @@ const NeighborhoodBoardDetail = () => {
       return; // 실패시 페이지 이동 막기
     }
   };
+  // cp를 유지하기 위한 새로운 함수
+  const handleGoToList = () => {
+    const currentParams = new URLSearchParams(searchParams);
 
+    if (!currentParams.has("cp")) {
+      currentParams.set("cp", "1");
+    }
+
+    navigate(`/neighborhoodBoard?${currentParams.toString()}`);
+  };
   const handleAdminDelete = async (boardNo) => {
     if (!confirm("관리자 권한으로 해당 게시글을 삭제하시겠습니까?")) return;
     const { data: result } = await axiosAPI.delete(`/admin/board/${boardNo}`);
@@ -101,7 +110,7 @@ const NeighborhoodBoardDetail = () => {
           </div>
         </div>
       );
-      navigate(-1);
+      handleGoToList();
     }
   };
 
@@ -234,7 +243,7 @@ const NeighborhoodBoardDetail = () => {
           )}
           <button
             className="nb-detail-btn nb-detail-btn-list"
-            onClick={() => navigate(-1)}
+            onClick={handleGoToList}
           >
             목록보기
           </button>

@@ -21,5 +21,8 @@ public interface OauthMapper {
 	void createTokenTable();
 
 	void recoverMember(int memberNo);
+
+
+	int withDraw(Member loginMember);
 	
 }

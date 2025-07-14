@@ -99,14 +99,6 @@ export default function MemberLogin() {
 
       navigate("/"); //router 사용하여 메인페이지로 이동
     } catch (err) {
-      if (
-        err.response?.status === 401 &&
-        err.response?.data?.msg === "WITHDRAW_14D"
-      ) {
-        toast.error("탈퇴 후 14일 동안은 재가입할 수 없습니다.");
-        return; // 더 이상 처리 안함
-      }
-
       if (err.response?.status === 401) {
         toast.error("이메일 또는 비밀번호가 다릅니다.");
       } else {
@@ -214,6 +206,14 @@ export default function MemberLogin() {
           setMember(loginMember);
           navigate("/");
         } catch (err) {
+          if (
+            err.response?.status === 403 &&
+            err.response?.data?.msg === "MEMBER_WITHDRAWN"
+          ) {
+            // console.log("탈퇴한 회원은 로그인할 수 없습니다.");
+            alert("탈퇴한 회원은 로그인할 수 없습니다.");
+            return;
+          }
           console.error("카카오 로그인 처리 중 에러", err);
           toast.error("로그인 중 오류가 발생했습니다.");
         }
@@ -339,13 +339,13 @@ export default function MemberLogin() {
         </button>
 
         {/* 네이버 간편 로그인 */}
-        <button
+        {/* <button
           onClick={handleNaverLogin}
           className="naver-login-btn brand-color"
         >
           <img src={Naver} alt="네이버 아이콘" />
           <span>네이버로 간편하게 로그인하기</span>
-        </button>
+        </button> */}
 
         {/* 회원가입 */}
         <div className="signup-link">

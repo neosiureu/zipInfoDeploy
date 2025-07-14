@@ -115,6 +115,7 @@ public class NeighborhoodServiceImpl implements NeighborhoodService {
 
 
 
+
 	@Override
 	public int like(Map<String, Object> map) {
 		int result = 0;
@@ -130,6 +131,7 @@ public class NeighborhoodServiceImpl implements NeighborhoodService {
 
 		return -1;
 	}
+
 
 
 
