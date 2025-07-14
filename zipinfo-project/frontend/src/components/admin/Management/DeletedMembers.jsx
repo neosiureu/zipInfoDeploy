@@ -3,6 +3,7 @@ import axios from "axios";
 import { Search, RefreshCw } from "lucide-react";
 import "../../../css/admin/Management/DeletedMembers.css";
 import { toast } from "react-toastify";
+import { axiosAPI } from "../../../api/axiosApi";
 
 const roleOptions = ["일반회원", "중개인", "관리자"];
 const BASE_URL = "http://localhost:8080"; // API 주소 맞게 조정하세요

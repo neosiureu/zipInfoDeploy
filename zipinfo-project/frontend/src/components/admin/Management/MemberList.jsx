@@ -3,6 +3,7 @@ import { Search, RefreshCw, Lock, CheckCircle, XCircle } from "lucide-react";
 import axios from "axios";
 import "../../../css/admin/Management/MemberList.css";
 import { toast } from "react-toastify";
+import { axiosAPI } from "../../../api/axiosApi";
 
 const BASE_URL = "http://localhost:8080"; // API 주소에 맞게 변경하세요
 
