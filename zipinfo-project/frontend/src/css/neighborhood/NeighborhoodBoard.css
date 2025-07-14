@@ -181,6 +181,10 @@
   color: #111;
   cursor: pointer;
   padding-left: 16px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
 }
 
 .nb-cell-area {

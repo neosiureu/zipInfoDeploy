@@ -26,7 +26,7 @@ const Main = () => {
   const [saleList, setSaleList] = useState([]);
   const [mainAd, setMainAd] = useState(null);
 
-  const [searchContent, setSearchContent] = useState(null);
+  const [searchContent, setSearchContent] = useState("");
 
   const searchRef = useRef(null);
 
@@ -174,6 +174,7 @@ const Main = () => {
   };
 
   useEffect(() => {
+
     const history = JSON.parse(localStorage.getItem("recentSearch")) || [];
     setRecentSearch(history);
 
