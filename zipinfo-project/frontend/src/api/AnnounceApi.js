@@ -20,14 +20,12 @@ export const fetchPosts = async (page = 0, size = 10, keyword = "") => {
       params.key = "tc";
       params.query = keyword.trim();
     }
-    const response = await axios.get(BASE_URL, {
+    const response = await axiosAPI.get(BASE_URL, {
       params,
       withCredentials: true,
     });
-    console.log("공지사항 API 응답 데이터:", response.data);
     return response.data;
   } catch (error) {
-    console.error("공지사항 목록 조회 실패", error);
     throw error;
   }
 };
@@ -40,12 +38,11 @@ export const fetchPosts = async (page = 0, size = 10, keyword = "") => {
 export const fetchPostDetail = async (postId) => {
   try {
     // 게시글 번호를 URL에 포함시켜 GET 요청
-    const response = await axios.get(`${BASE_URL}/${postId}`, {
+    const response = await axiosAPI.get(`${BASE_URL}/${postId}`, {
       withCredentials: true, // 쿠키 포함
     });
     return response.data;
   } catch (error) {
-    console.error("공지사항 상세 조회 실패", error);
     throw error;
   }
 };
@@ -57,12 +54,11 @@ export const fetchPostDetail = async (postId) => {
  */
 export const createPost = async (postData) => {
   try {
-    const response = await axios.post("/api/announce/write", postData, {
+    const response = await axiosAPI.post("/api/announce/write", postData, {
       withCredentials: true,
     });
     return response.data;
   } catch (error) {
-    console.error("공지사항 등록 실패", error);
     throw error;
   }
 };
@@ -83,7 +79,6 @@ export const updatePost = async (postId, postData) => {
     );
     return response.data;
   } catch (error) {
-    console.error("공지사항 수정 실패", error);
     throw error;
   }
 };
@@ -105,7 +100,6 @@ export const deletePost = async (postId) => {
     );
     return response.data;
   } catch (error) {
-    console.error("공지사항 삭제 실패", error);
     throw error;
   }
 };
@@ -117,13 +111,12 @@ export const uploadImage = async (imageFile) => {
   const formData = new FormData();
   formData.append("image", imageFile);
   try {
-    const response = await axios.post(`${BASE_URL}/uploadImage`, formData, {
+    const response = await axiosAPI.post(`${BASE_URL}/uploadImage`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
       withCredentials: true,
     });
     return response.data; // 이미지 URL 문자열
   } catch (error) {
-    console.error("이미지 업로드 실패", error);
     throw error;
   }
 };

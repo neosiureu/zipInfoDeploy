@@ -60,7 +60,6 @@ axiosAPI.interceptors.response.use(
       (error.response.status === 401 || error.response.status === 403) &&
       error.response.data?.code === "TOKEN_MISMATCH"
     ) {
-      window.location.href = "/";
       window.dispatchEvent(new CustomEvent("forceLogouts"));
       pushToast();
     }
