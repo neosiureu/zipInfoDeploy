@@ -752,28 +752,27 @@ const StockPageCopy = () => {
 
             <div className="stock-detail-panel">
               <div className="stock-detail-images">
-                {isImg0Loaded ? (
-                  <img
-                    src={`http://localhost:8080${
-                      item.imgUrls[0]
-                    }?v=${Date.now()}`} //?v=${Date.now()}	--> 현재 시간을 이용해 URL을 고유하게 만들어 브라우저 캐시를 우회
-                    alt="상세1"
-                    className="stock-detail-mainimg"
-                    onLoad={() => setIsImg0Loaded(true)}
-                  />
-                ) : (
-                  <p>이미지 로드 중...</p>
-                )}
+                <img
+                  src={
+                    item?.imgUrls
+                      ? `http://localhost:8080${item.imgUrls[0]}`
+                      : ""
+                  } //?v=${Date.now()}	--> 현재 시간을 이용해 URL을 고유하게 만들어 브라우저 캐시를 우회
+                  alt="상세1"
+                  className="stock-detail-mainimg"
+                  onLoad={() => setIsImg0Loaded(true)}
+                />
 
-                {!isImg2Loaded && <p>이미지 로드 중...</p>}
-                {item && item.imgUrls && (
+                <>
                   <img
-                    src={`http://localhost:8080${item.imgUrls[2]}`}
-                    alt="상세2"
-                    className="stock-detail-mainimg"
+                    src={
+                      item?.imgUrls
+                        ? `http://localhost:8080${item.imgUrls[2]}`
+                        : ""
+                    }
                     onLoad={() => setIsImg2Loaded(true)}
                   />
-                )}
+                </>
               </div>
             </div>
 
@@ -824,23 +823,22 @@ const StockPageCopy = () => {
                 )}
               </div>
               <div className="stock-detail-name">{item.stockName}</div>
-              <div className="stock-detail-desc">
-                {item.stockInfo}
-                <button
-                  className="stock-around-info-btn"
-                  onClick={async () => {
-                    var coord = new kakao.maps.LatLng(item.lat, item.lng);
-                    await mapInstanceRef.current.setLevel(4); // 4레벨로 줌 후
-                    // 🔽 약간의 지연을 주자 (줌 적용 후 panTo 애니메이션 작동하도록)
-                    await new Promise((resolve) => setTimeout(resolve, 300)); // 300ms 딜레이
-                    await mapInstanceRef.current.panTo(coord); // 이동 애니메이션 설정
+              <div className="stock-detail-desc">{item.stockInfo}</div>
+              <button
+                className="stock-around-info-btn"
+                style={{ margin: "10px 0px 0px 0px" }}
+                onClick={async () => {
+                  var coord = new kakao.maps.LatLng(item.lat, item.lng);
+                  await mapInstanceRef.current.setLevel(4); // 4레벨로 줌 후
+                  // 🔽 약간의 지연을 주자 (줌 적용 후 panTo 애니메이션 작동하도록)
+                  await new Promise((resolve) => setTimeout(resolve, 300)); // 300ms 딜레이
+                  await mapInstanceRef.current.panTo(coord); // 이동 애니메이션 설정
 
-                    setIsInfraCategoryVisible(!isInfraCategoryVisible);
-                  }}
-                >
-                  주변시설 {isInfraCategoryVisible ? "보지 않기" : "보기"}
-                </button>
-              </div>
+                  setIsInfraCategoryVisible(!isInfraCategoryVisible);
+                }}
+              >
+                주변시설 {isInfraCategoryVisible ? "보지 않기" : "보기"}
+              </button>
             </div>
 
             <div className="sale-section-divider" />
@@ -848,12 +846,16 @@ const StockPageCopy = () => {
             {/* Block 2: 평면도 */}
             <div className="stock-detail-info-block">
               <div className="stock-detail-plan">
-                {item?.imgUrls?.[1] > 1 && (
+                {
                   <img
-                    src={`http://localhost:8080${item.imgUrls[1]}`}
+                    src={
+                      item?.imgUrls
+                        ? `http://localhost:8080${item.imgUrls[1]}`
+                        : ""
+                    }
                     alt="평면도 이미지"
                   />
-                )}
+                }
               </div>
             </div>
 
