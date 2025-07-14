@@ -97,7 +97,7 @@ export default function MyStock() {
                 <div className="my-detail-message-form-section">
                   <div className="my-detail-message-inquired">답변</div>
                   <div className="my-detail-message-title">
-                    [답변] {message.messageTitle}
+                    {message.messageTitle}
                   </div>
                 </div>
 

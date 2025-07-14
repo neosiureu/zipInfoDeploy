@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "../../css/myPage/MyStock.css";
 import StockMenu from "./StockMenu";
 import MiniMenu from "./MiniMenu";
-import { axiosAPI } from "../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -173,7 +173,11 @@ export default function MyStock() {
                     <div key={property.stockNo} className="property-card">
                       {/* 이미지 */}
                       <div
-                        onClick={() => nav(`/stock/${property.stockNo}`)}
+                        onClick={() =>
+                          nav(`/stock/${property.stockNo}`, {
+                            state: { shouldFocus: true },
+                          })
+                        }
                         className="property-image-container"
                       >
                         <div className="property-image-item">
@@ -188,7 +192,11 @@ export default function MyStock() {
 
                       {/* 본문 */}
                       <div
-                        onClick={() => nav(`/stock/${property.stockNo}`)}
+                        onClick={() =>
+                          nav(`/stock/${property.stockNo}`, {
+                            state: { shouldFocus: true },
+                          })
+                        }
                         className="property-content"
                       >
                         <div>

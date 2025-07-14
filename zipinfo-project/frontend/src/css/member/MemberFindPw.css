@@ -23,7 +23,7 @@
 
 /* 폼 그룹 */
 .find-pw-form-group {
-  margin-bottom: 48px;
+  margin-bottom: 24px;
 }
 
 /* 라벨 */
@@ -140,10 +140,6 @@
   cursor: pointer;
   transition: background-color 0.2s;
   margin-top: 20px;
-}
-
-.find-pw-submit-button:hover {
-  background-color: #3a4de8;
 }
 
 /* 비밀번호 설정 단계에서 사용할 더 큰 버튼 스타일 */
