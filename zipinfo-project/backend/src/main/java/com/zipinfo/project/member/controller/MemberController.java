@@ -121,7 +121,7 @@ public class MemberController {
 
 	@PostMapping("/logout")
 	public ResponseEntity<Map<String, String>> logout(
-			@RequestHeader(value = "Authorization", required = false) String authHeader) {
+			@RequestHeader(value = "Authorization", required = false) String authHeader, @AuthenticationPrincipal Member loginMember) {
 
 		// 1) 서버 측 블랙리스트 – 만약 필요할 때만 
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -133,7 +133,10 @@ public class MemberController {
 		Map<String, String> result = new HashMap<>();
 		result.put("message", "서버 로그아웃 완료");
 		result.put("naverLogoutRequired", "true"); // 네이버 팝업 로그아웃 지시
-		result.put("kakaoLogoutRequired", "true"); // 카카오 SDK logout 지시
+		
+		if(loginMember.getMemberLogin().equals("K")) {
+			result.put("kakaoLogoutRequired", "true"); // 카카오 SDK logout 지시
+		}
 
 		return ResponseEntity.ok(result);
 	}

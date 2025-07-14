@@ -1,9 +1,12 @@
 package com.zipinfo.project.common.interceptor;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zipinfo.project.common.utility.JwtUtil;
 import com.zipinfo.project.member.model.mapper.MemberMapper;
 
@@ -42,6 +45,17 @@ public class JwtInterceptor implements HandlerInterceptor {
             
             if (!token.equals(savedToken)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                
+                response.setContentType("application/json;charset=UTF-8");
+
+                Map<String, String> body = Map.of(
+                        "code", "TOKEN_MISMATCH",
+                        "message", "다른 PC에서 로그인하여 로그아웃 되었습니다."
+                );
+                new ObjectMapper().writeValue(response.getWriter(), body);
+                
+                response.getWriter().flush();
+                
                 return false;
             }
 
@@ -54,6 +68,11 @@ public class JwtInterceptor implements HandlerInterceptor {
         } catch (Exception e) {
             log.error("JWT 검증 실패: {}", e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            new ObjectMapper().writeValue(response.getWriter(),
+                    Map.of("code", "INVALID_JWT",
+                           "message", "토큰 검증 실패"));
+            response.getWriter().flush();
             return false;
         }
     }
