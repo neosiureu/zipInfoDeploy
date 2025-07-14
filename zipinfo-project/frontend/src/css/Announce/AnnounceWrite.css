@@ -4,7 +4,6 @@
   padding: 20px;
   background: #fff;
   border-radius: 8px; /* 모서리 둥글기 */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 그림자 */
   box-sizing: border-box;
 }
 

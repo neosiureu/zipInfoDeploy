@@ -26,7 +26,7 @@ const Main = () => {
   const [saleList, setSaleList] = useState([]);
   const [mainAd, setMainAd] = useState(null);
 
-  const [searchContent, setSearchContent] = useState(null);
+  const [searchContent, setSearchContent] = useState("");
 
   const searchRef = useRef(null);
 
@@ -61,7 +61,6 @@ const Main = () => {
     }
 
     const response = await axiosAPI.post("/myPage/searchResult", value);
-    console.log(response.data);
     setSearchStock(response.data.stock);
     setSearchSale(response.data.sale);
   };
@@ -123,7 +122,7 @@ const Main = () => {
 
     stock.stockNo
       ? navigate(`/stock/${stock.stockNo}`)
-      : navigate(`/sale/${stock.saleNo}`);
+      : navigate(`/sale/${stock.saleStockNo}`);
   };
 
   const deleteRecentSearch = (e) => {
@@ -174,19 +173,7 @@ const Main = () => {
     return result[status] || "기타";
   };
 
-  // 배너 URL 처리
-  const bannerPath = localStorage.getItem("mainBannerUrl");
-  const fullBannerUrl =
-    bannerPath && bannerPath.includes("/images/advertiseImg/")
-      ? `http://localhost:8080${bannerPath}`
-      : banner;
-
-  const refreshSet = async () => {
-    await axiosAPI.get("/catch/request");
-  };
-
   useEffect(() => {
-    refreshSet();
 
     const history = JSON.parse(localStorage.getItem("recentSearch")) || [];
     setRecentSearch(history);
@@ -235,13 +222,17 @@ const Main = () => {
           src={`http://localhost:8080${item.imgUrl}`}
           alt="실거래 집 썸네일 이미지"
           onClick={() => {
-            navigate(`/stock/${item.stockNo}`);
+            navigate(`/stock/${item.stockNo}`, {
+              state: { lat: item.lat, lng: item.lng, shouldFocus: true },
+            });
           }}
         />
         <div
           className="card-title"
           onClick={() => {
-            navigate(`/stock/${item.stockNo}`);
+            navigate(`/stock/${item.stockNo}`, {
+              state: { lat: item.lat, lng: item.lng, shouldFocus: true },
+            });
           }}
         >
           {item.stockForm === 1
@@ -256,7 +247,9 @@ const Main = () => {
         <div
           className="card-price"
           onClick={() => {
-            navigate(`/stock/${item.stockNo}`);
+            navigate(`/stock/${item.stockNo}`, {
+              state: { lat: item.lat, lng: item.lng, shouldFocus: true },
+            });
           }}
         >
           {item.stockType === 0 ? (

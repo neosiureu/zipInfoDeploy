@@ -139,4 +139,34 @@
     WHERE MEMBER_NO = #{memberNumber}
   </update>
 
+  <!-- 회원 관련 STOCK_SAW 데이터 삭제 -->
+  <delete id="deleteMemberStockSaw" parameterType="long">
+    DELETE FROM STOCK_SAW WHERE MEMBER_NO = #{memberNo}
+  </delete>
+  <!-- 회원 관련 LIKE 데이터 삭제 -->
+  <delete id="deleteMemberLikes" parameterType="long">
+    DELETE FROM "LIKE" WHERE MEMBER_NO = #{memberNo}
+  </delete>
+  <!-- 회원 관련 COMMENT 데이터 삭제 -->
+  <delete id="deleteMemberComments" parameterType="long">
+    DELETE FROM "COMMENT" WHERE MEMBER_NO = #{memberNo}
+  </delete>
+  <!-- 회원 관련 BOARD 데이터 삭제 -->
+  <delete id="deleteMemberBoards" parameterType="long">
+    DELETE FROM BOARD WHERE MEMBER_NO = #{memberNo}
+  </delete>
+  <!-- 회원 관련 TOKEN_INFO 데이터 삭제 -->
+  <delete id="deleteMemberTokenInfo" parameterType="long">
+    DELETE FROM TOKEN_INFO WHERE MEMBER_NO = #{memberNo}
+  </delete>
+  <!-- 회원 관련 BROKER_INFO 데이터 삭제 -->
+  <delete id="deleteMemberBrokerInfo" parameterType="long">
+    DELETE FROM BROKER_INFO WHERE MEMBER_NO = #{memberNo}
+  </delete>
+
+  <!-- 회원 영구 삭제 -->
+  <delete id="permanentlyDeleteMember" parameterType="long">
+    DELETE FROM MEMBER WHERE MEMBER_NO = #{memberNo} AND MEMBER_DEL_FL = 'Y'
+  </delete>
+
 </mapper>

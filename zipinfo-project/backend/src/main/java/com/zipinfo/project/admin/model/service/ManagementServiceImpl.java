@@ -197,4 +197,25 @@ public class ManagementServiceImpl implements ManagementService {
             throw e;
         }
     }
-}
+
+    /**
+     * 회원 영구 삭제 처리
+     * @param memberNo 회원 번호
+     * @return 삭제 성공 건수 (1 이상 성공)
+     */
+    @Override
+    public int permanentlyDeleteMember(Long memberNo) {
+        try {
+            managementMapper.deleteMemberStockSaw(memberNo);
+            managementMapper.deleteMemberLikes(memberNo);
+            managementMapper.deleteMemberComments(memberNo);
+            managementMapper.deleteMemberBoards(memberNo);
+            managementMapper.deleteMemberTokenInfo(memberNo);
+            managementMapper.deleteMemberBrokerInfo(memberNo);
+            return managementMapper.permanentlyDeleteMember(memberNo);
+        } catch (Exception e) {
+            log.error("회원 영구 삭제 중 오류 발생: memberNo={}, error={}", memberNo, e.getMessage(), e);
+            throw e;
+        }
+    }
+    }

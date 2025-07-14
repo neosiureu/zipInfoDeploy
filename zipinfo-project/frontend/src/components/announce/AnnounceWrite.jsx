@@ -89,11 +89,13 @@ export default function AnnounceWrite() {
 
   return (
     <div className="announce-write-container">
-      <h2>{isEditMode ? "공지사항 수정" : "공지사항 작성"}</h2>
+      <h2 style={{ marginBottom: "24px" }}>
+        {isEditMode ? "수정페이지" : "작성페이지"}
+      </h2>
 
       <div className="announce-write-form">
         {/* 제목 입력 */}
-        <div className="title-input-container">
+        <div style={{ marginBottom: "20px", position: "relative" }}>
           <input
             type="text"
             placeholder="제목을 입력하세요"
@@ -102,26 +104,59 @@ export default function AnnounceWrite() {
               const newValue = e.target.value;
               if (newValue.length <= 50) {
                 setTitle(newValue);
-              } else {
-                setTitle(newValue.slice(0, 50));
-                toast.warn("제목은 최대 50자까지 입력할 수 있습니다.");
               }
             }}
-            className="announce-write-title-input"
             disabled={isSubmitting}
+            maxLength={50}
+            style={{
+              width: "1000px",
+              padding: "12px 16px",
+              fontSize: "16px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+              outline: "none",
+              boxSizing: "border-box",
+            }}
           />
-          <div className="title-char-count">{title.length} / 50자</div>
+          <div
+            style={{
+              position: "absolute",
+              right: "16px",
+              bottom: "12px",
+              color: "#888",
+              fontSize: "13px",
+              background: "#fff",
+              padding: "0 4px",
+              borderRadius: "4px",
+            }}
+          >
+            {title.length} / 50자
+          </div>
         </div>
 
         {/* Summernote 에디터 */}
-        <div className="content-editor-container">
+        <div style={{ marginBottom: "20px", position: "relative" }}>
           <SummernoteEditor
             value={content}
             onChange={setContent}
             disabled={isSubmitting}
           />
-          <div className="content-char-count">
-            {content.replace(/<[^>]+>/g, "").length} / 2000자
+          <div
+            style={{
+              position: "absolute",
+              right: "16px",
+              bottom: "12px",
+              color: "#888",
+              fontSize: "13px",
+              background: "#fff",
+              padding: "0 4px",
+              borderRadius: "4px",
+            }}
+          >
+            {(() => {
+              const textOnly = content.replace(/<[^>]+>/g, "");
+              return `${textOnly.length} / 2000자`;
+            })()}
           </div>
         </div>
 

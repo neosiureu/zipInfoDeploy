@@ -51,7 +51,6 @@ export default function MemberLogin() {
 
   // 그냥 로그인
   const handleSubmit = async (e) => {
-    e.preventDefault();
     // 클라이언트 측 검증 추가
     if (!formData.email.trim()) {
       toast.error("이메일을 입력해주세요.");
@@ -105,6 +104,74 @@ export default function MemberLogin() {
       } else {
         console.error(err);
         toast.error("로그인 중 오류가 발생했습니다.");
+      }
+    }
+  };
+
+  const handleSubmitEnter = async (e) => {
+    if (e.key === "Enter") {
+      // 클라이언트 측 검증 추가
+      if (!formData.email.trim()) {
+        toast.error("이메일을 입력해주세요.");
+        return;
+      }
+
+      if (formData.email.length > 50) {
+        toast.error("이메일은 50자 이내로 입력해주세요.");
+        return;
+      }
+
+      if (!formData.password.trim()) {
+        toast.error("비밀번호를 입력해주세요.");
+        return;
+      }
+
+      if (formData.password.length < 6 || formData.password.length > 20) {
+        toast.error("비밀번호는 6~20자 사이로 입력해주세요.");
+        return;
+      }
+
+      try {
+        const resp = await axiosAPI.post("http://localhost:8080/member/login", {
+          memberEmail: formData.email, //  DTO 필드명과 동일
+          memberPw: formData.password,
+        });
+
+        // 200 OK
+        const { loginMember, accessToken } = resp.data; // 백엔드가 돌려준 Member
+
+        // 아이디 저장 check 후 localStorage를 뒤져보는 경우
+        if (formData.saveId) {
+          localStorage.setItem("saveId", formData.email);
+        } else {
+          localStorage.removeItem("saveId");
+        }
+
+        // 로그인 정보 저장
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("loginMember", JSON.stringify(loginMember));
+        setMember(loginMember);
+
+        if (loginMember.memberAuth == 2) {
+          toast.error(`당신은 중개사 자격이 없는 중개자입니다. `);
+        }
+
+        navigate("/"); //router 사용하여 메인페이지로 이동
+      } catch (err) {
+        if (
+          err.response?.status === 401 &&
+          err.response?.data?.msg === "WITHDRAW_14D"
+        ) {
+          toast.error("탈퇴 후 14일 동안은 재가입할 수 없습니다.");
+          return; // 더 이상 처리 안함
+        }
+
+        if (err.response?.status === 401) {
+          toast.error("이메일 또는 비밀번호가 다릅니다.");
+        } else {
+          console.error(err);
+          toast.error("로그인 중 오류가 발생했습니다.");
+        }
       }
     }
   };
@@ -206,65 +273,64 @@ export default function MemberLogin() {
       <div className="login-form">
         <h1 className="login-title">로그인</h1>
 
-        <form onSubmit={handleSubmit}>
-          {/* 이메일 */}
-          <div className="login-form-group">
-            <label htmlFor="email">이메일</label>
+        {/* 이메일 */}
+        <div className="login-form-group">
+          <label htmlFor="email">이메일</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="이메일을 입력해주세요"
+            className="login-form-input"
+            value={formData.email}
+            onChange={handleChange}
+            maxLength={50}
+            required
+          />
+        </div>
+
+        {/* 비밀번호 */}
+        <div className="login-form-group">
+          <label htmlFor="password">비밀번호</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="비밀번호를 입력해주세요"
+            className="login-form-input"
+            value={formData.password}
+            onChange={handleChange}
+            onKeyDown={handleSubmitEnter}
+            maxLength={20}
+            required
+          />
+        </div>
+
+        {/* 옵션/버튼 */}
+        <div className="login-form-options">
+          <label className="checkbox-label">
             <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="이메일을 입력해주세요"
-              className="login-form-input"
-              value={formData.email}
+              type="checkbox"
+              name="saveId"
+              checked={formData.saveId}
               onChange={handleChange}
-              maxLength={50}
-              required
+              className="checkbox-input"
             />
-          </div>
+            <span className="checkbox-text">아이디 저장</span>
+          </label>
 
-          {/* 비밀번호 */}
-          <div className="login-form-group">
-            <label htmlFor="password">비밀번호</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="비밀번호를 입력해주세요"
-              className="login-form-input"
-              value={formData.password}
-              onChange={handleChange}
-              maxLength={20}
-              required
-            />
-          </div>
-
-          {/* 옵션/버튼 */}
-          <div className="login-form-options">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                name="saveId"
-                checked={formData.saveId}
-                onChange={handleChange}
-                className="checkbox-input"
-              />
-              <span className="checkbox-text">아이디 저장</span>
-            </label>
-
-            <button
-              type="button"
-              onClick={handleFindPassword}
-              className="find-password-btn"
-            >
-              비밀번호 찾기
-            </button>
-          </div>
-
-          <button type="submit" className="login-btn">
-            로그인하기
+          <button
+            type="button"
+            onClick={handleFindPassword}
+            className="find-password-btn"
+          >
+            비밀번호 찾기
           </button>
-        </form>
+        </div>
+
+        <button onClick={handleSubmit} className="login-btn">
+          로그인하기
+        </button>
 
         {/* 카카오 간편 로그인 */}
         <button onClick={handleKakaoLogin} className="kakao-login-btn option5">

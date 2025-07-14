@@ -337,7 +337,7 @@ const NeighborhoodEdit = () => {
         padding: "20px",
       }}
     >
-      <h2 style={{ marginBottom: "30px" }}>
+      <h2 style={{ marginBottom: "24px" }}>
         {isEdit ? "수정페이지" : "작성페이지"}
       </h2>
 
@@ -352,14 +352,19 @@ const NeighborhoodEdit = () => {
 
       <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
         {/* 제목 입력 */}
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: "20px", position: "relative" }}>
           <input
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length <= 50) {
+                setTitle(e.target.value);
+              }
+            }}
             placeholder="제목을 입력하세요"
             disabled={loading}
             required
+            maxLength={50}
             style={{
               width: "1000px",
               padding: "12px 16px",
@@ -370,15 +375,47 @@ const NeighborhoodEdit = () => {
               boxSizing: "border-box",
             }}
           />
+          <div
+            style={{
+              position: "absolute",
+              right: "16px",
+              bottom: "12px",
+              color: "#888",
+              fontSize: "13px",
+              background: "#fff",
+              padding: "0 4px",
+              borderRadius: "4px",
+            }}
+          >
+            {title.length} / 50자
+          </div>
         </div>
 
         {/* 내용 에디터 */}
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: "20px", position: "relative" }}>
           <SummernoteEditor
             value={content}
             onChange={setContent}
             disabled={loading}
           />
+          <div
+            style={{
+              position: "absolute",
+              right: "16px",
+              bottom: "12px",
+              color: "#888",
+              fontSize: "13px",
+              background: "#fff",
+              padding: "0 4px",
+              borderRadius: "4px",
+            }}
+          >
+            {(() => {
+              // HTML 태그 제거 후 글자수 계산
+              const textOnly = content.replace(/<[^>]+>/g, "");
+              return `${textOnly.length} / 1000자`;
+            })()}
+          </div>
         </div>
 
         {/* 버튼 영역 - 에디터 바로 아래 오른쪽 정렬 */}

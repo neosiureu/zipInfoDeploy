@@ -258,18 +258,22 @@
 
 .big-custom-overlay {
   background: #495cf8;
-  border: 2px solid #495cf8;
   color: white;
   border-radius: 8px;
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
-  font-size: 12px;
-  font-weight: lighter;
+  font-size: 14px;
+  font-weight: 400;
   line-height: 1.4;
   text-align: center;
   white-space: nowrap;
   position: relative;
   display: inline-block;
-  padding: 5px;
+  padding: 8px;
+}
+
+.big-area {
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .custom-overlay::after {

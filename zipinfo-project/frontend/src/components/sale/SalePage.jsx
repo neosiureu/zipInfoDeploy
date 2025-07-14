@@ -80,7 +80,7 @@ const SalePage = () => {
   // 줌 레벨에 따라 모드를 계산하는 함수
   function calcMode(level) {
     if (level >= 10) return "sido"; // 아주 멀리서 보면 시‧도 단위
-    if (level >= 8) return "sigungu"; // 중간 거리면 시군구 단위
+    if (level >= 7) return "sigungu"; // 중간 거리면 시군구 단위
     return "item"; // 더 확대되면 개별 매물
   }
 
@@ -241,7 +241,7 @@ const SalePage = () => {
       const container = mapRef.current;
       const options = {
         center: new window.kakao.maps.LatLng(37.567937, 126.983001),
-        level: 7,
+        level: 6,
       };
       const map = new window.kakao.maps.Map(container, options);
       mapInstanceRef.current = map;
