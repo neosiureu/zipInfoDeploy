@@ -73,9 +73,9 @@ const AnnounceDetail = () => {
           className="an-detail-header"
           style={{
             display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            gap: "20px",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            gap: 0,
           }}
         >
           <h2 className="an-detail-title">

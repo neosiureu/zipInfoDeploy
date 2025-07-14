@@ -176,7 +176,7 @@ const NeighborhoodEdit = () => {
         <div>
           <div className="toast-error-title">오류 알림!</div>
           <div className="toast-error-body">
-            텍스트는 최대 2000글자까지 입력할 수 있습니다.
+            텍스트는 최대 2000자까지 입력할 수 있습니다.
           </div>
         </div>
       );
@@ -375,47 +375,33 @@ const NeighborhoodEdit = () => {
               boxSizing: "border-box",
             }}
           />
-          <div
-            style={{
-              position: "absolute",
-              right: "16px",
-              bottom: "12px",
-              color: "#888",
-              fontSize: "13px",
-              background: "#fff",
-              padding: "0 4px",
-              borderRadius: "4px",
-            }}
-          >
-            {title.length} / 50자
-          </div>
         </div>
 
         {/* 내용 에디터 */}
         <div style={{ marginBottom: "20px", position: "relative" }}>
           <SummernoteEditor
             value={content}
-            onChange={setContent}
+            onChange={(val) => {
+              // HTML 태그 제거 후 텍스트 길이 계산
+              const tempDiv = document.createElement("div");
+              tempDiv.innerHTML = val;
+              const textOnly = tempDiv.textContent || tempDiv.innerText || "";
+              tempDiv.remove();
+              if (textOnly.trim().length <= 2000) {
+                setContent(val);
+              } else {
+                toast.error(
+                  <div>
+                    <div className="toast-error-title">오류 알림!</div>
+                    <div className="toast-error-body">
+                      본문은 2000자까지 입력할 수 있습니다.
+                    </div>
+                  </div>
+                );
+              }
+            }}
             disabled={loading}
           />
-          <div
-            style={{
-              position: "absolute",
-              right: "16px",
-              bottom: "12px",
-              color: "#888",
-              fontSize: "13px",
-              background: "#fff",
-              padding: "0 4px",
-              borderRadius: "4px",
-            }}
-          >
-            {(() => {
-              // HTML 태그 제거 후 글자수 계산
-              const textOnly = content.replace(/<[^>]+>/g, "");
-              return `${textOnly.length} / 1000자`;
-            })()}
-          </div>
         </div>
 
         {/* 버튼 영역 - 에디터 바로 아래 오른쪽 정렬 */}
