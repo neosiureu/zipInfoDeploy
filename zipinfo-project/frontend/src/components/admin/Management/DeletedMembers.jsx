@@ -3,8 +3,9 @@ import axios from "axios";
 import { Search, RefreshCw } from "lucide-react";
 import "../../../css/admin/Management/DeletedMembers.css";
 import { toast } from "react-toastify";
+import { axiosAPI } from "../../../api/axiosApi";
 
-const roleOptions = ["일반회원", "중개인", "관리자"];
+const roleOptions = ["일반회원", "중개인", "중개인 신청"];
 const BASE_URL = "http://localhost:8080"; // API 주소 맞게 조정하세요
 
 const DeletedMembers = () => {
@@ -95,6 +96,46 @@ const DeletedMembers = () => {
     }
   };
 
+  // 1. 계정 영구 삭제 함수 추가
+  const handlePermanentlyDeleteMember = async (memberNo) => {
+    if (window.confirm("정말로 이 회원의 계정을 영구 삭제하시겠습니까?")) {
+      try {
+        const response = await axiosAPI.delete(
+          `${BASE_URL}/admin/management/members/${memberNo}/permanent`
+        );
+
+        if (response.status === 200) {
+          toast.success(
+            <div>
+              <div className="toast-success-title">삭제 성공 알림!</div>
+              <div className="toast-success-body">
+                계정이 성공적으로 영구 삭제되었습니다.
+              </div>
+            </div>
+          );
+          await fetchDeletedMembers(); // 삭제 후 목록 최신화
+        } else {
+          toast.error(
+            <div>
+              <div className="toast-error-title">오류 알림!</div>
+              <div className="toast-error-body">삭제에 실패하였습니다.</div>
+            </div>
+          );
+        }
+      } catch (error) {
+        console.error("계정 영구 삭제 중 오류:", error);
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">
+              삭제 중 오류가 발생하였습니다.
+            </div>
+          </div>
+        );
+      }
+    }
+  };
+
   const handleRoleChange = (index, newRole) => {
     const updated = [...filteredDeletedMembers];
     updated[index].memberRole = newRole;
@@ -165,6 +206,7 @@ const DeletedMembers = () => {
               <th>최근 접속일</th>
               <th>올린 글 개수</th>
               <th>계정 복구</th>
+              <th>계정 삭제</th>
             </tr>
           </thead>
           <tbody>
@@ -183,7 +225,7 @@ const DeletedMembers = () => {
                   <td>
                     <select
                       className="filter-select"
-                      value={member.memberRole || "일반회원"}
+                      value={member.memberAuth || "일반회원"}
                       onChange={(e) =>
                         handleRoleChange(idx + indexOfFirst, e.target.value)
                       }
@@ -207,6 +249,16 @@ const DeletedMembers = () => {
                       onClick={() => handleRestoreMember(member.memberNo)}
                     >
                       계정 복구
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className="delete-button"
+                      onClick={() =>
+                        handlePermanentlyDeleteMember(member.memberNo)
+                      }
+                    >
+                      계정 삭제
                     </button>
                   </td>
                 </tr>

@@ -1013,7 +1013,7 @@ export default function MemberSignUp() {
           </>
         )}
 
-        <button type="submit" className="submit-button">
+        <button type="submit" className="signup-submit-button">
           가입하기
         </button>
       </form>

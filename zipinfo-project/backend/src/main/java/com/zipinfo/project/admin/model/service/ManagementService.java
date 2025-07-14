@@ -112,4 +112,11 @@ public interface ManagementService {
      * @return 삭제 성공 건수 (1 이상 성공)
      */
     int permanentlyDeleteBoard(Long boardNo);
+
+	/**
+	 * 회원 영구 삭제 처리
+	 * @param memberNo 회원 번호
+	 * @return 삭제 성공 건수 (1 이상 성공)
+	 */
+	int permanentlyDeleteMember(Long memberNo);
 }

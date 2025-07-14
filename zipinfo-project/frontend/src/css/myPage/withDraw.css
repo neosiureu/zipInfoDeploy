@@ -138,3 +138,10 @@
 .withdraw-span {
   font-size: 14px;
 }
+/* 카카오 관련 경고문구의 색 */
+.kakao-withdraw-info {
+  color: #e53935; /* 강조용 빨간색 */
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 20px; /* 아래 요소(약관)와 여백 유지 */
+}

@@ -35,28 +35,35 @@ const Header = () => {
     console.log("로그아웃 전 saveId:", localStorage.getItem("saveId"));
 
     try {
-      /* 1) 서버에 access-token 그대로 들고 로그아웃 요청 */
-      const { data } = await axiosAPI.post("/member/logout"); // 헤더에 Bearer 토큰 자동 첨부
+      // 1) 서버 통보
+      const { data } = await axiosAPI.post("/member/logout"); // access-token 첨부됨
 
       const tasks = [];
       if (data.naverLogoutRequired === "true") tasks.push(naverLogout());
       if (data.kakaoLogoutRequired === "true" && window.Kakao?.Auth)
         tasks.push(new Promise((r) => window.Kakao.Auth.logout(r)));
-      Promise.allSettled(tasks); // 기다리지 않음
+      Promise.allSettled(tasks); // 기다릴 필요 없음
     } catch (e) {
       console.warn("logout api fail", e);
     }
-    console.log("로그아웃 후 saveId:", localStorage.getItem("saveId"));
-    /* 3) 로컬 스토리지·컨텍스트 정리 */
-    if (window.stompClient?.connected) window.stompClient.disconnect();
 
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("loginMember");
-    localStorage.removeItem("com.naver.nid.access_token");
-    localStorage.removeItem("com.naver.nid.oauth.state_token");
+    // 2) **먼저** 홈으로 이동 – replace 옵션을 주면 히스토리를 깔끔하게 덮어씁니다
+    sessionStorage.setItem("justLoggedOut", "yes");
+    navigate("/", { replace: true });
 
-    setMember(null);
-    navigate("/");
+    // 3) 다음 tick(= ProtectedRoute가 언마운트된 이후)에 member 를 비워서
+    //    ProtectedRoute의 useEffect가 더 이상 실행될 일이 없게 만듭니다.
+    setTimeout(() => {
+      if (window.stompClient?.connected) window.stompClient.disconnect();
+
+      delete axiosAPI.defaults.headers.common.Authorization;
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("loginMember");
+      localStorage.removeItem("com.naver.nid.access_token");
+      localStorage.removeItem("com.naver.nid.oauth.state_token");
+
+      setMember(null);
+    }, 0);
   };
 
   const handleNavMyStock = () => {

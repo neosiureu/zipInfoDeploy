@@ -108,4 +108,36 @@ public interface ManagementMapper {
      * @return 영향 받은 행 수 반환
      */
     int permanentlyDeleteBoard(@Param("boardNo") Long boardNo);
+
+    /**
+     * 회원 영구 삭제
+     * @param memberNo 회원 번호 (PK)
+     * @return 영향 받은 행 수 반환
+     */
+    int permanentlyDeleteMember(@Param("memberNo") Long memberNo);
+
+    /**
+     * 회원 관련 STOCK_SAW 데이터 삭제
+     */
+    int deleteMemberStockSaw(@Param("memberNo") Long memberNo);
+    /**
+     * 회원 관련 LIKE 데이터 삭제
+     */
+    int deleteMemberLikes(@Param("memberNo") Long memberNo);
+    /**
+     * 회원 관련 COMMENT 데이터 삭제
+     */
+    int deleteMemberComments(@Param("memberNo") Long memberNo);
+    /**
+     * 회원 관련 BOARD 데이터 삭제
+     */
+    int deleteMemberBoards(@Param("memberNo") Long memberNo);
+    /**
+     * 회원 관련 TOKEN_INFO 데이터 삭제
+     */
+    int deleteMemberTokenInfo(@Param("memberNo") Long memberNo);
+    /**
+     * 회원 관련 BROKER_INFO 데이터 삭제
+     */
+    int deleteMemberBrokerInfo(@Param("memberNo") Long memberNo);
 }

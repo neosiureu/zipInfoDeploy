@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { axiosAPI } from "../../../api/axiosAPI";
+import { axiosAPI } from "../../../api/axiosApi";
 import { Link } from "react-router-dom";
 import "../../../css/admin/saleForm/listSale.css";
 
@@ -92,7 +92,8 @@ const ListSale = () => {
                 <tr key={sale.saleStockNo}>
                   <td>
                     <Link
-                      to={`/sale/${sale.saleStockNo}?focus=true`}
+                      to={`/sale/${sale.saleStockNo}`}
+                      state={{ shouldFocus: true }}
                       className="ls-link"
                     >
                       {sale.saleStockNo}
@@ -101,7 +102,8 @@ const ListSale = () => {
                   <td>{saleTypeMap[sale.saleStockForm] || "기타"}</td>
                   <td>
                     <Link
-                      to={`/sale/${sale.saleStockNo}?focus=true`}
+                      to={`/sale/${sale.saleStockNo}`}
+                      state={{ shouldFocus: true }}
                       className="ls-link"
                     >
                       {sale.saleStockName}

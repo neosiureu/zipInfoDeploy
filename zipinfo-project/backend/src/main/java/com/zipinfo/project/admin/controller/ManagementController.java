@@ -142,6 +142,25 @@ public class ManagementController {
     }
 
     /**
+     * 회원 영구 삭제
+     * DELETE /admin/management/members/{memberNo}/permanent
+     * @param memberNo 회원 번호
+     */
+    @DeleteMapping("/members/{memberNo}/permanent")
+    public ResponseEntity<String> permanentlyDeleteMember(@PathVariable("memberNo") Long memberNo) {
+        try {
+            int result = managementService.permanentlyDeleteMember(memberNo);
+            if (result > 0) {
+                return ResponseEntity.ok("회원이 영구적으로 삭제되었습니다.");
+            }
+            return ResponseEntity.badRequest().body("회원을 찾을 수 없습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("회원 삭제 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    /**
      * 삭제된 게시글 목록 조회
      * GET /admin/management/boards/deleted
      */

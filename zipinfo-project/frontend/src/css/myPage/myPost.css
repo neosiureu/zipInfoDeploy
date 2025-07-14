@@ -112,7 +112,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: black;
+  background-color: #111;
   padding: 2px 6px;
   border-radius: 4px;
   margin: 0 12px;
@@ -124,13 +124,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: green;
-  color: white;
-  width: 70px;
-  height: 30px;
-  margin-left: 20px;
-  margin-right: 20px;
-  font-size: 18px;
+  background-color: #51c6c6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin: 0 12px;
+  font-size: 14px;
+  color: #fff;
 }
 
 .my-detail-message-title {
