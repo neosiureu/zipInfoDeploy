@@ -8,7 +8,12 @@ import { useStockContext } from "./StockContext";
 import InfraMark from "./infraMark";
 import { Bookmark } from "lucide-react";
 import { MemberContext } from "../member/MemberContext";
-import { useParams } from "react-router-dom";
+import {
+  useNavigate,
+  useParams,
+  useSearchParams,
+  useLocation,
+} from "react-router-dom";
 import { CITY, TOWN } from "../common/Gonggong";
 
 const StockPageCopy = () => {
@@ -47,6 +52,9 @@ const StockPageCopy = () => {
   } = useStockContext();
 
   const { stockNo } = useParams(); // 매물번호를 주소에서 받아옴(/stock/:stockNo)
+  const location = useLocation(); // useLocation 추가
+  // 1회성 포커싱용 ref
+  const shouldFocusRef = useRef(location.state?.shouldFocus || false);
 
   const [sigunguClusters, setSigunguClusters] = useState([]);
   const [sidoClusters, setSidoClusters] = useState([]);
@@ -622,7 +630,9 @@ const StockPageCopy = () => {
       });
     }
 
-    navigate(`/stock/${item.stockNo}`);
+    navigate(`/stock/${item.stockNo}`, {
+      state: { lat: item.lat, lng: item.lng },
+    });
     console.log("stockNo:", item.stockNo);
   };
   const handleItemdblClick = async (item) => {
@@ -649,10 +659,41 @@ const StockPageCopy = () => {
             res.data.lat,
             res.data.lng
           );
+          /********************* */
+          const map = mapInstanceRef.current;
 
+          if (shouldFocusRef.current && map && res.data.lat && res.data.lng) {
+            const projection = map.getProjection();
+            const markerLatLng = new window.kakao.maps.LatLng(
+              res.data.lat,
+              res.data.lng
+            );
+
+            const totalWidth = window.innerWidth;
+            const sidePanelWidth = 460;
+            const mapWidth = totalWidth - sidePanelWidth * 2;
+            const mapCenterX = sidePanelWidth + mapWidth / 2;
+            const offsetX = mapCenterX - totalWidth / 2;
+
+            const point = projection.pointFromCoords(markerLatLng);
+            point.x -= offsetX;
+            const newCenter = projection.coordsFromPoint(point);
+
+            map.setCenter(newCenter);
+            map.setLevel(5);
+
+            shouldFocusRef.current = false; // ✅ 1회 포커싱 후 해제
+          }
+
+          updateMarker(stockList);
+
+          /********************* */
+          /*
           mapInstanceRef.current.panTo(movedLatLng); // 해당 매물 위치로 이동
           mapInstanceRef.current.setDraggable(true);
           mapInstanceRef.current.setZoomable(true);
+          */
+
           /*
           const map = mapInstanceRef.current;
           const shouldFocus = searchParamsLocal.get("focus") === "true";
@@ -678,6 +719,9 @@ const StockPageCopy = () => {
   //updateMarker() 뒤에 queryString 조건에 따라 화면전환하는 useEffect() 사용
 
   const StockItemDetail = ({ item }) => {
+    const [isImg0Loaded, setIsImg0Loaded] = useState(false);
+    const [isImg1Loaded, setIsImg1Loaded] = useState(false);
+    const [isImg2Loaded, setIsImg2Loaded] = useState(false);
     if (item) {
       //null 오류 방지
 
@@ -705,24 +749,34 @@ const StockPageCopy = () => {
                 className="stock-detail-mainimg"
               />
             </div>*/}
-            {item?.imgUrls?.length >= 3 ? (
-              <div className="stock-detail-panel">
-                <div className="stock-detail-images">
+
+            <div className="stock-detail-panel">
+              <div className="stock-detail-images">
+                {isImg0Loaded ? (
                   <img
-                    src={`http://localhost:8080${item.imgUrls[0]}`}
+                    src={`http://localhost:8080${
+                      item.imgUrls[0]
+                    }?v=${Date.now()}`} //?v=${Date.now()}	--> 현재 시간을 이용해 URL을 고유하게 만들어 브라우저 캐시를 우회
                     alt="상세1"
                     className="stock-detail-mainimg"
+                    onLoad={() => setIsImg0Loaded(true)}
                   />
+                ) : (
+                  <p>이미지 로드 중...</p>
+                )}
+
+                {!isImg2Loaded && <p>이미지 로드 중...</p>}
+                {item && item.imgUrls && (
                   <img
                     src={`http://localhost:8080${item.imgUrls[2]}`}
                     alt="상세2"
                     className="stock-detail-mainimg"
+                    onLoad={() => setIsImg2Loaded(true)}
                   />
-                </div>
+                )}
               </div>
-            ) : (
-              <p>이미지를 불러오는 중입니다...</p>
-            )}
+            </div>
+
             <div className="sale-section-divider" />
 
             {/* Block 1: 매매/가격/찜 */}

@@ -235,13 +235,17 @@ const Main = () => {
           src={`http://localhost:8080${item.imgUrl}`}
           alt="실거래 집 썸네일 이미지"
           onClick={() => {
-            navigate(`/stock/${item.stockNo}`);
+            navigate(`/stock/${item.stockNo}`, {
+              state: { lat: item.lat, lng: item.lng, shouldFocus: true },
+            });
           }}
         />
         <div
           className="card-title"
           onClick={() => {
-            navigate(`/stock/${item.stockNo}`);
+            navigate(`/stock/${item.stockNo}`, {
+              state: { lat: item.lat, lng: item.lng, shouldFocus: true },
+            });
           }}
         >
           {item.stockForm === 1
@@ -256,7 +260,9 @@ const Main = () => {
         <div
           className="card-price"
           onClick={() => {
-            navigate(`/stock/${item.stockNo}`);
+            navigate(`/stock/${item.stockNo}`, {
+              state: { lat: item.lat, lng: item.lng, shouldFocus: true },
+            });
           }}
         >
           {item.stockType === 0 ? (
