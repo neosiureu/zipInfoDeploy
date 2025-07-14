@@ -8,5 +8,7 @@ public interface OauthService {
 
 	Member loginNaver(String token);
 
+	int withDraw(Member loginMember);
+
 
 }

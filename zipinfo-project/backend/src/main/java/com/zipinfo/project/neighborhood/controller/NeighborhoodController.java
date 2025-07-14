@@ -177,17 +177,45 @@ public class NeighborhoodController {
 	}
 	
 	@PostMapping("/like")
-	public ResponseEntity<Object> like(@RequestBody Map<String, Object> paramMap ,@AuthenticationPrincipal Member loginMember){
-		
-		paramMap.put("memberNo", loginMember.getMemberNo());
-		log.info("현재 파라미터 맵에 들어있는 정보"+paramMap);
-		
-		int like= neighborhoodService.like(paramMap);
-		if(like!=1) return null;
-		
-		return ResponseEntity.ok(like);
+	public ResponseEntity<Map<String, Object>> like(
+	        @RequestBody Map<String, Object> paramMap, 
+	        @AuthenticationPrincipal Member loginMember) {
+	    log.info("접속한 회원"+loginMember);
+
+	    if (loginMember == null) {
+	        Map<String, Object> errorResponse = new HashMap<>();
+	        errorResponse.put("success", false);
+	        errorResponse.put("message", "로그인이 필요합니다.");
+	        return ResponseEntity.status(401).body(errorResponse);
+	    }
+	    
+	    paramMap.put("memberNo", loginMember.getMemberNo());
+	    log.info("좋아요 요청 파라미터: {}", paramMap);
+	    
+	    try {
+	        int likeCount = neighborhoodService.like(paramMap);
+	        
+	        Map<String, Object> response = new HashMap<>();
+	        if (likeCount >= 0) {
+	            response.put("success", true);
+	            response.put("likeCount", likeCount);
+	            response.put("message", "좋아요 처리가 완료되었습니다.");
+	            return ResponseEntity.ok(response);
+	        } else {
+	            response.put("success", false);
+	            response.put("message", "좋아요 처리에 실패했습니다.");
+	            return ResponseEntity.status(500).body(response);
+	        }
+	        
+	    } catch (Exception e) {
+	        log.error("좋아요 처리 중 오류 발생: {}", e.getMessage(), e);
+	        
+	        Map<String, Object> errorResponse = new HashMap<>();
+	        errorResponse.put("success", false);
+	        errorResponse.put("message", "좋아요 처리 중 오류가 발생했습니다.");
+	        return ResponseEntity.status(500).body(errorResponse);
+	    }
 	}
-	
 	
 	
 }

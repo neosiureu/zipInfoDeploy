@@ -72,12 +72,11 @@ INSERT INTO MEMBER (
 		INSERT INTO "TOKEN_INFO"
 		VALUES(#{memberNo}, NULL)
 	</insert>
-<update id="recoverMember">
-    UPDATE MEMBER
-       SET MEMBER_DEL_FL       = 'N',
-           MEMBER_WITHDRAW_DATE = NULL
-     WHERE MEMBER_NO = #{memberNo}
-  </update>
 
+<update id="withDraw">
+		UPDATE "MEMBER" SET
+		MEMBER_DEL_FL = 'Y', MEMBER_WITHDRAW_DATE = SYSDATE
+		WHERE MEMBER_NO = #{memberNo}
+	</update>
 
 </mapper>
