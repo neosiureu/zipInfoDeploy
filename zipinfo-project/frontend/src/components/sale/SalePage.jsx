@@ -4,8 +4,14 @@ import "../../css/sale/salePage.css";
 import SearchBar from "../common/SearchBar";
 import warning from "../../assets/circle_warning.svg";
 
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  useNavigate,
+  useParams,
+  useSearchParams,
+  useLocation,
+} from "react-router-dom";
 import { useSaleContext } from "./SaleContext"; // Context 사용
+import { CITY, TOWN } from "../common/Gonggong";
 
 const SalePage = () => {
   const {
@@ -35,9 +41,14 @@ const SalePage = () => {
   } = useSaleContext();
 
   const { saleStockNo } = useParams();
+  const location = useLocation(); // useLocation 추가
 
   const [searchParamsLocal] = useSearchParams(); // 쿼리스트링 가져오기
-  const [shouldFocus, setShouldFocus] = useState(false);
+  const [sigunguClusters, setSigunguClusters] = useState([]);
+  const [sidoClusters, setSidoClusters] = useState([]);
+
+  // 1회성 포커싱용 ref
+  const shouldFocusRef = useRef(location.state?.shouldFocus || false);
 
   // 분양가 표기 함수
   const formatPrice = (price) => {
@@ -65,6 +76,95 @@ const SalePage = () => {
     const date = new Date(dateString);
     return date.toISOString().slice(0, 10); // 'YYYY-MM-DD'
   };
+
+  // 줌 레벨에 따라 모드를 계산하는 함수
+  function calcMode(level) {
+    if (level >= 10) return "sido"; // 아주 멀리서 보면 시‧도 단위
+    if (level >= 8) return "sigungu"; // 중간 거리면 시군구 단위
+    return "item"; // 더 확대되면 개별 매물
+  }
+
+  // 지역명을 가져오는 함수
+  function getRegionName(code) {
+    if (code === undefined || code === null) return null;
+
+    const codeStr = String(code).trim();
+
+    // ---------- ① 시군구(5자리) ----------
+    if (codeStr.length === 5) {
+      const town = TOWN.find((t) => t.fullcode === codeStr);
+      if (!town) return null;
+
+      const city = CITY.find((c) => c.code === town.code);
+      if (!city) return town.name; // 시·도 못 찾으면 시군구명만
+
+      return `${town.name}`;
+    }
+
+    // ---------- ② 시·도(2자리) ----------
+    if (codeStr.length === 2) {
+      const num = Number(codeStr);
+      const city = CITY.find((c) => c.code === num);
+      return city ? city.name : null;
+    }
+
+    // ---------- ③ 지원하지 않는 코드 형식 ----------
+    return null;
+  }
+
+  // 클러스터 마커를 그리는 함수
+  function drawClusterMarkers(clusters, ref, className) {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    // 기존 마커 제거
+    ref.current.forEach((marker) => marker.setMap(null));
+    ref.current = [];
+
+    clusters.forEach((c) => {
+      const pos = new window.kakao.maps.LatLng(c.lat, c.lng);
+      const el = document.createElement("div");
+
+      const content = `
+        <div class="big-custom-overlay">
+          <div class="big-area">${getRegionName(c.code)}</div>
+          <div class="big-count">${c.cnt}</div>
+        </div>
+      `;
+
+      el.className = className;
+      el.innerHTML = content;
+
+      el.addEventListener("click", () => {
+        // 한 단계 더 확대 + 중심 이동
+        map.setLevel(map.getLevel() - 2);
+        map.panTo(pos);
+      });
+
+      const ov = new window.kakao.maps.CustomOverlay({
+        position: pos,
+        content: el,
+        yAnchor: 0.5,
+      });
+      ov.setMap(map);
+      ref.current.push(ov);
+    });
+  }
+
+  // 모드에 따라 렌더링하는 함수
+  function renderByMode(mode) {
+    // 기존 마커들 제거
+    itemMarkersRef.current.forEach((marker) => marker.setMap(null));
+    itemMarkersRef.current = [];
+
+    if (mode === "item") {
+      updateMarker(stockList);
+    } else if (mode === "sigungu") {
+      drawClusterMarkers(sigunguClusters, itemMarkersRef, "sigungu-cluster");
+    } else if (mode === "sido") {
+      drawClusterMarkers(sidoClusters, itemMarkersRef, "sido-cluster");
+    }
+  }
 
   // 매물 형태 매핑
   const stockFormMap = {
@@ -146,21 +246,13 @@ const SalePage = () => {
       const map = new window.kakao.maps.Map(container, options);
       mapInstanceRef.current = map;
 
-      // 사용자가 지도 이동 시 포커싱 해제
-      window.kakao.maps.event.addListener(map, "dragstart", () => {
-        setShouldFocus(false);
+      // 지도 드래그 및 줌 가능하도록 설정
+      map.setDraggable(true);
+      map.setZoomable(true);
 
-        const params = new URLSearchParams(searchParams);
-        if (params.has("focus")) {
-          params.delete("focus");
-          navigate(
-            {
-              pathname: `/sale/${saleStockNo}`,
-              search: params.toString() ? `?${params.toString()}` : "",
-            },
-            { replace: true }
-          );
-        }
+      // 드래그 시 포커싱 방지
+      window.kakao.maps.event.addListener(map, "dragstart", () => {
+        shouldFocusRef.current = false; // 포커싱 중단만 함
       });
 
       // 지도 생성 직후 첫 API 호출
@@ -184,7 +276,11 @@ const SalePage = () => {
           });
 
           setStockList(resp.data);
-          updateMarker(resp.data);
+
+          // 현재 줌 레벨에 따라 모드 결정하여 렌더링
+          const level = map.getLevel();
+          const mode = calcMode(level);
+          renderByMode(mode);
         } catch (error) {
           console.error("초기 매물 요청 실패:", error);
         }
@@ -195,6 +291,9 @@ const SalePage = () => {
 
       // idle 이벤트 등록 (기존처럼 유지)
       window.kakao.maps.event.addListener(map, "idle", async () => {
+        const level = map.getLevel();
+        const mode = calcMode(level);
+
         const bounds = map.getBounds();
         const sw = bounds.getSouthWest();
         const ne = bounds.getNorthEast();
@@ -214,7 +313,12 @@ const SalePage = () => {
           });
 
           setStockList(resp.data);
-          updateMarker(resp.data);
+
+          if (mode !== "item") {
+            // 클러스터 모드일 때는 클러스터 데이터가 업데이트되면서 자동으로 렌더링됨
+          } else {
+            updateMarker(resp.data);
+          }
         } catch (error) {
           console.error("매물 요청 실패:", error);
         }
@@ -222,14 +326,9 @@ const SalePage = () => {
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    const focusParam = searchParamsLocal.get("focus");
-    if (focusParam === "true") {
-      setShouldFocus(true);
-    }
-  }, [searchParamsLocal]);
+  // focus 파라미터 관련 로직 제거 - 더 이상 필요하지 않음
 
-  // 4. URL에 매물 번호(saleStockNo)가 있을 경우 상세 정보 조회 및 포커싱 처리
+  // 4. URL에 매물 번호(saleStockNo)가 있을 경우 상세 정보 조회 및 지도 이동
   useEffect(() => {
     const fetchDetail = async () => {
       try {
@@ -238,57 +337,95 @@ const SalePage = () => {
         });
 
         if (res.status === 200) {
-          setClickedStockItem(res.data); // 상세 정보 상태 저장
-          setIsAsideVisible(true); // 상세 패널 열기
+          setClickedStockItem(res.data);
+          setIsAsideVisible(true);
 
           const map = mapInstanceRef.current;
-          const focusParam = searchParamsLocal.get("focus");
 
-          // 포커싱 조건: 쿼리스트링에 focus=true & shouldFocus가 true & 지도/좌표가 유효할 경우
-          if (
-            focusParam === "true" &&
-            shouldFocus &&
-            map &&
-            res.data.lat &&
-            res.data.lng
-          ) {
+          if (shouldFocusRef.current && map && res.data.lat && res.data.lng) {
             const projection = map.getProjection();
             const markerLatLng = new window.kakao.maps.LatLng(
               res.data.lat,
               res.data.lng
             );
 
-            // ⬇️ 화면 기준 지도 영역 중심을 계산하기 위한 보정 로직
             const totalWidth = window.innerWidth;
-            const sidePanelWidth = 460; // 좌우 사이드 패널 너비
+            const sidePanelWidth = 460;
             const mapWidth = totalWidth - sidePanelWidth * 2;
             const mapCenterX = sidePanelWidth + mapWidth / 2;
             const offsetX = mapCenterX - totalWidth / 2;
 
             const point = projection.pointFromCoords(markerLatLng);
-            point.x -= offsetX; // 마커를 지도 중앙으로 이동하도록 보정
+            point.x -= offsetX;
             const newCenter = projection.coordsFromPoint(point);
 
-            map.setCenter(newCenter); // 지도 중심 이동
-            map.setLevel(5); // 줌 레벨 설정
+            map.setCenter(newCenter);
+            map.setLevel(5);
 
-            // UX 개선: setTimeout 제거 → 드래그 충돌 방지
-            // 기존에는 setTimeout으로 지연 후 다시 setCenter했으나, UX 충돌을 유발하여 제거함
+            shouldFocusRef.current = false; // ✅ 1회 포커싱 후 해제
           }
 
-          updateMarker(stockList); // 마커 재생성
+          updateMarker(stockList);
         }
       } catch (e) {
         console.error("상세 매물 조회 실패:", e);
       }
     };
 
-    if (saleStockNo) fetchDetail(); // 매물 번호 있을 경우만 실행
+    if (saleStockNo) fetchDetail();
   }, [saleStockNo, stockList]);
 
+  // 클러스터 데이터 생성
   useEffect(() => {
-    updateMarker();
-  }, [stockList]); // stockList(맨 왼쪽에 있는 매물 Item들을 저장하는 state변수), searchLocationCode(검색창SearchBox에서 선택한 지역을 저장하는 state변수)
+    if (stockList.length === 0) return; // 데이터가 없으면 처리하지 않음
+
+    const bySigungu = {};
+    const bySido = {};
+
+    stockList.forEach((s) => {
+      // regionNo가 없으면 기본값 사용
+      const regionNo = s.regionNo || "11000"; // 기본값: 서울
+      const sigungu = String(regionNo).padStart(5, "0"); // 12345
+      const sido = sigungu.slice(0, 2); // 12
+
+      if (!bySigungu[sigungu]) bySigungu[sigungu] = { cnt: 0, lat: 0, lng: 0 };
+      if (!bySido[sido]) bySido[sido] = { cnt: 0, lat: 0, lng: 0 };
+
+      bySigungu[sigungu].cnt++;
+      bySigungu[sigungu].lat += s.lat;
+      bySigungu[sigungu].lng += s.lng;
+      bySido[sido].cnt++;
+      bySido[sido].lat += s.lat;
+      bySido[sido].lng += s.lng;
+    });
+
+    // 평균 좌표 계산
+    const sigList = Object.entries(bySigungu).map(([code, v]) => ({
+      code,
+      cnt: v.cnt,
+      lat: v.lat / v.cnt,
+      lng: v.lng / v.cnt,
+    }));
+    const siList = Object.entries(bySido).map(([code, v]) => ({
+      code,
+      cnt: v.cnt,
+      lat: v.lat / v.cnt,
+      lng: v.lng / v.cnt,
+    }));
+
+    setSigunguClusters(sigList);
+    setSidoClusters(siList);
+  }, [stockList]);
+
+  // 클러스터 데이터가 업데이트될 때마다 렌더링
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || stockList.length === 0) return;
+
+    const level = map.getLevel();
+    const mode = calcMode(level);
+    renderByMode(mode);
+  }, [sigunguClusters, sidoClusters]);
 
   // updateMarker : 요청을 보낼때마다 지도에 표시되는 마커들을 새로 세팅하는 함수
   // 5. 마커 렌더링 함수
@@ -313,9 +450,7 @@ const SalePage = () => {
       div.addEventListener("click", () => {
         setClickedStockItem(item);
         setIsAsideVisible(true);
-        navigate(`/sale/${item.saleStockNo}`, {
-          state: { lat: item.lat, lng: item.lng },
-        });
+        navigate(`/sale/${item.saleStockNo}`);
       });
 
       const overlay = new window.kakao.maps.CustomOverlay({
@@ -331,8 +466,7 @@ const SalePage = () => {
   const handleItemClick = (item) => {
     setIsAsideVisible(true);
     setClickedStockItem(item);
-    setShouldFocus(true);
-    navigate(`/sale/${item.saleStockNo}?focus=true`, {
+    navigate(`/sale/${item.saleStockNo}`, {
       state: { lat: item.lat, lng: item.lng },
     });
   };

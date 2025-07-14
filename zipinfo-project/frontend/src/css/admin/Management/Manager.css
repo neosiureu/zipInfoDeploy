@@ -51,7 +51,6 @@
 .manager-section input:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .manager-section input::placeholder {
@@ -144,10 +143,6 @@
   border-color: #ef4444;
 }
 
-.manager-section input:invalid:focus {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
 /* 로딩 상태 */
 .manager-section.loading {
   opacity: 0.6;
@@ -155,7 +150,7 @@
 }
 
 /* 성공/에러 메시지 스타일 */
-.message {
+/* .message {
   padding: 12px 16px;
   border-radius: 6px;
   margin-bottom: 20px;
@@ -172,4 +167,4 @@
   background-color: #fee2e2;
   color: #991b1b;
   border: 1px solid #fca5a5;
-}
+} */

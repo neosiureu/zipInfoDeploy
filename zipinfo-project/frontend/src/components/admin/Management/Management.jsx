@@ -119,18 +119,6 @@ const Management = () => {
 
   return (
     <div className="management-container">
-      <div className="management-header">
-        <h2 className="management-title">관리자 페이지</h2>
-      </div>
-      <div className="management-admin-box">
-        <p>
-          현재 <span className="management-admin-name">{adminName}</span> 으로
-          접속중입니다.
-        </p>
-        <p>
-          접속 ID : <span className="management-admin-id">{adminId}</span>
-        </p>
-      </div>
       <div className="tab-menu">
         <button
           className={`tab-button ${activeTab === "members" ? "active" : ""}`}

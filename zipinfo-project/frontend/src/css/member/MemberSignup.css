@@ -30,7 +30,7 @@
   background-color: #fff;
   color: #767676;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -171,7 +171,7 @@
 }
 
 .message:not(.error):not(.confirm) {
-  color: #6b7280;
+  color: #999;
 }
 
 /* 오른쪽 메시지 (입력 필드 옆) */
@@ -183,7 +183,7 @@
 }
 
 /* 제출 버튼 */
-.submit-button {
+.signup-submit-button {
   width: 100%;
   padding: 16px;
   background-color: #495cf8;
@@ -197,11 +197,7 @@
 }
 
 /* 폼이 유효할 때 제출 버튼 활성화 스타일 */
-.submit-button.active {
+.signup-submit-button.active {
   background-color: #4285f4;
   color: white;
-}
-
-.submit-button.active:hover {
-  background-color: #3367d6;
 }
