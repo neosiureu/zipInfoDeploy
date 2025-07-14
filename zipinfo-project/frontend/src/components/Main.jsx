@@ -174,7 +174,6 @@ const Main = () => {
   };
 
   useEffect(() => {
-
     const history = JSON.parse(localStorage.getItem("recentSearch")) || [];
     setRecentSearch(history);
 

@@ -351,13 +351,12 @@ const NeighborhoodBoard = ({}) => {
         <table className="nb-board-table">
           <thead>
             <tr className="nb-header">
-              <th className="nb-header-number">번호</th>
               <th className="nb-header-subject">분류</th>
               <th className="nb-header-title">제목</th>
               <th className="nb-header-area">지역</th>
               <th className="nb-header-author">작성자</th>
-              <th className="nb-header-likes">좋아요</th>
               <th className="nb-header-date">날짜</th>
+              <th className="nb-header-likes">좋아요</th>
               <th className="nb-header-views">조회</th>
             </tr>
           </thead>
@@ -365,7 +364,7 @@ const NeighborhoodBoard = ({}) => {
             {boardList.length === 0 ? (
               <tr>
                 <td
-                  colSpan="8"
+                  colSpan="7"
                   style={{ textAlign: "center", padding: "12px" }}
                 >
                   {loading ? "로딩 중..." : "게시글이 없습니다."}
@@ -374,7 +373,6 @@ const NeighborhoodBoard = ({}) => {
             ) : (
               boardList.map((item, index) => (
                 <tr key={`${item.boardNo}-${index}`} className="nb-row">
-                  <td className="nb-cell-number">{item.boardNo}</td>
                   <td className="nb-cell-subject">
                     {item.boardSubject === "Q"
                       ? "질문답변"
@@ -393,8 +391,8 @@ const NeighborhoodBoard = ({}) => {
                     {item.cityName} {">"} {item.townName}
                   </td>
                   <td className="nb-cell-author">{item.memberNickName}</td>
-                  <td className="nb-cell-likes">{item.likeCount}</td>
                   <td className="nb-cell-date">{item.boardWriteDate}</td>
+                  <td className="nb-cell-likes">{item.likeCount}</td>
                   <td className="nb-cell-views">{item.readCount}</td>
                 </tr>
               ))

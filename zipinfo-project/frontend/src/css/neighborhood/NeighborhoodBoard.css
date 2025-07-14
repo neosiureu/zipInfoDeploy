@@ -111,10 +111,6 @@
   text-align: center;
 }
 
-.nb-header-number {
-  width: 80px;
-}
-
 .nb-header-subject {
   width: 120px;
 }
@@ -163,11 +159,6 @@
   font-size: 14px;
   text-align: center;
   vertical-align: middle;
-}
-
-.nb-cell-number {
-  color: #999;
-  font-weight: 500;
 }
 
 .nb-cell-subject {

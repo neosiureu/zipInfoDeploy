@@ -179,34 +179,37 @@ const NeighborhoodBoardDetail = () => {
               {getCityName(cityNo)} {">"} {getTownName(townNo)} {">"}{" "}
               {subjectMap[boardSubject] || boardSubject}
             </h5>
-
-            <h1 className="nb-detail-title">{boardTitle}</h1>
-            <div className="nb-detail-meta">
-              <span className="nb-detail-author">
-                작성자 : {memberNickName}
-              </span>
-              <span className="nb-detail-separator">|</span>
-              <span className="nb-detail-date">등록일 : {boardWriteDate}</span>
-              <span className="nb-detail-separator">|</span>
-              <span className="nb-detail-views">조회수 : {readCount}</span>
-              {/* <span className="nb-detail-separator">|</span>
-              <span className="nb-detail-likes">좋아요 : {likeCount}</span>{" "} */}
-              {/* 추가 */}
-              <span
-                onClick={(e) => {
-                  e.stopPropagation(); // nav 방지
-                  handleBoardLike(board.boardNo);
-                }}
-              >
-                <Heart
-                  size={20}
-                  stroke="pink" // 분홍 테두리
-                  fill={like.has(board.boardNo) ? "red" : "transparent"}
-                  className={`like-board ${
-                    like.has(board.boardNo) ? "active" : ""
-                  }`}
-                />
-              </span>
+            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              <h1 className="nb-detail-title">{boardTitle}</h1>
+              <div className="nb-detail-meta">
+                <span className="nb-detail-author">
+                  작성자 : {memberNickName}
+                </span>
+                <span className="nb-detail-separator">|</span>
+                <span className="nb-detail-date">
+                  등록일 : {boardWriteDate}
+                </span>
+                <span className="nb-detail-separator">|</span>
+                <span className="nb-detail-views">조회수 : {readCount}</span>
+                {/* <span className="nb-detail-separator">|</span>
+                <span className="nb-detail-likes">좋아요 : {likeCount}</span>{" " } */}
+                {/* 추가 */}
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation(); // nav 방지
+                    handleBoardLike(board.boardNo);
+                  }}
+                >
+                  <Heart
+                    size={20}
+                    stroke="pink" // 분홍 테두리
+                    fill={like.has(board.boardNo) ? "red" : "transparent"}
+                    className={`like-board ${
+                      like.has(board.boardNo) ? "active" : ""
+                    }`}
+                  />
+                </span>
+              </div>
             </div>
           </div>
         </div>
