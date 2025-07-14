@@ -10,6 +10,8 @@ export const MemberContext = createContext();
 export const MemberProvider = ({ children }) => {
   const navigate = useNavigate();
 
+  const [member]
+
   /* 1) 스토리지와 state 동기화 */
   const [member, setMember] = useState(() => {
     const raw = localStorage.getItem("loginMember");
@@ -41,7 +43,7 @@ export const MemberProvider = ({ children }) => {
         if (decoded.exp * 1000 < Date.now()) {
           // 만료된 토큰
           localStorage.removeItem("accessToken");
-          navigate("/login");
+          // navigate("/login");
           return;
         }
         setMember({
@@ -92,7 +94,21 @@ export const MemberProvider = ({ children }) => {
       setMember(null);
     };
 
+    const handleForceLogouts = () => {
+      if (window.stompClient?.connected) window.stompClient.disconnect();
+      localStorage.removeItem("loginMember");
+      localStorage.removeItem("accessToken");
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key.startsWith("kakao_")) {
+          localStorage.removeItem(key);
+        }
+      }
+      setMember(null);
+    };
+
     window.addEventListener("forceLogout", handleForceLogout);
+    window.addEventListener("forceLogouts", handleForceLogouts);
     return () => window.removeEventListener("forceLogout", handleForceLogout);
   }, [location.pathname, navigate]);
 

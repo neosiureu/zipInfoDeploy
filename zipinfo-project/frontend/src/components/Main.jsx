@@ -61,7 +61,6 @@ const Main = () => {
     }
 
     const response = await axiosAPI.post("/myPage/searchResult", value);
-    console.log(response.data);
     setSearchStock(response.data.stock);
     setSearchSale(response.data.sale);
   };
@@ -123,7 +122,7 @@ const Main = () => {
 
     stock.stockNo
       ? navigate(`/stock/${stock.stockNo}`)
-      : navigate(`/sale/${stock.saleNo}`);
+      : navigate(`/sale/${stock.saleStockNo}`);
   };
 
   const deleteRecentSearch = (e) => {
@@ -174,20 +173,7 @@ const Main = () => {
     return result[status] || "기타";
   };
 
-  // 배너 URL 처리
-  const bannerPath = localStorage.getItem("mainBannerUrl");
-  const fullBannerUrl =
-    bannerPath && bannerPath.includes("/images/advertiseImg/")
-      ? `http://localhost:8080${bannerPath}`
-      : banner;
-
-  const refreshSet = async () => {
-    await axiosAPI.get("/catch/request");
-  };
-
   useEffect(() => {
-    refreshSet();
-
     const history = JSON.parse(localStorage.getItem("recentSearch")) || [];
     setRecentSearch(history);
 

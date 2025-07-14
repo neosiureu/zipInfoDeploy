@@ -70,7 +70,6 @@ import PrivacyPolicy from "./components/common/PrivacyPolicy";
 import CustomerService from "./components/common/CustomerService";
 import ScrollToTop from "./components/common/ScrollToTop";
 import { getLocationName } from "./components/common/getLocationName";
-import { setupAxiosInterceptors } from "./api/axiosApi";
 
 function MessageListener() {
   const { setMember } = useContext(MemberContext);
@@ -206,16 +205,6 @@ function GlobalWebSocketListener() {
   return null;
 }
 
-function AxiosInterceptorSetup({ children }) {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    setupAxiosInterceptors({ navigate, toast });
-  }, [navigate]);
-
-  return children;
-}
-
 function App() {
   useEffect(() => {
     if (window.Kakao && !window.Kakao.isInitialized()) {
@@ -228,7 +217,7 @@ function App() {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("loginMember");
 
-      window.location.href = "/login";
+      // window.location.href = "/login";
     };
 
     window.addEventListener("forceLogout", handleForceLogout);
@@ -238,346 +227,331 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <AxiosInterceptorSetup>
-          <ScrollToTop />
-          <MemberProvider>
-            <MessageListener />
-            <GlobalWebSocketListener />
-            <Routes>
-              {/* 공통 사용자 레이아웃 */}
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Main />} />
-                <Route path="sale" element={<SaleProviderWrapper />} />
-                <Route path="stock" element={<StockProviderWrapper />} />
+        <ScrollToTop />
+        <MemberProvider>
+          <MessageListener />
+          <GlobalWebSocketListener />
+          <Routes>
+            {/* 공통 사용자 레이아웃 */}
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Main />} />
+              <Route path="sale" element={<SaleProviderWrapper />} />
+              <Route path="stock" element={<StockProviderWrapper />} />
 
-                <Route path="login" element={<MemberLogin />} />
-                <Route path="signUp" element={<MemberSignup />} />
-                <Route path="findPassword" element={<MemberFindPw />} />
-                <Route path="gonggong" element={<Gonggong />} />
-                <Route path="terms" element={<TermsOfService />} />
-                <Route path="privacy" element={<PrivacyPolicy />} />
-                <Route path="customer" element={<CustomerService />} />
+              <Route path="login" element={<MemberLogin />} />
+              <Route path="signUp" element={<MemberSignup />} />
+              <Route path="findPassword" element={<MemberFindPw />} />
+              <Route path="gonggong" element={<Gonggong />} />
+              <Route path="terms" element={<TermsOfService />} />
+              <Route path="privacy" element={<PrivacyPolicy />} />
+              <Route path="customer" element={<CustomerService />} />
 
-                {/* 마이페이지 */}
-                <Route
-                  path="myPage"
-                  element={
-                    <ProtectedRoute>
-                      <BlockAdmin>
-                        <MyInfo />
-                      </BlockAdmin>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="myPage/updateInfo"
-                  element={
-                    <ProtectedRoute>
-                      <BlockAdmin>
-                        <UpdateInfo />
-                      </BlockAdmin>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="myPage/myStock"
-                  element={
-                    <ProtectedRoute>
-                      <BlockAdmin>
-                        <MyStock />
-                      </BlockAdmin>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="myPage/updateMyStock"
-                  element={
-                    <ProtectedRoute>
-                      <BlockAdmin>
-                        <UpdateMyStock />
-                      </BlockAdmin>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="myPage/addStock"
-                  element={
-                    <ProtectedRoute>
-                      <BlockAdmin>
-                        <AddStock />
-                      </BlockAdmin>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="myPage/sawStock"
-                  element={
-                    <ProtectedRoute>
-                      <BlockAdmin>
-                        <SawStock />
-                      </BlockAdmin>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="myPage/likeStock"
-                  element={
-                    <ProtectedRoute>
-                      <BlockAdmin>
-                        <LikeStock />
-                      </BlockAdmin>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="myPage/myMessage"
-                  element={
-                    <ProtectedRoute>
-                      <BlockAdmin>
-                        <MyMessage />
-                      </BlockAdmin>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="myPage/seeMyMessage"
-                  element={
-                    <ProtectedRoute>
-                      <BlockAdmin>
-                        <SeeMyMessage />
-                      </BlockAdmin>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="myPage/detailMessage/:messageNo"
-                  element={
-                    <ProtectedRoute>
-                      <BlockAdmin>
-                        <DetailMessage />
-                      </BlockAdmin>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="myPage/myPost"
-                  element={
-                    <ProtectedRoute>
-                      <BlockAdmin>
-                        <MyPost />
-                      </BlockAdmin>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="myPage/updatePassword"
-                  element={
-                    <ProtectedRoute>
-                      <BlockAdmin>
-                        <UpdatePassword />
-                      </BlockAdmin>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="myPage/withDraw"
-                  element={
-                    <ProtectedRoute>
-                      <BlockAdmin>
-                        <WithDraw />
-                      </BlockAdmin>
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/*매물페이지*/}
-                <Route
-                  path="/stock/:stockNo"
-                  element={<StockProviderWrapper />}
-                />
-
-                {/* 분양페이지 */}
-                <Route
-                  path="/sale/:saleStockNo"
-                  element={<SaleProviderWrapper />}
-                />
-
-                {/* 공지사항 (Announce) */}
-                <Route path="announce" element={<Announce />} />
-                <Route
-                  path="announce/detail/:id"
-                  element={<AnnounceDetail />}
-                />
-                <Route
-                  path="announce/write"
-                  element={
-                    <ProtectedRoute>
-                      <AdminRoute>
-                        <AnnounceWrite />
-                      </AdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="announce/edit/:id"
-                  element={
-                    <ProtectedRoute>
-                      <AdminRoute>
-                        <AnnounceWrite />
-                      </AdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* 우리동네 게시판 */}
-                <Route
-                  path="neighborhoodBoard"
-                  element={<NeighborhoodBoard />}
-                />
-                <Route
-                  path="neighborhoodBoard/detail/:boardNo"
-                  element={<NeighborhoodDetail />}
-                />
-                <Route
-                  path="neighborhoodBoard/edit/:boardNo?"
-                  element={
-                    <ProtectedRoute>
-                      <NeighborhoodEdit />
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* 선택 파라미터 문법으로 ?가 있을 때는 있을수도 없을수도 있다.
-              baordNo가 들어가 있으면 수정화면으로 전환
-              boardNo가 안 들어가면 글쓰기 화면으로 전환할 예정이다. 하나의 path로 두개의 처리를 하여 jsx파일의 개수 자체를 줄일 수 있을 듯 하다*/}
-              </Route>
-
-              {/* 관리자 페이지 - DashBoard 레이아웃 하위 중첩 라우팅 */}
+              {/* 마이페이지 */}
               <Route
-                path="admin/*"
+                path="myPage"
+                element={
+                  <ProtectedRoute>
+                    <BlockAdmin>
+                      <MyInfo />
+                    </BlockAdmin>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="myPage/updateInfo"
+                element={
+                  <ProtectedRoute>
+                    <BlockAdmin>
+                      <UpdateInfo />
+                    </BlockAdmin>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="myPage/myStock"
+                element={
+                  <ProtectedRoute>
+                    <BlockAdmin>
+                      <MyStock />
+                    </BlockAdmin>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="myPage/updateMyStock"
+                element={
+                  <ProtectedRoute>
+                    <BlockAdmin>
+                      <UpdateMyStock />
+                    </BlockAdmin>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="myPage/addStock"
+                element={
+                  <ProtectedRoute>
+                    <BlockAdmin>
+                      <AddStock />
+                    </BlockAdmin>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="myPage/sawStock"
+                element={
+                  <ProtectedRoute>
+                    <BlockAdmin>
+                      <SawStock />
+                    </BlockAdmin>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="myPage/likeStock"
+                element={
+                  <ProtectedRoute>
+                    <BlockAdmin>
+                      <LikeStock />
+                    </BlockAdmin>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="myPage/myMessage"
+                element={
+                  <ProtectedRoute>
+                    <BlockAdmin>
+                      <MyMessage />
+                    </BlockAdmin>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="myPage/seeMyMessage"
+                element={
+                  <ProtectedRoute>
+                    <BlockAdmin>
+                      <SeeMyMessage />
+                    </BlockAdmin>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="myPage/detailMessage/:messageNo"
+                element={
+                  <ProtectedRoute>
+                    <BlockAdmin>
+                      <DetailMessage />
+                    </BlockAdmin>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="myPage/myPost"
+                element={
+                  <ProtectedRoute>
+                    <BlockAdmin>
+                      <MyPost />
+                    </BlockAdmin>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="myPage/updatePassword"
+                element={
+                  <ProtectedRoute>
+                    <BlockAdmin>
+                      <UpdatePassword />
+                    </BlockAdmin>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="myPage/withDraw"
+                element={
+                  <ProtectedRoute>
+                    <BlockAdmin>
+                      <WithDraw />
+                    </BlockAdmin>
+                  </ProtectedRoute>
+                }
+              />
+
+              {/*매물페이지*/}
+              <Route
+                path="/stock/:stockNo"
+                element={<StockProviderWrapper />}
+              />
+
+              {/* 분양페이지 */}
+              <Route
+                path="/sale/:saleStockNo"
+                element={<SaleProviderWrapper />}
+              />
+
+              {/* 공지사항 (Announce) */}
+              <Route path="announce" element={<Announce />} />
+              <Route path="announce/detail/:id" element={<AnnounceDetail />} />
+              <Route
+                path="announce/write"
                 element={
                   <ProtectedRoute>
                     <AdminRoute>
-                      <DashBoard />
+                      <AnnounceWrite />
                     </AdminRoute>
                   </ProtectedRoute>
                 }
-              >
-                <Route
-                  index
-                  element={
-                    <ProtectedRoute>
-                      <AdminRoute>
-                        <Chart />
-                      </AdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <AdminRoute>
-                        <Chart />
-                      </AdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="chart"
-                  element={
-                    <ProtectedRoute>
-                      <AdminRoute>
-                        <Chart />
-                      </AdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="advertisement"
-                  element={
-                    <ProtectedRoute>
-                      <AdminRoute>
-                        <Advertisement />
-                      </AdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="helpMessage"
-                  element={
-                    <ProtectedRoute>
-                      <AdminRoute>
-                        <HelpMessage />
-                      </AdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="help/reply/:messageNo"
-                  element={
-                    <ProtectedRoute>
-                      <AdminRoute>
-                        <Reply />
-                      </AdminRoute>
-                    </ProtectedRoute>
-                  }
-                />{" "}
-                <Route
-                  path="management"
-                  element={
-                    <ProtectedRoute>
-                      <AdminRoute>
-                        <Management />
-                      </AdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="list_sale"
-                  element={
-                    <ProtectedRoute>
-                      <AdminRoute>
-                        <ListSale />
-                      </AdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="add_sale"
-                  element={
-                    <ProtectedRoute>
-                      <AdminRoute>
-                        <AddSale />
-                      </AdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="edit_sale/:id"
-                  element={
-                    <ProtectedRoute>
-                      <AdminRoute>
-                        <UpdateSale />
-                      </AdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-              </Route>
-
-              <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />
-              <Route
-                path="/oauth2/naver/redirect"
-                element={<NaverCallback />}
               />
-            </Routes>
-            <ToastContainer
-              position="top-center"
-              icon={false}
-              autoClose={3000}
-            />
-          </MemberProvider>
-        </AxiosInterceptorSetup>
+              <Route
+                path="announce/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <AdminRoute>
+                      <AnnounceWrite />
+                    </AdminRoute>
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* 우리동네 게시판 */}
+              <Route path="neighborhoodBoard" element={<NeighborhoodBoard />} />
+              <Route
+                path="neighborhoodBoard/detail/:boardNo"
+                element={<NeighborhoodDetail />}
+              />
+              <Route
+                path="neighborhoodBoard/edit/:boardNo?"
+                element={
+                  <ProtectedRoute>
+                    <NeighborhoodEdit />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* 선택 파라미터 문법으로 ?가 있을 때는 있을수도 없을수도 있다.
+              baordNo가 들어가 있으면 수정화면으로 전환
+              boardNo가 안 들어가면 글쓰기 화면으로 전환할 예정이다. 하나의 path로 두개의 처리를 하여 jsx파일의 개수 자체를 줄일 수 있을 듯 하다*/}
+            </Route>
+
+            {/* 관리자 페이지 - DashBoard 레이아웃 하위 중첩 라우팅 */}
+            <Route
+              path="admin/*"
+              element={
+                <ProtectedRoute>
+                  <AdminRoute>
+                    <DashBoard />
+                  </AdminRoute>
+                </ProtectedRoute>
+              }
+            >
+              <Route
+                index
+                element={
+                  <ProtectedRoute>
+                    <AdminRoute>
+                      <Chart />
+                    </AdminRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="dashboard"
+                element={
+                  <ProtectedRoute>
+                    <AdminRoute>
+                      <Chart />
+                    </AdminRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="chart"
+                element={
+                  <ProtectedRoute>
+                    <AdminRoute>
+                      <Chart />
+                    </AdminRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="advertisement"
+                element={
+                  <ProtectedRoute>
+                    <AdminRoute>
+                      <Advertisement />
+                    </AdminRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="helpMessage"
+                element={
+                  <ProtectedRoute>
+                    <AdminRoute>
+                      <HelpMessage />
+                    </AdminRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="help/reply/:messageNo"
+                element={
+                  <ProtectedRoute>
+                    <AdminRoute>
+                      <Reply />
+                    </AdminRoute>
+                  </ProtectedRoute>
+                }
+              />{" "}
+              <Route
+                path="management"
+                element={
+                  <ProtectedRoute>
+                    <AdminRoute>
+                      <Management />
+                    </AdminRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="list_sale"
+                element={
+                  <ProtectedRoute>
+                    <AdminRoute>
+                      <ListSale />
+                    </AdminRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="add_sale"
+                element={
+                  <ProtectedRoute>
+                    <AdminRoute>
+                      <AddSale />
+                    </AdminRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="edit_sale/:id"
+                element={
+                  <ProtectedRoute>
+                    <AdminRoute>
+                      <UpdateSale />
+                    </AdminRoute>
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
+
+            <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />
+            <Route path="/oauth2/naver/redirect" element={<NaverCallback />} />
+          </Routes>
+          <ToastContainer position="top-center" icon={false} autoClose={3000} />
+        </MemberProvider>
       </BrowserRouter>
     </AuthProvider>
   );
