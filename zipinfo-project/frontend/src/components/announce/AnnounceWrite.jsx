@@ -118,20 +118,6 @@ export default function AnnounceWrite() {
               boxSizing: "border-box",
             }}
           />
-          <div
-            style={{
-              position: "absolute",
-              right: "16px",
-              bottom: "12px",
-              color: "#888",
-              fontSize: "13px",
-              background: "#fff",
-              padding: "0 4px",
-              borderRadius: "4px",
-            }}
-          >
-            {title.length} / 50자
-          </div>
         </div>
 
         {/* Summernote 에디터 */}
@@ -141,23 +127,6 @@ export default function AnnounceWrite() {
             onChange={setContent}
             disabled={isSubmitting}
           />
-          <div
-            style={{
-              position: "absolute",
-              right: "16px",
-              bottom: "12px",
-              color: "#888",
-              fontSize: "13px",
-              background: "#fff",
-              padding: "0 4px",
-              borderRadius: "4px",
-            }}
-          >
-            {(() => {
-              const textOnly = content.replace(/<[^>]+>/g, "");
-              return `${textOnly.length} / 2000자`;
-            })()}
-          </div>
         </div>
 
         <div className="button-container">
