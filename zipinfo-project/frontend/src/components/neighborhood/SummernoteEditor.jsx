@@ -391,6 +391,41 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
               isProgrammatic.current = false; // 플래그 해제
               return;
             }
+
+            // 글자수 제한 체크 (1000자)
+            const textContent = extractTextContent(contents);
+            if (textContent.length > 1000) {
+              // 1000자를 초과하면 이전 상태로 되돌리기
+              const $editable = window
+                .$(editorRef.current)
+                .next(".note-editor")
+                .find(".note-editable");
+
+              // 이전 유효한 HTML로 되돌리기
+              if (lastValidHtml.current) {
+                $editable.html(lastValidHtml.current);
+                // 커서 위치 복원
+                if (savedCursor.current) {
+                  restoreCursorPosition(savedCursor.current);
+                }
+              }
+
+              // 토스트 메시지 표시
+              toast.error(
+                <div>
+                  <div className="toast-error-title">글자수 초과</div>
+                  <div className="toast-error-body">
+                    텍스트는 최대 1000자까지 입력할 수 있습니다.
+                  </div>
+                </div>
+              );
+              return;
+            }
+
+            // 유효한 내용이면 저장
+            lastValidHtml.current = contents;
+            savedCursor.current = saveCursorPosition();
+
             const currentTime = Date.now();
             const timeDiff = currentTime - lastChangeTime.current;
 

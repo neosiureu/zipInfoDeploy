@@ -26,7 +26,7 @@ const Main = () => {
   const [saleList, setSaleList] = useState([]);
   const [mainAd, setMainAd] = useState(null);
 
-  const [searchContent, setSearchContent] = useState(null);
+  const [searchContent, setSearchContent] = useState("");
 
   const searchRef = useRef(null);
 
@@ -181,12 +181,12 @@ const Main = () => {
       ? `http://localhost:8080${bannerPath}`
       : banner;
 
-  const refreshSet = async () => {
-    await axiosAPI.get("/catch/request");
-  };
+  // const refreshSet = async () => {
+  //   await axiosAPI.get("/catch/request");
+  // };
 
   useEffect(() => {
-    refreshSet();
+    // refreshSet();
 
     const history = JSON.parse(localStorage.getItem("recentSearch")) || [];
     setRecentSearch(history);

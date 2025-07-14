@@ -162,7 +162,6 @@ const InfraMark = () => {
         () => {
           infraMarkersRef.current.forEach((marker) => marker.setMap(null)); // 이전에 itemMarkersRef에 저장해둔 markers 하나하나 취소
           infraMarkersRef.current = []; // infraMarkersRef 초기화
-          console.log("idle Event 실행됨");
           if (
             clickedCategoryRef.current === CategoryEnum.NONE ||
             !isInfraCategoryVisibleRef.current
