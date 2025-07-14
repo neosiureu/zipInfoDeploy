@@ -26,33 +26,53 @@ const NeighborhoodBoardDetail = () => {
   // 이 글에서 서버로 보낼 url 주소: /board/detail/boardNo
 
   const handleBoardLike = async (boardNo) => {
-    if (member == null) {
-      toast.error(
-        <div>
-          <div className="toast-error-title">오류 알림!</div>
-          <div className="toast-error-body">로그인 후 이용해주세요.</div>
-        </div>
-      );
+    if (!member) {
+      toast.error("로그인 후 이용해주세요");
       return;
     }
+
     const isCurrentlyLiked = like.has(boardNo);
 
+    // 1) 로컬 상태 즉시 업데이트 (Optimistic UI)
     setLike((prev) => {
       const updated = new Set(prev);
       if (updated.has(boardNo)) {
-        updated.delete(boardNo); // 찜 해제
+        updated.delete(boardNo);
+        setLikeCount((c) => c - 1);
       } else {
-        updated.add(boardNo); // 찜 추가
+        updated.add(boardNo);
+        setLikeCount((c) => c + 1);
       }
       return updated;
     });
+
+    // 2) 서버에 변경 요청
     try {
       const { data: totalLike } = await axiosAPI.post("/board/like", {
-        boardNo: boardNo,
+        boardNo,
         liked: isCurrentlyLiked,
       });
+      // 3) 서버가 반환한 정확한 개수로 보정
+      if (typeof totalLike === "number") {
+        setLikeCount(totalLike);
+      }
     } catch (err) {
       console.error("찜 상태 변경 실패:", err);
+      // 실패 시 로컬 상태 롤백
+      setLike((prev) => {
+        const rolledBack = new Set(prev);
+        if (isCurrentlyLiked) {
+          // 원래는 좋아요 상태였으므로 다시 추가
+          rolledBack.add(boardNo);
+          setLikeCount((c) => c + 1);
+        } else {
+          // 원래는 좋아요 안 함 상태였으므로 삭제
+          rolledBack.delete(boardNo);
+          setLikeCount((c) => c - 1);
+        }
+        return rolledBack;
+      });
+      toast.error("좋아요 변경에 실패했습니다.");
     }
   };
 

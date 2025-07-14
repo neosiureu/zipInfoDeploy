@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Search, RefreshCw } from "lucide-react";
 import "../../../css/admin/Management/DeletedMembers.css";
 import { toast } from "react-toastify";
 import { axiosAPI } from "../../../api/axiosApi";
 
-const roleOptions = ["일반회원", "중개인", "중개인 신청"];
+const roleOptions = ["일반회원", "중개회원 신청", "중개회원"];
 const BASE_URL = "http://localhost:8080"; // API 주소 맞게 조정하세요
 
 const DeletedMembers = () => {
@@ -16,7 +15,14 @@ const DeletedMembers = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const membersPerPage = 10;
 
-  // 서버에서 삭제된 회원 목록 불러오기
+  const authMap = {
+    0: "관리자",
+    1: "일반회원",
+    2: "중개회원 신청",
+    3: "중개회원",
+  };
+
+  // 삭제된 회원 목록 불러오기
   const fetchDeletedMembers = async () => {
     try {
       const response = await axiosAPI.get(
@@ -28,39 +34,28 @@ const DeletedMembers = () => {
     }
   };
 
-  // 컴포넌트 마운트 시 목록 로드
   useEffect(() => {
     fetchDeletedMembers();
   }, []);
 
-  // deletedMembers 상태 변경 시 필터 초기화 및 적용
   useEffect(() => {
     setFilteredDeletedMembers(deletedMembers);
   }, [deletedMembers]);
 
-  // 검색어, 권한 필터, deletedMembers 변경 시 필터링 및 페이지 초기화
   useEffect(() => {
     let filtered = deletedMembers;
 
-    if (searchTerm) {
+    if (roleFilter) {
       filtered = filtered.filter(
         (member) =>
-          member.memberEmail
-            ?.toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          member.memberNo?.toString().includes(searchTerm)
+          authMap[member.memberRole ?? member.memberAuth] === roleFilter
       );
-    }
-
-    if (roleFilter) {
-      filtered = filtered.filter((member) => member.memberRole === roleFilter);
     }
 
     setFilteredDeletedMembers(filtered);
     setCurrentPage(1);
   }, [searchTerm, roleFilter, deletedMembers]);
 
-  // 회원 복구 함수
   const handleRestoreMember = async (memberNo) => {
     try {
       const response = await axiosAPI.put(
@@ -76,7 +71,7 @@ const DeletedMembers = () => {
             </div>
           </div>
         );
-        await fetchDeletedMembers(); // 복구 후 목록 최신화
+        await fetchDeletedMembers();
       } else {
         toast.error(
           <div>
@@ -96,7 +91,6 @@ const DeletedMembers = () => {
     }
   };
 
-  // 1. 계정 영구 삭제 함수 추가
   const handlePermanentlyDeleteMember = async (memberNo) => {
     if (window.confirm("정말로 이 회원의 계정을 영구 삭제하시겠습니까?")) {
       try {
@@ -113,7 +107,7 @@ const DeletedMembers = () => {
               </div>
             </div>
           );
-          await fetchDeletedMembers(); // 삭제 후 목록 최신화
+          await fetchDeletedMembers();
         } else {
           toast.error(
             <div>
@@ -134,12 +128,6 @@ const DeletedMembers = () => {
         );
       }
     }
-  };
-
-  const handleRoleChange = (index, newRole) => {
-    const updated = [...filteredDeletedMembers];
-    updated[index].memberRole = newRole;
-    setFilteredDeletedMembers(updated);
   };
 
   const totalPages = Math.ceil(filteredDeletedMembers.length / membersPerPage);
@@ -212,30 +200,18 @@ const DeletedMembers = () => {
           <tbody>
             {currentData.length === 0 ? (
               <tr>
-                <td colSpan="7" className="no-data">
+                <td colSpan="8" className="no-data">
                   삭제된 회원이 없습니다.
                 </td>
               </tr>
             ) : (
-              currentData.map((member, idx) => (
+              currentData.map((member) => (
                 <tr key={member.memberNo}>
                   <td>{member.memberNo}</td>
                   <td>{member.memberEmail || member.memberId}</td>
                   <td>{member.enrollDate || member.joinDate || "-"}</td>
                   <td>
-                    <select
-                      className="filter-select"
-                      value={member.memberAuth || "일반회원"}
-                      onChange={(e) =>
-                        handleRoleChange(idx + indexOfFirst, e.target.value)
-                      }
-                    >
-                      {roleOptions.map((role) => (
-                        <option key={role} value={role}>
-                          {role}
-                        </option>
-                      ))}
-                    </select>
+                    {authMap[member.memberRole ?? member.memberAuth] || "-"}
                   </td>
                   <td>
                     {member.lastLoginDate

@@ -21,7 +21,7 @@ const NeighborhoodBoard = ({}) => {
 
   const initCp = Number(searchParams.get("cp") ?? 1);
 
-  const cp = Number(searchParams.get("cp") ?? 1);
+  const [currentPage, setCurrentPage] = useState(initCp);
   const [selectedCity, setSelectedCity] = useState(
     searchParams.get("cityNo") || "-1"
   );
@@ -32,7 +32,7 @@ const NeighborhoodBoard = ({}) => {
     searchParams.get("boardsubject") || "-1"
   );
 
-  //  수정: 검색 상태를 하나로 통합
+  //  검색 상태를 하나로 통합
   const [searchKey, setSearchKey] = useState(searchParams.get("key") || "t");
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get("query") || ""
@@ -52,7 +52,7 @@ const NeighborhoodBoard = ({}) => {
     setSelectedCity("-1");
     setSelectedTown("-1");
     setSelectedSubject("-1");
-    // setCurrentPage(1);
+    setCurrentPage(1);
     setSearchQuery("");
     setSearchKey("t");
     setSearchParams({}, { replace: true });
@@ -85,16 +85,7 @@ const NeighborhoodBoard = ({}) => {
 
   //  수정: 검색 함수 개선
   const handleSearch = useCallback(() => {
-    if (!searchQuery.trim()) {
-      setIsSearching(false);
-      toast.error(
-        <div>
-          <div className="toast-error-title">오류 알림!</div>
-          <div className="toast-error-body">검색어를 입력해주세요</div>
-        </div>
-      );
-      return;
-    }
+    const trimmed = searchQuery.trim();
 
     if (searchQuery.trim().length > 50) {
       setIsSearching(false);
@@ -115,8 +106,8 @@ const NeighborhoodBoard = ({}) => {
         const newParams = new URLSearchParams(prev);
         newParams.set("cp", 1);
 
-        if (searchQuery.trim()) {
-          newParams.set("query", searchQuery.trim());
+        if (trimmed) {
+          newParams.set("query", trimmed);
           newParams.set("key", searchKey);
         } else {
           newParams.delete("query");
@@ -136,7 +127,7 @@ const NeighborhoodBoard = ({}) => {
 
         return newParams;
       },
-      { replace: true }
+      { replace: false }
     );
   }, [
     searchKey,
@@ -165,22 +156,40 @@ const NeighborhoodBoard = ({}) => {
   ];
 
   const handlePaginationChange = (page) => {
-    // setCurrentPage(page);
-
-    // URL 쿼리 파라미터 동기화
-    setSearchParams((prev) => {
-      const newParams = new URLSearchParams(prev);
-      newParams.set("cp", page); // 추가
-      return newParams;
-    });
+    setCurrentPage(page);
+    setSearchParams(
+      // 반드시 URL을 바꿔라
+      (prev) => {
+        const p = new URLSearchParams(prev);
+        p.set("cp", page);
+        return p;
+      },
+      { replace: false } // 히스토리에 push
+    );
   };
 
+  // 2) URL이 바뀔 때 state 맞춰주기
+  useEffect(() => {
+    const cpParam = Number(searchParams.get("cp") ?? 1);
+    if (cpParam !== currentPage) setCurrentPage(cpParam);
+    const cityParam = searchParams.get("cityNo") ?? "-1";
+    if (cityParam !== selectedCity) setSelectedCity(cityParam);
+
+    const townParam = searchParams.get("townNo") ?? "-1";
+    if (townParam !== selectedTown) setSelectedTown(townParam);
+
+    const subjectParam = searchParams.get("boardsubject") ?? "-1";
+    if (subjectParam !== selectedSubject) setSelectedSubject(subjectParam);
+  }, [searchParams]);
+
   const handleBoardClick = (item) => {
-    navigate(`/neighborhoodBoard/detail/${item.boardNo}?cp=${cp}`);
+    navigate(`/neighborhoodBoard/detail/${item.boardNo}?cp=${currentPage}`);
   };
 
   const handleBoardWriteClick = (board) => {
-    navigate(`/neighborhoodBoard/edit${cp ? `?cp=${cp}` : ""}`);
+    navigate(
+      `/neighborhoodBoard/edit${currentPage ? `?cp=${currentPage}` : ""}`
+    );
   };
 
   const renderPagination = () => {
@@ -204,7 +213,8 @@ const NeighborhoodBoard = ({}) => {
       const urlSearchKey = searchParams.get("key") || searchKey;
       const urlSearchQuery = searchParams.get("query") || "";
 
-      const params = new URLSearchParams({ cp });
+      const params = new URLSearchParams({ cp: currentPage });
+
       if (urlSearchQuery.trim()) {
         params.append("key", urlSearchKey);
         params.append("query", urlSearchQuery);
@@ -231,7 +241,7 @@ const NeighborhoodBoard = ({}) => {
       setLoading(false);
       setIsSearching(false);
     }
-  }, [cp, searchParams, selectedCity, selectedTown, selectedSubject]);
+  }, [currentPage, searchParams, selectedCity, selectedTown, selectedSubject]);
 
   // 시도 선택 핸들러
   const handleCityChange = async (e) => {
@@ -253,8 +263,8 @@ const NeighborhoodBoard = ({}) => {
 
         newParams.delete("townNo");
         return newParams;
-      },
-      { replace: true }
+      }
+      // { replace: true }
     );
   };
 
@@ -276,8 +286,8 @@ const NeighborhoodBoard = ({}) => {
         }
 
         return newParams;
-      },
-      { replace: true }
+      }
+      // { replace: true }
     );
   };
 
@@ -299,8 +309,8 @@ const NeighborhoodBoard = ({}) => {
         }
 
         return newParams;
-      },
-      { replace: true }
+      }
+      // { replace: true }
     );
   };
 
@@ -405,7 +415,7 @@ const NeighborhoodBoard = ({}) => {
             <button
               className="nb-page-btn nb-page-prev"
               onClick={() => handlePaginationChange(1)}
-              disabled={cp === 1}
+              disabled={currentPage === 1}
             >
               ‹‹
             </button>
@@ -420,7 +430,9 @@ const NeighborhoodBoard = ({}) => {
             {pages.map((page) => (
               <button
                 key={page}
-                className={`nb-page-btn ${page === cp ? "nb-page-active" : ""}`}
+                className={`nb-page-btn ${
+                  page === currentPage ? "nb-page-active" : ""
+                }`}
                 onClick={() => handlePaginationChange(page)}
               >
                 {page.toString().padStart(2, "0")}
@@ -489,7 +501,7 @@ const NeighborhoodBoard = ({}) => {
           <button
             className="nb-search-btn"
             onClick={handleSearch}
-            disabled={isSearching || !searchQuery.trim()}
+            disabled={isSearching}
           >
             {isSearching ? "검색 중..." : "검색"}
           </button>

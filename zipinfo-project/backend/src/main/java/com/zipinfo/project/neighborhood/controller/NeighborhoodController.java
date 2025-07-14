@@ -173,6 +173,8 @@ public class NeighborhoodController {
 			
 		}
 		log.debug("현재 접속한 멤버"+ loginMember);
+		log.debug("현재 접속한 보드"+ board);
+
 		return ResponseEntity.ok(board);
 	}
 	
