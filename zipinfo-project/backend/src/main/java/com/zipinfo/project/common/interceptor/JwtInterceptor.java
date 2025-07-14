@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class JwtInterceptor implements HandlerInterceptor {
 
@@ -46,7 +47,12 @@ public class JwtInterceptor implements HandlerInterceptor {
 
             return true; // 통과
 
+        } catch (NumberFormatException e) {
+            // ⭐ OAuth 토큰(subject가 이메일)인 경우 => 그냥 통과
+            log.debug("OAuth 토큰 감지, 검증 스킵");
+            return true;
         } catch (Exception e) {
+            log.error("JWT 검증 실패: {}", e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return false;
         }

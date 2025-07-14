@@ -3,6 +3,7 @@ package com.zipinfo.project.oauth.controller;
 
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,32 +30,28 @@ public class OauthController {
 	 private final JwtTokenProvider jwtTokenProvider;
 
 	  
-	  @PostMapping("/kakao")
-	    public ResponseEntity<Map<String,Object>> kakaoLogin(@RequestBody Map<String,String> body) {
+	 @PostMapping("/kakao")
+	 public ResponseEntity<?> kakaoLogin(@RequestBody Map<String,String> body) {
+	     String kakaoAccessToken = body.get("code");
+	     try {
+	         Member member = oauthService.loginKakao(kakaoAccessToken);
 
-	        String kakaoAccessToken = body.get("code");   // ↔ implicit 이면 body.get("accessToken")
-	        log.info("카카오 로그인 요청, code={}", kakaoAccessToken);
+	         return ResponseEntity.ok(
+	             Map.of("loginMember", member,
+	                    "accessToken", member.getAccessToken())
+	         );
 
-	        try {
-	            /* 1) 카카오 토큰 → 우리 서비스 회원 */
-	            Member member = oauthService.loginKakao(kakaoAccessToken);
-
-	            /* 2) JWT 발급 */
-	            String jwt = jwtTokenProvider.createAccessToken(member);
-
-	            /* 3) 응답 */
-	            Map<String,Object> result = Map.of(
-	                    "loginMember",  member,
-	                    "accessToken",  jwt
-	            );
-	            return ResponseEntity.ok(result);
-
-	        } catch (Exception ex) {
-	            log.error("kakaoLogin 에러", ex);
-	            return ResponseEntity.internalServerError().build();
-	        }
-	    }
-	    
+	     } catch (IllegalStateException e) {            // ← 14일 미만
+	         if ("WITHDRAW_14D".equals(e.getMessage())) {
+	             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	                                  .body(Map.of("msg", "WITHDRAW_14D"));
+	         }
+	         throw e;
+	     } catch (Exception ex) {
+	         log.error("kakaoLogin 에러", ex);
+	         return ResponseEntity.internalServerError().build();
+	     }
+	 }
 	     
 	  @PostMapping("/naver")
 	    public ResponseEntity<Map<String,Object>> naverLogin(@RequestBody Map<String,String> body) {

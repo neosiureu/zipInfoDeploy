@@ -100,11 +100,19 @@ export default function MemberLogin() {
 
       navigate("/"); //router 사용하여 메인페이지로 이동
     } catch (err) {
+      if (
+        err.response?.status === 401 &&
+        err.response?.data?.msg === "WITHDRAW_14D"
+      ) {
+        toast.error("탈퇴 후 14일 동안은 재가입할 수 없습니다.");
+        return; // 더 이상 처리 안함
+      }
+
       if (err.response?.status === 401) {
         toast.error("이메일 또는 비밀번호가 다릅니다.");
       } else {
         console.error(err);
-        toast.error("로그인 중 오류가 발생했습니다!!");
+        toast.error("로그인 중 오류가 발생했습니다.");
       }
     }
   };

@@ -19,5 +19,7 @@ public interface OauthMapper {
 	Member selectByNaverEmail(@Param("memberEmail") String email);
 
 	void createTokenTable();
+
+	void recoverMember(int memberNo);
 	
 }
