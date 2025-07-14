@@ -211,8 +211,9 @@ const NeighborhoodBoardDetail = () => {
                 </span>
                 <span className="nb-detail-separator">|</span>
                 <span className="nb-detail-views">조회수 : {readCount}</span>
-                {/* <span className="nb-detail-separator">|</span>
-                <span className="nb-detail-likes">좋아요 : {likeCount}</span>{" " } */}
+                <span className="nb-detail-likes">
+                  좋아요 : {likeCount}
+                </span>{" "}
                 {/* 추가 */}
                 <span
                   onClick={(e) => {
