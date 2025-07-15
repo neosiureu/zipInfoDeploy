@@ -351,13 +351,13 @@ export default function MemberLogin() {
         </button>
 
         {/* 네이버 간편 로그인 */}
-        {/* <button
+        <button
           onClick={handleNaverLogin}
           className="naver-login-btn brand-color"
         >
           <img src={Naver} alt="네이버 아이콘" />
           <span>네이버로 간편하게 로그인하기</span>
-        </button> */}
+        </button>
 
         {/* 회원가입 */}
         <div className="signup-link">

@@ -191,6 +191,6 @@
     SELECT b.BROKER_NO 
     FROM MEMBER m 
     JOIN BROKER_INFO b ON m.MEMBER_NO = b.MEMBER_NO 
-    WHERE m.MEMBER_EMAIL = #{memberEmail}
+    WHERE m.MEMBER_EMAIL = #{memberEmail} AND MEMBER_DEL_FL = 'N' AND MEMBER_LOGIN = 'E'
 </select>
 </mapper>
