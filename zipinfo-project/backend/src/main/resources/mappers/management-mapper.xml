@@ -168,4 +168,10 @@
     DELETE FROM MEMBER WHERE MEMBER_NO = #{memberNo} AND MEMBER_DEL_FL = 'Y'
   </delete>
 
+<select id="findBrokerNumberByEmail" resultType="String">
+    SELECT b.BROKER_NO 
+    FROM MEMBER m 
+    JOIN BROKER_INFO b ON m.MEMBER_NO = b.MEMBER_NO 
+    WHERE m.MEMBER_EMAIL = #{memberEmail}
+</select>
 </mapper>

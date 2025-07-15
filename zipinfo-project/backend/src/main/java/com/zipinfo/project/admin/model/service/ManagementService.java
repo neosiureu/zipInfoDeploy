@@ -119,4 +119,6 @@ public interface ManagementService {
 	 * @return 삭제 성공 건수 (1 이상 성공)
 	 */
 	int permanentlyDeleteMember(Long memberNo);
+
+	String findBrokerNumberByEmail(String memberEmail);
 }

@@ -45,7 +45,7 @@
 		#{memberLogin},
 		#{memberNickname},
 		#{memberName},
-		1,
+		#{memberAuth},
 		DEFAULT,
 		#{memberLocation},
 		NULL

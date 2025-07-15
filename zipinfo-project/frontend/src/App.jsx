@@ -236,7 +236,6 @@ function App() {
               <Route index element={<Main />} />
               <Route path="sale" element={<SaleProviderWrapper />} />
               <Route path="stock" element={<StockProviderWrapper />} />
-
               <Route path="login" element={<MemberLogin />} />
               <Route path="signUp" element={<MemberSignup />} />
               <Route path="findPassword" element={<MemberFindPw />} />
@@ -244,7 +243,6 @@ function App() {
               <Route path="terms" element={<TermsOfService />} />
               <Route path="privacy" element={<PrivacyPolicy />} />
               <Route path="customer" element={<CustomerService />} />
-
               <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />
               <Route
                 path="/oauth2/naver/redirect"
@@ -381,19 +379,16 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               {/*매물페이지*/}
               <Route
                 path="/stock/:stockNo"
                 element={<StockProviderWrapper />}
               />
-
               {/* 분양페이지 */}
               <Route
                 path="/sale/:saleStockNo"
                 element={<SaleProviderWrapper />}
               />
-
               {/* 공지사항 (Announce) */}
               <Route path="announce" element={<Announce />} />
               <Route path="announce/detail/:id" element={<AnnounceDetail />} />
@@ -417,9 +412,11 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               {/* 우리동네 게시판 */}
-              <Route path="neighborhoodBoard" element={<NeighborhoodBoard />} />
+              <Route
+                path="/neighborhoodBoard"
+                element={<NeighborhoodBoard />}
+              />
               <Route
                 path="neighborhoodBoard/detail/:boardNo"
                 element={<NeighborhoodDetail />}
@@ -432,7 +429,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               {/* 선택 파라미터 문법으로 ?가 있을 때는 있을수도 없을수도 있다.
               baordNo가 들어가 있으면 수정화면으로 전환
               boardNo가 안 들어가면 글쓰기 화면으로 전환할 예정이다. 하나의 path로 두개의 처리를 하여 jsx파일의 개수 자체를 줄일 수 있을 듯 하다*/}

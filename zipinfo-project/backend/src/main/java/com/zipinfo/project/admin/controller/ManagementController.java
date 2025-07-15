@@ -9,7 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 관리자용 회원 관리 및 중개인 권한 신청 관련 API 컨트롤러
@@ -213,4 +215,29 @@ public class ManagementController {
     }
 
     
+    @GetMapping("/selectBrokerNo")
+    public ResponseEntity<Map<String, Object>> selectBrokerNo(@RequestParam("email") String memberEmail) {
+        try {
+            // 이메일로 중개사번호 조회 로직
+            String brokerNo = managementService.findBrokerNumberByEmail(memberEmail);
+            System.out.println("이메일로 중개사번호 조회 로직 중");
+            if (brokerNo != null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("brokerNo", brokerNo);
+                return ResponseEntity.ok(response);
+            } else {
+                // 중개사번호가 없는 경우
+                Map<String, Object> response = new HashMap<>();
+                response.put("brokerNo", null);
+                return ResponseEntity.ok(response);
+            }
+            
+        } catch (Exception e) {
+            // 에러 발생 시
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "중개사번호 조회 실패");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
 }
