@@ -90,6 +90,7 @@ export default function Manager() {
                     placeholder="ex) admin2@kh.or.kr"
                     value={form.email}
                     onChange={handleChange}
+                    maxLength={50}
                   />
                 </td>
               </tr>
@@ -102,6 +103,7 @@ export default function Manager() {
                     placeholder="ex) 관리자2"
                     value={form.nickname}
                     onChange={handleChange}
+                    maxLength={10}
                   />
                 </td>
               </tr>

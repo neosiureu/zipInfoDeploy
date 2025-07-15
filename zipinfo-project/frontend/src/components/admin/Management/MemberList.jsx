@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Search, RefreshCw, Lock, CheckCircle, XCircle } from "lucide-react";
+import { Search, RefreshCw, Lock, XCircle } from "lucide-react";
 import "../../../css/admin/Management/MemberList.css";
 import { toast } from "react-toastify";
 import { axiosAPI } from "../../../api/axiosApi";
 
-const BASE_URL = "http://localhost:8080"; // API 주소에 맞게 변경하세요
+const BASE_URL = "http://localhost:8080";
 
 const MemberList = ({ initialMembers }) => {
   const [currentMembers, setCurrentMembers] = useState(
@@ -26,6 +26,18 @@ const MemberList = ({ initialMembers }) => {
 
   const roleOptions = ["관리자", "일반회원", "중개회원 신청", "중개회원"];
 
+  // 컴포넌트 마운트 시 API 호출해서 최신 멤버 목록 불러오기
+  useEffect(() => {
+    axiosAPI
+      .get("/admin/management/members")
+      .then((res) => {
+        console.log("API 응답 데이터:", res.data);
+        setCurrentMembers(res.data);
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
+  // 초기 prop이 변경되면 상태에 반영
   useEffect(() => {
     if (Array.isArray(initialMembers)) {
       setCurrentMembers(initialMembers);
@@ -34,6 +46,7 @@ const MemberList = ({ initialMembers }) => {
     }
   }, [initialMembers]);
 
+  // 검색어, 필터, 멤버 변경에 따른 필터링 및 페이징 초기화
   useEffect(() => {
     let updated = [...currentMembers];
 
@@ -84,8 +97,6 @@ const MemberList = ({ initialMembers }) => {
           <div className="toast-success-body">회원정보가 삭제되었습니다.</div>
         </div>
       );
-
-      // 삭제 후 목록에서 제거
       setCurrentMembers((prev) => prev.filter((m) => m.memberNo !== memberNo));
     } catch (error) {
       console.error("회원 삭제 실패", error);
@@ -169,7 +180,7 @@ const MemberList = ({ initialMembers }) => {
                       ? new Date(member.lastLoginDate).toLocaleDateString()
                       : "-"}
                   </td>
-                  <td>{member.postCount ?? 0}</td>
+                  <td>{member.postCount ?? member.POST_COUNT ?? 0}</td>
                   <td>
                     <button
                       type="button"

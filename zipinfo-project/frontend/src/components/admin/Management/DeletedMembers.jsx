@@ -218,7 +218,7 @@ const DeletedMembers = () => {
                       ? new Date(member.lastLoginDate).toLocaleDateString()
                       : "-"}
                   </td>
-                  <td>{member.postCount ?? 0}</td>
+                  <td>{member.postCount ?? member.POST_COUNT ?? 0}</td>
                   <td>
                     <button
                       className="restore-button"
