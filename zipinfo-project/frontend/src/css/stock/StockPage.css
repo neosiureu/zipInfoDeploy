@@ -275,6 +275,14 @@
   font-size: 14px;
   font-weight: 500;
 }
+.big-round {
+  margin-top: 15px;
+  border-radius: 25px;
+  background-color: #fff;
+  font-size: 25px;
+  font-weight: 500;
+  color: #2563eb;
+}
 
 .custom-overlay::after {
   content: "";

@@ -15,7 +15,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { CITY, TOWN } from "../common/Gonggong";
-
+import ImageGalleryModal from "./ImageModal/ImageGalleryModal";
 const StockPageCopy = () => {
   const {
     mapRef,
@@ -396,7 +396,7 @@ const StockPageCopy = () => {
       const content = `
         <div class="big-custom-overlay" >
           <div class="big-area">${getRegionName(c.code)}</div>
-        ${c.cnt}
+          ${c.cnt}
         </div>
       `;
 
@@ -429,103 +429,6 @@ const StockPageCopy = () => {
         item.lat,
         item.lng
       );
-      // /********************todo : 여기부터 겹치는 마커 처리로직 입력할것.*************************
-      //  * ******해시격자 로직******
-      //  * 지금 보는 kakao Map을 일정 간격을 가진 격자로 분해하여
-      //  * 매물이 소속된 격자와 인접 격자내부에 지금까지 불러운 모든 매물들을 불러와 겹치는지 확인
-      //  *
-      //  * □□□
-      //  * □■□
-      //  * □□□
-      //  */
-      // //screenPoint : 현재 item의 lat/lng를 screen상의 좌표를 저장함
-      // const screenPoint = map
-      //   .getProjection()
-      //   .containerPointFromCoords(itemMarkerPosition); // 📍지도 좌표 → 화면 좌표(px) 변환
-      // //🔎 주변 셀 9개 키 가져오기
-      // const nearbyKeys = getAdjacentCellKeys(screenPoint); // 🔎 주변 셀 9개 키 가져오기
-      // let isOverlapping = false; // 겹침 여부 초기화
-      // let overlappingTarget = null; // 혹시 이미 불러온 item들중 겹치는 것이 있다면 여기다가 저장.
-      // // 🧩 불러온 주변 셀들을 순회하며 겹치는 오버레이가 있는지 검사
-      // for (const key of nearbyKeys) {
-      //   const cell = cellMap[key];
-      //   if (!cell) continue;
-
-      //   for (const other of cell) {
-      //     const dx = screenPoint.x - other.point.x;
-      //     const dy = screenPoint.y - other.point.y;
-      //     const dist = Math.sqrt(dx * dx + dy * dy);
-
-      //     if (dist < 40) {
-      //       // 만약 두 매물간의 거리가 40 이하라면
-      //       // 🔴 실제 겹침 판단 거리 기준 (px)
-      //       isOverlapping = true;
-      //       break;
-      //     }
-      //   }
-      //   if (isOverlapping) break;
-      // }
-
-      // if (!isOverlapping) {
-      //   //***************************** */ ✅ 겹치지 않는 경우 → 셀에 마커 정보 저장
-      //   const cellKey = getCellKey(screenPoint);
-      //   if (!cellMap[cellKey]) cellMap[cellKey] = [];
-
-      //   // 좌표와 매물 정보를 셀에 등록
-      //   cellMap[cellKey].push({ point: screenPoint, item: item });
-
-      //   // 🟢 여기에 커스텀 오버레이 생성 로직 추가
-      //   const content = `
-      //   <div class="custom-overlay" >
-      //     <div class="area">${item.exclusiveArea}㎡</div>
-      //     ${
-      //       item.stockType === 0
-      //         ? `<div class="label">
-      //           매매 <strong>${priceConvertToString(
-      //             item.stockSellPrice
-      //           )}</strong>
-      //           </div>`
-      //         : item.stockType === 1
-      //         ? `<div class="label">
-      //           전세 <strong>${priceConvertToString(
-      //             item.stockSellPrice
-      //           )}</strong>
-      //           </div>`
-      //         : item.stockType === 2
-      //         ? `<div class="label">
-      //           월세 <strong>${priceConvertToString(
-      //             item.stockSellPrice
-      //           )}/${priceConvertToString(item.stockFeeMonth)}</strong>
-      //           </div>`
-      //         : "기타 "
-      //     }
-      //   </div>
-      // `; // 커스텀 마커 저장
-      //   //클릭 이벤트 리스너 바인딩을 위한 코드
-      //   const customOverlay = document.createElement("div");
-      //   customOverlay.innerHTML = content;
-
-      //   // ㄴ 여기서 직접 이벤트 바인딩
-      //   customOverlay
-      //     .querySelector(".custom-overlay")
-      //     .addEventListener("click", (item, index) => {
-      //       console.log(`${item.index} clicked`);
-      //       handleItemClick(item, index);
-      //     });
-
-      //   const itemMarker = new window.kakao.maps.CustomOverlay({
-      //     position: itemMarkerPosition,
-      //     content: customOverlay,
-      //     yAnchor: 1,
-      //   }); // 카카오 map에 커스텀오버레이 등록
-      //   itemMarker.setMap(map);
-      //   itemMarkersRef.current.push(itemMarker);
-      // } else {
-      //   //********************************* */ ❌ 겹치는 경우 → 생략하거나, 클러스터 오버레이를 만들 수도 있음
-      //   console.log(`❗ 겹치는 마커 발생: ${item.id}`);
-      // }
-
-      // /********************end of 겹침처리****************************************************************** */
 
       const content = `
       <div class="custom-overlay" >
@@ -606,6 +509,7 @@ const StockPageCopy = () => {
           console.log(resp.data);
 
           setStockList(resp.data);
+
           updateMarker();
 
           // same code : 매물 좌표를 받아서 지도상에 마커로 매물 위치 추가
@@ -615,7 +519,7 @@ const StockPageCopy = () => {
       }
     };
     fetchData();
-  }, [searchKeyWord, searchLocationCode, searchStockType, searchStockForm]);
+  }, [searchKeyWord, searchLocationCode, searchStockType, searchStockForm]); //*********이거 위에 똑같은 코드가 적인 useEffect()가 있는데?********* */
 
   // 매물 item을 클릭했을떄 수행되는 핸들러 함수
   const handleItemClick = async (item) => {
@@ -1109,6 +1013,7 @@ const StockPageCopy = () => {
           </>
         )}
         <InfraMark mapInstanceRef={mapInstanceRef} />
+        {/*<ImageGalleryModal item={clickedStockItem} />*/}
         <main className="map-area" ref={mapRef}>
           {/* 카카오 맵이 여기에 렌더링됩니다. */}
         </main>
