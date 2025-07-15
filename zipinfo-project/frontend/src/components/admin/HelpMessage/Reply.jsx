@@ -168,7 +168,7 @@ const Reply = () => {
               onChange={(e) => setReply(e.target.value)}
               className="form-textarea"
               placeholder="답변을 입력하세요"
-              maxLength={400} // 답변 제한
+              maxLength={2000} // 2000자
               rows={8}
             />
           )}

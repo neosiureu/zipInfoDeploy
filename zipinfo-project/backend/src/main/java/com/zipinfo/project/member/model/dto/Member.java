@@ -31,6 +31,7 @@ public class Member implements UserDetails {
 	private String accessToken;
 	private int memberLocation; // 관심 주소 => DB저장용
 	private int townNo; // 관심 주소 => DB저장용
+	private int postCount;  // 게시글 수
 
 	private String companyName; // 중개사 명
 	private String companyLocation; // 중개사 주소 => DB저장용
