@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Search,
   RefreshCw,
@@ -46,68 +47,73 @@ const BrokerApplications = () => {
 
   const membersPerPage = 10;
   const BASE_URL = "http://localhost:8080";
-
   const checkBrokerNumber = async (memberNumber, memberEmail) => {
     if (!memberEmail) {
       setBrokerNumbers((prev) => ({ ...prev, [memberNumber]: false }));
       return;
     }
-
     if (
       brokerNumbers[memberNumber] !== undefined ||
       loadingBrokerNumbers[memberNumber]
     ) {
       return;
     }
-
     setLoadingBrokerNumbers((prev) => ({ ...prev, [memberNumber]: true }));
 
     try {
-      const brokerResponse = await axiosAPI.get(
-        `${BASE_URL}/admin/management/selectBrokerNo`,
-        { params: { email: memberEmail } }
-      );
-
-      const brokerNo = brokerResponse?.data?.brokerNo;
+      // 3) 우리 백엔드에서 brokerNo 가져오기
+      const {
+        data: { brokerNo },
+      } = await axiosAPI.get(`${BASE_URL}/admin/management/selectBrokerNo`, {
+        params: { email: memberEmail },
+      });
+      console.log("🔍 중개사번호:", brokerNo);
 
       if (!brokerNo) {
         setBrokerNumbers((prev) => ({ ...prev, [memberNumber]: false }));
-        console.log(`중개사번호 없음 [${memberEmail}]`);
         return;
       }
 
-      const apiKey = import.meta.env.VITE_PUBLIC_DATA_API_KEY;
-      const response = await fetch(
-        `https://api.data.go.kr/openapi/tn_pubr_public_med_office_api?` +
-          `serviceKey=${apiKey}&` +
-          `pageNo=1&` +
-          `numOfRows=1&` +
-          `type=json&` +
-          `ESTBL_REG_NO=${encodeURIComponent(brokerNo)}`
-      );
+      // 4) 공공데이터 호출에 필요한 파라미터 준비
+      const rawKey = import.meta.env.VITE_PUBLIC_DATA_API_KEY;
+      const params = {
+        ServiceKey: import.meta.env.VITE_PUBLIC_DATA_API_KEY, // 대소문자 정확히 serviceKey
+        pageNo: 1,
+        numOfRows: 1,
+        type: "json",
+        ESTBL_REG_NO: brokerNo, // 백엔드에서 받아온 원본 brokerNo
+      };
 
-      if (!response.ok) {
-        throw new Error(`공공데이터 API 호출 실패: ${response.status}`);
+      // 5) 먼저 proxy를 통해 호출 (axiosAPI는 /publicdata로 proxy 됨)
+      let apiRes;
+      try {
+        // ① 먼저 proxy
+        apiRes = await axios.get(
+          "/publicdata/openapi/service/tn_pubr_public_med_office_api",
+          { params }
+        );
+        console.log("✅ proxy OK:", apiRes.status);
+      } catch (proxyErr) {
+        console.warn("⚠️ proxy 실패, direct 호출:", proxyErr.message);
+        // ② proxy 실패 시 직접 호출
+        apiRes = await axios.get(
+          "https://api.data.go.kr/openapi/service/tn_pubr_public_med_office_api",
+          { params }
+        );
+        console.log("➡️ direct OK:", apiRes.status);
       }
 
-      const data = await response.json();
-      const items = data?.response?.body?.items;
+      const items = apiRes.data.response?.body?.items;
       const exists = Array.isArray(items) && items.length > 0;
-
       setBrokerNumbers((prev) => ({ ...prev, [memberNumber]: exists }));
-      console.log(
-        `중개사번호 확인 [${memberEmail} → ${brokerNo}]: ${
-          exists ? "등록됨" : "미등록"
-        }`
-      );
-    } catch (error) {
-      console.error(`중개사 정보 조회 실패 [${memberEmail}]:`, error.message);
+    } catch (err) {
+      console.error("❌ 중개사 정보 조회 에러:", err);
       setBrokerNumbers((prev) => ({ ...prev, [memberNumber]: false }));
     } finally {
+      // 8) 로딩 OFF
       setLoadingBrokerNumbers((prev) => ({ ...prev, [memberNumber]: false }));
     }
   };
-
   useEffect(() => {
     const fetchApplications = async () => {
       try {
@@ -129,7 +135,7 @@ const BrokerApplications = () => {
     if (searchTerm) {
       filtered = filtered.filter(
         (app) =>
-          app.memberEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          app.memberId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           app.memberNumber?.toString().includes(searchTerm)
       );
     }
@@ -199,6 +205,8 @@ const BrokerApplications = () => {
   };
 
   const renderBrokerInfo = (memberNumber, memberEmail) => {
+    console.log(`중개사정보 확인 요청: ${memberNumber} → ${memberEmail}`);
+
     if (loadingBrokerNumbers[memberNumber]) {
       return (
         <div className="broker-loading-container">
@@ -317,7 +325,7 @@ const BrokerApplications = () => {
               <th>회원 가입일</th>
               <th>회원 권한</th>
               <th>최근 접속일</th>
-              <th className="broker-info-column">중개사정보</th>
+              <th>중개사정보</th>
               <th>관리</th>
             </tr>
           </thead>
@@ -326,8 +334,8 @@ const BrokerApplications = () => {
               currentApps.map((app) => (
                 <tr key={app.memberNumber}>
                   <td>{app.memberNumber}</td>
-                  <td className="member-id-cell" title={app.memberEmail}>
-                    {app.memberEmail}
+                  <td className="member-id-cell" title={app.memberId}>
+                    {app.memberId}
                   </td>
                   <td>{formatDate(app.joinDate)}</td>
                   <td>
@@ -347,7 +355,7 @@ const BrokerApplications = () => {
                   </td>
                   <td>{formatDate(app.lastLoginDate)}</td>
                   <td className="broker-info-cell">
-                    {renderBrokerInfo(app.memberNumber, app.memberEmail)}
+                    {renderBrokerInfo(app.memberNumber, app.memberId)}
                   </td>
                   <td>
                     <button
