@@ -277,7 +277,7 @@ const BrokerApplications = () => {
   const indexOfLast = currentPage * membersPerPage;
   const indexOfFirst = indexOfLast - membersPerPage;
   const currentApps = filteredApps.slice(indexOfFirst, indexOfLast);
-
+  console.log("응애");
   return (
     <div className="management-container">
       <h3 className="management-header">중개인 권한 신청 목록</h3>
