@@ -238,14 +238,45 @@ ORDER BY TO_CHAR(REGIST_DATE, 'YYYY-MM-DD')
 		WHERE ROWNUM &lt;= 4
 	</select>
 	
-	<select id="selectOneStock"><!--위치 상관 x-->
-SELECT *
-    FROM STOCK_COORD c
- 	
-INNER JOIN STOCK_INFO i ON c.STOCK_NO = i.STOCK_NO
-WHERE c.STOCK_NO = #{stockNo}
-
-
-	</select>
+<select id="selectOneStock"
+        parameterType="int"
+        resultMap="stockImgList">
+  SELECT
+        i.STOCK_NO,
+        i.MEMBER_NO,
+        i.STOCK_NAME,
+        i.STOCK_SELL_PRICE,
+        i.STOCK_FEE_MONTH,
+        i.STOCK_INFO,
+        i.STOCK_TYPE,
+        i.STOCK_FORM,
+        i.EXCLUSIVE_AREA,
+        i.SUPPLY_AREA,
+        i.CURRENT_FLOOR,
+        i.FLOOR_TOTAL_COUNT,
+        i.ROOM_COUNT,
+        i.BATH_COUNT,
+        i.STOCK_DIRECTION,
+        i.ABLE_DATE,
+        i.USE_APPROVAL_DATE,
+        i.REGIST_DATE,
+        i.STOCK_DETAIL,
+        i.STOCK_ADDRESS,
+        i.REGION_NO,
+        i.SELL_YN,
+        b.COMPANY_NAME,
+        b.COMPANY_LOCATION,
+        b.PRESIDENT_NAME,
+        b.BROKER_NO,
+        b.PRESIDENT_PHONE,
+        c.LAT,
+        c.LNG,
+        s.IMG_URL                               
+  FROM   STOCK_INFO   i
+  JOIN   STOCK_COORD  c ON c.STOCK_NO = i.STOCK_NO
+  JOIN   STOCK_IMG    s ON s.STOCK_NO = i.STOCK_NO
+  JOIN   BROKER_INFO  b ON b.MEMBER_NO = i.MEMBER_NO
+  WHERE  i.STOCK_NO = #{stockNo}
+</select>
 
 </mapper>

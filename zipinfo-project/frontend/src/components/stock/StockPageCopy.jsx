@@ -165,7 +165,7 @@ const StockPageCopy = () => {
       const container = mapRef.current; // 지도를 표시할 div
       const options = {
         center: new window.kakao.maps.LatLng(37.567937, 126.983001), // KH종로지원 대략적인 위도, 경도
-        level: 7, // 지도의 확대 레벨
+        level: 6, // 지도의 확대 레벨
       };
       const map = new window.kakao.maps.Map(container, options);
       mapInstanceRef.current = map;
@@ -201,7 +201,7 @@ const StockPageCopy = () => {
 
             mapInstanceRef.current.setCenter(center);
 
-            mapInstanceRef.current.setLevel(7);
+            mapInstanceRef.current.setLevel(6);
           }
         } catch (error) {
           console.log(error);
@@ -252,7 +252,7 @@ const StockPageCopy = () => {
       const container = mapRef.current; // 지도를 표시할 div
       const options = {
         center: new window.kakao.maps.LatLng(37.567937, 126.983001), // KH종로지원 대략적인 위도, 경도
-        level: 7, // 지도의 확대 레벨
+        level: 6, // 지도의 확대 레벨
       };
       const map = new window.kakao.maps.Map(container, options);
       mapInstanceRef.current = map; // ✅ map 저장
@@ -633,7 +633,7 @@ const StockPageCopy = () => {
     navigate(`/stock/${item.stockNo}`, {
       state: { lat: item.lat, lng: item.lng },
     });
-    console.log("stockNo:", item.stockNo);
+    console.log("stockNo:", item);
   };
   const handleItemdblClick = async (item) => {
     var coord = new kakao.maps.LatLng(item.lat, item.lng);
@@ -653,6 +653,7 @@ const StockPageCopy = () => {
           params: { stockNo },
         });
         if (res.status === 200) {
+          console.log(res.data);
           setClickedStockItem(res.data);
           setIsAsideVisible(true);
           const movedLatLng = new window.kakao.maps.LatLng(
@@ -752,27 +753,24 @@ const StockPageCopy = () => {
 
             <div className="stock-detail-panel">
               <div className="stock-detail-images">
-                <img
-                  src={
-                    item?.imgUrls
-                      ? `http://localhost:8080${item.imgUrls[0]}`
-                      : ""
-                  } //?v=${Date.now()}	--> 현재 시간을 이용해 URL을 고유하게 만들어 브라우저 캐시를 우회
-                  alt="상세1"
-                  className="stock-detail-mainimg"
-                  onLoad={() => setIsImg0Loaded(true)}
-                />
-
-                <>
-                  <img
-                    src={
-                      item?.imgUrls
-                        ? `http://localhost:8080${item.imgUrls[2]}`
-                        : ""
-                    }
-                    onLoad={() => setIsImg2Loaded(true)}
-                  />
-                </>
+                {item?.imgUrls && (
+                  <>
+                    <img
+                      src={`http://localhost:8080${item.imgUrls[0]}`} //?v=${Date.now()}	--> 현재 시간을 이용해 URL을 고유하게 만들어 브라우저 캐시를 우회
+                      alt="상세1"
+                      className="stock-detail-mainimg"
+                      onLoad={() => setIsImg0Loaded(true)}
+                    />
+                    <img
+                      src={
+                        item?.imgUrls
+                          ? `http://localhost:8080${item.imgUrls[2]}`
+                          : ""
+                      }
+                      onLoad={() => setIsImg2Loaded(true)}
+                    />
+                  </>
+                )}
               </div>
             </div>
 
@@ -846,16 +844,12 @@ const StockPageCopy = () => {
             {/* Block 2: 평면도 */}
             <div className="stock-detail-info-block">
               <div className="stock-detail-plan">
-                {
+                {item?.imgUrls && (
                   <img
-                    src={
-                      item?.imgUrls
-                        ? `http://localhost:8080${item.imgUrls[1]}`
-                        : ""
-                    }
+                    src={`http://localhost:8080${item.imgUrls[1]}`}
                     alt="평면도 이미지"
                   />
-                }
+                )}
               </div>
             </div>
 

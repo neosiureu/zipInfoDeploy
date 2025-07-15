@@ -62,10 +62,6 @@ public class StockController {
 	    double neLat = sr.getCoords().get("neLat");
 	    double neLng = sr.getCoords().get("neLng");
 	    
-	    System.out.println("=============================");
-	    System.out.println("SW: " + swLat + ", " + swLng);
-	    System.out.println("NE: " + neLat + ", " + neLng);
-	    System.out.println("locationCode : " + sr.getLocationCode());
 	    //요청 좌표 안쪽 범위 내부에 있는 모든 매물들을 불러오는 service동작
 	    
 	    
@@ -73,8 +69,6 @@ public class StockController {
 	    try {
 	    	List<Stock> stockList = service.getStockListInRange(sr);
 	    	
-	    	System.out.println(stockList);
-			
 			return ResponseEntity.status(HttpStatus.OK).body(stockList);
 		}catch(Exception e) {
 			log.error("매물 조회 중 오류 발생", e);
@@ -104,7 +98,6 @@ public class StockController {
 	
 	@PostMapping("coordsFromStock")
 	private ResponseEntity<?> getCoordsFromStock(@RequestBody SearchRequest sr){
-		System.out.println(" getCoordsFromStock location:" + sr.getLocationCode());
 		//return 
 	    try {
 	    	CoordsStatInfo fullName = service.getCoordsFromStock(sr);
@@ -140,7 +133,6 @@ public class StockController {
 	    try {
 	    	
 	        Stock stockDetail = service.selectStockDetail(stockNo);
-	        
 	        if (stockDetail != null) {
 	            return ResponseEntity.ok(stockDetail);
 	            
