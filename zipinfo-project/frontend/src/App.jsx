@@ -245,6 +245,11 @@ function App() {
               <Route path="privacy" element={<PrivacyPolicy />} />
               <Route path="customer" element={<CustomerService />} />
 
+              <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />
+              <Route
+                path="/oauth2/naver/redirect"
+                element={<NaverCallback />}
+              />
               {/* 마이페이지 */}
               <Route
                 path="myPage"
@@ -545,9 +550,6 @@ function App() {
                 }
               />
             </Route>
-
-            <Route path="/oauth2/kakao/redirect" element={<LoginHandler />} />
-            <Route path="/oauth2/naver/redirect" element={<NaverCallback />} />
           </Routes>
           <ToastContainer position="top-center" icon={false} autoClose={3000} />
         </MemberProvider>

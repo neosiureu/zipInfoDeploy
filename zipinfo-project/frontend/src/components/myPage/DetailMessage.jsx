@@ -5,7 +5,6 @@ import MessageMenu from "./MessageMenu";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { axiosAPI } from "../../api/axiosAPI";
 import { Plus } from "lucide-react";
-import axios from "axios";
 
 export default function MyStock() {
   const { messageNo } = useParams(); // 경로 파라미터

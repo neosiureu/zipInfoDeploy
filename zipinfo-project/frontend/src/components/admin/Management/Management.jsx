@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Shield, User, Trash2, UserPlus, FileX, Crown } from "lucide-react"; // 🔄 Crown 아이콘 추가
 import "../../../css/admin/Management/Management.css";
 import { Link } from "react-router-dom";

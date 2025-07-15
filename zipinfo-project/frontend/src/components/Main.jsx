@@ -15,7 +15,6 @@ import { useState, useEffect, useRef } from "react";
 import { axiosAPI } from "../api/axiosApi";
 
 import { formatPrice } from "../components/common/priceConvert";
-import axios from "axios";
 import { convertToJSDate, getTimeAgo } from "../components/common/dateConvert";
 import { X } from "lucide-react";
 

@@ -3,7 +3,7 @@ import { axiosAPI } from "../../api/axiosAPI";
 import "../../css/member/MemberLogin.css";
 import { MemberContext } from "../member/MemberContext";
 import NaverCallback from "../auth/NaverCallback";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import Kakao from "../../assets/kakao-talk-icon.svg";
@@ -227,38 +227,50 @@ export default function MemberLogin() {
 
   // 네이버 로그인
   const handleNaverLogin = () => {
+    // (1) 초기화
+    localStorage.removeItem("accessToken");
     localStorage.removeItem("loginMember");
     setMember(null);
 
-    // 1) 메시지 리스너
+    // (2) 팝업 메시지 리스너 (한 번만)
     const listener = (e) => {
+      console.log("[NAVER LOGIN] message event:", e);
+      if (e.origin !== window.location.origin) return;
       if (e.data?.type !== "NAVER_TOKEN") return;
-      const { accessToken } = e.data; // token 방식
+      console.log("[MemberLogin] received NAVER_TOKEN:", e.data.accessToken);
+
+      const { accessToken: naverToken } = e.data; // 팝업에서 넘어온 네이버 토큰
       axiosAPI
-        .post("/oauth/naver", { accessToken })
-        .then(({ data: member }) => {
-          localStorage.setItem("loginMember", JSON.stringify(member));
-          localStorage.setItem("accessToken", data.accessToken);
-          setMember(member);
+        .post("/oauth/naver", { accessToken: naverToken })
+        .then((response) => {
+          console.log("[NAVER LOGIN] response.data =", response.data);
+          const { loginMember, accessToken } = response.data;
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("loginMember", JSON.stringify(loginMember));
+          setMember(loginMember);
           navigate("/");
+        })
+        .catch((err) => {
+          console.error("네이버 로그인 중 오류", err);
+          toast.error("네이버 로그인에 실패했습니다.");
         });
     };
     window.addEventListener("message", listener, { once: true });
 
-    // 2) 팝업 열기
+    // (4) 팝업 띄우기
     const popup = openNaverPopup();
     if (!popup) {
       window.removeEventListener("message", listener);
       return;
     }
 
-    // 3) 사용자 임의 닫기 => 조용히 취소
+    // (5) 팝업이 닫히면 리스너도 제거
     const poll = setInterval(() => {
       if (popup.closed) {
         clearInterval(poll);
         window.removeEventListener("message", listener);
       }
-    }, 600);
+    }, 500);
   };
 
   // 랜더링 될떄마다 저장된 ID 불러오기. 화면을 새로고침했을 때마다 새로운게 나오면 안되잖아.

@@ -86,7 +86,7 @@ const Header = () => {
               location.pathname.startsWith("/neighborhoodBoard") ? "active" : ""
             }
           >
-            <Link to="/neighborhoodBoard">우리동네</Link>
+            <Link to="/neighborhoodBoard?cp=1">우리동네</Link>
           </li>
           <li
             className={

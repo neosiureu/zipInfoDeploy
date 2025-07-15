@@ -81,6 +81,13 @@ export const MemberProvider = ({ children }) => {
 
   useEffect(() => {
     const handleForceLogout = () => {
+      console.log("[MemberContext] forceLogout 이벤트 들어옴:", e.detail);
+      console.log(
+        "  → 현재 localStorage.accessToken =",
+        localStorage.getItem("accessToken")
+      );
+      console.log(" 현재 state.member =", member);
+
       if (window.stompClient?.connected) window.stompClient.disconnect();
       toast.error("세션이 만료되어 로그아웃 됩니다.");
       localStorage.removeItem("loginMember");

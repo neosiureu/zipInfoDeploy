@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styles from "../../../css/admin/HelpMessage/HelpMessage.module.css";
 import { MemberContext } from "./../../member/MemberContext";

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Search, RefreshCw, Lock, CheckCircle, XCircle } from "lucide-react";
-import axios from "axios";
 import "../../../css/admin/Management/MemberList.css";
 import { toast } from "react-toastify";
 import { axiosAPI } from "../../../api/axiosApi";

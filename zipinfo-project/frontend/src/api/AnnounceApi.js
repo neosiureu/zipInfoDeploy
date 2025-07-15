@@ -1,4 +1,3 @@
-import axios from "axios";
 import { axiosAPI } from "./axiosApi";
 
 // 기본 API 주소를 상수로 선언
