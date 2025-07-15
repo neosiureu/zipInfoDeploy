@@ -4,78 +4,86 @@
 
 <mapper
 	namespace="com.zipinfo.project.oauth.model.mapper.OauthMapper">
-	
-	
-
-<select id="selectByKakaoEmail">
-SELECT * FROM MEMBER WHERE MEMBER_EMAIL  = #{memberEmail} AND MEMBER_LOGIN ='K'
-</select>
 
 
-<select id="selectByNaverEmail">
-SELECT * FROM MEMBER WHERE MEMBER_EMAIL  = #{memberEmail} AND MEMBER_LOGIN ='N'
-</select>
 
-<insert id="insertKakaoMember">
-INSERT INTO MEMBER (
-    MEMBER_NO,
-    MEMBER_EMAIL,
-    MEMBER_LOGIN,
-    MEMBER_NICKNAME,
-    MEMBER_NAME,
-    MEMBER_AUTH,
-    ACCESS_TOKEN,
-    MEMBER_LOCATION
-  ) VALUES (
-    SEQ_MEMBER.NEXTVAL,
-    #{memberEmail},
-    #{memberLogin},
-    #{memberNickname},
-    #{memberName},
-    #{memberAuth},
-    #{accessToken},      <!--  서비스에서 발급한 JWT-->
-    #{memberLocation}    
-  )
- </insert>
- 
- 
- <insert id="insertNaverMember">
-INSERT INTO MEMBER (
-    MEMBER_NO,
-    MEMBER_EMAIL,
-    MEMBER_LOGIN,
-    MEMBER_NICKNAME,
-    MEMBER_NAME,
-    MEMBER_AUTH,
-    ACCESS_TOKEN,
-    MEMBER_LOCATION
-  ) VALUES (
-    SEQ_MEMBER.NEXTVAL,
-    #{memberEmail},
-    #{memberLogin},
-    #{memberNickname},
-    #{memberName},
-    #{memberAuth},
-    #{accessToken},      
-    #{memberLocation}    
-  )
- </insert>
- 
+	<select id="selectByKakaoEmail">
+		SELECT * FROM MEMBER WHERE MEMBER_EMAIL = #{memberEmail} AND MEMBER_LOGIN
+		='K'
+	</select>
 
-<update id="updateAccessToken">
-  UPDATE MEMBER
-    SET ACCESS_TOKEN = #{accessToken}
-  WHERE MEMBER_EMAIL = #{memberEmail}
-</update>
 
-<insert id="createTokenTable">
+	<select id="selectByNaverEmail">
+		SELECT * FROM MEMBER WHERE MEMBER_EMAIL = #{memberEmail} AND MEMBER_LOGIN
+		='N'
+	</select>
+
+	<insert id="insertKakaoMember">
+		INSERT INTO MEMBER (
+		MEMBER_NO,
+		MEMBER_EMAIL,
+		MEMBER_LOGIN,
+		MEMBER_NICKNAME,
+		MEMBER_NAME,
+		MEMBER_AUTH,
+		ACCESS_TOKEN,
+		MEMBER_LOCATION
+		) VALUES (
+		SEQ_MEMBER.NEXTVAL,
+		#{memberEmail},
+		#{memberLogin},
+		#{memberNickname},
+		#{memberName},
+		#{memberAuth},
+		#{accessToken},      <!-- 서비스에서 발급한 JWT -->
+		#{memberLocation}
+		)
+	</insert>
+
+
+	<insert id="insertNaverMember">
+		INSERT INTO MEMBER (
+		MEMBER_NO,
+		MEMBER_EMAIL,
+		MEMBER_LOGIN,
+		MEMBER_NICKNAME,
+		MEMBER_NAME,
+		MEMBER_AUTH,
+		ACCESS_TOKEN,
+		MEMBER_LOCATION
+		) VALUES (
+		SEQ_MEMBER.NEXTVAL,
+		#{memberEmail},
+		#{memberLogin},
+		#{memberNickname},
+		#{memberName},
+		#{memberAuth},
+		#{accessToken},
+		#{memberLocation}
+		)
+	</insert>
+
+
+	<update id="updateAccessToken">
+		UPDATE MEMBER
+		SET ACCESS_TOKEN = #{accessToken}
+		WHERE MEMBER_EMAIL = #{memberEmail}
+	</update>
+
+	<insert id="createTokenTable">
 		INSERT INTO "TOKEN_INFO"
 		VALUES(#{memberNo}, NULL)
 	</insert>
 
-<update id="withDraw">
+	<update id="withDraw">
 		UPDATE "MEMBER" SET
-		MEMBER_DEL_FL = 'Y', MEMBER_WITHDRAW_DATE = SYSDATE
+		MEMBER_DEL_FL = 'Y',
+		MEMBER_WITHDRAW_DATE = SYSDATE
+		WHERE MEMBER_NO = #{memberNo}
+	</update>
+	<update id="updateTokenInfo" parameterType="map">
+		UPDATE TOKEN_INFO
+		SET TOKEN_INFO = #{token}
 		WHERE MEMBER_NO = #{memberNo}
 	</update>
 

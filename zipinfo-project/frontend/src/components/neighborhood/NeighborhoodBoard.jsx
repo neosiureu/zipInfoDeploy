@@ -96,10 +96,22 @@ const NeighborhoodBoard = ({}) => {
       </div>;
       return;
     }
-    console.log("검색 실행:", { searchKey, searchQuery });
 
-    setCurrentPage(1);
-    setIsSearching(true);
+    const curQuery = searchParams.get("query") ?? "";
+    const curKey = searchParams.get("key") ?? "";
+
+    const willChange =
+      trimmed !== curQuery || // query가 바뀌거나
+      (trimmed === "" && curQuery !== "") || //  기존 쿼리가 삭제되어 빈 검색이 되는 경우
+      (trimmed && searchKey !== curKey); // key 가 바뀌는 경우에만
+
+    if (willChange) {
+      setCurrentPage(1);
+      setIsSearching(true); // 1페이지로 가고 검색을 하게 하겠다
+    } else {
+      /* URL·목록에 실제 변화가 없으므로 그냥 무시 */
+      return;
+    }
 
     setSearchParams(
       (prev) => {
@@ -170,8 +182,9 @@ const NeighborhoodBoard = ({}) => {
 
   // 2) URL이 바뀔 때 state 맞춰주기
   useEffect(() => {
-    const cpParam = Number(searchParams.get("cp") ?? 1);
-    if (cpParam !== currentPage) setCurrentPage(cpParam);
+    const cpParam = Number(searchParams.get("cp")) || 1;
+    setCurrentPage(cpParam);
+
     const cityParam = searchParams.get("cityNo") ?? "-1";
     if (cityParam !== selectedCity) setSelectedCity(cityParam);
 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
 import SummernoteEditor from "../neighborhood/SummernoteEditor";
 import "../../css/Announce/AnnounceWrite.css";
 import { axiosAPI } from "../../api/axiosApi";

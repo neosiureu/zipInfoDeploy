@@ -392,10 +392,10 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
               return;
             }
 
-            // 글자수 제한 체크 (1000자)
+            // 글자수 제한 체크 (2000자)
             const textContent = extractTextContent(contents);
-            if (textContent.length > 1000) {
-              // 1000자를 초과하면 이전 상태로 되돌리기
+            if (textContent.length >= 2000) {
+              // 2000자를 초과하면 이전 상태로 되돌리기
               const $editable = window
                 .$(editorRef.current)
                 .next(".note-editor")
@@ -415,7 +415,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
                 <div>
                   <div className="toast-error-title">글자수 초과</div>
                   <div className="toast-error-body">
-                    텍스트는 최대 1000자까지 입력할 수 있습니다.
+                    텍스트는 최대 2000자까지 입력할 수 있습니다.
                   </div>
                 </div>
               );

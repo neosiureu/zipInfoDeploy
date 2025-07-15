@@ -5,7 +5,6 @@ import "../../css/myPage/addStock.css";
 import StockMenu from "./StockMenu";
 import MiniMenu from "./MiniMenu";
 import { axiosAPI } from "../../api/axiosAPI";
-// import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 

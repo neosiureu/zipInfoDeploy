@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import "../../css/admin/Advertisement.css";
 import { toast } from "react-toastify";
 import { axiosAPI } from "../../api/axiosApi";

@@ -158,6 +158,7 @@ const CommentItem = ({ comment, loginMember, reload }) => {
             <textarea
               className="update-textarea"
               value={text}
+              maxLength={500}
               onChange={(e) => setText(e.target.value)}
             />
           ) : (
@@ -199,6 +200,7 @@ const CommentItem = ({ comment, loginMember, reload }) => {
               <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
+                maxLength={500}
                 placeholder="답글을 입력하세요"
               />
               <div className="comment-btn-area">
@@ -340,6 +342,7 @@ const NeighborhoodCommentSection = ({ boardNo }) => {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          maxLength={500}
           placeholder="댓글을 입력하세요"
         />
         <button onClick={handleInsertComment}>등록</button>

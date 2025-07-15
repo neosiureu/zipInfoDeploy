@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Search, RefreshCw, XCircle } from "lucide-react";
 import "../../../css/admin/Management/BrokerApplications.css";
 import { toast } from "react-toastify";

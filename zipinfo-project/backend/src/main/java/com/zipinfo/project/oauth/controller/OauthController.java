@@ -28,8 +28,9 @@ public class OauthController {
 	private final OauthService oauthService;
 	private final JwtTokenProvider jwtTokenProvider;
 
-	/** 이주원
-	 * 카카오 로그인 및 회원가입 컨트롤러 로직
+	/**
+	 * 이주원 카카오 로그인 및 회원가입 컨트롤러 로직
+	 * 
 	 * @param body
 	 * @return
 	 */
@@ -56,25 +57,25 @@ public class OauthController {
 		}
 	}
 
-	
 	@PostMapping("/kakaoWithdraw")
 	public ResponseEntity<?> kakaoWithdraw(@AuthenticationPrincipal Member loginMember) {
-	try {
-			
-	        if (loginMember == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-			
+		try {
+
+			if (loginMember == null)
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
 			int result = oauthService.withDraw(loginMember);
-		
+
 			return ResponseEntity.status(HttpStatus.OK) // 200
-					.body(result); 
+					.body(result);
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("불러오는 중 예외 발생 : " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("불러오는 중 예외 발생 : " + e.getMessage());
 		}
 	}
-	
-	/** 이주원
-	 * 네이버 로그인 및 회원가입 로직
+
+	/**
+	 * 이주원 네이버 로그인 및 회원가입 로직
+	 * 
 	 * @param body
 	 * @return
 	 */
@@ -86,13 +87,16 @@ public class OauthController {
 
 		try {
 			Member member = oauthService.loginNaver(naverAccessToken);
-			String jwt = jwtTokenProvider.createAccessToken(member);
+			log.debug("[naverLogin] DB 조회된 Member = {}", member);
+
+			String jwt = member.getAccessToken();
+			log.debug("[naverLogin] 발급된 JWT = {}", jwt);
 
 			Map<String, Object> result = Map.of("loginMember", member, "accessToken", jwt);
 			return ResponseEntity.ok(result);
 
 		} catch (Exception ex) {
-			log.error("naverLogin 에러", ex);
+			log.error("[naverLogin] 예외 발생", ex);
 			return ResponseEntity.internalServerError().build();
 		}
 	}

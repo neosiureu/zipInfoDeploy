@@ -115,34 +115,33 @@ public class OauthServiceImpl implements OauthService {
 
 			// 3단계: 회원 조회/등록
 			Member member = mapper.selectByNaverEmail(email);
+			boolean isNew = (member == null);
 			log.info("DB 조회 member={}", member);
-			if (member == null) {
-				log.info("신규 회원 등록");
-				member = new Member();
-				member.setMemberEmail(email);
-				member.setMemberLogin("N");
-				member.setMemberNickname(name);
-				member.setMemberAuth(1);
-				member.setMemberName(name);
-				mapper.insertNaverMember(member);
-				member = mapper.selectByNaverEmail(email);
-				log.info("회원 등록 후 member={}", member);
-			}
+			 if (isNew) {                                   // ── 신규 회원만 처리
+			        member = new Member();
+			        member.setMemberEmail(email);
+			        member.setMemberLogin("N");
+			        member.setMemberNickname(name);
+			        member.setMemberAuth(1);
+			        member.setMemberName(name);
 
-			// 4단계: JWT 발급 & DB 저장
-			String jwtAccess = jwtProvider.createAccessToken(member);
-			log.info("네이버: 발급된 JWT 액세스 토큰={}", jwtAccess);
-			mapper.updateAccessToken(member.getMemberEmail(), jwtAccess);
-			log.info("네이버: DB에 토큰 저장 완료");
+			        mapper.insertNaverMember(member);
+			        member = mapper.selectByNaverEmail(email); // PK-MEMBER_NO 확보
+			        mapper.createTokenTable(member.getMemberNo());   //  여기로 이동
+			    }
 
-			// 5단계: 토큰 추가
 
-			mapper.createTokenTable();
-			// 6단계: DTO 세팅 후 반환
-			member.setAccessToken(jwtAccess);
-			member.setMemberPw(null);
-			log.info("loginNaver 완료: member={}", member);
-			return member;
+
+			    // 4단계: JWT 발급 & MEMBER.ACCESS_TOKEN 갱신
+			    String jwtAccess = jwtProvider.createAccessToken(member);
+			    mapper.updateAccessToken(member.getMemberEmail(), jwtAccess);
+
+			    // 5단계: TOKEN_INFO 테이블에도 같은 토큰으로 저장
+			    mapper.updateTokenInfo(member.getMemberNo(), jwtAccess);
+
+			    // 6단계: DTO 에 토큰 붙여서 반환
+			    member.setAccessToken(jwtAccess);
+			    return member;
 
 		} catch (Exception e) {
 			log.error("[loginNaver] 예외 발생", e);
