@@ -56,7 +56,7 @@ export default function NeighborhoodFilters({
           value={selectedSubject}
           onChange={onSubjectChange}
         >
-          <option value={"-1"}>주제 분류</option>
+          <option value={"-1"}>전체 분류</option>
           <option value="Q">질문</option>
           <option value="R">리뷰</option>
           <option value="E">기타</option>

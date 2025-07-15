@@ -216,18 +216,14 @@ const SearchBar = ({
           >
             {showSearchType ? (
               <>
-                <option value="-1" disabled hidden>
-                  매매/전세/월세
-                </option>
+                <option value="-1">매매/전세/월세</option>
                 <option value="0">매매</option>
                 <option value="1">전세</option>
                 <option value="2">월세</option>
               </>
             ) : (
               <>
-                <option value="-1" disabled hidden>
-                  분양전체
-                </option>
+                <option value="-1">분양전체</option>
                 <option value="1">분양예정</option>
                 <option value="2">분양중</option>
                 <option value="3">분양완료</option>
@@ -244,9 +240,7 @@ const SearchBar = ({
             value={residenceType}
             onChange={handleResidenceChange}
           >
-            <option value="-1" disabled hidden>
-              주거/매물형태
-            </option>
+            <option value="-1">주거/매물형태</option>
             <option value="1">아파트</option>
             <option value="2">주택/빌라</option>
             <option value="3">오피스텔</option>

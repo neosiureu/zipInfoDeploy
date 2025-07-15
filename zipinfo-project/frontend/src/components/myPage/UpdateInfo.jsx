@@ -88,7 +88,7 @@ const UpdateInfo = () => {
   };
 
   const [testNickname, setTestNickname] =
-    useState("한글,영어,숫자로만 2~10글자");
+    useState("한글,영어,숫자로만 2~8글자");
 
   const execDaumPostcode = () => {
     new window.daum.Postcode({
@@ -115,7 +115,7 @@ const UpdateInfo = () => {
       }));
 
       if (value.trim().length === 0) {
-        setTestNickname("한글,영어,숫자로만 2~10글자");
+        setTestNickname("한글,영어,숫자로만 2~8글자");
         setInfoCheck((prev) => ({
           ...prev,
           nicknameCheck: false,
@@ -143,8 +143,8 @@ const UpdateInfo = () => {
         }
       }
 
-      if (e.target.value.trim().length > 10) {
-        setTestNickname("닉네임을 2글자 이상 10글자 이내로 작성해주세요");
+      if (e.target.value.trim().length > 8) {
+        setTestNickname("닉네임을 2글자 이상 8글자 이내로 작성해주세요");
         setInfoCheck((prev) => ({
           ...prev,
           nicknameCheck: false,
@@ -384,7 +384,7 @@ const UpdateInfo = () => {
                 ? "my-page-valid-msg"
                 : testNickname === "일치하는 닉네임이 존재합니다." ||
                   testNickname ===
-                    "닉네임을 2글자 이상 10글자 이내로 작성해주세요"
+                    "닉네임을 2글자 이상 8글자 이내로 작성해주세요"
                 ? "my-page-invalid-msg"
                 : "my-page-default-msg"
             }
