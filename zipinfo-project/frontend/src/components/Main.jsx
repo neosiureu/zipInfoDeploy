@@ -89,7 +89,7 @@ const Main = () => {
         return item.stockNo !== stock.stockNo;
       } else {
         // 분양 매물: saleNo 기준으로 비교
-        return item.saleNo !== stock.saleStockNo;
+        return item.saleStockNo !== stock.saleStockNo;
       }
     });
 
@@ -102,8 +102,8 @@ const Main = () => {
           stockForm: stock.stockForm,
         }
       : {
-          saleNo: stock.saleStockNo,
-          saleName: stock.saleStockName,
+          saleStockNo: stock.saleStockNo,
+          saleStockName: stock.saleStockName,
           saleAddress: stock.saleAddress,
           saleStatus: stock.saleStatus,
         };
@@ -120,8 +120,12 @@ const Main = () => {
     localStorage.setItem("recentSearch", JSON.stringify(history));
 
     stock.stockNo
-      ? navigate(`/stock/${stock.stockNo}`)
-      : navigate(`/sale/${stock.saleStockNo}`);
+      ? navigate(`/stock/${stock.stockNo}`, {
+          state: { lat: stock.lat, lng: stock.lng, shouldFocus: true },
+        })
+      : navigate(`/sale/${stock.saleStockNo}`, {
+          state: { lat: stock.lat, lng: stock.lng, shouldFocus: true },
+        });
   };
 
   const deleteRecentSearch = (e) => {
@@ -411,7 +415,7 @@ const Main = () => {
                                   <div className="stock-name-div">
                                     {item.stockName
                                       ? item.stockName
-                                      : item.saleName}
+                                      : item.saleStockName}
                                   </div>
                                   <div>
                                     {item.stockAddress

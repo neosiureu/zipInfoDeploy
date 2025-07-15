@@ -290,12 +290,12 @@ const StockPageCopy = () => {
       });
 
       // 마커를 추가하고 싶다면 여기에 추가
-      const markerPosition = new window.kakao.maps.LatLng(37.5451, 127.0425);
-      const marker = new window.kakao.maps.Marker({
-        position: markerPosition,
-      });
+      // const markerPosition = new window.kakao.maps.LatLng(37.5451, 127.0425);
+      // const marker = new window.kakao.maps.Marker({
+      //   position: markerPosition,
+      // });
 
-      marker.setMap(map);
+      // marker.setMap(map);
     }
 
     getLikeStock();
@@ -352,6 +352,11 @@ const StockPageCopy = () => {
     renderByMode(currentModeRef.current);
   }, [stockList]); // stockList(맨 왼쪽에 있는 매물 Item들을 저장하는 state변수), searchLocationCode(검색창SearchBox에서 선택한 지역을 저장하는 state변수)
   // updateMarker : 요청을 보낼때마다 지도에 표시되는 마커들을 새로 세팅하는 함수
+
+  // 매물 태그가 바로 안나와서 상태 변경 감지해서 출력하는 것도 추가.
+  useEffect(() => {
+    renderByMode(currentModeRef.current);
+  }, [sigunguClusters, sidoClusters]);
 
   function clearMarkers(list) {
     list.current.forEach((m) => m.setMap(null));

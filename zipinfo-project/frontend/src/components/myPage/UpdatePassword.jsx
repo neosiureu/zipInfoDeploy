@@ -19,6 +19,8 @@ const PasswordChange = () => {
     confirmPassword: "",
   });
 
+  const [passState, setPassState] = useState(false);
+
   function validatePassword(password) {
     // 길이: 6~20글자
     if (password.length < 6 || password.length > 20) return false;
@@ -50,8 +52,10 @@ const PasswordChange = () => {
         );
       } else if (validatePassword(value)) {
         setTestPass("사용 가능한 비밀번호입니다.");
+        setPassState(true);
       } else {
         setTestPass("새 비밀번호가 옳바르지 않습니다.");
+        setPassState(false);
       }
       // 추가: 확인값이 있고, newPassword와 다르면 불일치 경고도 같이 띄워줌
       if (
@@ -59,6 +63,7 @@ const PasswordChange = () => {
         value !== nextPassword.confirmPassword
       ) {
         setTestPass("새 비밀번호가 일치하지 않습니다.");
+        setPassState(false);
       }
     }
 
@@ -66,8 +71,10 @@ const PasswordChange = () => {
     if (name === "confirmPassword") {
       if (value !== nextPassword.newPassword) {
         setTestPass("새 비밀번호가 일치하지 않습니다.");
+        setPassState(false);
       } else if (validatePassword(nextPassword.newPassword)) {
         setTestPass("사용 가능한 비밀번호입니다.");
+        setPassState(true);
       }
     }
   };
@@ -89,6 +96,31 @@ const PasswordChange = () => {
           newPassword: "",
           confirmPassword: "",
         });
+        setPassState(false);
+        setTestPass(
+          "영어,숫자,특수문자(!,@,#,-,_) 6~20글자 사이로 입력해주세요."
+        );
+        return;
+      }
+
+      if (!passState) {
+        toast.error(
+          <div>
+            <div className="toast-error-title">오류 알림!</div>
+            <div className="toast-error-body">
+              변경할 비밀번호 형식이 옳바르지 않습니다.
+            </div>
+          </div>
+        );
+        setPassword({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        setPassState(false);
+        setTestPass(
+          "영어,숫자,특수문자(!,@,#,-,_) 6~20글자 사이로 입력해주세요."
+        );
         return;
       }
 
@@ -127,6 +159,10 @@ const PasswordChange = () => {
           newPassword: "",
           confirmPassword: "",
         });
+        setPassState(false);
+        setTestPass(
+          "영어,숫자,특수문자(!,@,#,-,_) 6~20글자 사이로 입력해주세요."
+        );
       }
     } catch (error) {
       console.log(error);
