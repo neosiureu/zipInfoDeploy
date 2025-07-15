@@ -183,7 +183,19 @@ const NeighborhoodBoard = ({}) => {
   // 2) URL이 바뀔 때 state 맞춰주기
   useEffect(() => {
     const cpParam = Number(searchParams.get("cp")) || 1;
-    setCurrentPage(cpParam);
+    //현재 URL에서 cp를 읽는다. 만약 URL에 cp 값이 없다면 기본값으로 1을 사용
+    if (!searchParams.has("cp") || cpParam !== currentPage) {
+      // URL의 cp 값과 컴포넌트가 가진 현재cp가 다르면 두 값을 일치
+      setCurrentPage(cpParam);
+      setSearchParams(
+        (prev) => {
+          const newParams = new URLSearchParams(prev);
+          newParams.set("cp", cpParam);
+          return newParams;
+        },
+        { replace: true } //브라우저의 뒤로가기 히스토리를 쌓지 않도록
+      );
+    }
 
     const cityParam = searchParams.get("cityNo") ?? "-1";
     if (cityParam !== selectedCity) setSelectedCity(cityParam);
@@ -287,21 +299,18 @@ const NeighborhoodBoard = ({}) => {
     setSelectedTown(newTown);
     setCurrentPage(1);
 
-    setSearchParams(
-      (prev) => {
-        const newParams = new URLSearchParams(prev);
-        newParams.set("cp", 1);
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set("cp", 1);
 
-        if (newTown !== "-1") {
-          newParams.set("townNo", newTown);
-        } else {
-          newParams.delete("townNo");
-        }
-
-        return newParams;
+      if (newTown !== "-1") {
+        newParams.set("townNo", newTown);
+      } else {
+        newParams.delete("townNo");
       }
-      // { replace: true }
-    );
+
+      return newParams;
+    });
   };
 
   // 주제 선택 핸들러
@@ -337,16 +346,28 @@ const NeighborhoodBoard = ({}) => {
     const urlSearchKey = searchParams.get("key");
     const urlSearchQuery = searchParams.get("query");
 
+    // url에 제목 내용 등의 쿼리가 존재하면서 실제 검색 내용과 일치하지 않는다면
     if (urlSearchKey && urlSearchKey !== searchKey) {
-      setSearchKey(urlSearchKey);
+      setSearchKey(urlSearchKey); // 동기화
     }
+    // url에 실제 쿼리가 존재하면서 실제 검색 내용과 일치하지 않는다면
     if (urlSearchQuery !== null && urlSearchQuery !== searchQuery) {
+      setSearchQuery(urlSearchQuery); // 동기화
+    }
+    // query 파라미터가 없으면 인풋을 비운다
+
+    if (!searchParams.has("query")) {
+      setSearchQuery("");
+    }
+    // query 파라미터가 있고, 상태가 다르면 동기화
+    else if (urlSearchQuery !== searchQuery) {
       setSearchQuery(urlSearchQuery);
     }
   }, [searchParams]);
 
   return (
-    <div className="nb-container">
+    <div className="nb-container" key={currentPage}>
+      {/* key의 의미 = currentPage가 바뀔 때마다 화면을 처음부터 완전히 다시 그려라 */}
       <div className="nb-board-wrapper">
         <h1 className="nb-title">우리동네</h1>
 

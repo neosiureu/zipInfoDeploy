@@ -140,4 +140,7 @@ public interface ManagementMapper {
      * 회원 관련 BROKER_INFO 데이터 삭제
      */
     int deleteMemberBrokerInfo(@Param("memberNo") Long memberNo);
+
+
+	String findBrokerNumberByEmail(@Param("memberEmail") String memberEmail);
 }

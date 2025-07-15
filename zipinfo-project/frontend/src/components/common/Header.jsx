@@ -53,6 +53,10 @@ const Header = () => {
     localStorage.removeItem("com.naver.nid.access_token");
     localStorage.removeItem("com.naver.nid.oauth.state_token");
 
+    // kakao_ 로 시작하는 모든 키 삭제
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith("kakao_"))
+      .forEach((key) => localStorage.removeItem(key));
     setMember(null);
   };
 

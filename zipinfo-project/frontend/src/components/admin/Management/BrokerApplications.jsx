@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Search, RefreshCw, XCircle } from "lucide-react";
+import {
+  Search,
+  RefreshCw,
+  XCircle,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
 import "../../../css/admin/Management/BrokerApplications.css";
 import { toast } from "react-toastify";
 import { axiosAPI } from "../../../api/axiosApi";
@@ -35,9 +41,72 @@ const BrokerApplications = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [brokerNumbers, setBrokerNumbers] = useState({});
+  const [loadingBrokerNumbers, setLoadingBrokerNumbers] = useState({});
 
   const membersPerPage = 10;
   const BASE_URL = "http://localhost:8080";
+
+  const checkBrokerNumber = async (memberNumber, memberEmail) => {
+    if (!memberEmail) {
+      setBrokerNumbers((prev) => ({ ...prev, [memberNumber]: false }));
+      return;
+    }
+
+    if (
+      brokerNumbers[memberNumber] !== undefined ||
+      loadingBrokerNumbers[memberNumber]
+    ) {
+      return;
+    }
+
+    setLoadingBrokerNumbers((prev) => ({ ...prev, [memberNumber]: true }));
+
+    try {
+      const brokerResponse = await axiosAPI.get(
+        `${BASE_URL}/admin/management/selectBrokerNo`,
+        { params: { email: memberEmail } }
+      );
+
+      const brokerNo = brokerResponse?.data?.brokerNo;
+
+      if (!brokerNo) {
+        setBrokerNumbers((prev) => ({ ...prev, [memberNumber]: false }));
+        console.log(`중개사번호 없음 [${memberEmail}]`);
+        return;
+      }
+
+      const apiKey = import.meta.env.VITE_PUBLIC_DATA_API_KEY;
+      const response = await fetch(
+        `https://api.data.go.kr/openapi/tn_pubr_public_med_office_api?` +
+          `serviceKey=${apiKey}&` +
+          `pageNo=1&` +
+          `numOfRows=1&` +
+          `type=json&` +
+          `ESTBL_REG_NO=${encodeURIComponent(brokerNo)}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`공공데이터 API 호출 실패: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const items = data?.response?.body?.items;
+      const exists = Array.isArray(items) && items.length > 0;
+
+      setBrokerNumbers((prev) => ({ ...prev, [memberNumber]: exists }));
+      console.log(
+        `중개사번호 확인 [${memberEmail} → ${brokerNo}]: ${
+          exists ? "등록됨" : "미등록"
+        }`
+      );
+    } catch (error) {
+      console.error(`중개사 정보 조회 실패 [${memberEmail}]:`, error.message);
+      setBrokerNumbers((prev) => ({ ...prev, [memberNumber]: false }));
+    } finally {
+      setLoadingBrokerNumbers((prev) => ({ ...prev, [memberNumber]: false }));
+    }
+  };
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -60,7 +129,7 @@ const BrokerApplications = () => {
     if (searchTerm) {
       filtered = filtered.filter(
         (app) =>
-          app.memberId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          app.memberEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           app.memberNumber?.toString().includes(searchTerm)
       );
     }
@@ -88,14 +157,7 @@ const BrokerApplications = () => {
       );
       setApplications(updated);
     } catch (error) {
-      toast.error(
-        <div>
-          <div className="toast-error-title">오류 알림!</div>
-          <div className="toast-error-body">
-            회원 권한 변경에 실패하였습니다.
-          </div>
-        </div>
-      );
+      toast.error("회원 권한 변경에 실패하였습니다.");
     }
   };
 
@@ -116,21 +178,91 @@ const BrokerApplications = () => {
       );
       setApplications(updated);
     } catch (error) {
-      console.error("신청 거절 실패", error);
-      toast.error(
-        <div>
-          <div className="toast-error-title">오류 알림!</div>
-          <div className="toast-error-body">
-            거절 처리 실패. 다시 한번 시도해주세요.
-          </div>
-        </div>
-      );
+      toast.error("거절 처리 실패. 다시 한번 시도해주세요.");
     }
   };
 
   const handleRefresh = () => {
     setSearchTerm("");
     setRoleFilter("");
+    setBrokerNumbers({});
+    setLoadingBrokerNumbers({});
+  };
+
+  const refreshBrokerInfo = async (memberNumber, memberEmail) => {
+    setBrokerNumbers((prev) => {
+      const newState = { ...prev };
+      delete newState[memberNumber];
+      return newState;
+    });
+    await checkBrokerNumber(memberNumber, memberEmail);
+  };
+
+  const renderBrokerInfo = (memberNumber, memberEmail) => {
+    if (loadingBrokerNumbers[memberNumber]) {
+      return (
+        <div className="broker-loading-container">
+          <div className="broker-loading-spinner"></div>
+          <span className="broker-loading-text">확인중...</span>
+        </div>
+      );
+    }
+
+    const exists = brokerNumbers[memberNumber];
+
+    if (exists === true) {
+      return (
+        <div className="broker-info-container">
+          <div className="broker-status-header">
+            <div className="broker-status-registered">
+              <CheckCircle size={16} />
+              <span>등록됨</span>
+            </div>
+            <button
+              onClick={() => refreshBrokerInfo(memberNumber, memberEmail)}
+              className="broker-refresh-button"
+              title="정보 새로고침"
+            >
+              🔄 새로고침
+            </button>
+          </div>
+        </div>
+      );
+    } else if (exists === false) {
+      return (
+        <div className="broker-error-container">
+          <div className="broker-status-header">
+            <div className="broker-status-unregistered">
+              <XCircle size={16} />
+              <span>미등록</span>
+            </div>
+            <button
+              onClick={() => refreshBrokerInfo(memberNumber, memberEmail)}
+              className="broker-retry-button"
+              title="정보 새로고침"
+            >
+              🔄 다시확인
+            </button>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="broker-unchecked-container">
+          <div className="broker-status-unchecked">
+            <AlertCircle size={16} />
+            <span>미확인</span>
+          </div>
+          <button
+            onClick={() => checkBrokerNumber(memberNumber, memberEmail)}
+            className="broker-check-button"
+            title="중개사 정보 확인"
+          >
+            🔍 중개사정보 확인
+          </button>
+        </div>
+      );
+    }
   };
 
   const totalPages = Math.ceil(filteredApps.length / membersPerPage);
@@ -148,14 +280,14 @@ const BrokerApplications = () => {
           <input
             type="text"
             className="search-input"
-            placeholder="회원 아이디 또는 번호 검색"
+            placeholder="회원 이메일 또는 번호 검색"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
         <select
-          className="filter-select"
+          className="member-role-select"
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
         >
@@ -181,11 +313,11 @@ const BrokerApplications = () => {
           <thead>
             <tr>
               <th>회원 번호</th>
-              <th>아이디</th>
+              <th>이메일</th>
               <th>회원 가입일</th>
               <th>회원 권한</th>
               <th>최근 접속일</th>
-              <th>올린 글 개수</th>
+              <th className="broker-info-column">중개사정보</th>
               <th>관리</th>
             </tr>
           </thead>
@@ -194,8 +326,8 @@ const BrokerApplications = () => {
               currentApps.map((app) => (
                 <tr key={app.memberNumber}>
                   <td>{app.memberNumber}</td>
-                  <td className="no-wrap" title={app.memberId}>
-                    {app.memberId}
+                  <td className="member-id-cell" title={app.memberEmail}>
+                    {app.memberEmail}
                   </td>
                   <td>{formatDate(app.joinDate)}</td>
                   <td>
@@ -204,7 +336,7 @@ const BrokerApplications = () => {
                       onChange={(e) =>
                         handleRoleChange(app.memberNumber, e.target.value)
                       }
-                      className="filter-select"
+                      className="member-role-select"
                     >
                       {roleOptions.map((role) => (
                         <option key={role} value={role}>
@@ -214,7 +346,9 @@ const BrokerApplications = () => {
                     </select>
                   </td>
                   <td>{formatDate(app.lastLoginDate)}</td>
-                  <td>{app.postCount ?? 0}</td>
+                  <td className="broker-info-cell">
+                    {renderBrokerInfo(app.memberNumber, app.memberEmail)}
+                  </td>
                   <td>
                     <button
                       onClick={() => handleReject(app.memberNumber)}

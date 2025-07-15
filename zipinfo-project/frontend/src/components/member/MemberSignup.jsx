@@ -589,6 +589,7 @@ export default function MemberSignUp() {
   // 폼 제출
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (
       activeTab === "agent" &&
       formData.companyDetailAddress &&
@@ -597,6 +598,21 @@ export default function MemberSignUp() {
       toast.error("상세주소는 20자 이내로 입력해주세요.");
       document.querySelector('[name="companyDetailAddress"]')?.focus();
       return;
+    }
+
+    if (activeTab === "agent") {
+      if (!formData.companyPostcode) {
+        toast.error("우편번호를 검색해주세요.");
+        return;
+      }
+      if (!formData.companyAddress) {
+        toast.error("주소를 검색해주세요.");
+        return;
+      }
+      if (!formData.companyDetailAddress) {
+        toast.error("상세주소를 입력해주세요.");
+        return;
+      }
     }
     // 탭에 따라 검증할 필드 결정
     const requiredFields =
