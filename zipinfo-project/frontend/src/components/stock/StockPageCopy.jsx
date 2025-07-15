@@ -59,6 +59,20 @@ const StockPageCopy = () => {
   const [sigunguClusters, setSigunguClusters] = useState([]);
   const [sidoClusters, setSidoClusters] = useState([]);
 
+  const tooltipRef = useRef(null);
+  const tooltipTimerRef = useRef(null);
+
+  const clearTooltip = () => {
+    if (tooltipTimerRef.current) {
+      clearInterval(tooltipTimerRef.current);
+      tooltipTimerRef.current = null;
+    }
+    if (tooltipRef.current) {
+      tooltipRef.current.setMap(null);
+      tooltipRef.current = null;
+    }
+  };
+
   // 매물번호 주소기능 구현중
   /*******************마커 겹침 처리기능 관련 변수***************** */
   // ⚙️ 격자 셀의 크기를 설정 (화면 픽셀 기준)
@@ -161,7 +175,6 @@ const StockPageCopy = () => {
     const setCoord = async () => {
       // SearchBar에 검색 Location이 변경될때 해당 지역을 보여주기 위한 useEffect()
       /***********실행전에 mapRef 초기화*********** */
-      console.log("mapRef : ", mapRef.current);
       const container = mapRef.current; // 지도를 표시할 div
       const options = {
         center: new window.kakao.maps.LatLng(37.567937, 126.983001), // KH종로지원 대략적인 위도, 경도
@@ -173,7 +186,6 @@ const StockPageCopy = () => {
 
       if ([...searchParams.entries()].length !== 0) {
         //searchParams가 비지 않았을때! (비엇을떄도 spring server에 request를 보낼 필요 없음!)
-        console.log("coordsFromStock searchLocationCode: ", searchLocationCode);
         try {
           const resp = await axiosAPI.post(
             // 검색창에 있는 모든 조건 loading.
@@ -193,7 +205,6 @@ const StockPageCopy = () => {
               stockForm: Number(searchParams.get("form") ?? -1),
             }
           );
-          console.log("coordsFromStock resp:", resp.data);
           if (resp.data) {
             const { latCenter, lngCenter, minLat, minLng, maxLat, maxLng } =
               resp.data; // 요청으로 얻어온 평균 좌표, 최소 lat, 최소 lng, 최대 lat, 최대 lng를 저장.
@@ -220,7 +231,6 @@ const StockPageCopy = () => {
 
     const fetchData = async () => {
       try {
-        console.log("API 요청 전 locationCode:", searchLocationCode);
         const resp = await axiosAPI.post("/stock/items", {
           coords: {
             swLat: sw.getLat(),
@@ -256,8 +266,13 @@ const StockPageCopy = () => {
       };
       const map = new window.kakao.maps.Map(container, options);
       mapInstanceRef.current = map; // ✅ map 저장
+
+      kakao.maps.event.addListener(map, "zoom_start", clearTooltip);
+      kakao.maps.event.addListener(map, "dragstart", clearTooltip);
+
       //화면을 움직였을떄 서버에 itemList를 요청하는 addListener
       window.kakao.maps.event.addListener(map, "idle", async () => {
+        clearTooltip();
         const level = map.getLevel();
         const mode = calcMode(level);
 
@@ -315,42 +330,76 @@ const StockPageCopy = () => {
   }
 
   useEffect(() => {
-    // （예시）시군구 코드 5자리 기준
+    const initFormObj = () => ({
+      priceSumByType: { 0: 0, 1: 0, 2: 0 },
+      cntByType: { 0: 0, 1: 0, 2: 0 },
+      monthFeeSum: 0, // 월세(월 납부액) 합계
+    });
+
+    const initRegion = () => ({
+      cnt: 0,
+      lat: 0,
+      lng: 0,
+      form: { 1: initFormObj(), 2: initFormObj(), 3: initFormObj() },
+    });
+
     const bySigungu = {};
     const bySido = {};
 
     stockList.forEach((s) => {
-      const sigungu = String(s.regionNo).padStart(5, "0"); // 12345
-      const sido = sigungu.slice(0, 2); // 12
-      if (!bySigungu[sigungu]) bySigungu[sigungu] = { cnt: 0, lat: 0, lng: 0 };
-      if (!bySido[sido]) bySido[sido] = { cnt: 0, lat: 0, lng: 0 };
+      const sigungu = String(s.regionNo).padStart(5, "0");
+      const sido = sigungu.slice(0, 2);
+      const t = s.stockType; // 0 매매, 1 전세, 2 월세
+      const f = s.stockForm; // 1 아파트, 2 빌라, 3 오피스텔
 
-      bySigungu[sigungu].cnt++;
-      bySigungu[sigungu].lat += s.lat;
-      bySigungu[sigungu].lng += s.lng;
-      bySido[sido].cnt++;
-      bySido[sido].lat += s.lat;
-      bySido[sido].lng += s.lng;
+      [
+        [bySigungu, sigungu],
+        [bySido, sido],
+      ].forEach(([bucket, key]) => {
+        if (!bucket[key]) bucket[key] = initRegion();
+        const r = bucket[key];
+
+        r.cnt++;
+        r.lat += s.lat;
+        r.lng += s.lng;
+
+        const fo = r.form[f];
+        fo.priceSumByType[t] += s.stockSellPrice ?? 0;
+        fo.cntByType[t] += 1;
+        if (t === 2) fo.monthFeeSum += s.stockFeeMonth ?? 0;
+      });
     });
 
-    // 평균 좌표 계산
-    const sigList = Object.entries(bySigungu).map(([code, v]) => ({
-      code,
-      cnt: v.cnt,
-      lat: v.lat / v.cnt,
-      lng: v.lng / v.cnt,
-    }));
-    const siList = Object.entries(bySido).map(([code, v]) => ({
-      code,
-      cnt: v.cnt,
-      lat: v.lat / v.cnt,
-      lng: v.lng / v.cnt,
-    }));
+    const buildList = (obj) =>
+      Object.entries(obj).map(([code, r]) => {
+        const avgByForm = {};
+        [1, 2, 3].forEach((f) => {
+          const fo = r.form[f];
+          const avg = {};
+          [0, 1, 2].forEach((t) => {
+            avg[t] = fo.cntByType[t]
+              ? Math.round(fo.priceSumByType[t] / fo.cntByType[t])
+              : 0;
+          });
+          avg.monthFee = fo.cntByType[2]
+            ? Math.round(fo.monthFeeSum / fo.cntByType[2])
+            : 0;
+          avgByForm[f] = avg; // {0:…,1:…,2:…, monthFee:…}
+        });
 
-    setSigunguClusters(sigList);
-    setSidoClusters(siList);
-    renderByMode(currentModeRef.current);
-  }, [stockList]); // stockList(맨 왼쪽에 있는 매물 Item들을 저장하는 state변수), searchLocationCode(검색창SearchBox에서 선택한 지역을 저장하는 state변수)
+        return {
+          code,
+          cnt: r.cnt,
+          lat: r.lat / r.cnt,
+          lng: r.lng / r.cnt,
+          avgByForm, // ⬅️  툴팁에서 사용
+        };
+      });
+
+    setSigunguClusters(buildList(bySigungu));
+    setSidoClusters(buildList(bySido));
+  }, [stockList]);
+  // stockList(맨 왼쪽에 있는 매물 Item들을 저장하는 state변수), searchLocationCode(검색창SearchBox에서 선택한 지역을 저장하는 state변수)
   // updateMarker : 요청을 보낼때마다 지도에 표시되는 마커들을 새로 세팅하는 함수
 
   // 매물 태그가 바로 안나와서 상태 변경 감지해서 출력하는 것도 추가.
@@ -405,12 +454,82 @@ const StockPageCopy = () => {
         </div>
       `;
 
+      let tooltipOv = null;
+
       el.className = className; // CSS로 원형/숫자 배지 등 스타일
       el.innerHTML = content;
 
+      el.addEventListener("mouseenter", () => {
+        clearTooltip();
+
+        const formLabel = { 1: "아파트", 2: "빌라", 3: "오피스텔" };
+        const stockTypeLabel = ["매매", "전세", "월세"]; // 0,1,2
+        let currentType = 2; // 처음엔 매매(0)
+
+        // ── 툴팁 생성 ─────────────────
+        const tip = document.createElement("div");
+        tip.className = "cluster-tooltip fade"; // fade 클래스에 opacity 트랜지션 적어둡니다
+
+        const renderContent = () => {
+          const lines = [1, 2, 3]
+            .map((f) => {
+              const a = c.avgByForm[f];
+              // 값이 없으면 건너뜀
+              const val = a[currentType] || 0;
+              const month = currentType === 2 ? a.monthFee : 0;
+              if (val === 0) return ""; // 해당 stockForm+type 자료 없음
+              return `
+          <div class="tip-form">
+            <div class="tip-form-title">${formLabel[f]}</div>
+            <div class="tip-line">
+              ${stockTypeLabel[currentType]}&nbsp;
+              <strong>${priceConvertToString(val)}${
+                currentType === 2 && month
+                  ? `/${priceConvertToString(month)}`
+                  : ""
+              }</strong>
+            </div>
+          </div>
+        `;
+            })
+            .join("");
+          tip.innerHTML = `
+      <div class="tip-title">
+        ${getRegionName(c.code)}&nbsp;${stockTypeLabel[currentType]} 평균
+      </div>
+      ${lines || "<div class='tip-empty'>데이터 없음</div>"}
+    `;
+        };
+
+        renderContent(); // 최초 매매(0) 렌더
+
+        const ov = new kakao.maps.CustomOverlay({
+          position: pos,
+          content: tip,
+          yAnchor: -0.6,
+          xAnchor: 0.5,
+        });
+        ov.setMap(map);
+        tooltipRef.current = ov;
+
+        // ── 5초마다 stockType 순환 ─────────────────
+        tooltipTimerRef.current = setInterval(() => {
+          // 페이드 아웃
+          tip.style.opacity = 0;
+          setTimeout(() => {
+            currentType = (currentType + 1) % 3; // 0→1→2→0…
+            renderContent();
+            tip.style.opacity = 1; // 페이드 인
+          }, 300); // 300 ms 동안 투명해졌다가 내용 교체
+        }, 3000); // 5 초 간격
+      });
+
+      // ── Hover 종료: 툴팁 제거 ───────────────────
+      el.addEventListener("mouseleave", clearTooltip);
+
       el.addEventListener("click", () => {
         // 한 단계 더 확대 + 중심 이동
-        map.setLevel(map.getLevel() - 2);
+        map.getLevel() > 9 ? map.setLevel(8) : map.setLevel(6);
         map.panTo(pos);
       });
 
@@ -606,10 +725,7 @@ const StockPageCopy = () => {
           stockType: searchStockFormRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedType ||
           stockForm: searchStockTypeRef.current ?? -1, // -1 : 서버측에서 무시하는 valueselectedForm ||
         });
-        console.log("매물:", resp.data);
         if (resp.status === 200) {
-          console.log(resp.data);
-
           setStockList(resp.data);
           updateMarker();
 
@@ -638,7 +754,6 @@ const StockPageCopy = () => {
     navigate(`/stock/${item.stockNo}`, {
       state: { lat: item.lat, lng: item.lng },
     });
-    console.log("stockNo:", item);
   };
   const handleItemdblClick = async (item) => {
     var coord = new kakao.maps.LatLng(item.lat, item.lng);
@@ -658,7 +773,6 @@ const StockPageCopy = () => {
           params: { stockNo },
         });
         if (res.status === 200) {
-          console.log(res.data);
           setClickedStockItem(res.data);
           setIsAsideVisible(true);
           const movedLatLng = new window.kakao.maps.LatLng(
