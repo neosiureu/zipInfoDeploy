@@ -85,7 +85,7 @@ function StockImgModal({ item }) {
           <ChevronLeft size={40} />
         </button>
         <div className="slide-box">
-          {/* 트랙을 왼쪽으로 이동 → translateX 에 transition 적용 */}
+          {/* 트랙을 왼쪽으로 이동 → translateX 에 transition 적용한다 */}
           <div
             className="slide-track"
             style={{ transform: `translateX(-${idx * 100}%)` }}
