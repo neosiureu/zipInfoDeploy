@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"; // useRef 추가
 import { axiosAPI } from "../../api/axiosApi";
-import "../../css/stock/stockPage.css";
+import "../../css/stock/StockPage.css";
 import "../../css/stock/infraMark.css";
 import SearchBar from "../common/SearchBar";
 import deleteBtn from "../../assets/delete-icon.svg";
