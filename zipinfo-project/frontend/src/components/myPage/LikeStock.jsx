@@ -8,7 +8,7 @@ import { Bookmark } from "lucide-react";
 
 export default function MyStock() {
   const [properties, setProperties] = useState([]);
-
+  // 씨발
   const nav = useNavigate();
 
   const [loading, setLoading] = useState(true);
