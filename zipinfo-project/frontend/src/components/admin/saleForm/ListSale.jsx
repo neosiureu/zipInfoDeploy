@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { axiosAPI } from "../../../api/axiosApi";
 import { Link } from "react-router-dom";
-import "../../../css/admin/saleForm/listSale.css";
+import "../../../css/admin/saleForm/ListSale.css";
 
 const ListSale = () => {
   const navigate = useNavigate();
