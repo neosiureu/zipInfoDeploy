@@ -16,7 +16,7 @@ const getBaseURL = () => {
 };
 
 export const axiosAPI = axios.create({
-  baseURL: getBaseURL(), // 이 부분만 변경!
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
