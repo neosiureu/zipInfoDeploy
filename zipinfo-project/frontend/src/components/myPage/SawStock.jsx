@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function MyStock() {
   const [properties, setProperties] = useState([]);
-  // 슈밤
+  // 슈밤!!!
   const nav = useNavigate();
 
   const [loading, setLoading] = useState(true);
