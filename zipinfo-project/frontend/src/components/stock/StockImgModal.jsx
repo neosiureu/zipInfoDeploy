@@ -31,7 +31,7 @@ function StockImgModal({ item }) {
     overlay: { backgroundColor: "rgba(0,0,0,.70)", zIndex: 1050 },
     content: {
       inset: "50% auto auto 50%",
-      transform: "translate(-50%,-50%)",
+      transform: "translate(-50%,-45%)",
       border: "none",
       background: "transparent",
       padding: 0,
@@ -59,6 +59,7 @@ function StockImgModal({ item }) {
                 src={
                   item?.imgUrls ? `http://localhost:8080${item.imgUrls[2]}` : ""
                 }
+                className="stock-detail-mainimg"
                 onClick={() => {
                   setIdx(2);
                   setOpen(true);
@@ -81,29 +82,31 @@ function StockImgModal({ item }) {
           <span>{idx - 1}/</span>
           <span>{length - 2}</span>
         </div>
-        <button className="modal-nav left" onClick={prev}>
-          <ChevronLeft size={40} />
-        </button>
-        <div className="slide-box">
-          {/* 트랙을 왼쪽으로 이동 → translateX 에 transition 적용한다 */}
-          <div
-            className="slide-track"
-            style={{ transform: `translateX(-${idx * 100}%)` }}
-          >
-            {item.imgUrls.map((u, i) => (
-              <img
-                key={i}
-                className="slide-img"
-                src={`http://localhost:8080${u}`}
-                alt={`매물 이미지 ${i + 1}`}
-              />
-            ))}
+        <div>
+          <button className="modal-nav left" onClick={prev}>
+            <ChevronLeft size={40} />
+          </button>
+          <div className="slide-box">
+            {/* 트랙을 왼쪽으로 이동 → translateX 에 transition 적용한다 */}
+            <div
+              className="slide-track"
+              style={{ transform: `translateX(-${idx * 100}%)` }}
+            >
+              {item.imgUrls.map((u, i) => (
+                <img
+                  key={i}
+                  className="slide-img"
+                  src={`http://localhost:8080${u}`}
+                  alt={`매물 이미지 ${i + 1}`}
+                />
+              ))}
+            </div>
           </div>
-        </div>
 
-        <button className="modal-nav right" onClick={next}>
-          <ChevronRight size={40} />
-        </button>
+          <button className="modal-nav right" onClick={next}>
+            <ChevronRight size={40} />
+          </button>
+        </div>
 
         <div className="modal-img-list">
           {item.imgUrls.slice(2).map((u, i) => (

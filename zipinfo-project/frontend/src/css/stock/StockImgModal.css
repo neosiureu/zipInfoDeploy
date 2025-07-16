@@ -12,7 +12,7 @@
   justify-content: center;
   align-items: center;
   position: absolute;
-  top: 45%;
+  top: 36%;
   transform: translateY(-50%);
   background: transparent;
   border: 0;
@@ -38,6 +38,7 @@
   height: 60vh; /* 뷰포트 80 %   */
   overflow: hidden;
   position: relative;
+  background-color: black;
 }
 
 .slide-track {
@@ -78,9 +79,10 @@
 }
 
 .modal-img :hover {
-  border: 3px solid green;
+  border: 3px solid #495cf8;
   width: 120px;
   height: 120px;
+  cursor: pointer;
 }
 
 .modal-img-span {
