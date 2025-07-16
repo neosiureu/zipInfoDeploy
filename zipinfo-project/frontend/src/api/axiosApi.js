@@ -9,7 +9,7 @@ const KAKAO_REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
 // const { memberStatus } = useContext(MemberContext);
 
 export const axiosAPI = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
