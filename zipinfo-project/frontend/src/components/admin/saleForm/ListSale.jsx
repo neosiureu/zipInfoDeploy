@@ -9,7 +9,7 @@ const ListSale = () => {
   const [saleList, setSaleList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
+  // 슈밤
   const [adminName] = useState("관리자");
   const [adminId] = useState("user01");
 
