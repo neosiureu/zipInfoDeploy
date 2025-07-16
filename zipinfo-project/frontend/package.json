@@ -26,6 +26,11 @@
     "sockjs-client": "^1.6.1",
     "summernote": "^0.9.1"
   },
+  "overrides": {
+    "react-summernote": {
+      "bootstrap": "$bootstrap"
+    }
+  },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
     "@types/react": "^19.1.2",
