@@ -21,7 +21,7 @@ function Chart() {
   const mergeChartData = (signupData, withdrawData, stockData) => {
     const dataMap = new Map();
 
-    // 가입 데이터 추가
+    // 가입 데이터 추가!
     signupData.forEach((item) => {
       dataMap.set(item.CHART_DATE, {
         date: item.CHART_DATE,
