@@ -10,7 +10,7 @@ const Announce = () => {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(0); // 현재 페이지 (0부터 시작)
   const [totalPages, setTotalPages] = useState(1); // 총 페이지 수
-
+  // 슈밤
   // 검색 입력과 실제 검색 키워드 분리
   const [searchInput, setSearchInput] = useState("");
   const [keyword, setKeyword] = useState("");
