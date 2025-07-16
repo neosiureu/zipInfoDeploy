@@ -19,9 +19,7 @@ const Advertisement = () => {
   // 컴포넌트 마운트 시 서버에서 광고 리스트 불러오기
   const fetchAds = async () => {
     try {
-      const resp = await axiosAPI.get(
-        "http://localhost:8080/advertisement/list"
-      );
+      const resp = await axiosAPI.get("/advertisement/list");
       // 서버에서 받아오는 데이터가 아래 형태라 가정
       // [{ id, imageUrl, author, isMain }, ...]
       setAds(resp.data);
@@ -75,7 +73,7 @@ const Advertisement = () => {
 
       // 서버에 이미지 파일 전송, 이미지 경로(String) 응답 받음
       const response = await axiosAPI.post(
-        "http://localhost:8080/advertisement/register",
+        "/advertisement/register",
         formData,
         { withCredentials: true }
       );
@@ -105,7 +103,7 @@ const Advertisement = () => {
   // ✅ 광고 메인 등록/해제 토글
   const handleToggleMain = async (adNo) => {
     const response = await axiosAPI.post(
-      "http://localhost:8080/advertisement/updateMain",
+      "/advertisement/updateMain",
       { adNo: parseInt(adNo) },
       { withCredentials: true }
     );
@@ -116,7 +114,7 @@ const Advertisement = () => {
   // ✅ 광고 삭제 (클라이언트 상태에서만 삭제)
   const handleDelete = async (adNo) => {
     const response = await axiosAPI.post(
-      "http://localhost:8080/advertisement/delete",
+      "/advertisement/delete",
       { adNo: parseInt(adNo) },
       { withCredentials: true }
     );
@@ -164,7 +162,7 @@ const Advertisement = () => {
                 <td>{index + 1}</td>
                 <td>
                   <img
-                    src={`http://localhost:8080${ad.adImgUrl}`} // ✅ 절대 경로로 변경
+                    src={`${import.meta.env.VITE_API_BASE_URL}${ad.adImgUrl}`}
                     alt={`광고 이미지 ${index + 1}`}
                     style={{ width: "100px", height: "auto" }}
                   />
