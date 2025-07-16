@@ -13,7 +13,7 @@ export default function MyStock() {
   const [loading, setLoading] = useState(true);
 
   const [sellYn, setSellYn] = useState(new Set());
-
+  // 응애
   const fetchProperties = async () => {
     try {
       const response = await axiosAPI.get("/myPage/getMyStock");
