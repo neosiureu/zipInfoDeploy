@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext, useMemo } from "react";
 import { fetchPosts } from "../../api/AnnounceApi";
 import { useNavigate } from "react-router-dom";
 import { MemberContext } from "../member/MemberContext";
-import "../../css/announce/Announce.css";
+import "../../css/Announce/Announce.css";
 import { toast } from "react-toastify";
 import search from "../../assets/search-icon.svg";
 
