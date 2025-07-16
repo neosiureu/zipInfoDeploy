@@ -30,7 +30,7 @@ function Chart() {
         stockCount: 0,
       });
     });
-
+    // 오타수정
     // 탈퇴 데이터 추가
     withdrawData.forEach((item) => {
       if (dataMap.has(item.CHART_DATE)) {
