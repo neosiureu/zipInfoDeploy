@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Modal from "react-modal";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import "../../css/stock/StockImgModal.css";
@@ -6,6 +6,8 @@ import "../../css/stock/StockImgModal.css";
 function StockImgModal({ item }) {
   const [open, setOpen] = useState(false);
   const [idx, setIdx] = useState(0);
+
+  const railRef = useRef(null);
 
   const length = item.imgUrls.length;
 
@@ -23,7 +25,22 @@ function StockImgModal({ item }) {
   };
 
   const go = (i) => {
-    setIdx(i + 2);
+    const realIdx = i + 2; // 본 슬라이드 인덱스
+    setIdx(realIdx);
+
+    const rail = railRef.current;
+    const thumb = rail.children[i];
+    if (!rail || !thumb) return;
+
+    /* 썸네일을 가운데 두기 위해 필요한 scrollLeft 값 계산 */
+    const target =
+      thumb.offsetLeft + thumb.offsetWidth / 2 - rail.clientWidth / 2;
+
+    /* 0 ~ (전체너비−보이는너비) 로 Clamp → 항상 영역 안에만 스크롤 */
+    const max = rail.scrollWidth - rail.clientWidth;
+    const left = Math.max(0, Math.min(target, max));
+
+    rail.scrollTo({ left, behavior: "smooth" });
   };
 
   /* ───────── 스타일 객체 (원하면 className으로 대체 가능) ───────── */
@@ -107,19 +124,20 @@ function StockImgModal({ item }) {
             <ChevronRight size={40} />
           </button>
         </div>
-
         <div className="modal-img-list">
-          {item.imgUrls.slice(2).map((u, i) => (
-            <div className="modal-img">
-              <img
-                key={i}
-                className="slide-img-mini"
-                src={`http://localhost:8080${u}`}
-                alt={`매물 이미지 ${i + 1}`}
-                onClick={() => go(i)}
-              />
-            </div>
-          ))}
+          <div ref={railRef} className="modal-img-wrapper">
+            {item.imgUrls.slice(2).map((u, i) => (
+              <div className="modal-img">
+                <img
+                  key={i}
+                  className="slide-img-mini"
+                  src={`http://localhost:8080${u}`}
+                  alt={`매물 이미지 ${i + 1}`}
+                  onClick={() => go(i)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </Modal>
     </>
