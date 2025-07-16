@@ -48,12 +48,15 @@ export function AuthProvider({ children }) {
 
   const handleLogin = async (email, password) => {
     try {
-      const response = await fetch("http://localhost:8080/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ memberEmail: email, memberPw: password }),
-      });
+      const response = await fetch(
+        "`${import.meta.env.VITE_API_BASE_URL}/admin/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ memberEmail: email, memberPw: password }),
+        }
+      );
 
       if (!response.ok) {
         toast.error(
@@ -98,10 +101,13 @@ export function AuthProvider({ children }) {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:8080/member/logout", {
-        method: "GET",
-        credentials: "include",
-      });
+      const response = await fetch(
+        "`${import.meta.env.VITE_API_BASE_URL}/member/logout",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
       if (response.ok) {
         localStorage.removeItem("adminMember");
         setUser(null);

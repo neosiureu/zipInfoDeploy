@@ -21,8 +21,13 @@ import com.zipinfo.project.sale.model.service.SaleService;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
-@RequestMapping("sale")
+@CrossOrigin(origins = {
+	    "http://localhost:5173",
+	    "http://zipinfo.site",
+	    "https://zipinfo.site", 
+	    "http://www.zipinfo.site",
+	    "https://www.zipinfo.site"
+	})@RequestMapping("sale")
 @Slf4j
 public class SaleController {
 	

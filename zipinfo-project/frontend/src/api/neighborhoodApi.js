@@ -1,8 +1,7 @@
 import axios from "axios";
 
-// VITE_API_BASE_URL 환경변수가 없으면 기본값으로 localhost:8080 설정
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
 /**
  * 게시글 목록 조회 (GET)

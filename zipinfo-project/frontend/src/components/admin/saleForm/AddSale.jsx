@@ -299,7 +299,7 @@ const AddSale = () => {
       // thumbnailImages.forEach((file) => fd.append("thumbnailImages", file));
       // floorImages.forEach((file) => fd.append("floorImages", file));
       //       const res = await axios.post(
-      //   "http://localhost:8080/admin/addSale",
+      //   "http://l1ocalhost:8080/admin/addSale",
       //   fd,
       //   {
       //     withCredentials: true,

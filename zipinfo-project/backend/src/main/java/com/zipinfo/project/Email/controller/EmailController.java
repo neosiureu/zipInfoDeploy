@@ -17,8 +17,17 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController // JSON
 @RequestMapping("/email") // `/email`
-@CrossOrigin(origins = "http://localhost:5173", // 프런트 포트
-		allowedHeaders = "*", allowCredentials = "true")
+@CrossOrigin(
+	    origins = {
+	        "http://localhost:5173",        // 개발 환경
+	        "http://zipinfo.site",          // 프로덕션
+	        "https://zipinfo.site",         // 프로덕션 HTTPS
+	        "http://www.zipinfo.site",      // www 포함
+	        "https://www.zipinfo.site"      // www 포함 HTTPS
+	    }, 
+	    allowedHeaders = "*", 
+	    allowCredentials = "true"
+	)
 @RequiredArgsConstructor
 @Slf4j
 public class EmailController {

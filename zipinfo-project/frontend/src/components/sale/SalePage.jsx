@@ -543,7 +543,7 @@ const SalePage = () => {
           <div className="sale-section-content">
             <div className="sale-plan-section">
               <img
-                src={`http://localhost:8080${item.floorplanUrl}`}
+                src={`${import.meta.env.VITE_API_BASE_URL}${item.floorplanUrl}`}
                 alt="평면도"
                 className="sale-floorplan"
               />
@@ -647,7 +647,7 @@ const SalePage = () => {
             >
               <div className="sale-header">
                 <img
-                  src={`http://localhost:8080${item.thumbnailUrl}`}
+                  src={`${import.meta.env.VITE_API_BASE_URL}${item.thumbnailUrl}`}
                   alt="썸네일"
                   className="sale-img"
                 />

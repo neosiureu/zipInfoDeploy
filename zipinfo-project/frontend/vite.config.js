@@ -9,15 +9,14 @@ export default defineConfig({
   server: {
     // host: "192.168.50.252",
     proxy: {
-      // /api로 시작하는 모든 요청은 http://localhost:8080으로 포워딩
       "/api": {
-        target: "http://localhost:8080",
+        target: "${import.meta.env.VITE_API_BASE_URL}",
         changeOrigin: true,
         secure: false,
       },
       // /member로 시작하는 요청도 같은 백엔드로 포워딩
       "/member": {
-        target: "http://localhost:8080",
+        target: "${import.meta.env.VITE_API_BASE_URL}",
         changeOrigin: true,
         secure: false,
       },

@@ -501,10 +501,13 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
               const formData = new FormData();
               formData.append("image", file);
 
-              fetch("http://localhost:8080/editBoard/uploadImage", {
-                method: "POST",
-                body: formData,
-              })
+              fetch(
+                `${import.meta.env.VITE_API_BASE_URL}/editBoard/uploadImage`,
+                {
+                  method: "POST",
+                  body: formData,
+                }
+              )
                 .then((response) => response.text())
                 .then((serverImageUrl) => {
                   console.log("서버 업로드 성공:", serverImageUrl);

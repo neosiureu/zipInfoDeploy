@@ -566,7 +566,7 @@ export default function AddStock() {
       };
 
       const response = await axiosAPI.post(
-        "http://localhost:8080/myPage/addStock",
+        `${import.meta.env.VITE_API_BASE_URL}/myPage/addStock`,
         convertedData,
         { withCredentials: true }
       );
@@ -576,7 +576,7 @@ export default function AddStock() {
         combinedImages.forEach((file) => imageForm.append("stockImg", file));
 
         const imgResp = await axiosAPI.post(
-          "http://localhost:8080/myPage/addStockImg",
+          `${import.meta.env.VITE_API_BASE_URL}/myPage/addStockImg`,
           imageForm,
           {
             withCredentials: true,

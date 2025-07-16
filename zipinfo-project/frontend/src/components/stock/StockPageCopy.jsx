@@ -857,20 +857,6 @@ const StockPageCopy = () => {
       return (
         <>
           <div className="stock-detail-panel">
-            {/* 상단 이미지 2장 (예시) */}
-            {/*<div className="stock-detail-images">
-              <img
-                src={`http://localhost:8080${item.imgUrls[0]}`}
-                alt="상세1"
-                className="stock-detail-mainimg"
-              />
-              <img
-                src={`http://localhost:8080${item.imgUrls[2]}`}
-                alt="상세2"
-                className="stock-detail-mainimg"
-              />
-            </div>*/}
-
             <div className="stock-detail-panel">
               <div className="stock-detail-images">
                 <StockImgModal item={item} />
@@ -949,7 +935,9 @@ const StockPageCopy = () => {
               <div className="stock-detail-plan">
                 {item?.imgUrls && (
                   <img
-                    src={`http://localhost:8080${item.imgUrls[1]}`}
+                    src={`${import.meta.env.VITE_API_BASE_URL}${
+                      item.imgUrls[1]
+                    }`}
                     alt="평면도 이미지"
                   />
                 )}
@@ -1092,7 +1080,7 @@ const StockPageCopy = () => {
             >
               <div className="stock-header">
                 <img
-                  src={`http://localhost:8080${item.imgUrls[0]}`}
+                  src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls[0]}`}
                   alt="썸네일"
                   className="stock-img"
                 />

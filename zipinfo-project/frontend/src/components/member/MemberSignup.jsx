@@ -726,7 +726,7 @@ export default function MemberSignUp() {
     // 서버로 전송
     const endpoint = "/member/signup";
 
-    fetch(`http://localhost:8080${endpoint}`, {
+    fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

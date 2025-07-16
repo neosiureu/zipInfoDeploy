@@ -64,7 +64,7 @@ function StockImgModal({ item }) {
           {item?.imgUrls && (
             <>
               <img
-                src={`http://localhost:8080${item.imgUrls[0]}`} //?v=${Date.now()}	--> 현재 시간을 이용해 URL을 고유하게 만들어 브라우저 캐시를 우회
+                src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls[0]}`} //?v=${Date.now()}//?v=${Date.now()}	--> 현재 시간을 이용해 URL을 고유하게 만들어 브라우저 캐시를 우회
                 alt="상세1"
                 className="stock-detail-mainimg"
                 onClick={() => {
@@ -74,7 +74,9 @@ function StockImgModal({ item }) {
               />
               <img
                 src={
-                  item?.imgUrls ? `http://localhost:8080${item.imgUrls[2]}` : ""
+                  item?.imgUrls
+                    ? `${import.meta.env.VITE_API_BASE_URL}${item.imgUrls[2]}`
+                    : ""
                 }
                 className="stock-detail-mainimg"
                 onClick={() => {
@@ -113,7 +115,7 @@ function StockImgModal({ item }) {
                 <img
                   key={i}
                   className="slide-img"
-                  src={`http://localhost:8080${u}`}
+                  src={`${import.meta.env.VITE_API_BASE_URL}${u}`}
                   alt={`매물 이미지 ${i + 1}`}
                 />
               ))}
@@ -131,7 +133,7 @@ function StockImgModal({ item }) {
                 <img
                   key={i}
                   className="slide-img-mini"
-                  src={`http://localhost:8080${u}`}
+                  src={`${import.meta.env.VITE_API_BASE_URL}${u}`}
                   alt={`매물 이미지 ${i + 1}`}
                   onClick={() => go(i)}
                 />

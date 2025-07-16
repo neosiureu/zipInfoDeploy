@@ -28,8 +28,17 @@ import lombok.extern.slf4j.Slf4j;
  * 이주원 회원에 대한 컨트롤러 클래스
  */
 @RestController
-@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*", allowCredentials = "true")
-@RequestMapping("/member") // 클라이언트에 들어오는 쿠키를 허용하겠다
+@CrossOrigin(
+	    origins = {
+	        "http://localhost:5173",        // 개발 환경
+	        "http://zipinfo.site",          // 프로덕션
+	        "https://zipinfo.site",         // 프로덕션 HTTPS
+	        "http://www.zipinfo.site",      // www 포함
+	        "https://www.zipinfo.site"      // www 포함 HTTPS
+	    }, 
+	    allowedHeaders = "*", 
+	    allowCredentials = "true"
+	)@RequestMapping("/member") // 클라이언트에 들어오는 쿠키를 허용하겠다
 @Slf4j
 @RequiredArgsConstructor
 public class MemberController {

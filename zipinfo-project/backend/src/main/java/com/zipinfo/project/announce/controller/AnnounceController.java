@@ -21,8 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/announce")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
-public class AnnounceController {
+@CrossOrigin(origins = {
+	    "http://localhost:5173",
+	    "http://zipinfo.site",
+	    "https://zipinfo.site", 
+	    "http://www.zipinfo.site",
+	    "https://www.zipinfo.site"
+	})public class AnnounceController {
 
     private final AnnounceService service;
 

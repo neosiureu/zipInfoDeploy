@@ -108,7 +108,7 @@ function GlobalWebSocketListener() {
     let isMounted = true;
 
     const connectWebSocket = () => {
-      const socket = new SockJS("http://localhost:8080/ws");
+      const socket = new SockJS(`${import.meta.env.VITE_API_BASE_URL}/ws`);
       const client = Stomp.over(socket);
 
       client.connect({}, () => {
