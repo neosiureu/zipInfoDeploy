@@ -6,14 +6,22 @@ import { toast } from "react-toastify";
 import { MemberContext } from "../components/member/MemberContext";
 
 const KAKAO_REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
-// const { memberStatus } = useContext(MemberContext);
+
+// 환경에 따라 baseURL 설정
+const getBaseURL = () => {
+  if (import.meta.env.MODE === "production") {
+    return "http://43.200.65.97:8080"; // 배포환경
+  }
+  return "http://localhost:8080"; // 개발환경
+};
 
 export const axiosAPI = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: getBaseURL(), // 이 부분만 변경!
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
 
+// 나머지 코드는 그대로...
 function pushToast() {
   toast.error("다른 PC의 로그인이 감지되어 로그아웃 되었습니다.");
 }
