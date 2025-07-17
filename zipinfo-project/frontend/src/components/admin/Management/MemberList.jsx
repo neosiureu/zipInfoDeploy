@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Search, RefreshCw, Lock, XCircle } from "lucide-react";
 import "../../../css/admin/Management/MemberList.css";
 import { toast } from "react-toastify";
-import { axiosAPI } from "../../../api/axiosApI";
+import { axiosAPI } from "../../../api/axiosApi";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const MemberList = ({ initialMembers }) => {
