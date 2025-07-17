@@ -78,7 +78,7 @@ export default function MemberLogin() {
         memberEmail: formData.email, //  DTO 필드명과 동일
         memberPw: formData.password,
       });
-      // 씨
+      // 씨ㅃㅏ
 
       // 200 OK
       const { loginMember, accessToken } = resp.data; // 백엔드가 돌려준 Member
