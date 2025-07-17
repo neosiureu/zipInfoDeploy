@@ -36,14 +36,8 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "http://zipinfo.site",           // 새로 추가
-                "https://zipinfo.site",          // 새로 추가
-                "http://www.zipinfo.site",       // 새로 추가
-                "https://www.zipinfo.site",      // 새로 추가
-                "https://cmh-announce-admin.vercel.app"
-        ));
+        config.setAllowedOriginPatterns(List.of("*")); // 모든 origin 허용
+
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 
