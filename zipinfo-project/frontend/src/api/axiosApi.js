@@ -13,12 +13,9 @@ export const axiosAPI = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// 🔧 런타임에 강제로 수정
+//  런타임에 강제로 수정
 console.log("🔧 생성 직후 baseURL:", axiosAPI.defaults.baseURL);
-console.log(
-  "🔧 환경변수 VITE_API_BASE_URL:",
-  import.meta.env.VITE_API_BASE_URL
-);
+console.log(" 환경변수 VITE_API_BASE_URL:", import.meta.env.VITE_API_BASE_URL);
 
 // 강제로 올바른 값으로 설정
 axiosAPI.defaults.baseURL = "/api";
