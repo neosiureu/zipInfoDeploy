@@ -51,8 +51,9 @@ export default function MemberLogin() {
 
   // 그냥 로그인!!
   const handleSubmit = async (e) => {
-    console.log("🔍 axiosAPI.defaults:", axiosAPI.defaults);
-    console.log("🔍 axiosAPI.defaults.baseURL:", axiosAPI.defaults.baseURL);
+    axiosAPI.defaults.baseURL = "/api";
+    console.log("🔧 요청 직전 baseURL:", axiosAPI.defaults.baseURL);
+
     // 클라이언트 측 검증 추가
     if (!formData.email.trim()) {
       toast.error("이메일을 입력해주세요.");
