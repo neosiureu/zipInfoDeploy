@@ -73,13 +73,10 @@ export default function MemberLogin() {
     }
 
     try {
-      const resp = await axiosAPI.post(
-        `${import.meta.env.VITE_API_BASE_URL}/member/login`,
-        {
-          memberEmail: formData.email, //  DTO 필드명과 동일
-          memberPw: formData.password,
-        }
-      );
+      const resp = await axiosAPI.post("/member/login", {
+        memberEmail: formData.email, //  DTO 필드명과 동일
+        memberPw: formData.password,
+      });
 
       // 200 OK
       const { loginMember, accessToken } = resp.data; // 백엔드가 돌려준 Member
@@ -135,13 +132,10 @@ export default function MemberLogin() {
       }
 
       try {
-        const resp = await axiosAPI.post(
-          `${import.meta.env.VITE_API_BASE_URL}/member/login`,
-          {
-            memberEmail: formData.email, //  DTO 필드명과 동일
-            memberPw: formData.password,
-          }
-        );
+        const resp = await axiosAPI.post("/member/login", {
+          memberEmail: formData.email, //  DTO 필드명과 동일
+          memberPw: formData.password,
+        });
 
         // 200 OK
         const { loginMember, accessToken } = resp.data; // 백엔드가 돌려준 Member

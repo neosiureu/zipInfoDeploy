@@ -565,24 +565,17 @@ export default function AddStock() {
         regionNo: parseInt(formData.regionNo),
       };
 
-      const response = await axiosAPI.post(
-        `${import.meta.env.VITE_API_BASE_URL}/myPage/addStock`,
-        convertedData,
-        { withCredentials: true }
-      );
+      const response = await axiosAPI.post("/myPage/addStock", convertedData, {
+        withCredentials: true,
+      });
 
       if (response.status === 200) {
         const imageForm = new FormData();
         combinedImages.forEach((file) => imageForm.append("stockImg", file));
-
-        const imgResp = await axiosAPI.post(
-          `${import.meta.env.VITE_API_BASE_URL}/myPage/addStockImg`,
-          imageForm,
-          {
-            withCredentials: true,
-            headers: { "Content-Type": "multipart/form-data" },
-          }
-        );
+        const imgResp = await axiosAPI.post("/myPage/addStockImg", imageForm, {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        });
 
         if (imgResp.status === 200) {
           toast.success(
