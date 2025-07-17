@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../../css/member/MemberFindPw.css";
-import { axiosAPI } from "../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosApi";
 
 export default function MemberFindPw() {
   const navigate = useNavigate();

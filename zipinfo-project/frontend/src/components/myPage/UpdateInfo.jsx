@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import "../../css/myPage/myInfo.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import Menu from "./Menu";
-import { axiosAPI } from "../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosApi";
 import MemberLocationFilter from "../member/MemberLocationFilter";
 import { CITY, TOWN } from "../common/Gonggong";
 import { toast } from "react-toastify";

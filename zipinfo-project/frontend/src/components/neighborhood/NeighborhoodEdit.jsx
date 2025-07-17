@@ -4,7 +4,7 @@ import {
   useSearchParams,
   useLocation,
 } from "react-router-dom";
-import { axiosAPI } from "../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosApi";
 import SummernoteEditor from "./SummernoteEditor";
 import { useContext, useEffect, useState } from "react";
 import NeighborhoodFilters from "./NeighborhoodFilters";

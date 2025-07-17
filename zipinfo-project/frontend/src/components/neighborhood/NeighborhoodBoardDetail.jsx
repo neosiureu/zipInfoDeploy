@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoardDetail.css";
 import NeighborhoodCommentSection from "./NeighborhoodCommentSection";
-import { axiosAPI } from "../../api/axiosAPI";
+import { axiosAPI } from "../../api/axiosApi";
 import { CITY, TOWN } from "../common/Gonggong";
 import { MemberContext } from "../member/MemberContext";
 import { Heart } from "lucide-react";

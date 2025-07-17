@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../../css/admin/Advertisement.css";
 import { toast } from "react-toastify";
-import { axiosAPI } from "../../api/axiosApI";
+import { axiosAPI } from "../../api/axiosApi";
 
 const Advertisement = () => {
   // 🔒 고정된 관리자 정보
