@@ -13,6 +13,17 @@ export const axiosAPI = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// 🔧 런타임에 강제로 수정
+console.log("🔧 생성 직후 baseURL:", axiosAPI.defaults.baseURL);
+console.log(
+  "🔧 환경변수 VITE_API_BASE_URL:",
+  import.meta.env.VITE_API_BASE_URL
+);
+
+// 강제로 올바른 값으로 설정
+axiosAPI.defaults.baseURL = "/api";
+console.log("🔧 수정 후 baseURL:", axiosAPI.defaults.baseURL);
+
 function pushToast() {
   toast.error("다른 PC의 로그인이 감지되어 로그아웃 되었습니다.");
 }
