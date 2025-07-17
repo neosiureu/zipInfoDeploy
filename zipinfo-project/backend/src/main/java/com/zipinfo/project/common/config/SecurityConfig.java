@@ -24,64 +24,66 @@ import java.util.List;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    // 비밀번호 암호화 빈
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	// 비밀번호 암호화 빈
+	@Bean
+	public BCryptPasswordEncoder bCryptPasswordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    // CORS 설정
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
+	// CORS 설정
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
 
-        config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(List.of("*")); // 모든 origin 허용
+		CorsConfiguration config = new CorsConfiguration();
 
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
+		config.setAllowCredentials(true);
+		config.setAllowedOriginPatterns(List.of("*")); // 모든 origin 허용
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+		config.addAllowedHeader("*");
+		config.addAllowedMethod("*");
+		
+	    System.out.println("씨발좀 CORS 설정 시작 - 모든 origin 허용");
 
-        return source;
-    }
 
-    // Security 설정
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,  JwtAuthFilter jwtAuthFilter) throws Exception {
-        http
-            .cors(Customizer.withDefaults())
-            .csrf(csrf -> csrf.disable())
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
 
-            .authorizeHttpRequests(auth -> auth
-            	    // 공지사항 등록 (POST) 경로 수정
-            		.requestMatchers(HttpMethod.POST, "/api/announce/write").hasRole("ADMIN")
+		return source;
+	}
 
-            	    // 공지사항 수정 (UPDATE) 경로 수정 (모든 write 하위 경로 포함)
-            	    .requestMatchers(HttpMethod.POST, "/api/announce/edit/**").hasRole("ADMIN")
-            	    
-            	    // 공지사항 삭제 (DELETE) 경로 수정 (detail 하위 경로 포함)
-            	    .requestMatchers(HttpMethod.POST, "/api/announce/detail/**").hasRole("ADMIN")
-            	    
-            	    // 관리자계정 생성
-            	    .requestMatchers(HttpMethod.POST, "/admin/createAdminAccount").hasRole("ADMIN")
-            	    
-            	    // 조회는 모두 허용
-            	    .requestMatchers(HttpMethod.GET, "/api/announce/**").permitAll()
-            	    
-            	    // 기타 허용 경로
-            	    .requestMatchers("/admin/**", "/testSock/**", "/chattingSock/**").permitAll()
-            	    
-            	    // 나머지 요청 허용
-            	    .anyRequest().permitAll()
-            	
+	// Security 설정
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+		http.cors(cors -> cors.configurationSource(corsConfigurationSource())) // 명시적으로 설정
+				.csrf(csrf -> csrf.disable())
 
-            )
-            // iframe 허용 (H2 콘솔 등)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+				.authorizeHttpRequests(auth -> auth
+						// 공지사항 등록 (POST) 경로 수정
+						.requestMatchers(HttpMethod.POST, "/api/announce/write").hasRole("ADMIN")
 
-        return http.build();
-    }
+						// 공지사항 수정 (UPDATE) 경로 수정 (모든 write 하위 경로 포함)
+						.requestMatchers(HttpMethod.POST, "/api/announce/edit/**").hasRole("ADMIN")
+
+						// 공지사항 삭제 (DELETE) 경로 수정 (detail 하위 경로 포함)
+						.requestMatchers(HttpMethod.POST, "/api/announce/detail/**").hasRole("ADMIN")
+
+						// 관리자계정 생성
+						.requestMatchers(HttpMethod.POST, "/admin/createAdminAccount").hasRole("ADMIN")
+
+						// 조회는 모두 허용
+						.requestMatchers(HttpMethod.GET, "/api/announce/**").permitAll()
+
+						// 기타 허용 경로
+						.requestMatchers("/admin/**", "/testSock/**", "/chattingSock/**").permitAll()
+
+						// 나머지 요청 허용
+						.anyRequest().permitAll()
+
+				)
+				// iframe 허용 (H2 콘솔 등)
+				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+				.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+
+		return http.build();
+	}
 }
