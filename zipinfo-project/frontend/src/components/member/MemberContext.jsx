@@ -10,7 +10,7 @@ export const MemberContext = createContext();
 export const MemberProvider = ({ children }) => {
   const navigate = useNavigate();
 
-  // const [member]
+  // const
 
   /* 1) 스토리지와 state 동기화 */
   const [member, setMember] = useState(() => {
