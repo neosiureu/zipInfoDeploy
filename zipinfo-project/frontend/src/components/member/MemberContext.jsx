@@ -4,7 +4,7 @@ import { axiosAPI } from "../../api/axiosApi";
 import { jwtDecode } from "jwt-decode";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
+// 그래
 export const MemberContext = createContext();
 
 export const MemberProvider = ({ children }) => {
