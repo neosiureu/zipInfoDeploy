@@ -3,7 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { MemberContext } from "../components/member/MemberContext";
+import { MemberContext } from "../../member/MemberContext";
 
 const KAKAO_REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
 
