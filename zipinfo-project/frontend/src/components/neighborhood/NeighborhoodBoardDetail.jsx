@@ -7,7 +7,7 @@ import { CITY, TOWN } from "../common/Gonggong";
 import { MemberContext } from "../member/MemberContext";
 import { Heart } from "lucide-react";
 import { toast } from "react-toastify";
-import { useMemo } from "react";
+
 const NeighborhoodBoardDetail = () => {
   const [board, setBoard] = useState([{}]);
   const { member } = useContext(MemberContext);
@@ -22,12 +22,6 @@ const NeighborhoodBoardDetail = () => {
   const loginMemberNo = member?.memberNo;
   const [like, setLike] = useState(new Set());
   const [likeCount, setLikeCount] = useState(0);
-
-  const API_BASE = (import.meta.env.VITE_API_BASE_URL || "/api").replace(
-    /\/$/,
-    ""
-  );
-
   // 이 글에 들어온 프론트 경로: navigate(`/neighborhoodBoard/detail/${item.boardNo}`);
   // 이 글에서 서버로 보낼 url 주소: /board/detail/boardNo
 
@@ -196,23 +190,6 @@ const NeighborhoodBoardDetail = () => {
     memberNo,
   } = post;
 
-  // env에서 백엔드 도메인 (예: https://api.zipinfo.site 또는 https://www.zipinfo.site/api 프록시 등)
-  const BACKEND = import.meta.env.VITE_BACKEND_ORIGIN || "";
-
-  // "/images/..." 처럼 슬래시로 시작하고 http로 시작하지 않는 src만 교체
-  function absolutizeImgSrcs(html) {
-    if (!html) return "";
-    return html.replace(
-      /(<img\b[^>]*\bsrc=["'])(\/(images|myPage|message)\/[^"']*)/gi,
-      (_, prefix, path) => `${prefix}${API_BASE}${path}`
-    );
-  }
-
-  const safeHtml = useMemo(
-    () => absolutizeImgSrcs(post?.boardContent ?? ""),
-    [post?.boardContent]
-  );
-  //위를
   return (
     <div className="nb-detail-container">
       <div className="nb-detail-wrapper">
@@ -260,7 +237,7 @@ const NeighborhoodBoardDetail = () => {
         <div className="nb-detail-content">
           <div
             className="nb-detail-text"
-            dangerouslySetInnerHTML={{ __html: safeHtml }}
+            dangerouslySetInnerHTML={{ __html: boardContent }}
           />
         </div>
         <div className="nb-detail-buttons">
