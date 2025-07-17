@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import { MemberContext } from "../components/member/MemberContext";
 
 const KAKAO_REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
-// const { memberStatus } = useContext(MemberContext);
 
 export const axiosAPI = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
