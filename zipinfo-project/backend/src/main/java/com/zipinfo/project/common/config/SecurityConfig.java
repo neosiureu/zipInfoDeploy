@@ -38,6 +38,10 @@ public class SecurityConfig {
         config.setAllowCredentials(true);
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
+                "http://zipinfo.site",           // 새로 추가
+                "https://zipinfo.site",          // 새로 추가
+                "http://www.zipinfo.site",       // 새로 추가
+                "https://www.zipinfo.site",      // 새로 추가
                 "https://cmh-announce-admin.vercel.app"
         ));
         config.addAllowedHeader("*");
