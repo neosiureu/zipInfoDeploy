@@ -49,7 +49,7 @@ export default function MemberLogin() {
     }));
   };
 
-  // 그냥 로그인!!
+  // 그냥 로그인!
   const handleSubmit = async (e) => {
     axiosAPI.defaults.baseURL = "/api";
     console.log("🔧 요청 직전 baseURL:", axiosAPI.defaults.baseURL);
