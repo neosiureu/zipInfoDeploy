@@ -1,67 +1,224 @@
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Search, RefreshCw, Lock, XCircle } from "lucide-react";
+import "../../../css/admin/Management/MemberList.css";
 import { toast } from "react-toastify";
-import { MemberContext } from "../../member/MemberContext";
+import { axiosAPI } from "../../../api/axiosApi";
 
-const KAKAO_REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const MemberList = ({ initialMembers }) => {
+  const [currentMembers, setCurrentMembers] = useState(
+    Array.isArray(initialMembers) ? initialMembers : []
+  );
+  const [filteredMembers, setFilteredMembers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
 
-export const axiosAPI = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL, // 환경변수 사용 + fallback
-  withCredentials: true,
-  headers: { "Content-Type": "application/json" },
-});
+  const membersPerPage = 10;
 
-function pushToast() {
-  toast.error("다른 PC의 로그인이 감지되어 로그아웃 되었습니다.");
-}
+  const authMap = {
+    0: "관리자",
+    1: "일반회원",
+    2: "중개회원 신청",
+    3: "중개회원",
+  };
 
-axiosAPI.interceptors.request.use((config) => {
-  //  카카오 API 요청은 바로
-  if (config.url?.startsWith("https://dapi.kakao.com/")) {
-    delete config.headers.Authorization;
-    config.withCredentials = false;
-    config.headers.Authorization = `KakaoAK ${KAKAO_REST_API_KEY}`;
-    return config;
-  }
+  const roleOptions = ["관리자", "일반회원", "중개회원 신청", "중개회원"];
 
-  //  로그인 요청은 토큰 체크 없이 바로 보내기. 토큰이 없는상태에서 로그인요청을 보내는데 토큰이 없다고 거절하면 안되니
-  if (config.url?.includes("/login")) {
-    return config;
-  }
+  // 컴포넌트 마운트 시 API 호출해서 최신 멤버 목록 불러오기
+  useEffect(() => {
+    axiosAPI
+      .get("/admin/management/members")
+      .then((res) => {
+        console.log("API 응답 데이터:", res.data);
+        setCurrentMembers(res.data);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
-  // 그 외 요청은 토큰 체크
-  const token = localStorage.getItem("accessToken");
-  if (token) {
+  // 초기 prop이 변경되면 상태에 반영
+  useEffect(() => {
+    if (Array.isArray(initialMembers)) {
+      setCurrentMembers(initialMembers);
+    } else {
+      setCurrentMembers([]);
+    }
+  }, [initialMembers]);
+
+  // 검색어, 필터, 멤버 변경에 따른 필터링 및 페이징 초기화
+  useEffect(() => {
+    let updated = [...currentMembers];
+
+    if (searchTerm.trim()) {
+      updated = updated.filter(
+        (member) =>
+          member.memberId?.includes(searchTerm) ||
+          member.memberEmail?.includes(searchTerm) ||
+          member.memberNo?.toString().includes(searchTerm)
+      );
+    }
+
+    if (roleFilter) {
+      updated = updated.filter(
+        (member) => authMap[member.memberAuth] === roleFilter
+      );
+    }
+
+    setFilteredMembers(updated);
+    setCurrentPage(1);
+  }, [searchTerm, roleFilter, currentMembers]);
+
+  const indexOfLastMember = currentPage * membersPerPage;
+  const indexOfFirstMember = indexOfLastMember - membersPerPage;
+  const currentPageMembers = filteredMembers.slice(
+    indexOfFirstMember,
+    indexOfLastMember
+  );
+
+  const totalPages = Math.ceil(filteredMembers.length / membersPerPage);
+
+  const handleRefresh = () => {
+    setSearchTerm("");
+    setRoleFilter("");
+    setFilteredMembers(currentMembers);
+    setCurrentPage(1);
+  };
+
+  const handleDeleteMember = async (memberNo) => {
+    const confirmed = window.confirm("정말 이 회원을 삭제하시겠습니까?");
+    if (!confirmed) return;
+
     try {
-      const { exp } = jwtDecode(token);
-      if (exp * 1000 < Date.now()) {
-        window.dispatchEvent(new CustomEvent("forceLogout"));
-        delete config.headers.Authorization;
-        return config;
-      }
-    } catch {
-      window.dispatchEvent(new CustomEvent("forceLogout"));
-      return Promise.reject(new Error("Invalid token"));
+      await axiosAPI.delete(`${BASE_URL}/admin/management/members/${memberNo}`);
+      toast.success(
+        <div>
+          <div className="toast-success-title">삭제 성공 알림!</div>
+          <div className="toast-success-body">회원정보가 삭제되었습니다.</div>
+        </div>
+      );
+      setCurrentMembers((prev) => prev.filter((m) => m.memberNo !== memberNo));
+    } catch (error) {
+      console.error("회원 삭제 실패", error);
+      toast.error(
+        <div>
+          <div className="toast-error-title">오류 알림!</div>
+          <div className="toast-error-body">회원 삭제에 실패하였습니다.</div>
+        </div>
+      );
     }
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  };
 
-  return config;
-});
+  return (
+    <div className="member-list-container p-4">
+      <h3 className="member-list-header">회원 목록</h3>
 
-axiosAPI.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (
-      (error.response.status === 401 || error.response.status === 403) &&
-      error.response.data?.code === "TOKEN_MISMATCH"
-    ) {
-      window.dispatchEvent(new CustomEvent("forceLogouts"));
-      pushToast();
-    }
-    return Promise.reject(error);
-  }
-);
+      <div className="controls">
+        <div className="search-box">
+          <Search size={18} className="search-icon" />
+          <input
+            type="text"
+            className="search-input"
+            placeholder="회원 아이디 또는 번호 검색"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        <select
+          className="filter-select"
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value)}
+        >
+          <option value="">전체 권한</option>
+          {roleOptions.map((role) => (
+            <option key={role} value={role}>
+              {role}
+            </option>
+          ))}
+        </select>
+
+        <button className="refresh-button" onClick={handleRefresh}>
+          <RefreshCw size={16} className="icon-inline" />
+        </button>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="member-table">
+          <thead>
+            <tr>
+              <th>번호</th>
+              <th>아이디</th>
+              <th>권한</th>
+              <th>가입일</th>
+              <th>최근 로그인</th>
+              <th>게시글 수</th>
+              <th>삭제</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredMembers.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="no-data">
+                  회원 정보가 없습니다.
+                </td>
+              </tr>
+            ) : (
+              currentPageMembers.map((member) => (
+                <tr key={member.memberNo}>
+                  <td>{member.memberNo}</td>
+                  <td>{member.memberEmail || member.memberId}</td>
+                  <td>{authMap[member.memberAuth] || "알 수 없음"}</td>
+                  <td>
+                    {member.enrollDate ||
+                      member.joinDate ||
+                      member.createdAt ||
+                      "-"}
+                  </td>
+                  <td>
+                    {member.lastLoginDate
+                      ? new Date(member.lastLoginDate).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td>{member.postCount ?? member.POST_COUNT ?? 0}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className={`status-button ${
+                        member.blockFlag ? "blocked" : "active"
+                      }`}
+                      title={member.blockFlag ? "차단됨" : "정상"}
+                      onClick={() => handleDeleteMember(member.memberNo)}
+                    >
+                      {member.blockFlag ? (
+                        <Lock size={18} />
+                      ) : (
+                        <XCircle size={18} />
+                      )}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="pagination">
+        {Array.from({ length: totalPages || 1 }, (_, i) => i + 1).map(
+          (page) => (
+            <button
+              key={page}
+              className={`page-button ${page === currentPage ? "active" : ""}`}
+              onClick={() => setCurrentPage(page)}
+              aria-label={`페이지 ${page}`}
+            >
+              {page}
+            </button>
+          )
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default MemberList;
