@@ -7,7 +7,7 @@ import { CITY, TOWN } from "../common/Gonggong";
 import { MemberContext } from "../member/MemberContext";
 import { Heart } from "lucide-react";
 import { toast } from "react-toastify";
-
+import { useMemo } from "react";
 const NeighborhoodBoardDetail = () => {
   const [board, setBoard] = useState([{}]);
   const { member } = useContext(MemberContext);
@@ -22,6 +22,12 @@ const NeighborhoodBoardDetail = () => {
   const loginMemberNo = member?.memberNo;
   const [like, setLike] = useState(new Set());
   const [likeCount, setLikeCount] = useState(0);
+
+  const API_BASE = (import.meta.env.VITE_API_BASE_URL || "/api").replace(
+    /\/$/,
+    ""
+  );
+
   // 이 글에 들어온 프론트 경로: navigate(`/neighborhoodBoard/detail/${item.boardNo}`);
   // 이 글에서 서버로 보낼 url 주소: /board/detail/boardNo
 
@@ -195,15 +201,17 @@ const NeighborhoodBoardDetail = () => {
 
   // "/images/..." 처럼 슬래시로 시작하고 http로 시작하지 않는 src만 교체
   function absolutizeImgSrcs(html) {
-    if (!BACKEND) return html; // 동일오리진일 때는 그대로
+    if (!html) return "";
     return html.replace(
-      /(<img\b[^>]*\bsrc=["'])(\/(?!\/)[^"']*)/gi,
-      (_, prefix, path) => `${prefix}${BACKEND}${path}`
+      /(<img\b[^>]*\bsrc=["'])(\/(images|myPage|message)\/[^"']*)/gi,
+      (_, prefix, path) => `${prefix}${API_BASE}${path}`
     );
   }
 
-  const safeHtml = absolutizeImgSrcs(boardContent);
-
+  const safeHtml = useMemo(
+    () => absolutizeImgSrcs(post?.boardContent ?? ""),
+    [post?.boardContent]
+  );
   //위를
   return (
     <div className="nb-detail-container">
