@@ -51,6 +51,8 @@ export default function MemberLogin() {
 
   // 그냥 로그인
   const handleSubmit = async (e) => {
+    console.log("🔍 axiosAPI.defaults:", axiosAPI.defaults);
+    console.log("🔍 axiosAPI.defaults.baseURL:", axiosAPI.defaults.baseURL);
     // 클라이언트 측 검증 추가
     if (!formData.email.trim()) {
       toast.error("이메일을 입력해주세요.");
@@ -71,14 +73,14 @@ export default function MemberLogin() {
       toast.error("비밀번호는 6~20자 사이로 입력해주세요.");
       return;
     }
-    console.log("현재 BASE URL:", import.meta.env.VITE_API_BASE_URL);
-    console.log("현재 도메인:", window.location.origin);
+
     try {
+      console.log("현재 BASE URL:", import.meta.env.VITE_API_BASE_URL);
+      console.log("현재 도메인:", window.location.origin);
       const resp = await axiosAPI.post("/member/login", {
         memberEmail: formData.email, //  DTO 필드명과 동일
         memberPw: formData.password,
       });
-      // 씨ㅃㅏ
 
       // 200 OK
       const { loginMember, accessToken } = resp.data; // 백엔드가 돌려준 Member
@@ -111,6 +113,8 @@ export default function MemberLogin() {
   };
 
   const handleSubmitEnter = async (e) => {
+    console.log("🔍 axiosAPI.defaults:", axiosAPI.defaults);
+    console.log("🔍 axiosAPI.defaults.baseURL:", axiosAPI.defaults.baseURL);
     if (e.key === "Enter") {
       // 클라이언트 측 검증 추가
       if (!formData.email.trim()) {
@@ -135,6 +139,8 @@ export default function MemberLogin() {
       console.log("현재 BASE URL:", import.meta.env.VITE_API_BASE_URL);
       console.log("현재 도메인:", window.location.origin);
       try {
+        console.log("현재 BASE URL:", import.meta.env.VITE_API_BASE_URL);
+        console.log("현재 도메인:", window.location.origin);
         const resp = await axiosAPI.post("/member/login", {
           memberEmail: formData.email, //  DTO 필드명과 동일
           memberPw: formData.password,

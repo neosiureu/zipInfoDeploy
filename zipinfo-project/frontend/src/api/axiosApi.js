@@ -19,6 +19,11 @@ function pushToast() {
 }
 
 axiosAPI.interceptors.request.use((config) => {
+  console.log("🚀 Request config:", {
+    url: config.url,
+    baseURL: config.baseURL,
+    fullURL: config.baseURL + config.url,
+  });
   //  카카오 API 요청은 바로 보내기
   if (config.url?.startsWith("https://dapi.kakao.com/")) {
     delete config.headers.Authorization;
