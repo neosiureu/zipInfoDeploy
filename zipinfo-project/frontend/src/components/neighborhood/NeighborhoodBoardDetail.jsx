@@ -9,22 +9,6 @@ import { Heart } from "lucide-react";
 import { toast } from "react-toastify";
 
 const NeighborhoodBoardDetail = () => {
-  // env에서 백엔드 도메인 (예: https://api.zipinfo.site 또는 https://www.zipinfo.site/api 프록시 등)
-  const BACKEND = import.meta.env.VITE_BACKEND_ORIGIN || "";
-
-  // "/images/..." 처럼 슬래시로 시작하고 http로 시작하지 않는 src만 교체
-  function absolutizeImgSrcs(html) {
-    if (!BACKEND) return html; // 동일오리진일 때는 그대로
-    return html.replace(
-      /(<img\b[^>]*\bsrc=["'])(\/(?!\/)[^"']*)/gi,
-      (_, prefix, path) => `${prefix}${BACKEND}${path}`
-    );
-  }
-
-  const safeHtml = absolutizeImgSrcs(boardContent);
-
-  //위를 추가
-
   const [board, setBoard] = useState([{}]);
   const { member } = useContext(MemberContext);
   const isAdmin = member?.memberAuth === 0;
@@ -206,6 +190,21 @@ const NeighborhoodBoardDetail = () => {
     memberNo,
   } = post;
 
+  // env에서 백엔드 도메인 (예: https://api.zipinfo.site 또는 https://www.zipinfo.site/api 프록시 등)
+  const BACKEND = import.meta.env.VITE_BACKEND_ORIGIN || "";
+
+  // "/images/..." 처럼 슬래시로 시작하고 http로 시작하지 않는 src만 교체
+  function absolutizeImgSrcs(html) {
+    if (!BACKEND) return html; // 동일오리진일 때는 그대로
+    return html.replace(
+      /(<img\b[^>]*\bsrc=["'])(\/(?!\/)[^"']*)/gi,
+      (_, prefix, path) => `${prefix}${BACKEND}${path}`
+    );
+  }
+
+  const safeHtml = absolutizeImgSrcs(boardContent);
+
+  //위를
   return (
     <div className="nb-detail-container">
       <div className="nb-detail-wrapper">
