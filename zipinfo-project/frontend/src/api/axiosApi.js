@@ -6,10 +6,9 @@ import { toast } from "react-toastify";
 import { MemberContext } from "../components/member/MemberContext";
 
 const KAKAO_REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
-// const { memberStatus } = useContext(MemberContext);
 
 export const axiosAPI = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "/api", // 환경변수 사용 + fallback
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
@@ -40,7 +39,6 @@ axiosAPI.interceptors.request.use((config) => {
       if (exp * 1000 < Date.now()) {
         window.dispatchEvent(new CustomEvent("forceLogout"));
         delete config.headers.Authorization;
-
         return config;
       }
     } catch {
