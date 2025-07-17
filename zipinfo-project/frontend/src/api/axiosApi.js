@@ -19,7 +19,7 @@ function pushToast() {
 }
 
 axiosAPI.interceptors.request.use((config) => {
-  //  카카오 API 요청은 바로 보
+  //  카카오 API 요청은 바로
   if (config.url?.startsWith("https://dapi.kakao.com/")) {
     delete config.headers.Authorization;
     config.withCredentials = false;
