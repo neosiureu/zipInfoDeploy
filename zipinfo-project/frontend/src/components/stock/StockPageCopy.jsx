@@ -49,7 +49,7 @@ const StockPageCopy = () => {
     searchParams,
     isInfraCategoryVisible, // InfraMark.jsx에서 StockContext로 옮김
     setIsInfraCategoryVisible, // InfraMark.jsx에서 StockContext로 옮김
-    isInfraCategoryVisibleRef, // InfraMark.jsx에서 StockContext로 옮김
+    isInfraCategoryVisibleRef, // InfraMark.jsx에서 StockContext로 옮김!
   } = useStockContext();
 
   const { stockNo } = useParams(); // 매물번호를 주소에서 받아옴(/stock/:stockNo)
