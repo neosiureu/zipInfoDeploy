@@ -95,7 +95,7 @@ public class EditneighborhoodServiceImpl implements EditneighborhoodService {
 	    }
 	    
 	    // 4. 웹 URL 반환
-	    return "http://localhost:8080" + boardWebPath + fileName;
+	    return boardWebPath + fileName;
 	}
 
 
