@@ -544,7 +544,7 @@ export default function MemberFindPw() {
               value={emailFormData.memberEmail}
               onChange={handleEmailInputChange}
               placeholder="가입하신 이메일을 입력해주세요"
-              maxLength={50} 
+              maxLength={50}
               className="find-pw-form-input"
               required
             />

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { axiosAPI } from "../../api/axiosApi";
+import { axiosAPI } from "../../api/axiosAPI";
 import "../../css/sale/SalePage.css";
 import SearchBar from "../common/SearchBar";
 import warning from "../../assets/circle_warning.svg";
@@ -647,7 +647,9 @@ const SalePage = () => {
             >
               <div className="sale-header">
                 <img
-                  src={`${import.meta.env.VITE_API_BASE_URL}${item.thumbnailUrl}`}
+                  src={`${import.meta.env.VITE_API_BASE_URL}${
+                    item.thumbnailUrl
+                  }`}
                   alt="썸네일"
                   className="sale-img"
                 />

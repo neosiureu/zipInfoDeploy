@@ -8,7 +8,7 @@ import React, {
 import { useSearchParams } from "react-router-dom";
 import "../../css/neighborhood/NeighborhoodBoard.css";
 import { useNavigate } from "react-router-dom";
-import { axiosAPI } from "../../api/axiosApi";
+import { axiosAPI } from "../../api/axiosAPI";
 import NeighborhoodFilters from "./NeighborhoodFilters";
 import { MemberContext } from "../member/MemberContext";
 import search from "../../assets/search-icon.svg";
