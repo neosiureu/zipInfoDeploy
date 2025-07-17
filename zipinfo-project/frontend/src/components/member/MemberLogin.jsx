@@ -71,7 +71,8 @@ export default function MemberLogin() {
       toast.error("비밀번호는 6~20자 사이로 입력해주세요.");
       return;
     }
-
+    console.log("현재 BASE URL:", import.meta.env.VITE_API_BASE_URL);
+    console.log("현재 도메인:", window.location.origin);
     try {
       const resp = await axiosAPI.post("/member/login", {
         memberEmail: formData.email, //  DTO 필드명과 동일
@@ -130,7 +131,8 @@ export default function MemberLogin() {
         toast.error("비밀번호는 6~20자 사이로 입력해주세요.");
         return;
       }
-
+      console.log("현재 BASE URL:", import.meta.env.VITE_API_BASE_URL);
+      console.log("현재 도메인:", window.location.origin);
       try {
         const resp = await axiosAPI.post("/member/login", {
           memberEmail: formData.email, //  DTO 필드명과 동일
