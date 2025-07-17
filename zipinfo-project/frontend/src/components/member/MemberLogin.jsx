@@ -49,7 +49,7 @@ export default function MemberLogin() {
     }));
   };
 
-  // 그냥 로그인
+  // 그냥 로그인!!
   const handleSubmit = async (e) => {
     console.log("🔍 axiosAPI.defaults:", axiosAPI.defaults);
     console.log("🔍 axiosAPI.defaults.baseURL:", axiosAPI.defaults.baseURL);
