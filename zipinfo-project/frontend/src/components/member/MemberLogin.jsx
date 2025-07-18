@@ -255,9 +255,16 @@ export default function MemberLogin() {
           navigate("/");
         })
         .catch((err) => {
-          console.error("네이버 로그인 중 오류", err);
-          toast.error("네이버 로그인에 실패했습니다.");
-        });
+  console.error("네이버 로그인 중 오류", err);
+ if (
+   err.response?.status === 403 &&
+   err.response?.data?.msg === "MEMBER_WITHDRAWN"
+ ) {
+   toast.error("탈퇴한 회원은 로그인할 수 없습니다.");
+   return;
+ }
+  toast.error("네이버 로그인에 실패했습니다.");
+});
     };
     window.addEventListener("message", listener, { once: true });
 

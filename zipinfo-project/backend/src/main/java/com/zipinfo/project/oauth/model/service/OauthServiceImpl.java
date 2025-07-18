@@ -121,6 +121,7 @@ public class OauthServiceImpl implements OauthService {
 
 			// 3단계: 회원 조회/등록
 			Member member = mapper.selectByNaverEmail(email);
+			validateWithdraw(member);  
 			boolean isNew = (member == null);
 			log.info("DB 조회 member={}", member);
 			 if (isNew) {                                   // ── 신규 회원만 처리
