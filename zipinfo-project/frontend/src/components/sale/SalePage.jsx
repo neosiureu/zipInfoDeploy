@@ -242,6 +242,7 @@ const SalePage = () => {
       const options = {
         center: new window.kakao.maps.LatLng(37.567937, 126.983001),
         level: 6,
+        maxLevel: 11,
       };
       const map = new window.kakao.maps.Map(container, options);
       mapInstanceRef.current = map;
@@ -289,8 +290,25 @@ const SalePage = () => {
       // 최초 실행
       fetchInitialData();
 
+      const swLimit = new kakao.maps.LatLng(33.0, 124.5); // 남서
+      const neLimit = new kakao.maps.LatLng(43.0, 132.0); // 북동
+      const limit = new kakao.maps.LatLngBounds(swLimit, neLimit);
+
       // idle 이벤트 등록 (기존처럼 유지)
       window.kakao.maps.event.addListener(map, "idle", async () => {
+        const c = map.getCenter();
+        if (!limit.contain(c)) {
+          const lat = Math.min(
+            Math.max(c.getLat(), swLimit.getLat()),
+            neLimit.getLat()
+          );
+          const lng = Math.min(
+            Math.max(c.getLng(), swLimit.getLng()),
+            neLimit.getLng()
+          );
+          map.panTo(new kakao.maps.LatLng(lat, lng));
+        }
+
         const level = map.getLevel();
         const mode = calcMode(level);
 
@@ -543,7 +561,7 @@ const SalePage = () => {
           <div className="sale-section-content">
             <div className="sale-plan-section">
               <img
-                src={`${import.meta.env.VITE_API_BASE_URL}${item.floorplanUrl}`}
+                src={`http://localhost:8080${item.floorplanUrl}`}
                 alt="평면도"
                 className="sale-floorplan"
               />
@@ -647,9 +665,7 @@ const SalePage = () => {
             >
               <div className="sale-header">
                 <img
-                  src={`${import.meta.env.VITE_API_BASE_URL}${
-                    item.thumbnailUrl
-                  }`}
+                  src={`http://localhost:8080${item.thumbnailUrl}`}
                   alt="썸네일"
                   className="sale-img"
                 />
