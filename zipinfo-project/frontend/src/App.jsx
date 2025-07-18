@@ -363,7 +363,7 @@ function App() {
                 }
               />
               <Route
-                path="myPage/updatePassword"
+                path="myPageupdatePassword"
                 element={
                   <ProtectedRoute>
                     <BlockAdmin>

@@ -17,7 +17,7 @@ export default function Menu() {
     { label: "관심 매물", path: "/myPage/myStock" },
     { label: "문의내역", path: "/myPage/myMessage" },
     { label: "내가 쓴 글", path: "/myPage/myPost" },
-    { label: "비밀번호 재설정", path: "/myPage/updatePassword" },
+    { label: "비밀번호 재설정", path: "/myPageupdatePassword" },
     { label: "회원탈퇴", path: "/myPage/withDraw" },
   ];
 
