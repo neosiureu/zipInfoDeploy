@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 
 export default function PasswordChange() {
   const nav = useNavigate();
-  const { setMember } = useContext(MemberContext);
+  const { member, setMember } = useContext(MemberContext);
 
   /* 카카오 로그인 여부 */
   const kakaoKey = Object.keys(localStorage).find((k) =>
