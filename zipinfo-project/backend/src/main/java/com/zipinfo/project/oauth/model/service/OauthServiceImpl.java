@@ -1,7 +1,7 @@
 package com.zipinfo.project.oauth.model.service;
 
 import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +22,12 @@ public class OauthServiceImpl implements OauthService {
 	private final OauthMapper mapper;
 	private final JWTProvider jwtProvider;
 	private final WebClient webClient;
+
+	  @Value("${naver.client-id}")
+    private String naverClientId;
+
+    @Value("${naver.client-secret}")
+    private String naverClientSecret;
 
 	@Override
 	public Member loginKakao(String kakaoAccessToken) {
