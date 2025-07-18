@@ -9,7 +9,8 @@ export default function Menu() {
 
   // 카카오 로그인 여부
   const isKakao = Object.keys(localStorage).some((k) => k.startsWith("kakao_"));
-
+  const isNaver  = member?.memberLogin === "OAuth" || member?.memberLogin === "N";
+ const isSocial = isKakao || isNaver;  // 네이버랑 카카오 말고 확장성을 위해
   // 전체 탭
   const tabs = [
     { label: "내 정보", path: "/myPage" },
@@ -21,9 +22,9 @@ export default function Menu() {
   ];
 
   // 카카오 사용자는 비밀번호 탭 제외
-  const visibleTabs = useMemo(
-    () => (isKakao ? tabs.filter((t) => t.label !== "비밀번호 재설정") : tabs),
-    [isKakao]
+ const visibleTabs = useMemo(
+    () => (isSocial ? tabs.filter(t => t.label !== "비밀번호 재설정") : tabs),
+    [isSocial]
   );
 
   /** 현재 URL 에 맞춰 초기 활성 탭 선택 */

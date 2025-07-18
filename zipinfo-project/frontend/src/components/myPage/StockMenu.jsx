@@ -9,7 +9,8 @@ export default function Menu() {
 
   const { member } = useContext(MemberContext);
   const isKakao = Object.keys(localStorage).some((k) => k.startsWith("kakao_"));
-
+ const isNaver  = member?.memberLogin === "OAuth" || member?.memberLogin === "N";
+ const isSocial = isKakao || isNaver;  // 네이버랑 카카오 말고 확장성을 위해
   const tabs = [
     { label: "내 정보", path: "/myPage" },
     { label: "관심 매물", path: "/myPage/myStock" },
@@ -58,7 +59,7 @@ export default function Menu() {
       <div className="my-page-tab-navigation">
         <div className="my-page-tab-container">
           {tabs.map((tab) =>
-            isKakao && tab.label === "비밀번호 재설정" ? null : ( // 카카오 사용자는 숨김
+            isSocial && tab.label  === "비밀번호 재설정" ? null : ( // 소셜 사용자는 숨김
               <button
                 key={tab.label}
                 onClick={() => {
