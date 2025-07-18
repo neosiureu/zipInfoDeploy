@@ -73,10 +73,15 @@ const Advertisement = () => {
 
       // 서버에 이미지 파일 전송, 이미지 경로(String) 응답 받음
       const response = await axiosAPI.post(
-        "/advertisement/register",
-        formData,
-        { withCredentials: true }
-      );
+  '/advertisement/register',
+  formData,
+  {
+    headers: {             //  최우선!
+      'Content-Type': 'multipart/form-data'
+    },
+    withCredentials: true
+  }
+);
 
       if (response.status === 200) {
         fetchAds();
