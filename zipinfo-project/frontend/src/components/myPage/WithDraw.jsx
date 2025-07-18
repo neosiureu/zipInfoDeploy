@@ -95,14 +95,16 @@ if (!isSocial) {        if (!password.trim()) {
             </div>
           )}
 
-          {/* 카카오 안내(카카오 로그인만) */}
-          {isKakaoLogin && (
-            <div className="kakao-withdraw-info">
-              카카오 로그인 계정은 비밀번호가 설정되어 있지 않습니다.
-              <br />
-              <strong>탈퇴 시 모든 계정 정보가 영구적으로 삭제됩니다.</strong>
-            </div>
-          )}
+          {/* 카카오 안내(카카오 로그인+네이버로그인) */}
+        {isSocial && (
+  <div className="kakao-withdraw-info">
+    {isKakaoLogin
+      ? "카카오 로그인 계정은 비밀번호가 설정되어 있지 않습니다."
+      : "네이버 로그인 계정은 비밀번호가 설정되어 있지 않습니다."}
+    <br />
+    <strong>탈퇴 시 모든 계정 정보가 영구적으로 삭제됩니다.</strong>
+  </div>
+)}
 
           {/* 약관 */}
           <div className="with-draw-work-section">
