@@ -10,5 +10,7 @@ public interface OauthService {
 
 	int withDraw(Member loginMember);
 
+	int withdrawNaver(Member loginMember);
+
 
 }

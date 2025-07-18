@@ -110,4 +110,21 @@ public class OauthController {
 		}
 	}
 
+	@PostMapping("/naverWithdraw")
+public ResponseEntity<Object> naverWithdraw(@AuthenticationPrincipal Member loginMember) {
+    try {
+        if (loginMember == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        int result = oauthService.withdrawNaver(loginMember);   // ← 서비스 분리
+
+        return ResponseEntity.ok(result);   // 200
+    } catch (Exception e) {
+        log.error("[naverWithdraw] 예외", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("탈퇴 처리 중 오류: " + e.getMessage());
+    }
+}
+
 }

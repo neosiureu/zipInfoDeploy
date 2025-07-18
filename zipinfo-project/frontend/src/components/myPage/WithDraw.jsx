@@ -16,7 +16,8 @@ export default function PasswordChange() {
     k.startsWith("kakao_")
   );
   const isKakaoLogin = Boolean(kakaoKey);
-
+const isNaverLogin = member?.memberLogin === "OAuth" || member?.memberLogin === "N";
+ const isSocial     = isKakaoLogin || isNaverLogin;
   /* form & check */
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
@@ -34,8 +35,7 @@ export default function PasswordChange() {
       }
 
       /* 일반 로그인일 때 비밀번호 검증 */
-      if (!isKakaoLogin) {
-        if (!password.trim()) {
+if (!isSocial) {        if (!password.trim()) {
           toast.error("비밀번호를 입력하세요.");
           return;
         }
@@ -51,8 +51,9 @@ export default function PasswordChange() {
       }
 
       /* 실제 탈퇴 – 엔드포인트 분기 */
-      const url = isKakaoLogin ? "/oauth/kakaoWithdraw" : "/myPage/withDraw";
-      const res = await axiosAPI.post(url);
+  let url = "/myPage/withDraw";            // 일반
+      if (isKakaoLogin) url = "/oauth/kakaoWithdraw";
+      if (isNaverLogin) url = "/oauth/naverWithdraw";       const res = await axiosAPI.post(url);
 
       if (res.status === 200 || res.data === 1) {
         toast.success("회원 탈퇴가 완료되었습니다.");
@@ -81,7 +82,7 @@ export default function PasswordChange() {
 
         <div className="with-draw-container">
           {/* 비밀번호 입력(일반 로그인만) */}
-          {!isKakaoLogin && (
+          {!isSocial && (
             <div className="with-draw-password-section">
               <div className="with-draw-section-title">비밀번호</div>
               <input

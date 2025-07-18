@@ -162,4 +162,32 @@ public class OauthServiceImpl implements OauthService {
 		log.debug("현재 카카오 서비스임플" + loginMember);
 		return mapper.withDraw(loginMember);
 	}
+
+	/** 네이버 연결 해제 + DB 탈퇴 플래그 업데이트 */
+public int withdrawNaver(Member loginMember) {
+    log.info("[withdrawNaver] memberNo={}, email={}", 
+             loginMember.getMemberNo(), loginMember.getMemberEmail());
+
+    // 1) 네이버 API: 토큰 삭제(연결 해제)
+    String clientId     = naverClientId;      // @Value 로 주입
+    String clientSecret = naverClientSecret;  // "
+    String accessToken  = loginMember.getAccessToken();   // 로그인 시 저장했던 토큰
+
+    Map<String, Object> res = webClient.post()
+        .uri(uriBuilder -> uriBuilder
+            .scheme("https").host("nid.naver.com").path("/oauth2.0/token")
+            .queryParam("grant_type", "delete")
+            .queryParam("client_id", clientId)
+            .queryParam("client_secret", clientSecret)
+            .queryParam("access_token", accessToken)
+            .queryParam("service_provider", "NAVER")
+            .build())
+        .retrieve().bodyToMono(new ParameterizedTypeReference<Map<String,Object>>() {})
+        .block();
+
+    log.info("네이버 unlink 결과 = {}", res);   // result:"success" 면 OK
+
+    // 2) 우리 DB에서 MEMBER_DEL_FL='Y' 로 업데이트
+    return mapper.withDraw(loginMember);       // 기존 쿼리 그대로 재사용
+}
 }
