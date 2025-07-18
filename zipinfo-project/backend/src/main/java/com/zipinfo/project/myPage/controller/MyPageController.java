@@ -157,7 +157,7 @@ public class MyPageController {
       }
    }
    
-   @PostMapping("withDraw")
+@PostMapping("/myPage/withDraw")
    public ResponseEntity<Object> withDraw(@AuthenticationPrincipal Member loginMember){
       
       try {

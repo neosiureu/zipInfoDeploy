@@ -40,7 +40,7 @@ if (!isSocial) {        if (!password.trim()) {
           return;
         }
 
-        const { data: pwOK } = await axiosAPI.post("/myPage/checkPassword", {
+        const { data: pwOK } = await axiosAPI.post("/myPage/withDraw", {
           memberPw: password,
         });
         if (pwOK !== 1) {
