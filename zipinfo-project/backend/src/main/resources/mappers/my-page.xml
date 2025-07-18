@@ -105,8 +105,8 @@
 		INSERT INTO "STOCK_INFO"
 		VALUES(SEQ_STOCK_INFO.NEXTVAL, #{memberNo}, #{stockName}, #{stockSellPrice}, #{stockManageFee}
 		, #{stockFeeMonth}, #{stockInfo}, #{stockType}, #{stockForm}, #{exclusiveArea}, #{supplyArea}
-		, #{currentFloor}, #{floorTotalCount}, #{roomCount}, #{bathCount}, #{stockDirection}, #{ableDate}
-		, #{useApprovalDate}, SYSDATE, #{stockDetail}, #{stockAddress}, #{regionNo}, 'N')
+		, #{currentFloor}, #{floorTotalCount}, #{roomCount}, #{bathCount}, #{stockDirection} , TO_DATE(#{ableDate}, 'YYYY-MM-DD')     
+        , TO_DATE(#{useApprovalDate}, 'YYYY-MM-DD') , SYSDATE, #{stockDetail}, #{stockAddress}, #{regionNo}, 'N')
 	</insert>
 	
 	<insert id="addStockImg">
@@ -188,8 +188,7 @@
 		ROOM_COUNT = #{roomCount},
 		BATH_COUNT = #{bathCount},
 		STOCK_DIRECTION = #{stockDirection},
-		ABLE_DATE = #{ableDate},
-		USE_APPROVAL_DATE = #{useApprovalDate},
+ ABLE_DATE         = TO_DATE(#{ableDate},        'YYYY-MM-DD'),		 USE_APPROVAL_DATE = TO_DATE(#{useApprovalDate}, 'YYYY-MM-DD'),
 		STOCK_DETAIL = #{stockDetail},
 		STOCK_ADDRESS = #{stockAddress},
 		REGION_NO = #{regionNo}
