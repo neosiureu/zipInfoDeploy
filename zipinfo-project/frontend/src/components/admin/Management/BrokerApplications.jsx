@@ -46,7 +46,7 @@ const BrokerApplications = () => {
   const [loadingBrokerNumbers, setLoadingBrokerNumbers] = useState({});
 
   const membersPerPage = 10;
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const BASE_URL = "http://localhost:8080";
   const checkBrokerNumber = async (memberNumber, memberEmail) => {
     if (!memberEmail) {
       setBrokerNumbers((prev) => ({ ...prev, [memberNumber]: false }));
@@ -156,6 +156,9 @@ const BrokerApplications = () => {
           : app
       );
       setApplications(updated);
+      if (newRoleStr === "중개인") {
+        toast.success("중개인으로 권한이 변경되었습니다!");
+      }
     } catch (error) {
       toast.error("회원 권한 변경에 실패하였습니다.");
     }
@@ -177,6 +180,7 @@ const BrokerApplications = () => {
           : app
       );
       setApplications(updated);
+      toast.success("중개인 신청이 거절되었습니다.");
     } catch (error) {
       toast.error("거절 처리 실패. 다시 한번 시도해주세요.");
     }
@@ -317,8 +321,6 @@ const BrokerApplications = () => {
               <th>이메일</th>
               <th>회원 가입일</th>
               <th>회원 권한</th>
-              <th>최근 접속일</th>
-              <th>중개사정보</th>
               <th>관리</th>
             </tr>
           </thead>
@@ -346,33 +348,31 @@ const BrokerApplications = () => {
                       ))}
                     </select>
                   </td>
-                  <td>{formatDate(app.lastLoginDate)}</td>
-                  <td className="broker-info-cell">
-                    {renderBrokerInfo(app.memberNumber, app.memberId)}
-                  </td>
                   <td>
-                    <button
-                      onClick={() => handleReject(app.memberNumber)}
-                      disabled={app.applicationStatus === "거절됨"}
-                      className={`reject-button ${
-                        app.applicationStatus === "거절됨"
-                          ? "rejected"
-                          : "active"
-                      }`}
-                    >
-                      <XCircle size={18} color="red" strokeWidth={2} />
-                      <span
-                        className={`reject-label ${
+                    <div className="admin-table-broker">
+                      <button
+                        onClick={() => handleReject(app.memberNumber)}
+                        disabled={app.applicationStatus === "거절됨"}
+                        className={`reject-button ${
                           app.applicationStatus === "거절됨"
-                            ? "text-disabled"
-                            : "text-active"
+                            ? "rejected"
+                            : "active"
                         }`}
                       >
-                        {app.applicationStatus === "거절됨"
-                          ? "거절됨"
-                          : "권한신청 거절"}
-                      </span>
-                    </button>
+                        <XCircle size={18} color="red" strokeWidth={2} />
+                        <span
+                          className={`reject-label ${
+                            app.applicationStatus === "거절됨"
+                              ? "text-disabled"
+                              : "text-active"
+                          }`}
+                        >
+                          {app.applicationStatus === "거절됨"
+                            ? "거절됨"
+                            : "권한신청 거절"}
+                        </span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
