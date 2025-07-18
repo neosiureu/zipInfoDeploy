@@ -1,10 +1,9 @@
 {
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "http://43.200.65.97:8080/api/$1"   
-    },
-    {
+{
+  "source": "/api/(.*)",
+  "destination": "http://43.200.65.97:8080/api/$1"
+},    {
       "source": "/member/(.*)",
       "destination": "http://43.200.65.97:8080/member/$1"
     },
