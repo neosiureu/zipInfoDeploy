@@ -81,7 +81,7 @@ export default function MyStock() {
     messageData.append("messageTitle", message.messageTitle);
     messageData.append("messageContent", message.messageContent);
     const response = await axiosAPI.post(
-      "${import.meta.env.VITE_API_BASE_URL}/myPage/sendMessage",
+  `${import.meta.env.VITE_API_BASE_URL}/myPage/sendMessage`,  
       messageData,
       {
         withCredentials: true,
