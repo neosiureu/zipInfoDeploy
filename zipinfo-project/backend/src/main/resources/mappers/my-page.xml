@@ -101,7 +101,7 @@
 		WHERE MEMBER_NO = #{memberNo}
 	</update>
 	
-	<insert id="addStock">
+	<insert id="addStock" parameterType="com.zipinfo.project.stock.model.dto.Stock" useGeneratedKeys="true" keyProperty="stockNo" keyColumn="STOCK_NO">
 		INSERT INTO "STOCK_INFO"
 		VALUES(SEQ_STOCK_INFO.NEXTVAL, #{memberNo}, #{stockName}, #{stockSellPrice}, #{stockManageFee}
 		, #{stockFeeMonth}, #{stockInfo}, #{stockType}, #{stockForm}, #{exclusiveArea}, #{supplyArea}
@@ -144,6 +144,31 @@
 	
 	<delete id="deleteStockInfo">
 		DELETE "STOCK_INFO"
+		WHERE STOCK_NO = #{stockNo}
+	</delete>
+	
+	<delete id="deleteStockCoord">
+		DELETE "STOCK_COORD"
+		WHERE STOCK_NO = #{stockNo}
+	</delete>
+	
+	<delete id="deleteSellDate">
+		DELETE "SELL_DATE"
+		WHERE STOCK_NO = #{stockNo}
+	</delete>
+	
+	<delete id="deleteStockImgs">
+		DELETE "STOCK_IMG"
+		WHERE STOCK_NO = #{stockNo}
+	</delete>
+	
+	<delete id="deleteLikeStock">
+		DELETE "LIKE_STOCK"
+		WHERE STOCK_NO = #{stockNo}
+	</delete>
+	
+	<delete id="deleteStockSaw">
+		DELETE "STOCK_SAW"
 		WHERE STOCK_NO = #{stockNo}
 	</delete>
 	
@@ -342,6 +367,18 @@
 		WHERE STOCK_NO = #{stockNo}
 	</update>
 	
+	<update id="updateSellDate">
+		UPDATE "SELL_DATE" SET
+		SELL_DATE = SYSDATE
+		WHERE STOCK_NO = #{stockNo}
+	</update>
+	
+	<update id="updateSellDateNull">
+		UPDATE "SELL_DATE" SET
+		SELL_DATE = NULL
+		WHERE STOCK_NO = #{stockNo}
+	</update>
+	
 	<select id="selectAuthMember">
 		SELECT MEMBER_NO FROM "MEMBER"
 		WHERE MEMBER_AUTH = 0
@@ -401,8 +438,8 @@
 		, s.STOCK_FORM, s.EXCLUSIVE_AREA, s.SUPPLY_AREA, s.CURRENT_FLOOR, s.FLOOR_TOTAL_COUNT,
 		s.ROOM_COUNT, s.BATH_COUNT, s.STOCK_DIRECTION, s.ABLE_DATE, s.USE_APPROVAL_DATE, s.REGIST_DATE,
 		s.STOCK_DETAIL, s.STOCK_ADDRESS, s.REGION_NO, s.SELL_YN, c.LAT, c.LNG 
-		FROM "STOCK_INFO" i
-		JOIN "STOCK_COORD" c ON(i.STOCK_NO = c.STOCK_NO)
+		FROM "STOCK_INFO" s
+		JOIN "STOCK_COORD" c ON(s.STOCK_NO = c.STOCK_NO)
 		WHERE REPLACE(STOCK_NAME, ' ', '') LIKE '%' || REPLACE(#{value}, ' ', '') || '%'
 		OR REPLACE(STOCK_ADDRESS, ' ', '') LIKE '%' || REPLACE(#{value}, ' ', '') || '%'
 	</select>
@@ -438,5 +475,493 @@
 		WHERE REPLACE(SALE_STOCK_NAME, ' ', '') LIKE '%' || REPLACE(#{value}, ' ', '') || '%'
 		OR REPLACE(SALE_ADDRESS, ' ', '') LIKE '%' || REPLACE(#{value}, ' ', '') || '%'
 	</select>
+	
+	<insert id="addSellDate">
+		INSERT INTO "SELL_DATE"
+		VALUES(#{stockNo}, NULL)
+	</insert>
+	
+</mapper><?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zipinfo.project.myPage.model.mapper.MyPageMapper">
+
+	<resultMap id="stockMap" type="com.zipinfo.project.stock.model.dto.Stock">
+    	<id property="stockNo" column="STOCK_NO"/>
+    	<result property="stockName" column="STOCK_NAME"/>
+    	<result property="memberNo" column="MEMBER_NO"/>
+    	<result property="stockName" column="STOCK_NAME"/>
+    	<result property="stockSellPrice" column="STOCK_SELL_PRICE"/>
+    	<result property="stockManageFee" column="STOCK_MANAGE_FEE"/>
+    	<result property="stockFeeMonth" column="STOCK_FEE_MONTH"/>
+    	<result property="stockInfo" column="STOCK_INFO"/>
+    	<result property="stockType" column="STOCK_TYPE"/>
+    	<result property="stockForm" column="STOCK_FORM"/>
+    	<result property="exclusiveArea" column="EXCLUSIVE_AREA"/>
+    	<result property="supplyArea" column="SUPPLY_AREA"/>
+    	<result property="currentFloor" column="CURRENT_FLOOR"/>
+    	<result property="floorTotalCount" column="FLOOR_TOTAL_COUNT"/>
+    	<result property="roomCount" column="ROOM_COUNT"/>
+    	<result property="bathCount" column="BATH_COUNT"/>
+    	<result property="stockDirection" column="STOCK_DIRECTION"/>
+    	<result property="ableDate" column="ABLE_DATE"/>
+    	<result property="useApprovalDate" column="USE_APPROVAL_DATE"/>
+    	<result property="registDate" column="REGIST_DATE"/>
+    	<result property="stockDetail" column="STOCK_DETAIL"/>
+    	<result property="stockAddress" column="STOCK_ADDRESS"/>
+    	<result property="regionNo" column="REGION_NO"/>
+    	<result property="sellYn" column="SELL_YN"/>
+
+    	<result property="lat" column="LAT"/>
+    	<result property="lng" column="LNG"/>
+    
+    	<collection property="imgList" ofType="com.zipinfo.project.stock.model.dto.Stock">
+      	  	<result property="imgUrl" column="IMG_URL"/>
+     	  	<result property="imgOriginName" column="IMG_ORIGIN_NAME"/>
+    	</collection>
+	</resultMap>
+
+
+	<select id="getMemberInfo">
+		SELECT MEMBER_NO, MEMBER_NAME, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_AUTH, MEMBER_LOCATION <if test="memberAuth eq 3">, COMPANY_NAME, COMPANY_LOCATION, PRESIDENT_NAME, BROKER_NO, PRESIDENT_PHONE</if>
+		FROM MEMBER M
+		<if test="memberAuth eq 3">
+		JOIN BROKER_INFO B USING(MEMBER_NO)
+		</if>
+		WHERE MEMBER_NO = #{memberNo}
+	</select>
+
+	<update id="updateNormalInfo">
+		UPDATE "MEMBER" SET
+		MEMBER_NICKNAME = #{memberNickname},
+		MEMBER_LOCATION = #{memberLocation}
+		WHERE MEMBER_NO = #{memberNo}
+	</update>
+
+	<update id="updateBrokerInfo">
+		UPDATE "BROKER_INFO" SET
+		COMPANY_NAME = #{companyName},
+		COMPANY_LOCATION = #{companyLocation},
+		PRESIDENT_NAME = #{presidentName},
+		BROKER_NO = #{brokerNo},
+		PRESIDENT_PHONE = #{presidentPhone}
+		WHERE MEMBER_NO = #{memberNo}
+	</update>
+	
+	<select id="getMemberPassword">
+		SELECT MEMBER_PW FROM "MEMBER"
+		WHERE MEMBER_NO = #{memberNo}
+	</select>
+	
+	<update id="updatePassword">
+		UPDATE "MEMBER" SET
+		MEMBER_PW = #{memberPw}
+		WHERE MEMBER_NO = #{memberNo}
+	</update>
+	
+	<select id="checkNickname" resultType="java.lang.Integer">
+		SELECT MEMBER_NO
+		FROM "MEMBER"
+		WHERE MEMBER_NICKNAME = #{memberNickname}
+	</select>
+	
+	<select id="compareInfo">
+		SELECT COMPANY_NAME, COMPANY_LOCATION, PRESIDENT_NAME, BROKER_NO, PRESIDENT_PHONE
+		FROM "BROKER_INFO"
+		WHERE MEMBER_NO = #{memberNo}
+	</select>
+	
+	<update id="changeAuth">
+		UPDATE "MEMBER" SET
+		MEMBER_AUTH = 2
+		WHERE MEMBER_NO = #{memberNo}
+	</update>
+	
+	<update id="withDraw">
+		UPDATE "MEMBER" SET
+		MEMBER_DEL_FL = 'Y', MEMBER_WITHDRAW_DATE = SYSDATE
+		WHERE MEMBER_NO = #{memberNo}
+	</update>
+	
+	<insert id="addStock" parameterType="com.zipinfo.project.stock.model.dto.Stock" useGeneratedKeys="true" keyProperty="stockNo" keyColumn="STOCK_NO">
+		INSERT INTO "STOCK_INFO"
+		VALUES(SEQ_STOCK_INFO.NEXTVAL, #{memberNo}, #{stockName}, #{stockSellPrice}, #{stockManageFee}
+		, #{stockFeeMonth}, #{stockInfo}, #{stockType}, #{stockForm}, #{exclusiveArea}, #{supplyArea}
+		, #{currentFloor}, #{floorTotalCount}, #{roomCount}, #{bathCount}, #{stockDirection}, #{ableDate}
+		, #{useApprovalDate}, SYSDATE, #{stockDetail}, #{stockAddress}, #{regionNo}, 'N')
+	</insert>
+	
+	<insert id="addStockImg">
+		INSERT INTO "STOCK_IMG"
+		VALUES(SEQ_STOCK_IMG.NEXTVAL, #{stockNo}, #{i}, #{finalPath}, #{originalName}, #{rename})
+	</insert>
+	
+	<select id="searchStockNo">
+		SELECT STOCK_NO
+		FROM (
+ 		   SELECT STOCK_NO
+		    FROM STOCK_INFO
+		    WHERE MEMBER_NO = #{memberNo}
+		    ORDER BY STOCK_NO DESC
+		)
+		WHERE ROWNUM = 1
+	</select>
+	
+	<insert id="addCoord">
+		INSERT INTO "STOCK_COORD"
+		VALUES(#{stockNo}, #{lat}, #{lng})
+	</insert>
+	
+	<select id="getMyStock" resultMap="stockMap">
+		SELECT s.STOCK_NO, s.MEMBER_NO, s.STOCK_NAME, s.STOCK_SELL_PRICE, s.STOCK_MANAGE_FEE, s.STOCK_FEE_MONTH, s.STOCK_INFO, s.STOCK_TYPE
+		, s.STOCK_FORM, s.EXCLUSIVE_AREA, s.SUPPLY_AREA, s.CURRENT_FLOOR, s.FLOOR_TOTAL_COUNT,
+		s.ROOM_COUNT, s.BATH_COUNT, s.STOCK_DIRECTION, s.ABLE_DATE, s.USE_APPROVAL_DATE, s.REGIST_DATE,
+		s.STOCK_DETAIL, s.STOCK_ADDRESS, s.REGION_NO, s.SELL_YN, i.IMG_URL, i.IMG_ORIGIN_NAME, c.LAT, c.LNG     
+  		FROM STOCK_INFO s
+  		JOIN STOCK_COORD c ON s.STOCK_NO = c.STOCK_NO
+  		LEFT JOIN STOCK_IMG i ON s.STOCK_NO = i.STOCK_NO
+  		WHERE s.MEMBER_NO = #{memberNo}
+  		ORDER BY s.STOCK_NO DESC, i.IMG_ORDER
+	</select>
+	
+	<delete id="deleteStockInfo">
+		DELETE "STOCK_INFO"
+		WHERE STOCK_NO = #{stockNo}
+	</delete>
+	
+	<delete id="deleteStockCoord">
+		DELETE "STOCK_COORD"
+		WHERE STOCK_NO = #{stockNo}
+	</delete>
+	
+	<delete id="deleteSellDate">
+		DELETE "SELL_DATE"
+		WHERE STOCK_NO = #{stockNo}
+	</delete>
+	
+	<delete id="deleteStockImgs">
+		DELETE "STOCK_IMG"
+		WHERE STOCK_NO = #{stockNo}
+	</delete>
+	
+	<delete id="deleteLikeStock">
+		DELETE "LIKE_STOCK"
+		WHERE STOCK_NO = #{stockNo}
+	</delete>
+	
+	<delete id="deleteStockSaw">
+		DELETE "STOCK_SAW"
+		WHERE STOCK_NO = #{stockNo}
+	</delete>
+	
+	<update id="updateStock">
+		UPDATE "STOCK_INFO" SET
+		STOCK_NAME = #{stockName},
+		STOCK_SELL_PRICE = #{stockSellPrice},
+		STOCK_MANAGE_FEE = #{stockManageFee},
+		STOCK_FEE_MONTH = #{stockFeeMonth},
+		STOCK_INFO = #{stockInfo},
+		STOCK_TYPE = #{stockType},
+		STOCK_FORM = #{stockForm},
+		EXCLUSIVE_AREA = #{exclusiveArea},
+		SUPPLY_AREA = #{supplyArea},
+		CURRENT_FLOOR = #{currentFloor},
+		FLOOR_TOTAL_COUNT = #{floorTotalCount},
+		ROOM_COUNT = #{roomCount},
+		BATH_COUNT = #{bathCount},
+		STOCK_DIRECTION = #{stockDirection},
+		ABLE_DATE = #{ableDate},
+		USE_APPROVAL_DATE = #{useApprovalDate},
+		STOCK_DETAIL = #{stockDetail},
+		STOCK_ADDRESS = #{stockAddress},
+		REGION_NO = #{regionNo}
+		WHERE STOCK_NO = #{stockNo}
+	</update>
+
+	<update id="updateCoord">
+		UPDATE "STOCK_COORD" SET
+		LAT = #{lat},
+		LNG = #{lng}
+		WHERE STOCK_NO = #{stockNo}
+	</update>
+	
+	<update id="updateTumbImg">
+		UPDATE "STOCK_IMG" SET
+			IMG_URL = #{finalPath},
+			IMG_ORIGIN_NAME = #{originalName},
+			IMG_RENAME = #{rename}
+			WHERE IMG_ORDER = 0
+			AND STOCK_NO = #{stockNo}
+	</update>
+	
+	<update id="updateBalanceImg">
+		UPDATE "STOCK_IMG" SET
+			IMG_URL = #{finalPath},
+			IMG_ORIGIN_NAME = #{originalName},
+			IMG_RENAME = #{rename}
+			WHERE IMG_ORDER = 1
+			AND STOCK_NO = #{stockNo}
+	</update>
+	
+	<update id="updateStockImg">
+		UPDATE "STOCK_IMG" SET
+			IMG_URL = #{finalPath},
+			IMG_ORIGIN_NAME = #{originalName},
+			IMG_RENAME = #{rename}
+			WHERE STOCK_NO = #{stockNo}
+			AND IMG_ORDER = #{stockOrder}
+	</update>
+	
+	<select id="getStockImgCount">
+		SELECT COUNT(*) FROM "STOCK_IMG"
+		WHERE STOCK_NO = #{stockNo}
+	</select>
+	
+	<delete id="deleteStockImg">
+		DELETE "STOCK_IMG"
+		WHERE STOCK_NO = #{stockNo}
+		AND IMG_ORDER = #{stockOrder}
+	</delete>
+	
+	<insert id="insertStockImg">
+		INSERT INTO "STOCK_IMG"
+		VALUES(SEQ_STOCK_IMG.NEXTVAL, #{stockNo}, #{stockOrder}, #{finalPath}, #{originalName}, #{rename})
+	</insert>
+	
+	<select id="getSawStock">
+		SELECT STOCK_NO FROM "STOCK_SAW"
+		WHERE MEMBER_NO = #{memberNo}
+		ORDER BY SAW_DATE DESC
+	</select>
+	
+	<select id="getLikeStock">
+		SELECT STOCK_NO FROM "LIKE_STOCK"
+		WHERE MEMBER_NO = #{memberNo}
+		ORDER BY LIKE_DATE DESC
+	</select>
+	
+	<select id="getSawStockInfo" resultMap="stockMap">
+		SELECT s.STOCK_NO, s.MEMBER_NO, s.STOCK_NAME, s.STOCK_SELL_PRICE, s.STOCK_MANAGE_FEE, s.STOCK_FEE_MONTH, s.STOCK_INFO, s.STOCK_TYPE
+		, s.STOCK_FORM, s.EXCLUSIVE_AREA, s.SUPPLY_AREA, s.CURRENT_FLOOR, s.FLOOR_TOTAL_COUNT,
+		s.ROOM_COUNT, s.BATH_COUNT, s.STOCK_DIRECTION, s.ABLE_DATE, s.USE_APPROVAL_DATE, s.REGIST_DATE,
+		s.STOCK_DETAIL, s.STOCK_ADDRESS, s.REGION_NO, s.SELL_YN, i.IMG_URL, i.IMG_ORIGIN_NAME, c.LAT, c.LNG  
+  		FROM STOCK_INFO s
+  		JOIN STOCK_COORD c ON s.STOCK_NO = c.STOCK_NO
+  		LEFT JOIN STOCK_IMG i ON s.STOCK_NO = i.STOCK_NO
+  		WHERE s.STOCK_NO = #{stockNo}
+  		ORDER BY s.STOCK_NO DESC, i.IMG_ORDER
+	</select>
+	
+	<select id="getMyPost">
+		SELECT
+		B.BOARD_NO,
+		B.BOARD_TITLE,
+		M.MEMBER_NICKNAME,
+		B.READ_COUNT,
+		B.BOARD_CONTENT,
+		B.BOARD_SUBJECT AS boardSubject,
+		B.MEMBER_NO AS
+		memberNo,
+		B.TOWN_NO AS townNo,
+		M.MEMBER_NICKNAME,
+
+		(
+		SELECT COUNT(DISTINCT
+		CL.COMMENT_NO)
+		FROM "COMMENT" C
+		JOIN "COMMENT_LIKE" CL ON CL.COMMENT_NO
+		= C.COMMENT_NO
+		WHERE C.BOARD_NO = B.BOARD_NO
+		AND C.COMMENT_DEL_FL = 'N'
+		) AS COMMENT_COUNT,
+
+		(SELECT COUNT(*)
+		FROM "LIKE" L
+		WHERE L.BOARD_NO =
+		B.BOARD_NO) AS LIKE_COUNT,
+
+		(SELECT BT.TOWN_NAME
+		FROM "BOARD_TOWN" BT
+		WHERE BT.TOWN_NO = B.TOWN_NO) AS TOWN_NAME,
+
+		(SELECT BC.CITY_NAME
+		FROM
+		"BOARD_CITY" BC
+		WHERE BC.CITY_NO = (
+		SELECT BT.CITY_NO
+		FROM "BOARD_TOWN"
+		BT
+		WHERE BT.TOWN_NO = B.TOWN_NO
+		)) AS CITY_NAME,
+		(SELECT BC.CITY_NO
+		FROM
+		"BOARD_CITY" BC
+		WHERE BC.CITY_NO = (
+		SELECT BT.CITY_NO
+
+		FROM "BOARD_TOWN"
+		BT
+		WHERE BT.TOWN_NO = B.TOWN_NO)) AS CITY_NO,
+        <![CDATA[
+        CASE 
+          WHEN SYSDATE - B.BOARD_WRITE_DATE < 1/24/60  THEN FLOOR((SYSDATE - B.BOARD_WRITE_DATE)*24*60*60) || '초 전'
+          WHEN SYSDATE - B.BOARD_WRITE_DATE < 1/24     THEN FLOOR((SYSDATE - B.BOARD_WRITE_DATE)*24*60)    || '분 전'
+          WHEN SYSDATE - B.BOARD_WRITE_DATE < 1        THEN FLOOR((SYSDATE - B.BOARD_WRITE_DATE)*24)       || '시간 전'
+          WHEN SYSDATE - B.BOARD_WRITE_DATE < 30       THEN FLOOR( SYSDATE - B.BOARD_WRITE_DATE)           || '일 전'
+          WHEN SYSDATE - B.BOARD_WRITE_DATE < 365      THEN FLOOR((SYSDATE - B.BOARD_WRITE_DATE)/30)       || '달 전'
+          ELSE  FLOOR((SYSDATE - B.BOARD_WRITE_DATE)/365)                                                 || '년 전'
+        END
+        ]]>
+		AS BOARD_WRITE_DATE
+
+		FROM "BOARD" B
+		JOIN "MEMBER" M ON B.MEMBER_NO =
+		M.MEMBER_NO
+
+		WHERE B.BOARD_DEL_FL = 'N'
+		AND M.MEMBER_DEL_FL = 'N'
+		AND M.MEMBER_NO = #{memberNo}
+
+		ORDER BY
+		B.BOARD_NO DESC
+	</select>
+	
+	<delete id="unlikeStock">
+		DELETE "LIKE_STOCK"
+		WHERE MEMBER_NO = #{memberNo}
+		AND STOCK_NO = #{stockNo}
+	</delete>
+	
+	<insert id="likeStock">
+		INSERT INTO "LIKE_STOCK"
+		VALUES(#{stockNo}, #{memberNo}, SYSDATE)
+	</insert>
+	
+	<update id="updateSellN">
+		UPDATE "STOCK_INFO" SET
+		SELL_YN = 'N'
+		WHERE STOCK_NO = #{stockNo}
+	</update>
+	
+	<update id="updateSellY">
+		UPDATE "STOCK_INFO" SET
+		SELL_YN = 'Y'
+		WHERE STOCK_NO = #{stockNo}
+	</update>
+	
+	<update id="updateSellDate">
+		UPDATE "SELL_DATE" SET
+		SELL_DATE = SYSDATE
+		WHERE STOCK_NO = #{stockNo}
+	</update>
+	
+	<update id="updateSellDateNull">
+		UPDATE "SELL_DATE" SET
+		SELL_DATE = NULL
+		WHERE STOCK_NO = #{stockNo}
+	</update>
+	
+	<select id="selectAuthMember">
+		SELECT MEMBER_NO FROM "MEMBER"
+		WHERE MEMBER_AUTH = 0
+	</select>
+	
+	<insert id="sendMessageFile">
+		INSERT INTO "MESSAGE_FILE"
+		VALUES(SEQ_FILE_NO.NEXTVAL, #{messageNo}, #{finalPath}, #{originalName}, #{rename})
+	</insert>
+	
+	<insert id="sendMessageContent">
+		INSERT INTO "HELP_MESSAGE"
+		VALUES(SEQ_MESSAGE_NO.NEXTVAL, #{senderNo}, #{messageTitle}, #{messageContent}, SYSDATE, NULL, 'N', NULL, NULL)
+	</insert>
+
+	<select id="getMessageNo">
+		SELECT MESSAGE_NO FROM "HELP_MESSAGE"
+		WHERE SENDER_NO = #{senderNo}
+		ORDER BY MESSAGE_NO DESC
+		FETCH FIRST 1 ROWS ONLY
+	</select>
+	
+	<select id="getMyMessage">
+		SELECT * FROM "HELP_MESSAGE"
+		WHERE SENDER_NO = #{memberNo}
+		ORDER BY MESSAGE_NO DESC
+	</select>
+	
+	<select id="getMessageContent">
+		SELECT * FROM "HELP_MESSAGE"
+		WHERE MESSAGE_NO = #{messageNo}
+	</select>
+	
+	<select id="getMessageFile">
+		SELECT * FROM "MESSAGE_FILE"
+		WHERE MESSAGE_NO = #{messageNo}
+	</select>
+	
+	<insert id="addSawStock">
+		INSERT INTO STOCK_SAW
+		VALUES(#{stockNo}, #{memberNo}, SYSDATE)
+	</insert>
+	
+	<select id="getSawStockNo">
+		SELECT STOCK_NO FROM "STOCK_SAW"
+		WHERE MEMBER_NO = #{memberNo}
+		ORDER BY SAW_DATE DESC
+	</select>
+	
+	<delete id="deleteSawStock">
+		DELETE "STOCK_SAW"
+		WHERE STOCK_NO = #{deleteNo}
+	</delete>
+	
+	<select id="searchStock">
+		SELECT s.STOCK_NO, s.MEMBER_NO, s.STOCK_NAME, s.STOCK_SELL_PRICE, s.STOCK_MANAGE_FEE, s.STOCK_FEE_MONTH, s.STOCK_INFO, s.STOCK_TYPE
+		, s.STOCK_FORM, s.EXCLUSIVE_AREA, s.SUPPLY_AREA, s.CURRENT_FLOOR, s.FLOOR_TOTAL_COUNT,
+		s.ROOM_COUNT, s.BATH_COUNT, s.STOCK_DIRECTION, s.ABLE_DATE, s.USE_APPROVAL_DATE, s.REGIST_DATE,
+		s.STOCK_DETAIL, s.STOCK_ADDRESS, s.REGION_NO, s.SELL_YN, c.LAT, c.LNG 
+		FROM "STOCK_INFO" s
+		JOIN "STOCK_COORD" c ON(s.STOCK_NO = c.STOCK_NO)
+		WHERE REPLACE(STOCK_NAME, ' ', '') LIKE '%' || REPLACE(#{value}, ' ', '') || '%'
+		OR REPLACE(STOCK_ADDRESS, ' ', '') LIKE '%' || REPLACE(#{value}, ' ', '') || '%'
+	</select>
+	
+	<select id="searchSale">
+		SELECT 	    
+		S.SALE_STOCK_NO,
+	    S.MEMBER_NO,
+	    S.SALE_STOCK_FORM,
+	    S.SALE_STOCK_NAME,
+	    S.SALE_PRICE,
+	    S.SALE_STATUS,
+	    S.SALE_ADDRESS,
+	    S.SCALE,
+	    S.APPLICATION_START_DATE,
+	    S.APPLICATION_END_DATE,
+	    S.ANNOUNCEMENT_DATE,
+	    S.COMPANY,
+	    S.CONTACT_INFO,
+	    S.ACQUISITION_TAX,
+	    S.SALE_SUPPLY_AREA,
+	    S.SALE_ROOM_COUNT,
+	    S.SALE_BATHROOM_COUNT,
+	    S.DEPOSIT,
+	    S.MIDDLE_PAYMENT,
+	    S.BALANCE_PAYMENT,
+	    S.REGION_NO,
+	    S.REG_DATE,
+	    C.LAT,
+	    C.LNG
+	    FROM SALE_INFO S
+	    JOIN "SALE_COORD" C ON(C.SALE_STOCK_NO = S.SALE_STOCK_NO)
+		WHERE REPLACE(SALE_STOCK_NAME, ' ', '') LIKE '%' || REPLACE(#{value}, ' ', '') || '%'
+		OR REPLACE(SALE_ADDRESS, ' ', '') LIKE '%' || REPLACE(#{value}, ' ', '') || '%'
+	</select>
+	
+	<insert id="addSellDate">
+		INSERT INTO "SELL_DATE"
+		VALUES(#{stockNo}, NULL)
+	</insert>
 	
 </mapper>
