@@ -56,8 +56,8 @@ public class WebConfig implements WebMvcConfigurer {
 				.addResourceLocations("file:///C:/uploadFiles/announceImg/");
 
 		// 광고 배너 이미지
-		registry.addResourceHandler("/images/advertiseImg/**")
-				.addResourceLocations("file:///C:/uploadFiles/advertiseImg/");
+		// registry.addResourceHandler("/images/advertiseImg/**")
+		// 		.addResourceLocations("file:///C:/uploadFiles/advertiseImg/");
 
 		// 분양 이미지
 //		registry.addResourceHandler("/images/saleImg/thumbnail/**")
