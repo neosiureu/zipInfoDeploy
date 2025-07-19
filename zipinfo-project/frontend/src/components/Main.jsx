@@ -578,7 +578,7 @@ const Main = () => {
 
       {mainAd && mainAd.adImgUrl !== null ? (
         <div className="banner">
-<img src={mainAd.adImgUrl}                          alt="배너광고 이미지" />     </div>
+<img src={`http://43.200.65.97:8080${mainAd.adImgUrl}`}                         alt="배너광고 이미지" />     </div>
       ) : (
         <div />
       )}
