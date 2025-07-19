@@ -24,7 +24,9 @@ const Main = () => {
   const [stockList, setStockList] = useState([]);
   const [saleList, setSaleList] = useState([]);
   const [mainAd, setMainAd] = useState(null);
-
+ useEffect(() => {
+    console.log("[DEBUG] mainAd.adImgUrl ", mainAd?.adImgUrl);
+  }, [mainAd]);
   const [searchContent, setSearchContent] = useState("");
 
   const searchRef = useRef(null);
