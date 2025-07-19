@@ -4,7 +4,7 @@ import "../../../css/admin/Management/MemberList.css";
 import { toast } from "react-toastify";
 import { axiosAPI } from "../../../api/axiosApi";
 
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const MemberList = ({ initialMembers }) => {
   const [currentMembers, setCurrentMembers] = useState(

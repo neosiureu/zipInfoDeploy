@@ -5,8 +5,7 @@ import { toast } from "react-toastify";
 import { axiosAPI } from "../../../api/axiosApi";
 
 const roleOptions = ["일반회원", "중개회원 신청", "중개회원"];
-const BASE_URL = "http://localhost:8080"; // API 주소 맞게 조정하세요
-
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const DeletedMembers = () => {
   const [deletedMembers, setDeletedMembers] = useState([]);
   const [filteredDeletedMembers, setFilteredDeletedMembers] = useState([]);
