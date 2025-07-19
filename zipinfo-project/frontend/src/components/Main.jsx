@@ -25,7 +25,7 @@ const Main = () => {
   const [saleList, setSaleList] = useState([]);
   const [mainAd, setMainAd] = useState(null);
  useEffect(() => {
-    console.log("[DEBUG] mainAd.adImgUrl ", mainAd?.adImgUrl);
+    console.log("DEBUG banner src: " + import.meta.env.VITE_API_BASE_URL + resp.data.adImgUrl);
   }, [mainAd]);
   const [searchContent, setSearchContent] = useState("");
 
@@ -579,7 +579,7 @@ const Main = () => {
       {mainAd && mainAd.adImgUrl !== null ? (
         <div className="banner">
           <img
-  src={`${import.meta.env.VITE_API_BASE_URL}${mainAd.adImgUrl}`}
+  src={`${import.meta.env.VITE_API_BASE_URL}${mainAd.adImgUrl.replace(/\.png$/, ".jpg")}`}
   alt="배너광고 이미지"
 />
         </div>
