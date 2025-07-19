@@ -904,7 +904,7 @@ const StockPageCopy = () => {
       return (
         <>
           <div className="stock-detail-panel">
-        
+           
 
             <div className="stock-detail-panel">
               <div className="stock-detail-images">
@@ -989,16 +989,17 @@ const StockPageCopy = () => {
             <div className="sale-section-divider" />
 
             {/* Block 2: 평면도 */}
-            <div className="stock-detail-info-block">
-              <div className="stock-detail-plan">
-                {item?.imgUrls && (
-                  <img
-src={item.floorplanUrl}
-                    alt="평면도 이미지"
-                  />
-                )}
-              </div>
-            </div>
+         <div className="stock-detail-info-block">
+  <div className="stock-detail-plan">
+    {item?.imgUrls && (
+      <img
+        src={`${import.meta.env.VITE_API_BASE_URL}${item.floorplanUrl}`}
+        alt="평면도 이미지"
+        className="sale-floorplan"
+      />
+    )}
+  </div>
+</div>
 
             <div className="sale-section-divider" />
 
@@ -1136,9 +1137,10 @@ src={item.floorplanUrl}
             >
               <div className="stock-header">
                 <img
- src={item.thumbnailUrl}                alt="썸네일"
-                  className="stock-img"
-                />
+  src={`${import.meta.env.VITE_API_BASE_URL}${item.thumbnailUrl}`}
+  alt="썸네일"
+  className="stock-img"
+/>
                 <div>
                   <div className="stock-item-price">
                     <span className="item-type">

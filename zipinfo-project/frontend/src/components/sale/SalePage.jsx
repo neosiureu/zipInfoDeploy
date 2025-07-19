@@ -556,18 +556,18 @@ const SalePage = () => {
         </div>
 
         {/* 평면도 */}
-        <div className="sale-section">
-          <div className="sale-section-line" />
-          <div className="sale-section-content">
-            <div className="sale-plan-section">
-             <img
-  src={item.floorplanUrl}
-  alt="평면도"
-  className="sale-floorplan"
-/>
-            </div>
-          </div>
-        </div>
+       <div className="sale-section">
+  <div className="sale-section-line" />
+  <div className="sale-section-content">
+    <div className="sale-plan-section">
+      <img
+        src={`${import.meta.env.VITE_API_BASE_URL}${item.floorplanUrl}`}
+        alt="평면도"
+        className="sale-floorplan"
+      />
+    </div>
+  </div>
+</div>
 
         {/* 평형정보 */}
         <div className="sale-section">
@@ -664,8 +664,8 @@ const SalePage = () => {
               onClick={() => handleItemClick(item)}
             >
               <div className="sale-header">
-               <img
-  src={item.thumbnailUrl}
+              <img
+  src={`${import.meta.env.VITE_API_BASE_URL}${item.thumbnailUrl}`}
   alt="썸네일"
   className="sale-img"
 />
