@@ -64,7 +64,7 @@ const checkBrokerNumber = async (memberNumber, memberEmail) => {
       // 1) 백엔드에서 brokerNo 받아오기
       const {
         data: { brokerNo },
-      } = await axiosAPI.get(`${BASE_URL}/admin/management/selectBrokerNo`, {
+      } = await axiosAPI.get("/admin/management/selectBrokerNo", {
         params: { email: memberEmail },
       });
       console.log("🔍 중개사번호:", brokerNo);
@@ -112,7 +112,7 @@ const checkBrokerNumber = async (memberNumber, memberEmail) => {
     const fetchApplications = async () => {
       try {
         const response = await axiosAPI.get(
-          `${BASE_URL}/admin/management/broker-applications`
+           "/admin/management/broker-applications"
         );
         const data = response?.data || [];
         setApplications(data);
@@ -146,7 +146,7 @@ const checkBrokerNumber = async (memberNumber, memberEmail) => {
     const newRole = reverseRoleMap[newRoleStr];
     try {
       await axiosAPI.put(
-        `${BASE_URL}/admin/management/members/${memberNumber}/role`,
+        `admin/management/members/${memberNumber}/role`,
         null,
         { params: { authId: newRole } }
       );
@@ -167,10 +167,10 @@ const checkBrokerNumber = async (memberNumber, memberEmail) => {
   const handleReject = async (memberNumber) => {
     try {
       await axiosAPI.put(
-        `${BASE_URL}/admin/management/broker-applications/${memberNumber}/reject`
+        `/admin/management/broker-applications/${memberNumber}/reject`
       );
       await axiosAPI.put(
-        `${BASE_URL}/admin/management/members/${memberNumber}/role`,
+        `/admin/management/members/${memberNumber}/role`,
         null,
         { params: { authId: 1 } }
       );
