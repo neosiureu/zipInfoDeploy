@@ -1136,8 +1136,8 @@ const StockPageCopy = () => {
               onClick={() => handleItemClick(item, index)}
             >
               <div className="stock-header">
-                <img
-  src={`${import.meta.env.VITE_API_BASE_URL}${item.thumbnailUrl}`}
+               <img
+  src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls?.[0] ?? ""}`}
   alt="썸네일"
   className="stock-img"
 />
