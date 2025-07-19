@@ -993,8 +993,7 @@ const StockPageCopy = () => {
   <div className="stock-detail-plan">
     {item?.imgUrls && (
       <img
-        src={`${import.meta.env.VITE_API_BASE_URL}${item.floorplanUrl}`}
-        alt="평면도 이미지"
+src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls[1]}`}        alt="평면도 이미지"
         className="sale-floorplan"
       />
     )}
