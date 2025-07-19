@@ -305,7 +305,6 @@ const Main = () => {
     return uniqueList.slice(0, 4).map((item) => {
       const imgUrl = `${import.meta.env.VITE_API_BASE_URL}${item.saleImgUrl}`;
 
-
       return (
         <div
           className="card-sale"
@@ -578,11 +577,9 @@ const Main = () => {
       {mainAd && mainAd.adImgUrl !== null ? (
         <div className="banner">
           <img
-   src={`${import.meta.env.VITE_API_BASE_URL}${
-     mainAd.adImgUrl.replace(/\.png$/, ".jpg")
-   }`}
-   alt="배너광고 이미지"
- />
+  src={`${import.meta.env.VITE_API_BASE_URL}${mainAd.adImgUrl}`}
+  alt="배너광고 이미지"
+/>
         </div>
       ) : (
         <div />
