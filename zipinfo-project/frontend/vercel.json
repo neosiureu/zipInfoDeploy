@@ -1,13 +1,12 @@
 {
   "rewrites": [
-        { "source": "/images/(.*)",   "destination": "http://43.200.65.97:8080/images/$1" },
-
     { "source": "/api/help/(.*)", "destination": "http://43.200.65.97:8080/api/help/$1" },
 
     { "source": "/api/(.*)",      "destination": "http://43.200.65.97:8080/$1" },
 
     
     { "source": "/member/(.*)",   "destination": "http://43.200.65.97:8080/member/$1" },
+    { "source": "/images/(.*)",   "destination": "http://43.200.65.97:8080/images/$1" },
     { "source": "/myPage/(.*)",   "destination": "http://43.200.65.97:8080/myPage/$1" },
     { "source": "/message/(.*)",  "destination": "http://43.200.65.97:8080/message/$1" },
     { "source": "/ws/(.*)",       "destination": "http://43.200.65.97:8080/ws/$1" },
