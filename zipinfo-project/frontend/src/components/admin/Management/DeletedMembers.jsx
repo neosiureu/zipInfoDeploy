@@ -25,7 +25,7 @@ const DeletedMembers = () => {
   const fetchDeletedMembers = async () => {
     try {
       const response = await axiosAPI.get(
-        `${BASE_URL}/admin/management/members/deleted`
+        `/admin/management/members/deleted`
       );
       setDeletedMembers(response.data);
     } catch (error) {
@@ -59,7 +59,7 @@ const DeletedMembers = () => {
   const handleRestoreMember = async (memberNo) => {
     try {
       const response = await axiosAPI.put(
-        `${BASE_URL}/admin/management/members/${memberNo}/restore`
+        `/admin/management/members/${memberNo}/restore`
       );
 
       if (response.status === 200) {
@@ -95,7 +95,7 @@ const DeletedMembers = () => {
     if (window.confirm("정말로 이 회원의 계정을 영구 삭제하시겠습니까?")) {
       try {
         const response = await axiosAPI.delete(
-          `${BASE_URL}/admin/management/members/${memberNo}/permanent`
+          `/admin/management/members/${memberNo}/permanent`
         );
 
         if (response.status === 200) {
