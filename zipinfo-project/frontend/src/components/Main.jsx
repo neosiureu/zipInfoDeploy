@@ -187,11 +187,6 @@ const Main = () => {
     setRecentSearch(history);
 
     const loadAd = async () => {
-        const [mainAd, setMainAd] = useState(null);
-
-        useEffect(() => {
-    console.log("[DEBUG] mainAd.adImgUrl ▶", mainAd?.adImgUrl);
-  }, [mainAd]);
       const resp = await axiosAPI.get("/advertisement/getMainAd");
       setMainAd(resp.data);
     };
@@ -582,7 +577,7 @@ const Main = () => {
       {mainAd && mainAd.adImgUrl !== null ? (
         <div className="banner">
           <img
-  src={`/api${mainAd.adImgUrl}`}
+  src={`${import.meta.env.VITE_API_BASE_URL}${mainAd.adImgUrl}`}
   alt="배너광고 이미지"
 />
         </div>
