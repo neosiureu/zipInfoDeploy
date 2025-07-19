@@ -578,9 +578,7 @@ const Main = () => {
 
       {mainAd && mainAd.adImgUrl !== null ? (
         <div className="banner">
-<img
-  src={`${import.meta.env.VITE_API_BASE_URL}${mainAd.adImgUrl}`}     alt="배너광고 이미지"
-   />        </div>
+<img src={mainAd.adImgUrl}                          alt="배너광고 이미지" />     </div>
       ) : (
         <div />
       )}
