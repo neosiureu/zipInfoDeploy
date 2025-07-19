@@ -577,11 +577,12 @@ const Main = () => {
 
       {mainAd && mainAd.adImgUrl !== null ? (
         <div className="banner">
-          <img
-            src={`${import.meta.env.VITE_API_BASE_URL}${mainAd.adImgUrl}`}
-
-            alt="배너광고 이미지"
-          />
+         <img
+   src={`${import.meta.env.VITE_API_BASE_URL}/images/advertiselmg/${
+     mainAd.adImgUrl.replace(/\.png$/, ".jpg")
+   }`}
+   alt="배너광고 이미지"
+ />
         </div>
       ) : (
         <div />
