@@ -1,7 +1,6 @@
 {
   "rewrites": [
         { "source": "/images/(.*)",   "destination": "http://43.200.65.97:8080/images/$1" },
-    { "source": "/api/images/(.*)",    "destination": "http://43.200.65.97:8080/images/$1" },
 
     { "source": "/api/help/(.*)", "destination": "http://43.200.65.97:8080/api/help/$1" },
 
