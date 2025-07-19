@@ -46,8 +46,8 @@ const BrokerApplications = () => {
   const [loadingBrokerNumbers, setLoadingBrokerNumbers] = useState({});
 
   const membersPerPage = 10;
-  const BASE_URL = "http://localhost:8080";
-  const checkBrokerNumber = async (memberNumber, memberEmail) => {
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;  
+const checkBrokerNumber = async (memberNumber, memberEmail) => {
     if (!memberEmail) {
       setBrokerNumbers((prev) => ({ ...prev, [memberNumber]: false }));
       return;

@@ -560,11 +560,11 @@ const SalePage = () => {
           <div className="sale-section-line" />
           <div className="sale-section-content">
             <div className="sale-plan-section">
-              <img
-                src={`http://localhost:8080${item.floorplanUrl}`}
-                alt="평면도"
-                className="sale-floorplan"
-              />
+             <img
+  src={item.floorplanUrl}
+  alt="평면도"
+  className="sale-floorplan"
+/>
             </div>
           </div>
         </div>
@@ -664,11 +664,11 @@ const SalePage = () => {
               onClick={() => handleItemClick(item)}
             >
               <div className="sale-header">
-                <img
-                  src={`http://localhost:8080${item.thumbnailUrl}`}
-                  alt="썸네일"
-                  className="sale-img"
-                />
+               <img
+  src={item.thumbnailUrl}
+  alt="썸네일"
+  className="sale-img"
+/>
                 <div className="sale-title">
                   <div className="sale-name">
                     {stockFormMap[item.saleStockForm]} ·{" "}
