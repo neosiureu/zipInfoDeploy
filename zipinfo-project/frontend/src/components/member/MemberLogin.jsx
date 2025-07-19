@@ -214,7 +214,6 @@ export default function MemberLogin() {
             err.response?.status === 403 &&
             err.response?.data?.msg === "MEMBER_WITHDRAWN"
           ) {
-            // console.log("탈퇴한 회원은 로그인할 수 없습니다.");
             alert("탈퇴한 회원은 로그인할 수 없습니다.");
             return;
           }
