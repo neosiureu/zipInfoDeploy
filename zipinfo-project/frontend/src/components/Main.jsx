@@ -187,6 +187,11 @@ const Main = () => {
     setRecentSearch(history);
 
     const loadAd = async () => {
+        const [mainAd, setMainAd] = useState(null);
+
+        useEffect(() => {
+    console.log("[DEBUG] mainAd.adImgUrl ▶", mainAd?.adImgUrl);
+  }, [mainAd]);
       const resp = await axiosAPI.get("/advertisement/getMainAd");
       setMainAd(resp.data);
     };
