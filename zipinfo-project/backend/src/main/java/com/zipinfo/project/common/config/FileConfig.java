@@ -84,7 +84,8 @@ public class FileConfig implements WebMvcConfigurer {
 //	// 서버 컴퓨터의 어떤 경로에 접근할지 설정
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-
+System.out.println("[DEBUG] Advertise Handler → " + resourceAdvertiseHandler);
+System.out.println("[DEBUG] Advertise Location → " + resourceAdvertiseLocation);
 		// ResourceHandlerRegistry :
 		// Spring MVC에서 정적 리소스 (CSS, JS, 이미지 파일 등)의
 		// 요청을 처리하기 위해 사용하는 클래스
