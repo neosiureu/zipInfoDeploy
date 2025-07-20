@@ -108,10 +108,11 @@ function GlobalWebSocketListener() {
     let isMounted = true;
 
     const connectWebSocket = () => {
+       const token = localStorage.getItem("accessToken");
       const socket = new SockJS(`${import.meta.env.VITE_API_BASE_URL}/ws`);
       const client = Stomp.over(socket);
-
-      client.connect({}, () => {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}; 
+      client.connect(headers, () => {
         if (!isMounted) return;
   console.log(" 웹소켓 연결 시 상태:");
     console.log("- member:", member);
@@ -134,7 +135,8 @@ function GlobalWebSocketListener() {
 
         let sub2;
          console.log("구독 경로:", `/topic/region/${member.memberLocation}`);
-        if (member?.memberLocation) {
+        if (member?.memberLocation !== undefined && member?.memberLocation !== null) {
+
           sub2 = client.subscribe(
             `/topic/region/${memberLocation}`,
             (message) => {
@@ -207,7 +209,7 @@ function GlobalWebSocketListener() {
       isMounted = false;
       disconnectWebSocket();
     };
-  }, [member]);
+  }, [member,  member?.memberLocation]);
 
   return null;
 }

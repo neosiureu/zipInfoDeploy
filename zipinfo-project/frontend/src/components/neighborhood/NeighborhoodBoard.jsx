@@ -17,30 +17,30 @@ import refresh from "../../assets/refresh.svg";
 
 const NeighborhoodBoard = ({}) => {
   // 환경변수 디버깅 로그 추가
-  useEffect(() => {
-    console.log("🔍 === 우리동네게시판 환경변수 체크 ===");
-    console.log("🔍 VITE_KAKAOMAP_KEY:", import.meta.env.VITE_KAKAOMAP_KEY);
-    console.log("🔍 VITE_KAKAO_JS_KEY:", import.meta.env.VITE_KAKAO_JS_KEY);
-    console.log(
-      "🔍 VITE_KAKAO_REST_API_KEY:",
-      import.meta.env.VITE_KAKAO_REST_API_KEY
-    );
-    console.log("🔍 VITE_VWORLD_KEY:", import.meta.env.VITE_VWORLD_KEY);
-    console.log("🔍 VITE_VWORLD_DOMAIN:", import.meta.env.VITE_VWORLD_DOMAIN);
-    console.log(
-      "🔍 VITE_PUBLIC_DATA_API_KEY:",
-      import.meta.env.VITE_PUBLIC_DATA_API_KEY
-    );
-    console.log(
-      "🔍 VITE_NAVER_CLIENT_ID:",
-      import.meta.env.VITE_NAVER_CLIENT_ID
-    );
-    console.log(
-      "🔍 VITE_NAVER_CALLBACK_URI:",
-      import.meta.env.VITE_NAVER_CALLBACK_URI
-    );
-    console.log("🔍 모든 환경변수:", import.meta.env);
-  }, []);
+  // useEffect(() => {
+  //   console.log("🔍 === 우리동네게시판 환경변수 체크 ===");
+  //   console.log("🔍 VITE_KAKAOMAP_KEY:", import.meta.env.VITE_KAKAOMAP_KEY);
+  //   console.log("🔍 VITE_KAKAO_JS_KEY:", import.meta.env.VITE_KAKAO_JS_KEY);
+  //   console.log(
+  //     "🔍 VITE_KAKAO_REST_API_KEY:",
+  //     import.meta.env.VITE_KAKAO_REST_API_KEY
+  //   );
+  //   console.log("🔍 VITE_VWORLD_KEY:", import.meta.env.VITE_VWORLD_KEY);
+  //   console.log("🔍 VITE_VWORLD_DOMAIN:", import.meta.env.VITE_VWORLD_DOMAIN);
+  //   console.log(
+  //     "🔍 VITE_PUBLIC_DATA_API_KEY:",
+  //     import.meta.env.VITE_PUBLIC_DATA_API_KEY
+  //   );
+  //   console.log(
+  //     "🔍 VITE_NAVER_CLIENT_ID:",
+  //     import.meta.env.VITE_NAVER_CLIENT_ID
+  //   );
+  //   console.log(
+  //     "🔍 VITE_NAVER_CALLBACK_URI:",
+  //     import.meta.env.VITE_NAVER_CALLBACK_URI
+  //   );
+  //   console.log("🔍 모든 환경변수:", import.meta.env);
+  // }, []);
   const [searchParams, setSearchParams] = useSearchParams();
   const { member } = useContext(MemberContext);
 
