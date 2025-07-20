@@ -41,47 +41,38 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
     
     @Override
-public void configureClientInboundChannel(ChannelRegistration registration) {
-    registration.interceptors(new ChannelInterceptor() {
-        @Override
-        public Message<?> preSend(Message<?> message, MessageChannel channel) {
-            StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-            
-            if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                String authToken = accessor.getFirstNativeHeader("Authorization");
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(new ChannelInterceptor() {
+            @Override
+            public Message<?> preSend(Message<?> message, MessageChannel channel) {
+                StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
                 
-                // URL 파라미터에서 토큰 추출
-                if (authToken == null) {
-                    try {
-                        String sessionId = accessor.getSessionId();
-                        // SockJS 세션에서 URL 정보 추출 시도
-                        // 실제로는 SockJS 내부에서 URL 파라미터 접근이 어려움
-                        System.out.println("No Authorization header, sessionId: " + sessionId);
-                    } catch (Exception e) {
-                        System.out.println("Failed to extract URL token: " + e.getMessage());
-                    }
-                }
-                
-                if (authToken != null && authToken.startsWith("Bearer ")) {
-                    try {
-                        String token = authToken.substring(7);
-                        int memberNo = jwtUtil.extractMemberNo(token);
-                        String savedToken = memberMapper.getTokenNo(memberNo);
-                        
-                        if (token.equals(savedToken)) {
+                if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                    String authToken = accessor.getFirstNativeHeader("Authorization");
+                    if (authToken != null && authToken.startsWith("Bearer ")) {
+                        // 기존 JwtInterceptor 로직 활용
+                        try {
+                            String token = authToken.substring(7);
+                            int memberNo = jwtUtil.extractMemberNo(token);
+                            String savedToken = memberMapper.getTokenNo(memberNo);
+                            
+                            if (token.equals(savedToken)) {
+                                accessor.getSessionAttributes().put("authenticated", true);
+                            }
+                        } catch (Exception e) {
+                            // OAuth 토큰이면 그냥 통과
                             accessor.getSessionAttributes().put("authenticated", true);
                         }
-                    } catch (Exception e) {
-                        accessor.getSessionAttributes().put("authenticated", true);
+						
                     }
-                } else {
-                    // Authorization 헤더 없으면 무조건 인증 통과
-                    accessor.getSessionAttributes().put("authenticated", true);
+					else {
+        // 이 2줄만 추가!
+        accessor.getSessionAttributes().put("authenticated", true);
+    }
                 }
+                
+                return message;
             }
-            
-            return message;
-        }
-    });
-}
+        });
+    }
 }

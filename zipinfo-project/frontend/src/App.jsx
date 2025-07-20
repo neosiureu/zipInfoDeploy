@@ -110,11 +110,11 @@ function GlobalWebSocketListener() {
     const connectWebSocket = () => {
        const token = localStorage.getItem("accessToken");
 
-        const wsUrl = token 
-    ? `${import.meta.env.VITE_API_BASE_URL}/ws?token=${encodeURIComponent(token)}`
-    : `${import.meta.env.VITE_API_BASE_URL}/ws`;
-    
-const socket = new SockJS(wsUrl);      const client = Stomp.over(socket);
+  // URL 파라미터 완전 제거 - Authorization 헤더로만 전달
+  const wsUrl = `${import.meta.env.VITE_API_BASE_URL}/ws`;
+  
+  const socket = new SockJS(wsUrl);      
+  const client = Stomp.over(socket);
   const headers = token ? { Authorization: `Bearer ${token}` } : {}; 
       client.connect(headers, () => {
         if (!isMounted) return;
