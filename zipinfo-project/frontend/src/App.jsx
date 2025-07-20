@@ -113,7 +113,7 @@ function GlobalWebSocketListener() {
 
       client.connect({}, () => {
         if (!isMounted) return;
-  console.log("🔍 웹소켓 연결 시 상태:");
+  console.log(" 웹소켓 연결 시 상태:");
     console.log("- member:", member);
     console.log("- member?.memberLocation:", member?.memberLocation);
     console.log("- member?.memberNo:", member?.memberNo);
@@ -133,6 +133,7 @@ function GlobalWebSocketListener() {
         });
 
         let sub2;
+         console.log("구독 경로:", `/topic/region/${member.memberLocation}`);
         if (member?.memberLocation) {
           sub2 = client.subscribe(
             `/topic/region/${memberLocation}`,
