@@ -60,6 +60,8 @@ public class OauthServiceImpl implements OauthService {
 			Member member = mapper.selectByKakaoEmail(email);
 			validateWithdraw(member);
 			log.info("DB 조회 member={}", member);
+			log.info("DB에서 조회한 memberLocation = {}", member != null ? member.getMemberLocation() : "null");
+
 			if (member == null) {
 				log.info("신규 회원 등록");
 				member = new Member();
@@ -71,7 +73,11 @@ public class OauthServiceImpl implements OauthService {
 				mapper.insertKakaoMember(member);
 				member = mapper.selectByKakaoEmail(email);
 				log.info("등록 후 member={}", member);
+				log.info("등록 후 memberLocation = {}", member.getMemberLocation());
+
 			}
+
+log.info("JWT 생성 전 memberLocation = {}", member.getMemberLocation());
 
 			// 4단계: JWT 발급 & DB 저장
 			String jwtAccess = jwtProvider.createAccessToken(member);

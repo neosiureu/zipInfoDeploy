@@ -47,10 +47,11 @@ export const MemberProvider = ({ children }) => {
           return;
         }
         setMember({
-          memberNo: Number(decoded.sub),
-          memberEmail: decoded.email,
-          memberLogin: decoded.loginTp,
-          memberAuth: decoded.auth,
+        memberNo: Number(decoded.sub),
+        memberEmail: decoded.email,
+        memberLogin: decoded.loginType,  // 수정
+        memberAuth: decoded.auth,
+        memberLocation: decoded.loc,     // 추가!
         });
       } catch {
         /* 디코딩 실패 = 토큰 폐기 */
