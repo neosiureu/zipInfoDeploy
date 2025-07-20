@@ -113,7 +113,10 @@ function GlobalWebSocketListener() {
 
       client.connect({}, () => {
         if (!isMounted) return;
-
+  console.log("🔍 웹소켓 연결 시 상태:");
+    console.log("- member:", member);
+    console.log("- member?.memberLocation:", member?.memberLocation);
+    console.log("- member?.memberNo:", member?.memberNo);
         const sub1 = client.subscribe("/topic/notice", (message) => {
           toast.info(
             <div>
