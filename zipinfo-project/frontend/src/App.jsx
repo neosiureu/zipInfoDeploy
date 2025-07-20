@@ -109,8 +109,12 @@ function GlobalWebSocketListener() {
 
     const connectWebSocket = () => {
        const token = localStorage.getItem("accessToken");
-      const socket = new SockJS(`${import.meta.env.VITE_API_BASE_URL}/ws`);
-      const client = Stomp.over(socket);
+
+        const wsUrl = token 
+    ? `${import.meta.env.VITE_API_BASE_URL}/ws?token=${encodeURIComponent(token)}`
+    : `${import.meta.env.VITE_API_BASE_URL}/ws`;
+    
+const socket = new SockJS(wsUrl);      const client = Stomp.over(socket);
   const headers = token ? { Authorization: `Bearer ${token}` } : {}; 
       client.connect(headers, () => {
         if (!isMounted) return;
