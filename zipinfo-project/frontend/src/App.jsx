@@ -134,8 +134,7 @@ function GlobalWebSocketListener() {
 
         let sub2;
          console.log("구독 경로:", `/topic/region/${member.memberLocation}`);
-        if (member?.memberLocation !== undefined && member?.memberLocation !== null) {
-
+        if (member?.memberLocation) {
           sub2 = client.subscribe(
             `/topic/region/${memberLocation}`,
             (message) => {
@@ -208,7 +207,7 @@ function GlobalWebSocketListener() {
       isMounted = false;
       disconnectWebSocket();
     };
-  }, [member,  member?.memberLocation]);
+  }, [member]);
 
   return null;
 }
