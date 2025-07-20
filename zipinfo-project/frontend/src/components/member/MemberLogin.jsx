@@ -42,6 +42,18 @@ export default function MemberLogin() {
     localStorage.removeItem("com.naver.nid.access_token");
     localStorage.removeItem("com.naver.nid.oauth.state_token");
   }, []);
+
+   useEffect(() => {
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+      if (window.naverLoginController) {
+        window.naverLoginController.abort();
+        console.log("컴포넌트 언마운트로 네이버 로그인 리스너 정리됨");
+      }
+    };
+  }, []);
+
+  
   const { VITE_KAKAO_REST_API_KEY, VITE_KAKAO_REDIRECT_URI } = import.meta.env;
   const navigate = useNavigate();
 
@@ -253,7 +265,11 @@ const handleNaverLogin = () => {
   console.log("- CLIENT_ID:", import.meta.env.VITE_NAVER_CLIENT_ID?.substring(0, 5) + "...");
   console.log("- CALLBACK_URI:", import.meta.env.VITE_NAVER_CALLBACK_URI);
   console.log("- 현재 도메인:", window.location.origin);
-  
+   if (window.naverLoginController) {
+    window.naverLoginController.abort();
+    console.log("기존 네이버 로그인 리스너들 제거됨");
+  }
+  window.naverLoginController = new AbortController();
   // 브라우저 정보
   console.log("브라우저 정보:");
   console.log("- User Agent:", navigator.userAgent.substring(0, 50) + "...");
@@ -279,8 +295,9 @@ const handleNaverLogin = () => {
       console[level](`[PopupLog ${timestamp}] ${message}`, data || '');
     }
   };
-  window.addEventListener("message", logListener);
-
+window.addEventListener("message", logListener, { 
+  signal: window.naverLoginController.signal 
+});
   // (2) 팝업 차단 체크
   const testPopup = window.open('', '_blank', 'width=1,height=1');
   console.log("팝업 테스트 결과:", {
@@ -294,7 +311,7 @@ const handleNaverLogin = () => {
     console.log("- testPopup null:", testPopup === null);
     console.log("- testPopup undefined:", testPopup === undefined);
     console.log("- testPopup.closed:", testPopup?.closed);
-    window.removeEventListener("message", logListener);
+  window.naverLoginController.abort(); // 모든 리스너 한 번에 제거
     toast.error("팝업이 차단되었습니다. 팝업 차단을 해제해주세요.");
     return;
   }
@@ -312,8 +329,8 @@ const handleNaverLogin = () => {
     console.log("- 리스너 등록 상태: 제거 예정");
     console.log("- 토큰 수신 여부:", !!localStorage.getItem("accessToken"));    
     toast.error("로그인 시간이 초과되었습니다. 다시 시도해주세요.");
-    window.removeEventListener("message", listener);
-    window.removeEventListener("message", logListener);
+   window.naverLoginController.abort(); // 모든 리스너 한 번에 제거
+
     if (popup && !popup.closed) {
       popup.close();
       console.log("- 팝업 강제 종료됨");
@@ -343,10 +360,9 @@ const handleNaverLogin = () => {
     // 에러 메시지 처리 추가
     if (e.data?.type === "NAVER_ERROR") {
       console.log("네이버 콜백에서 에러 수신:", e.data);
-      clearTimeout(timeout);
-      clearInterval(poll);
-      window.removeEventListener("message", listener);
-      window.removeEventListener("message", logListener);
+       window.naverLoginController.abort(); // 모든 리스너 한 번에 제거
+  clearTimeout(timeout);
+  clearInterval(poll);
       
       const errorMsg = e.data.description || e.data.error || "알 수 없는 오류";
       toast.error(`네이버 로그인 중 오류 발생: ${errorMsg}`);
@@ -356,18 +372,24 @@ const handleNaverLogin = () => {
       }
       return;
     }
+    if (e.data?.type === "NAVER_LOG") {
+  // logListener에서 이미 처리되므로 여기서는 조용히 무시
+  return;
+}
+
+if (e.data?.type !== "NAVER_TOKEN") {
+  console.log("잘못된 메시지 타입:", e.data?.type);
+  console.log("- 전체 데이터:", JSON.stringify(e.data, null, 2));      
+  return;
+}
     
-    if (e.data?.type !== "NAVER_TOKEN") {
-      console.log("잘못된 메시지 타입:", e.data?.type);
-      console.log("- 전체 데이터:", JSON.stringify(e.data, null, 2));      
-      return;
-    }
+  
 
     console.log("네이버 토큰 수신:", e.data.accessToken?.substring(0, 10) + "...");
     console.log("토큰 길이:", e.data.accessToken?.length);
-    clearTimeout(timeout);
-    clearInterval(poll);
-    window.removeEventListener("message", logListener);
+    window.naverLoginController.abort(); // 모든 리스너 한 번에 제거
+clearTimeout(timeout);
+clearInterval(poll);
 
     const { accessToken: naverToken } = e.data;
     
@@ -423,7 +445,9 @@ const handleNaverLogin = () => {
   };
 
   // (5) 이벤트 리스너 등록 (once 제거 - 수동 관리)
-  window.addEventListener("message", listener);
+window.addEventListener("message", listener, { 
+  signal: window.naverLoginController.signal 
+});
 
   // (6) 팝업 열기
   console.log("네이버 팝업 열기 시도");
@@ -431,9 +455,9 @@ const handleNaverLogin = () => {
   
   if (!popup) {
     console.log("팝업 열기 실패");
-    clearTimeout(timeout);
-    window.removeEventListener("message", listener);
-    window.removeEventListener("message", logListener);
+     window.naverLoginController.abort(); // 모든 리스너 한 번에 제거
+  clearTimeout(timeout);
+  
     toast.error("팝업을 열 수 없습니다. 브라우저 설정을 확인해주세요.");
     return;
   }
@@ -454,10 +478,9 @@ const handleNaverLogin = () => {
       console.log("- 최종 토큰 상태:", !!localStorage.getItem("accessToken"));
       console.log("- 최종 멤버 상태:", !!localStorage.getItem("loginMember"));
       
-      clearInterval(poll);
-      clearTimeout(timeout);
-      window.removeEventListener("message", listener);
-      window.removeEventListener("message", logListener);
+      window.naverLoginController.abort(); // 모든 리스너 한 번에 제거
+  clearInterval(poll);
+  clearTimeout(timeout);
       
       // 팝업이 닫혔는데 로그인이 안 된 경우
       if (!localStorage.getItem("accessToken")) {
