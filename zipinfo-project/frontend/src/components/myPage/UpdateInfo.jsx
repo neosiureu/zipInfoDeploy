@@ -328,7 +328,13 @@ const UpdateInfo = () => {
       const response = await axiosAPI.post("/myPage/updateInfo", updatedData);
 
       if (response.status === 200) {
+        // 기존 localStorage도 업데이트
+  localStorage.setItem("loginMember", JSON.stringify(updatedData));
         setMember(updatedData);
+         // 웹소켓 재연결 강제 트리거 (이벤트 발생)
+  window.dispatchEvent(new CustomEvent('memberLocationChanged', { 
+    detail: { newLocation: updatedData.memberLocation } 
+  }));
         toast.success(
           <div>
             <div className="toast-success-title">수정 성공 알림!</div>
