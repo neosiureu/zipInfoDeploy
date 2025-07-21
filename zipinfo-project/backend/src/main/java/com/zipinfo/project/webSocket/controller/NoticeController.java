@@ -23,26 +23,42 @@ public class NoticeController {
         messagingTemplate.convertAndSend("/topic/notice", "새 공지가 등록되었습니다!");
     }
     
-    @PostMapping("/neighbor/insert")
-    public void boardToast(@AuthenticationPrincipal Member loginMember,
-                           @RequestBody Member board) {
-
-        int memberLocation = loginMember.getMemberLocation();      //  예전 그대로
-        int boardLocation  = board.getMemberLocation();
-        int sliceLocation  = boardLocation / 1000;
-
-        if (String.valueOf(memberLocation).length() == 5) {
-            messagingTemplate.convertAndSend(
-                "/topic/region/" + boardLocation,
-                "우리동네 게시판에서 확인하세요!"
-            );
+    @PostMapping("/neighbor/insert") 
+public void boardToast(@AuthenticationPrincipal Member loginMember,
+                       @RequestBody Member board) {
+    
+    // OAuth의 경우 loginMember가 null이거나 정보가 부족할 수 있음
+    int memberLocation;
+    
+    if (loginMember != null && loginMember.getMemberLocation() != null) {
+        memberLocation = loginMember.getMemberLocation();
+    } else {
+        // JWT에서 직접 추출
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            Claims claims = jwtUtil.extractAllClaims(token);
+            memberLocation = claims.get("loc", Integer.class);
         } else {
-            messagingTemplate.convertAndSend(
-                "/topic/region/" + sliceLocation,
-                "우리동네 게시판에서 확인하세요!"
-            );
+            return; // 인증 정보 없음
         }
     }
+    
+    int boardLocation = memberLocation; // 작성자의 지역
+    
+    if (String.valueOf(memberLocation).length() == 5) {
+        messagingTemplate.convertAndSend(
+            "/topic/region/" + boardLocation,
+            "우리동네 게시판에서 확인하세요!"
+        );
+    } else {
+        int sliceLocation = boardLocation / 1000;
+        messagingTemplate.convertAndSend(
+            "/topic/region/" + sliceLocation,
+            "우리동네 게시판에서 확인하세요!"
+        );
+    }
+}
 
     // 클라이언트가 보낼 경우 사용
     @MessageMapping("/send")
