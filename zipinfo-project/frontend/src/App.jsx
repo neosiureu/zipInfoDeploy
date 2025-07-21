@@ -213,7 +213,7 @@ function GlobalWebSocketListener() {
       isMounted = false;
       disconnectWebSocket();
     };
-  }, [member,  member?.memberLocation]);
+  }, [member]);
 
   return null;
 }
