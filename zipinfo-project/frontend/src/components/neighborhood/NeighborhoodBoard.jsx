@@ -41,13 +41,15 @@ const NeighborhoodBoard = ({}) => {
   //   );
   //   console.log("🔍 모든 환경변수:", import.meta.env);
   // }, []);
-   console.log("=== 우리동네 게시판 페이지 ===");
-  console.log("member:", member);
-  console.log("memberLocation:", member?.memberLocation);
-  console.log("memberNo:", member?.memberNo);
+ 
   const [searchParams, setSearchParams] = useSearchParams();
   const { member } = useContext(MemberContext);
-
+useEffect(() => {
+    console.log("=== 우리동네 게시판 페이지 ===");
+    console.log("member:", member);
+    console.log("memberLocation:", member?.memberLocation);
+    console.log("memberNo:", member?.memberNo);
+  }, [member]);
   const initCp = Number(searchParams.get("cp") ?? 1);
 
   const [currentPage, setCurrentPage] = useState(initCp);
