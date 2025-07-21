@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react"; // useRef 추가
+import { memo, useContext, useEffect, useMemo, useRef, useState } from "react"; // useRef 추가
 import { axiosAPI } from "../../api/axiosApi";
 import "../../css/stock/StockPage.css";
 import SearchBar from "../common/SearchBar";
@@ -49,7 +49,7 @@ const StockPageCopy = () => {
     searchParams,
     isInfraCategoryVisible, // InfraMark.jsx에서 StockContext로 옮김
     setIsInfraCategoryVisible, // InfraMark.jsx에서 StockContext로 옮김
-    isInfraCategoryVisibleRef, // InfraMark.jsx에서 StockContext로 옮김!
+    isInfraCategoryVisibleRef, // InfraMark.jsx에서 StockContext로 옮김
   } = useStockContext();
 
   const { stockNo } = useParams(); // 매물번호를 주소에서 받아옴(/stock/:stockNo)
@@ -264,6 +264,7 @@ const StockPageCopy = () => {
       const options = {
         center: new window.kakao.maps.LatLng(37.567937, 126.983001), // KH종로지원 대략적인 위도, 경도
         level: 6, // 지도의 확대 레벨
+        maxLevel: 11,
       };
       const map = new window.kakao.maps.Map(container, options);
       mapInstanceRef.current = map; // ✅ map 저장
@@ -271,8 +272,25 @@ const StockPageCopy = () => {
       kakao.maps.event.addListener(map, "zoom_start", clearTooltip);
       kakao.maps.event.addListener(map, "dragstart", clearTooltip);
 
+      const swLimit = new kakao.maps.LatLng(33.0, 124.5); // 남서
+      const neLimit = new kakao.maps.LatLng(43.0, 132.0); // 북동
+      const limit = new kakao.maps.LatLngBounds(swLimit, neLimit);
+
       //화면을 움직였을떄 서버에 itemList를 요청하는 addListener
       window.kakao.maps.event.addListener(map, "idle", async () => {
+        const c = map.getCenter();
+        if (!limit.contain(c)) {
+          const lat = Math.min(
+            Math.max(c.getLat(), swLimit.getLat()),
+            neLimit.getLat()
+          );
+          const lng = Math.min(
+            Math.max(c.getLng(), swLimit.getLng()),
+            neLimit.getLng()
+          );
+          map.panTo(new kakao.maps.LatLng(lat, lng));
+        }
+
         clearTooltip();
         const level = map.getLevel();
         const mode = calcMode(level);
@@ -316,6 +334,10 @@ const StockPageCopy = () => {
 
     getLikeStock();
   }, []);
+
+  useEffect(() => {
+    shouldFocusRef.current = !!location.state?.shouldFocus;
+  }, [location.state]);
 
   function renderByMode(mode) {
     // 일단 전부 지움
@@ -484,7 +506,7 @@ const StockPageCopy = () => {
             <div class="tip-form-title">${formLabel[f]}</div>
             <div class="tip-line">
               ${stockTypeLabel[currentType]}&nbsp;
-              <strong>${priceConvertToString(val)}${
+              <strong class="tip-price">${priceConvertToString(val)}${
                 currentType === 2 && month
                   ? `/${priceConvertToString(month)}`
                   : ""
@@ -498,7 +520,7 @@ const StockPageCopy = () => {
       <div class="tip-title">
         ${getRegionName(c.code)}&nbsp;${stockTypeLabel[currentType]} 평균
       </div>
-      ${lines || "<div class='tip-empty'>데이터 없음</div>"}
+      ${lines || "<div class='tip-empty'>매물이 없습니다</div>"}
     `;
         };
 
@@ -653,8 +675,12 @@ const StockPageCopy = () => {
       // /********************end of 겹침처리****************************************************************** */
 
       const content = `
-      <div class="custom-overlay" >
-        <div class="area">${item.exclusiveArea}㎡</div>
+      <div class=${
+        item.sellYn === "N" ? "custom-overlay" : "custom-overlay-sold"
+      }>
+        <div class=${item.sellYn === "N" ? "area" : "soldArea"}>${
+        item.exclusiveArea
+      }㎡</div>
         ${
           item.stockType === 0
             ? `<div class="label">
@@ -675,29 +701,52 @@ const StockPageCopy = () => {
       </div>
     `; // 커스텀 마커 저장
       //클릭 이벤트 리스너 바인딩을 위한 코드
+
       const customOverlay = document.createElement("div");
       customOverlay.innerHTML = content;
+      if (item.sellYn === "N") {
+        // 여기서 직접 이벤트 바인딩(클릭한번)
+        customOverlay
+          .querySelector(".custom-overlay")
+          .addEventListener("click", () => {
+            handleItemClick(item);
+          });
+        // 여기서 직접 이벤트 바인딩(더블클릭)
+        customOverlay
+          .querySelector(".custom-overlay")
+          .addEventListener("dblclick", () => {
+            handleItemClick(item);
+          });
 
-      // 여기서 직접 이벤트 바인딩(클릭한번)
-      customOverlay
-        .querySelector(".custom-overlay")
-        .addEventListener("click", () => {
-          handleItemClick(item);
-        });
-      // 여기서 직접 이벤트 바인딩(더블클릭)
-      customOverlay
-        .querySelector(".custom-overlay")
-        .addEventListener("dblclick", () => {
-          handleItemClick(item);
-        });
+        const itemMarker = new window.kakao.maps.CustomOverlay({
+          position: itemMarkerPosition,
+          content: customOverlay,
+          yAnchor: 1,
+        }); // 카카오 map에 커스텀오버레이 등록
+        itemMarker.setMap(map);
+        itemMarkersRef.current.push(itemMarker); // 새 마커 저장*/
+      } else {
+        // 여기서 직접 이벤트 바인딩(클릭한번)
+        customOverlay
+          .querySelector(".custom-overlay-sold")
+          .addEventListener("click", () => {
+            handleItemClick(item);
+          });
+        // 여기서 직접 이벤트 바인딩(더블클릭)
+        customOverlay
+          .querySelector(".custom-overlay-sold")
+          .addEventListener("dblclick", () => {
+            handleItemClick(item);
+          });
 
-      const itemMarker = new window.kakao.maps.CustomOverlay({
-        position: itemMarkerPosition,
-        content: customOverlay,
-        yAnchor: 1,
-      }); // 카카오 map에 커스텀오버레이 등록
-      itemMarker.setMap(map);
-      itemMarkersRef.current.push(itemMarker); // 새 마커 저장*/
+        const itemMarker = new window.kakao.maps.CustomOverlay({
+          position: itemMarkerPosition,
+          content: customOverlay,
+          yAnchor: 1,
+        });
+        itemMarker.setMap(map);
+        itemMarkersRef.current.push(itemMarker); // 새 마커 저장*/
+      }
     });
   };
 
@@ -741,6 +790,7 @@ const StockPageCopy = () => {
 
   // 매물 item을 클릭했을떄 수행되는 핸들러 함수
   const handleItemClick = async (item) => {
+    if (clickedStockItem?.stockNo === item.stockNo) return;
     setClickedStockItem(item); // 클릭한 item의 index를 저장.
     setIsAsideVisible(true); //클릭시 상세창 표시=true 함.
 
@@ -839,10 +889,7 @@ const StockPageCopy = () => {
   }, [stockNo]);
   //updateMarker() 뒤에 queryString 조건에 따라 화면전환하는 useEffect() 사용
 
-  const StockItemDetail = ({ item }) => {
-    const [isImg0Loaded, setIsImg0Loaded] = useState(false);
-    const [isImg1Loaded, setIsImg1Loaded] = useState(false);
-    const [isImg2Loaded, setIsImg2Loaded] = useState(false);
+  const StockItemDetail = memo(({ item }) => {
     if (item) {
       //null 오류 방지
 
@@ -857,6 +904,8 @@ const StockPageCopy = () => {
       return (
         <>
           <div className="stock-detail-panel">
+           
+
             <div className="stock-detail-panel">
               <div className="stock-detail-images">
                 <StockImgModal item={item} />
@@ -868,6 +917,32 @@ const StockPageCopy = () => {
             {/* Block 1: 매매/가격/찜 */}
 
             <div className="stock-detail-info-block">
+              <div className="stock-detail-top-container">
+                <div
+                  className={`stock-page-sell-yn ${
+                    item.sellYn === "Y" ? "sold" : ""
+                  }`}
+                >
+                  {item.sellYn === "Y" ? "계약완료" : "계약가능"}
+                </div>
+                {member && member.memberNo !== null ? (
+                  <button
+                    onClick={() => {
+                      handleStockLike(item.stockNo);
+                    }}
+                    className="stock-detail-like-btn"
+                    aria-label="찜하기"
+                  >
+                    <Bookmark
+                      className={`like-stock-bookmark ${
+                        likeStock.has(item.stockNo) ? "active" : ""
+                      }`}
+                    />
+                  </button>
+                ) : (
+                  <div />
+                )}
+              </div>
               <div className="stock-detail-header">
                 <span className="stock-detail-type">
                   {item.stockType === 0
@@ -891,23 +966,6 @@ const StockPageCopy = () => {
                       " "
                     : "기타"}
                 </span>
-                {member && member.memberNo !== null ? (
-                  <button
-                    onClick={() => {
-                      handleStockLike(item.stockNo);
-                    }}
-                    className="stock-detail-like-btn"
-                    aria-label="찜하기"
-                  >
-                    <Bookmark
-                      className={`like-stock-bookmark ${
-                        likeStock.has(item.stockNo) ? "active" : ""
-                      }`}
-                    />
-                  </button>
-                ) : (
-                  <div />
-                )}
               </div>
               <div className="stock-detail-name">{item.stockName}</div>
               <div className="stock-detail-desc">{item.stockInfo}</div>
@@ -931,18 +989,16 @@ const StockPageCopy = () => {
             <div className="sale-section-divider" />
 
             {/* Block 2: 평면도 */}
-            <div className="stock-detail-info-block">
-              <div className="stock-detail-plan">
-                {item?.imgUrls && (
-                  <img
-                    src={`${import.meta.env.VITE_API_BASE_URL}${
-                      item.imgUrls[1]
-                    }`}
-                    alt="평면도 이미지"
-                  />
-                )}
-              </div>
-            </div>
+         <div className="stock-detail-info-block">
+  <div className="stock-detail-plan">
+    {item?.imgUrls && (
+      <img
+src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls[1]}`}        alt="평면도 이미지"
+        className="sale-floorplan"
+      />
+    )}
+  </div>
+</div>
 
             <div className="sale-section-divider" />
 
@@ -1053,7 +1109,7 @@ const StockPageCopy = () => {
         </>
       );
     }
-  };
+  });
   const StockList = ({ stockList }) => {
     const typeMap = {
       1: "아파트 ",
@@ -1079,11 +1135,11 @@ const StockPageCopy = () => {
               onClick={() => handleItemClick(item, index)}
             >
               <div className="stock-header">
-                <img
-                  src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls[0]}`}
-                  alt="썸네일"
-                  className="stock-img"
-                />
+               <img
+  src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls?.[0] ?? ""}`}
+  alt="썸네일"
+  className="stock-img"
+/>
                 <div>
                   <div className="stock-item-price">
                     <span className="item-type">
@@ -1143,6 +1199,10 @@ const StockPageCopy = () => {
       </section>
     );
   };
+
+  const memoizedStockList = useMemo(() => {
+    return <StockList stockList={stockList} />;
+  }, [stockList]);
   /************주소의 stock/:stockNo에 따라 detail창 보여주지 말지 결정. */
   /*useEffect(() => {
     console.log("stockNo : ", stockNo);
@@ -1184,9 +1244,7 @@ const StockPageCopy = () => {
       {/**showSearchType : 현재 페이지가 StockPage인가, SalePage인가 따지는 변수 */}
       {/**list */}
       <div className="container">
-        <aside className="side-panel">
-          <StockList stockList={stockList} />
-        </aside>
+        <aside className="side-panel">{memoizedStockList}</aside>
 
         {/**detail */}
         {isAsideVisible && (

@@ -1,7 +1,7 @@
 package com.zipinfo.project.oauth.model.service;
 
 import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +22,12 @@ public class OauthServiceImpl implements OauthService {
 	private final OauthMapper mapper;
 	private final JWTProvider jwtProvider;
 	private final WebClient webClient;
+
+	  @Value("${naver.client-id}")
+    private String naverClientId;
+
+    @Value("${naver.client-secret}")
+    private String naverClientSecret;
 
 	@Override
 	public Member loginKakao(String kakaoAccessToken) {
@@ -54,6 +60,8 @@ public class OauthServiceImpl implements OauthService {
 			Member member = mapper.selectByKakaoEmail(email);
 			validateWithdraw(member);
 			log.info("DB 조회 member={}", member);
+			log.info("DB에서 조회한 memberLocation = {}", member != null ? member.getMemberLocation() : "null");
+
 			if (member == null) {
 				log.info("신규 회원 등록");
 				member = new Member();
@@ -65,7 +73,11 @@ public class OauthServiceImpl implements OauthService {
 				mapper.insertKakaoMember(member);
 				member = mapper.selectByKakaoEmail(email);
 				log.info("등록 후 member={}", member);
+				log.info("등록 후 memberLocation = {}", member.getMemberLocation());
+
 			}
+
+log.info("JWT 생성 전 memberLocation = {}", member.getMemberLocation());
 
 			// 4단계: JWT 발급 & DB 저장
 			String jwtAccess = jwtProvider.createAccessToken(member);
@@ -115,6 +127,7 @@ public class OauthServiceImpl implements OauthService {
 
 			// 3단계: 회원 조회/등록
 			Member member = mapper.selectByNaverEmail(email);
+			validateWithdraw(member);  
 			boolean isNew = (member == null);
 			log.info("DB 조회 member={}", member);
 			 if (isNew) {                                   // ── 신규 회원만 처리
@@ -162,4 +175,32 @@ public class OauthServiceImpl implements OauthService {
 		log.debug("현재 카카오 서비스임플" + loginMember);
 		return mapper.withDraw(loginMember);
 	}
+
+	/** 네이버 연결 해제 + DB 탈퇴 플래그 업데이트 */
+public int withdrawNaver(Member loginMember) {
+    log.info("[withdrawNaver] memberNo={}, email={}", 
+             loginMember.getMemberNo(), loginMember.getMemberEmail());
+
+    // 1) 네이버 API: 토큰 삭제(연결 해제)
+    String clientId     = naverClientId;      // @Value 로 주입
+    String clientSecret = naverClientSecret;  // "
+    String accessToken  = loginMember.getAccessToken();   // 로그인 시 저장했던 토큰
+
+    Map<String, Object> res = webClient.post()
+        .uri(uriBuilder -> uriBuilder
+            .scheme("https").host("nid.naver.com").path("/oauth2.0/token")
+            .queryParam("grant_type", "delete")
+            .queryParam("client_id", clientId)
+            .queryParam("client_secret", clientSecret)
+            .queryParam("access_token", accessToken)
+            .queryParam("service_provider", "NAVER")
+            .build())
+        .retrieve().bodyToMono(new ParameterizedTypeReference<Map<String,Object>>() {})
+        .block();
+
+    log.info("네이버 unlink 결과 = {}", res);   // result:"success" 면 OK
+
+    // 2) 우리 DB에서 MEMBER_DEL_FL='Y' 로 업데이트
+    return mapper.withDraw(loginMember);       // 기존 쿼리 그대로 재사용
+}
 }

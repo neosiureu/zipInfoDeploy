@@ -80,16 +80,12 @@ export default function MyStock() {
     messageData.append("messageFile", messageFile);
     messageData.append("messageTitle", message.messageTitle);
     messageData.append("messageContent", message.messageContent);
-    const response = await axiosAPI.post(
-      "${import.meta.env.VITE_API_BASE_URL}/myPage/sendMessage",
-      messageData,
-      {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
-      }
-    );
+    const response = await axiosAPI.post("/myPage/sendMessage", messageData, {
+      withCredentials: true,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     if (response.status === 200) {
-      nav("/myPage/seeMyMessage");
+      nav("/seeMyMessage");
     } else {
       toast.error(
         <div>

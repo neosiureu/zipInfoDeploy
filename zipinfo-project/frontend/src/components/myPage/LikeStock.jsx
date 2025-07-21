@@ -110,7 +110,7 @@ export default function MyStock() {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    nav(`/myPage/likeStock?cp=${page}`); // URL 업데이트
+    nav(`/likeStock?cp=${page}`); // URL 업데이트
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;

@@ -27,13 +27,8 @@ import com.zipinfo.project.member.model.dto.Member;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = {
-	    "http://localhost:5173",
-	    "http://zipinfo.site",
-	    "https://zipinfo.site", 
-	    "http://www.zipinfo.site",
-	    "https://www.zipinfo.site"
-	})@RestController
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@RestController
 @RequestMapping("/api/help")
 @RequiredArgsConstructor
 public class HelpMessageController {

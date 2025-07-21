@@ -10,15 +10,15 @@ export default function Menu() {
   const { member } = useContext(MemberContext);
 
   const tabs = [
-    { label: "등록한 매물", path: "/myPage/myStock" },
-    { label: "매물 등록", path: "/myPage/addStock" },
-    { label: "최근 본 매물", path: "/myPage/sawStock" },
-    { label: "찜 매물", path: "/myPage/likeStock" },
+    { label: "등록한 매물", path: "/myStock" },
+    { label: "매물 등록", path: "/addStock" },
+    { label: "최근 본 매물", path: "/sawStock" },
+    { label: "찜 매물", path: "/likeStock" },
   ];
 
   const tabss = [
-    { label: "최근 본 매물", path: "/myPage/sawStock" },
-    { label: "찜 매물", path: "/myPage/likeStock" },
+    { label: "최근 본 매물", path: "/sawStock" },
+    { label: "찜 매물", path: "/likeStock" },
   ];
 
   const getInitialTab = () => {

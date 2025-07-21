@@ -16,13 +16,8 @@ import com.zipinfo.project.sale.model.dto.Sale;
 
 @RestController
 @RequestMapping("admin")
-@CrossOrigin(origins = {
-	    "http://localhost:5173",
-	    "http://zipinfo.site",
-	    "https://zipinfo.site", 
-	    "http://www.zipinfo.site",
-	    "https://www.zipinfo.site"
-	})public class AdminSaleController {
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+public class AdminSaleController {
 
 	/*
 	 @PostMapping(value = "/addSale", consumes = "multipart/form-data")

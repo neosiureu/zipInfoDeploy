@@ -112,7 +112,7 @@ export default function MyStock() {
           </div>
         </div>
         <button
-          onClick={() => nav("/myPage/seeMyMessage")}
+          onClick={() => nav("/seeMyMessage")}
           className="my-message-submit-button"
         >
           목록으로

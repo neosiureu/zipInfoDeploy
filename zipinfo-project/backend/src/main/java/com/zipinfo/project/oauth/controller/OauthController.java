@@ -89,25 +89,49 @@ public class OauthController {
 	 * @return
 	 */
 	@PostMapping("/naver")
-	public ResponseEntity<Map<String, Object>> naverLogin(@RequestBody Map<String, String> body) {
+public ResponseEntity<Map<String, Object>> naverLogin(@RequestBody Map<String, String> body) {
 
-		String naverAccessToken = body.getOrDefault("accessToken", body.get("code"));
-		log.info("네이버 로그인 요청, token={}", naverAccessToken);
+    String naverAccessToken = body.getOrDefault("accessToken", body.get("code"));
+    log.info("네이버 로그인 요청, token={}", naverAccessToken);
 
-		try {
-			Member member = oauthService.loginNaver(naverAccessToken);
-			log.debug("[naverLogin] DB 조회된 Member = {}", member);
+    try {
+        Member member = oauthService.loginNaver(naverAccessToken);
+        log.debug("[naverLogin] DB 조회된 Member = {}", member);
 
-			String jwt = member.getAccessToken();
-			log.debug("[naverLogin] 발급된 JWT = {}", jwt);
+        String jwt = member.getAccessToken();
+        Map<String, Object> result = Map.of("loginMember", member, "accessToken", jwt);
+        return ResponseEntity.ok(result);
 
-			Map<String, Object> result = Map.of("loginMember", member, "accessToken", jwt);
-			return ResponseEntity.ok(result);
+    /* ▼ 추가: 탈퇴 회원이면 403 반환 */
+    } catch (IllegalStateException e) {
+        if ("MEMBER_WITHDRAWN".equals(e.getMessage())) {
+            log.warn("탈퇴한 네이버 회원 로그인 시도");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("msg","MEMBER_WITHDRAWN",
+                                 "message","탈퇴한 회원은 로그인할 수 없습니다."));
+        }
+        throw e;   // 다른 IllegalStateException 은 그대로 던짐
+    } catch (Exception ex) {
+        log.error("[naverLogin] 예외 발생", ex);
+        return ResponseEntity.internalServerError().build();
+    }
+}
 
-		} catch (Exception ex) {
-			log.error("[naverLogin] 예외 발생", ex);
-			return ResponseEntity.internalServerError().build();
-		}
-	}
+	@PostMapping("/naverWithdraw")
+public ResponseEntity<Object> naverWithdraw(@AuthenticationPrincipal Member loginMember) {
+    try {
+        if (loginMember == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        int result = oauthService.withdrawNaver(loginMember);   // ← 서비스 분리
+
+        return ResponseEntity.ok(result);   // 200
+    } catch (Exception e) {
+        log.error("[naverWithdraw] 예외", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("탈퇴 처리 중 오류: " + e.getMessage());
+    }
+}
 
 }

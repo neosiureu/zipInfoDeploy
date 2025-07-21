@@ -32,9 +32,17 @@ export const MemberProvider = ({ children }) => {
   const token = localStorage.getItem("accessToken");
   const location = useLocation();
   const skipFetchNow =
-    location.pathname.startsWith("/login") ||
-    location.pathname.startsWith("/oauth2/kakao");
-
+location.pathname.startsWith("/login") ||
+  location.pathname.startsWith("/oauth2/kakao") ||
+  location.pathname.startsWith("/oauth2/naver") ||
+ (token && (() => {
+    try {
+      const decoded = jwtDecode(token);
+      return decoded.loginType === "K" || decoded.loginType === "N";
+    } catch {
+      return false;
+    }
+  })()); // OAuth 로그인이면 서버 API 호출 건너뛰기
   useEffect(() => {
     if (!member && token) {
       try {
@@ -47,10 +55,11 @@ export const MemberProvider = ({ children }) => {
           return;
         }
         setMember({
-          memberNo: Number(decoded.sub),
-          memberEmail: decoded.email,
-          memberLogin: decoded.loginTp,
-          memberAuth: decoded.auth,
+        memberNo: Number(decoded.sub),
+        memberEmail: decoded.email,
+        memberLogin: decoded.loginType,  // 수정
+        memberAuth: decoded.auth,
+        memberLocation: decoded.loc,     // 추가!
         });
       } catch {
         /* 디코딩 실패 = 토큰 폐기 */

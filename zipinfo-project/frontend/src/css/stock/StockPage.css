@@ -22,7 +22,7 @@
 .map-area {
   flex: 1;
 
-  width: 100%;
+  width: calc(100% - 460px);
   height: 100%;
   overflow: hidden;
   position: absolute;
@@ -150,6 +150,30 @@
   cursor: pointer;
 }
 
+.stock-page-sell-yn {
+  display: flex;
+  justify-content: center;
+  width: 56px;
+  height: 20px;
+  border: 1px solid #495cf8;
+  color: white;
+  background-color: #495cf8;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.stock-page-sell-yn.sold {
+  display: flex;
+  justify-content: center;
+  width: 56px;
+  height: 20px;
+  border: 1px solid #495cf8;
+  color: #495cf8;
+  background-color: white;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
 .stock-detail-header {
   display: flex;
   align-items: center;
@@ -169,7 +193,9 @@
 }
 
 .stock-detail-like-btn {
-  margin-left: auto;
+  position: absolute;
+  top: 16px;
+  right: 20px;
   background: none;
   border: none;
   font-size: 24px;
@@ -244,9 +270,35 @@
   margin-bottom: 240px;
 }
 
+.custom-overlay.custom-overlay-sold {
+  background: white;
+  border: 2px solid #767676 !important;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+  position: relative;
+  display: inline-block;
+}
+
 .custom-overlay {
   background: white;
   border: 2px solid #495cf8;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+  position: relative;
+  display: inline-block;
+}
+
+.custom-overlay-sold {
+  background: white;
+  border: 2px solid #7676;
   border-radius: 8px;
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
   font-size: 13px;
@@ -295,6 +347,27 @@
   border-style: solid;
   border-color: #495cf8 transparent transparent transparent;
 }
+.custom-overlay.custom-overlay-sold::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 10px 6px 0;
+  border-style: solid;
+  border-color: #767676 transparent transparent transparent;
+}
+
+.custom-overlay-sold::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 10px 6px 0;
+  border-style: solid;
+  border-color: #7676 transparent transparent transparent;
+}
 
 .big-custom-overlay::after {
   content: "";
@@ -314,6 +387,21 @@
   padding: 4px 8px;
   border-radius: 6px 6px 0 0;
 }
+.custom-overlay.custom-overlay-sold .area {
+  background: #767676;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px 6px 0 0;
+}
+
+.custom-overlay-sold .soldArea {
+  background: #7676;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px 6px 0 0;
+}
 
 .bigcustom-overlay .big-area {
   background: #495cf8;
@@ -324,6 +412,15 @@
   border-radius: 6px 6px 0 0;
 }
 
+.custom-overlay.custom-overlay-sold .label {
+  color: #767676 !important;
+  padding: 4px 8px;
+  display: flex;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  gap: 4px;
+}
 .custom-overlay .label {
   color: #495cf8;
   padding: 4px 8px;
@@ -335,6 +432,20 @@
 }
 
 .custom-overlay .label strong {
+  color: #111;
+}
+
+.custom-overlay-sold .label {
+  color: #495cf8;
+  padding: 4px 8px;
+  display: flex;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  gap: 4px;
+}
+
+.custom-overlay-sold .label strong {
   color: #111;
 }
 
@@ -355,6 +466,7 @@
 }
 
 .stock-detail-info-block {
+  position: relative;
   padding: 24px;
 }
 
@@ -395,7 +507,7 @@
 .tooltip-wrap {
   position: relative;
   transform: translateY(-8px); /* 꼬리 포함해서 8px 위 */
-  pointer-events: none; /* 툴팁이 마우스를 가로채지 않도록 */
+  pointer-events: none; /* 툴크이 마우스를 가로채지 않도록 */
 }
 
 /* 2. 실제 박스 */
@@ -437,15 +549,24 @@
   margin-top: 6px;
 }
 .tip-form-title {
-  font-weight: 700;
+  font-weight: 400;
   margin-bottom: 2px;
-  color: #374;
+  color: #767676;
 }
 .tip-line {
-  font-weight: 700;
+  font-weight: 600;
   color: #495cf8;
+}
+.tip-price {
+  font-weight: 600;
+  color: #111;
 }
 .tip-empty {
   font-size: 12px;
   color: #777;
+}
+
+.stock-detail-top-container {
+  display: flex;
+  justify-content: space-between;
 }

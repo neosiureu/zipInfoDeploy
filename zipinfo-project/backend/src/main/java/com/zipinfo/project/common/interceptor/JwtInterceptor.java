@@ -62,7 +62,7 @@ public class JwtInterceptor implements HandlerInterceptor {
             return true; // 통과
 
         } catch (NumberFormatException e) {
-            // ⭐ OAuth 토큰(subject가 이메일)인 경우 => 그냥 통과
+            //  OAuth 토큰(subject가 이메일)인 경우 => 그냥 통과
             log.debug("OAuth 토큰 감지, 검증 스킵");
             return true;
         } catch (Exception e) {

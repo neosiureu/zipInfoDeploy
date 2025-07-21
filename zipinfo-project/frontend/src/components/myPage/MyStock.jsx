@@ -93,7 +93,7 @@ export default function MyStock() {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    nav(`/myPage/myStock?cp=${page}`); // URL 업데이트
+    nav(`/myStock?cp=${page}`); // URL 업데이트
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -255,7 +255,7 @@ export default function MyStock() {
                         <button
                           className="update-stock-info"
                           onClick={() =>
-                            nav("/myPage/updateMyStock", { state: property })
+                            nav("/updateMyStock", { state: property })
                           }
                         >
                           수정

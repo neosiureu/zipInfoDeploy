@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { axiosAPI } from "../../../api/axiosApi";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const MemberList = ({ initialMembers }) => {
   const [currentMembers, setCurrentMembers] = useState(
     Array.isArray(initialMembers) ? initialMembers : []
@@ -89,7 +90,7 @@ const MemberList = ({ initialMembers }) => {
     if (!confirmed) return;
 
     try {
-      await axiosAPI.delete(`${BASE_URL}/admin/management/members/${memberNo}`);
+      await axiosAPI.delete(`/admin/management/members/${memberNo}`);
       toast.success(
         <div>
           <div className="toast-success-title">삭제 성공 알림!</div>
@@ -150,7 +151,7 @@ const MemberList = ({ initialMembers }) => {
               <th>아이디</th>
               <th>권한</th>
               <th>가입일</th>
-              <th>최근 로그인</th>
+              {/* <th>최근 로그인</th> */}
               <th>게시글 수</th>
               <th>삭제</th>
             </tr>
@@ -173,11 +174,6 @@ const MemberList = ({ initialMembers }) => {
                       member.joinDate ||
                       member.createdAt ||
                       "-"}
-                  </td>
-                  <td>
-                    {member.lastLoginDate
-                      ? new Date(member.lastLoginDate).toLocaleDateString()
-                      : "-"}
                   </td>
                   <td>{member.postCount ?? member.POST_COUNT ?? 0}</td>
                   <td>

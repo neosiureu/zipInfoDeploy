@@ -36,6 +36,9 @@ public class JWTProvider {
             .setSubject(member.getMemberEmail())             // 토큰 소유자
             .claim("memberNo", member.getMemberNo())          // 추가 정보
             .claim("nickname", member.getMemberNickname())
+              .claim("email", member.getMemberEmail())           //  추가
+        .claim("loginType", member.getMemberLogin())       //  추가  
+        .claim("loc", member.getMemberLocation())          //  핵심! 추가
             .setIssuedAt(now)                                 // 발급 시간
             .setExpiration(new Date(now.getTime() + accessTokenValidity))
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)

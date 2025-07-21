@@ -3,10 +3,16 @@ package com.zipinfo.project.stock.model.dto;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Stock {
     private int stockNo;                 // STOCK_NO
     private int memberNo;                // MEMBER_NO
@@ -49,4 +55,7 @@ public class Stock {
     private String presidentName;//대표명
     private String brokerNo; // 중개등록번호
     private String presidentPhone; // 대표번호
+
+    private String sellDate; // 판매날짜
+
 }

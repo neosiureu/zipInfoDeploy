@@ -24,7 +24,9 @@ const Main = () => {
   const [stockList, setStockList] = useState([]);
   const [saleList, setSaleList] = useState([]);
   const [mainAd, setMainAd] = useState(null);
-
+ useEffect(() => {
+    console.log("[DEBUG] mainAd.adImgUrl ▶", mainAd?.adImgUrl);
+  }, [mainAd]);
   const [searchContent, setSearchContent] = useState("");
 
   const searchRef = useRef(null);
@@ -79,7 +81,7 @@ const Main = () => {
     );
   };
 
-  const handleClickStock = (stock) => {
+  const handleClickStock = async (stock) => {
     let history = JSON.parse(localStorage.getItem("recentSearch")) || [];
 
     // stockNo 기준으로 중복 제거
@@ -118,6 +120,12 @@ const Main = () => {
 
     // 다시 저장
     localStorage.setItem("recentSearch", JSON.stringify(history));
+    console.log(stock);
+
+    const resp = await axiosAPI.post("/myPage/addSawStock", {
+      memberNo: stock.memberNo,
+      stockNo: stock.stockNo,
+    });
 
     stock.stockNo
       ? navigate(`/stock/${stock.stockNo}`, {
@@ -222,6 +230,7 @@ const Main = () => {
       <div className="card" key={item.stockNo}>
         <img
           src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrl}`}
+
           alt="실거래 집 썸네일 이미지"
           onClick={() => {
             navigate(`/stock/${item.stockNo}`, {
@@ -297,6 +306,7 @@ const Main = () => {
 
     return uniqueList.slice(0, 4).map((item) => {
       const imgUrl = `${import.meta.env.VITE_API_BASE_URL}${item.saleImgUrl}`;
+
       return (
         <div
           className="card-sale"
@@ -568,11 +578,7 @@ const Main = () => {
 
       {mainAd && mainAd.adImgUrl !== null ? (
         <div className="banner">
-          <img
-            src={`${import.meta.env.VITE_API_BASE_URL}${mainAd.adImgUrl}`}
-            alt="배너광고 이미지"
-          />
-        </div>
+<img  src={`https://www.zipinfo.site${mainAd.adImgUrl}`}                        alt="배너광고 이미지" />     </div>
       ) : (
         <div />
       )}

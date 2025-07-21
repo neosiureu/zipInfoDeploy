@@ -26,7 +26,15 @@ public class NoticeController {
     @PostMapping("/neighbor/insert")
     public void boardToast(@AuthenticationPrincipal Member loginMember,
                            @RequestBody Member board) {
-
+  System.out.println("=== NoticeController 디버깅 ===");
+    System.out.println("loginMember: " + loginMember);
+    System.out.println("loginMember null여부: " + (loginMember == null));
+    if (loginMember != null) {
+        System.out.println("loginMember.getMemberLocation(): " + loginMember.getMemberLocation());
+        System.out.println("loginMember.getMemberLogin(): " + loginMember.getMemberLogin());
+    }
+    System.out.println("board.getMemberLocation(): " + board.getMemberLocation());
+    System.out.println("===============================");
         int memberLocation = loginMember.getMemberLocation();      //  예전 그대로
         int boardLocation  = board.getMemberLocation();
         int sliceLocation  = boardLocation / 1000;

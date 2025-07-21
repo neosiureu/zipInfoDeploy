@@ -38,7 +38,7 @@ const MyPost = () => {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    nav(`/myPage/myPost?cp=${page}`); // URL 업데이트
+    nav(`/myPost?cp=${page}`); // URL 업데이트
   };
 
   const handleDate = (date) => {
@@ -56,7 +56,7 @@ const MyPost = () => {
   const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
 
   const handleBoardClick = (e) => {
-    nav(`/myPage/detailMessage/${e.messageNo}?cp=${currentPage}`);
+    nav(`/detailMessage/${e.messageNo}?cp=${currentPage}`);
   };
 
   return (

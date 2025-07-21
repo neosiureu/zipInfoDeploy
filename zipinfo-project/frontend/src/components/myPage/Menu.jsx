@@ -9,21 +9,23 @@ export default function Menu() {
 
   // 카카오 로그인 여부
   const isKakao = Object.keys(localStorage).some((k) => k.startsWith("kakao_"));
-
+  const isNaver =
+    member?.memberLogin === "OAuth" || member?.memberLogin === "N";
+  const isSocial = isKakao || isNaver; // 네이버랑 카카오 말고 확장성을 위해
   // 전체 탭
   const tabs = [
     { label: "내 정보", path: "/myPage" },
-    { label: "관심 매물", path: "/myPage/myStock" },
-    { label: "문의내역", path: "/myPage/myMessage" },
-    { label: "내가 쓴 글", path: "/myPage/myPost" },
-    { label: "비밀번호 재설정", path: "/myPage/updatePassword" },
-    { label: "회원탈퇴", path: "/myPage/withDraw" },
+    { label: "관심 매물", path: "myStock" },
+    { label: "문의내역", path: "/myMessage" },
+    { label: "내가 쓴 글", path: "/myPost" },
+    { label: "비밀번호 재설정", path: "/updatePassword" },
+    { label: "회원탈퇴", path: "/withDraw" },
   ];
 
   // 카카오 사용자는 비밀번호 탭 제외
   const visibleTabs = useMemo(
-    () => (isKakao ? tabs.filter((t) => t.label !== "비밀번호 재설정") : tabs),
-    [isKakao]
+    () => (isSocial ? tabs.filter((t) => t.label !== "비밀번호 재설정") : tabs),
+    [isSocial]
   );
 
   /** 현재 URL 에 맞춰 초기 활성 탭 선택 */
@@ -55,8 +57,8 @@ export default function Menu() {
                 nav(
                   tab.label === "관심 매물"
                     ? member?.memberAuth !== 3
-                      ? "/myPage/sawStock"
-                      : "/myPage/myStock"
+                      ? "/sawStock"
+                      : "/myStock"
                     : tab.path
                 );
               }}

@@ -9,14 +9,16 @@ import { toast } from "react-toastify";
 
 export default function PasswordChange() {
   const nav = useNavigate();
-  const { setMember } = useContext(MemberContext);
+  const { member, setMember } = useContext(MemberContext);
 
   /* 카카오 로그인 여부 */
   const kakaoKey = Object.keys(localStorage).find((k) =>
     k.startsWith("kakao_")
   );
   const isKakaoLogin = Boolean(kakaoKey);
-
+  const isNaverLogin =
+    member?.memberLogin === "OAuth" || member?.memberLogin === "N";
+  const isSocial = isKakaoLogin || isNaverLogin;
   /* form & check */
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
@@ -34,13 +36,13 @@ export default function PasswordChange() {
       }
 
       /* 일반 로그인일 때 비밀번호 검증 */
-      if (!isKakaoLogin) {
+      if (!isSocial) {
         if (!password.trim()) {
           toast.error("비밀번호를 입력하세요.");
           return;
         }
 
-        const { data: pwOK } = await axiosAPI.post("/myPage/checkPassword", {
+        const { data: pwOK } = await axiosAPI.post("/myPage/withDraw", {
           memberPw: password,
         });
         if (pwOK !== 1) {
@@ -51,7 +53,9 @@ export default function PasswordChange() {
       }
 
       /* 실제 탈퇴 – 엔드포인트 분기 */
-      const url = isKakaoLogin ? "/oauth/kakaoWithdraw" : "/myPage/withDraw";
+      let url = "/myPage/withDraw"; // 일반
+      if (isKakaoLogin) url = "/oauth/kakaoWithdraw";
+      if (isNaverLogin) url = "/oauth/naverWithdraw";
       const res = await axiosAPI.post(url);
 
       if (res.status === 200 || res.data === 1) {
@@ -81,7 +85,7 @@ export default function PasswordChange() {
 
         <div className="with-draw-container">
           {/* 비밀번호 입력(일반 로그인만) */}
-          {!isKakaoLogin && (
+          {!isSocial && (
             <div className="with-draw-password-section">
               <div className="with-draw-section-title">비밀번호</div>
               <input
@@ -94,10 +98,12 @@ export default function PasswordChange() {
             </div>
           )}
 
-          {/* 카카오 안내(카카오 로그인만) */}
-          {isKakaoLogin && (
+          {/* 카카오 안내(카카오 로그인+네이버로그인) */}
+          {isSocial && (
             <div className="kakao-withdraw-info">
-              카카오 로그인 계정은 비밀번호가 설정되어 있지 않습니다.
+              {isKakaoLogin
+                ? "카카오 로그인 계정은 비밀번호가 설정되어 있지 않습니다."
+                : "네이버 로그인 계정은 비밀번호가 설정되어 있지 않습니다."}
               <br />
               <strong>탈퇴 시 모든 계정 정보가 영구적으로 삭제됩니다.</strong>
             </div>

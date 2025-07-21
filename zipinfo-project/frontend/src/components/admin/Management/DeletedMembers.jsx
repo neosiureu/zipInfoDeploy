@@ -25,7 +25,7 @@ const DeletedMembers = () => {
   const fetchDeletedMembers = async () => {
     try {
       const response = await axiosAPI.get(
-        `${BASE_URL}/admin/management/members/deleted`
+        `/admin/management/members/deleted`
       );
       setDeletedMembers(response.data);
     } catch (error) {
@@ -39,6 +39,7 @@ const DeletedMembers = () => {
 
   useEffect(() => {
     setFilteredDeletedMembers(deletedMembers);
+    console.log(deletedMembers);
   }, [deletedMembers]);
 
   useEffect(() => {
@@ -58,7 +59,7 @@ const DeletedMembers = () => {
   const handleRestoreMember = async (memberNo) => {
     try {
       const response = await axiosAPI.put(
-        `${BASE_URL}/admin/management/members/${memberNo}/restore`
+        `/admin/management/members/${memberNo}/restore`
       );
 
       if (response.status === 200) {
@@ -94,7 +95,7 @@ const DeletedMembers = () => {
     if (window.confirm("정말로 이 회원의 계정을 영구 삭제하시겠습니까?")) {
       try {
         const response = await axiosAPI.delete(
-          `${BASE_URL}/admin/management/members/${memberNo}/permanent`
+          `/admin/management/members/${memberNo}/permanent`
         );
 
         if (response.status === 200) {
@@ -190,7 +191,7 @@ const DeletedMembers = () => {
               <th>아이디</th>
               <th>가입일</th>
               <th>회원 권한</th>
-              <th>최근 접속일</th>
+              <th>탈퇴일</th>
               <th>올린 글 개수</th>
               <th>계정 복구</th>
               <th>계정 삭제</th>
@@ -208,15 +209,11 @@ const DeletedMembers = () => {
                 <tr key={member.memberNo}>
                   <td>{member.memberNo}</td>
                   <td>{member.memberEmail || member.memberId}</td>
-                  <td>{member.enrollDate || member.joinDate || "-"}</td>
+                  <td>{member.enrollDate ? member.enrollDate : "-"}</td>
                   <td>
                     {authMap[member.memberRole ?? member.memberAuth] || "-"}
                   </td>
-                  <td>
-                    {member.lastLoginDate
-                      ? new Date(member.lastLoginDate).toLocaleDateString()
-                      : "-"}
-                  </td>
+                  <td>{member.memberWithdrawDate}</td>
                   <td>{member.postCount ?? member.POST_COUNT ?? 0}</td>
                   <td>
                     <button

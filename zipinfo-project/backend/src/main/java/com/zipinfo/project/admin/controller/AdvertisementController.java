@@ -13,7 +13,7 @@ import com.zipinfo.project.admin.model.service.AdvertisementService;
 import com.zipinfo.project.member.model.dto.Member;
 import com.zipinfo.project.myPage.controller.MyPageController;
 import com.zipinfo.project.myPage.model.service.MyPageService;
-
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
