@@ -26,9 +26,12 @@ public class NoticeController {
     @PostMapping("/neighbor/insert")
     public void boardToast(@AuthenticationPrincipal Member loginMember,
                            @RequestBody Member board) {
-  System.out.println("=== NoticeController 디버깅 ===");
-    System.out.println("loginMember: " + loginMember);
-    System.out.println("loginMember null여부: " + (loginMember == null));
+   System.out.println("=== 상세 디버깅 ===");
+    System.out.println("loginMember.getMemberLocation(): " + loginMember.getMemberLocation());
+    System.out.println("board.getMemberLocation(): " + board.getMemberLocation());
+    System.out.println("board.getTownNo(): " + board.getTownNo());
+    System.out.println("board 전체: " + board);
+    System.out.println("==================");
     if (loginMember != null) {
         System.out.println("loginMember.getMemberLocation(): " + loginMember.getMemberLocation());
         System.out.println("loginMember.getMemberLogin(): " + loginMember.getMemberLogin());

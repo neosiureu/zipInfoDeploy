@@ -144,7 +144,7 @@ function GlobalWebSocketListener() {
           member?.memberLocation !== null
         ) {
           sub2 = client.subscribe(
-            `/topic/region/${memberLocation}`,
+            `/topic/region/${member.memberLocation}`,
             (message) => {
               toast.info(
                 <div>
