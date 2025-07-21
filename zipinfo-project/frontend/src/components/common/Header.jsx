@@ -65,7 +65,7 @@ const Header = () => {
       toast.error("로그인 후 이용하시길 바랍니다.");
       return;
     }
-    navigate("/myPage/myStock");
+    navigate("/myStock");
   };
 
   return (
@@ -102,10 +102,10 @@ const Header = () => {
           {member?.memberAuth !== 0 && (
             <li
               className={
-                location.pathname.startsWith("/myPage/myStock") ? "active" : ""
+                location.pathname.startsWith("/myStock") ? "active" : ""
               }
             >
-              <Link to="/myPage/myStock">관심목록</Link>
+              <Link to="/myStock">관심목록</Link>
             </li>
           )}
           {member?.memberAuth === 0 && (
