@@ -55,7 +55,7 @@ export default function MemberSignUp() {
     pwMessageConfirm: "비밀번호를 다시 한번 입력해주세요.",
     nickMessage: "한글,영어,숫자로만 2~10글자",
     brokerNoMessage: "등록번호는 최소 9자리에서 최대 20자리 내로 입력해주세요",
-    presidentPhoneMessage: "전화번호는 10-11자리 숫자로 입력해주세요", // 전화번호 메시지 추가
+    presidentPhoneMessage: "전화번호는 9-11자리 숫자로 입력해주세요", // 전화번호 메시지 추가
   };
 
   const [activeTab, setActiveTab] = useState("general"); // 일반 vs 중개자
@@ -476,7 +476,7 @@ export default function MemberSignUp() {
     }
 
     // 2) 숫자만 입력 확인 및 길이 검사 (10-11자리)
-    const regExp = /^[0-9]{10,11}$/;
+    const regExp = /^[0-9]{9,11}$/;
     if (!regExp.test(inputPhone)) {
       updateMessage(
         "presidentPhoneMessage",
