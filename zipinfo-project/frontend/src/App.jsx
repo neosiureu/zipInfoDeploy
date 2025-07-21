@@ -108,20 +108,20 @@ function GlobalWebSocketListener() {
     let isMounted = true;
 
     const connectWebSocket = () => {
-      const token = localStorage.getItem("accessToken");
+       const token = localStorage.getItem("accessToken");
 
-      // URL 파라미터 완전 제거 - Authorization 헤더로만 전달
-      const wsUrl = `${import.meta.env.VITE_API_BASE_URL}/ws`;
-
-      const socket = new SockJS(wsUrl);
-      const client = Stomp.over(socket);
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  // URL 파라미터 완전 제거 - Authorization 헤더로만 전달
+  const wsUrl = `${import.meta.env.VITE_API_BASE_URL}/ws`;
+  
+  const socket = new SockJS(wsUrl);      
+  const client = Stomp.over(socket);
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}; 
       client.connect(headers, () => {
         if (!isMounted) return;
-        console.log(" 웹소켓 연결 시 상태:");
-        console.log("- member:", member);
-        console.log("- member?.memberLocation:", member?.memberLocation);
-        console.log("- member?.memberNo:", member?.memberNo);
+  console.log(" 웹소켓 연결 시 상태:");
+    console.log("- member:", member);
+    console.log("- member?.memberLocation:", member?.memberLocation);
+    console.log("- member?.memberNo:", member?.memberNo);
         const sub1 = client.subscribe("/topic/notice", (message) => {
           toast.info(
             <div>
@@ -138,13 +138,11 @@ function GlobalWebSocketListener() {
         });
 
         let sub2;
-        console.log("구독 경로:", `/topic/region/${member.memberLocation}`);
-        if (
-          member?.memberLocation !== undefined &&
-          member?.memberLocation !== null
-        ) {
+         console.log("구독 경로:", `/topic/region/${member.memberLocation}`);
+        if (member?.memberLocation !== undefined && member?.memberLocation !== null) {
+
           sub2 = client.subscribe(
-            `/topic/region/${member.memberLocation}`,
+            `/topic/region/${memberLocation}`,
             (message) => {
               toast.info(
                 <div>
@@ -275,7 +273,7 @@ function App() {
                 }
               />
               <Route
-                path="updateInfo"
+                path="myPage/updateInfo"
                 element={
                   <ProtectedRoute>
                     <BlockAdmin>
@@ -285,7 +283,7 @@ function App() {
                 }
               />
               <Route
-                path="myStock"
+                path="myPage/myStock"
                 element={
                   <ProtectedRoute>
                     <BlockAdmin>
@@ -295,7 +293,7 @@ function App() {
                 }
               />
               <Route
-                path="updateMyStock"
+                path="myPage/updateMyStock"
                 element={
                   <ProtectedRoute>
                     <BlockAdmin>
@@ -305,7 +303,7 @@ function App() {
                 }
               />
               <Route
-                path="addStock"
+                path="myPage/addStock"
                 element={
                   <ProtectedRoute>
                     <BlockAdmin>
@@ -315,7 +313,7 @@ function App() {
                 }
               />
               <Route
-                path="sawStock"
+                path="myPage/sawStock"
                 element={
                   <ProtectedRoute>
                     <BlockAdmin>
@@ -325,7 +323,7 @@ function App() {
                 }
               />
               <Route
-                path="likeStock"
+                path="myPage/likeStock"
                 element={
                   <ProtectedRoute>
                     <BlockAdmin>
@@ -335,7 +333,7 @@ function App() {
                 }
               />
               <Route
-                path="myMessage"
+                path="myPage/myMessage"
                 element={
                   <ProtectedRoute>
                     <BlockAdmin>
@@ -345,7 +343,7 @@ function App() {
                 }
               />
               <Route
-                path="seeMyMessage"
+                path="myPage/seeMyMessage"
                 element={
                   <ProtectedRoute>
                     <BlockAdmin>
@@ -355,7 +353,7 @@ function App() {
                 }
               />
               <Route
-                path="detailMessage/:messageNo"
+                path="myPage/detailMessage/:messageNo"
                 element={
                   <ProtectedRoute>
                     <BlockAdmin>
@@ -365,7 +363,7 @@ function App() {
                 }
               />
               <Route
-                path="myPost"
+                path="myPage/myPost"
                 element={
                   <ProtectedRoute>
                     <BlockAdmin>
@@ -375,7 +373,7 @@ function App() {
                 }
               />
               <Route
-                path="updatePassword"
+                path="myPageupdatePassword"
                 element={
                   <ProtectedRoute>
                     <BlockAdmin>
@@ -385,7 +383,7 @@ function App() {
                 }
               />
               <Route
-                path="withDraw"
+                path="myPage/withDraw"
                 element={
                   <ProtectedRoute>
                     <BlockAdmin>
