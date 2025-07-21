@@ -11,7 +11,6 @@ export default function Menu() {
 
   const tabs = [
     { label: "등록한 매물", path: "/myStock" },
-    { label: "매물 등록", path: "/addStock" },
     { label: "최근 본 매물", path: "/sawStock" },
     { label: "찜 매물", path: "/likeStock" },
   ];
