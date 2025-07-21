@@ -17,7 +17,7 @@ public class Stock {
     private int stockNo;                 // STOCK_NO
     private int memberNo;                // MEMBER_NO
     private String stockName;             // STOCK_NAME
-    private int stockSellPrice;          // STOCK_SELL_PRICE
+    private longg stockSellPrice;          // STOCK_SELL_PRICE
     private int stockManageFee;        // STOCK_FEE_MONTH_ADD
     private int stockFeeMonth;           // STOCK_FEE_MONTH (nullable)
     private String stockInfo;             // STOCK_INFO
