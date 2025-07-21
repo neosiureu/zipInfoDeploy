@@ -136,6 +136,9 @@ const Header = () => {
               </>
             ) : (
               <>
+                <li id="admin-page" className="Header-admin-page">
+                  <Link to="/addStock">매물 등록</Link>
+                </li>
                 <li id="my-page" className="Header-my-page">
                   <Link to="/myPage">마이페이지</Link>
                 </li>
