@@ -91,7 +91,7 @@ export const deletePost = async (postId) => {
   try {
     // DELETE 요청으로 공지사항 삭제, 쿠키 포함
     const response = await axiosAPI.post(
-      `${import.meta.env.VITE_API_BASE_URL}/api/announce/detail/delete`,
+      `/api/announce/detail/delete`,
       { announceNo: postId },
       {
         withCredentials: true,
