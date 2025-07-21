@@ -133,6 +133,7 @@ function GlobalWebSocketListener() {
               autoClose: 10000,
               className: "custom-toast",
               icon: false,
+              pauseOnFocusLoss: false,
             }
           );
         });
@@ -169,6 +170,7 @@ function GlobalWebSocketListener() {
                   autoClose: 10000,
                   className: "custom-toast",
                   icon: false,
+                  pauseOnFocusLoss: false,
                 }
               );
             }
@@ -562,7 +564,12 @@ function App() {
               />
             </Route>
           </Routes>
-          <ToastContainer position="top-center" icon={false} autoClose={3000} />
+          <ToastContainer
+            pauseOnFocusLoss="false"
+            position="top-center"
+            icon={false}
+            autoClose={3000}
+          />
         </MemberProvider>
       </BrowserRouter>
     </AuthProvider>
