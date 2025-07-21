@@ -12,6 +12,7 @@
   max-width: 1280px;
   max-height: 2 * 210px + 16px; /* 2 rows of cards + gap */
   overflow: hidden;
+  margin-top: -70px;
 }
 
 .property-card {
@@ -181,7 +182,32 @@
   margin-bottom: 120px;
 }
 
+.my-stock-pagination-none {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 120px;
+  margin-bottom: 40px;
+}
+
+.no-like-stock h1 {
+  font-size: 18px;
+  font-weight: 500;
+}
+
 .my-stock-pagination button {
+  border: none;
+  background: none;
+  font-weight: normal;
+  color: #767676;
+  font-size: 14px;
+  padding: 4px 4px;
+  margin: 0 4px;
+  cursor: pointer;
+}
+
+.my-stock-pagination-none button {
   border: none;
   background: none;
   font-weight: normal;
@@ -196,6 +222,37 @@
   font-weight: 700;
   background: none;
   color: #111;
+}
+
+.my-stock-pagination-none button.active-page-none {
+  font-weight: 700;
+  background: none;
+  color: #111;
+}
+
+.stock-add-btn {
+  background-color: #111;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  cursor: pointer;
+}
+
+.stock-add-btn-yes {
+  background-color: #111;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  cursor: pointer;
+  margin-top: -90px;
 }
 
 .my-stock-page-prev,
@@ -231,12 +288,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.no-like-stock h1 {
-  font-size: 16px;
-  margin: 80px 0;
-  font-weight: 400;
+  flex-direction: column;
 }
 
 .like-stock-bookmark {
@@ -302,4 +354,8 @@
   display: flex;
   flex-direction: row;
   gap: 8px;
+}
+
+.property-container {
+  margin-top: 120px;
 }
