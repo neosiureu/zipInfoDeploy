@@ -460,10 +460,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
               startTyping();
             }
 
-            // 특수 키 처리 시 커서 위치 저장
-            if (['Backspace', 'Delete', 'Enter'].includes(e.key)) {
-              lastKnownSelection.current = saveDetailedCursorPosition();
-            }
+            
           },
 
           onKeyup: function (e) {
