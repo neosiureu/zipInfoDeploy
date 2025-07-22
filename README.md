@@ -110,9 +110,22 @@ ZipInfo는 사용자의 안전한 부동산 거래를 위해 다음과 같은 �
 
 ## 📱 서비스 화면
 
-| 메인 페이지 | 분양 정보 | 실거래 정보 | 지역 게시판 | 마이페이지 |
-|:---:|:---:|:---:|:---:|:---:|
-| <img width="300" alt="메인 페이지" src="https://github.com/user-attachments/assets/0a4a3e30-b0e7-4cfd-8864-3643951b8213" /> | <img width="300" alt="분양 정보" src="https://github.com/user-attachments/assets/ac79324f-2ba3-47e1-b2b0-8ac560331004" /> | <img width="300" alt="실거래 정보" src="https://github.com/user-attachments/assets/4da70c5e-f6eb-423a-8dc5-ab969d609e3e" /> | <img width="300" alt="지역 게시판" src="https://github.com/user-attachments/assets/8db64410-5bd5-4e80-8cb7-31f93e2d7d1f" /> | <img width="300" alt="마이페이지" src="https://github.com/user-attachments/assets/3e6ef12a-96bf-42c9-91ed-015b426947d7" /> |
+# 📱 ZipInfo 서비스 화면
+
+## 메인 페이지
+![메인 페이지](https://github.com/user-attachments/assets/0a4a3e30-b0e7-4cfd-8864-3643951b8213)
+
+## 분양 정보
+![분양 정보](https://github.com/user-attachments/assets/ac79324f-2ba3-47e1-b2b0-8ac560331004)
+
+## 실거래 정보
+![실거래 정보](https://github.com/user-attachments/assets/4da70c5e-f6eb-423a-8dc5-ab969d609e3e)
+
+## 지역 게시판
+![지역 게시판](https://github.com/user-attachments/assets/8db64410-5bd5-4e80-8cb7-31f93e2d1f)
+
+## 마이페이지
+![마이페이지](https://github.com/user-attachments/assets/3e6ef12a-96bf-42c9-91ed-015b426947d7)ssets/4da70c5e-f6eb-423a-8dc5-ab969d609e3e" /> | <img width="300" alt="지역 게시판" src="https://github.com/user-attachments/assets/8db64410-5bd5-4e80-8cb7-31f93e2d7d1f" /> | <img width="300" alt="마이페이지" src="https://github.com/user-attachments/assets/3e6ef12a-96bf-42c9-91ed-015b426947d7" /> |
 
 ---
 
