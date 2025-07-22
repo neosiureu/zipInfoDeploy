@@ -122,10 +122,13 @@ const Main = () => {
     localStorage.setItem("recentSearch", JSON.stringify(history));
     console.log(stock);
 
-    const resp = await axiosAPI.post("/myPage/addSawStock", {
-      memberNo: stock.memberNo,
-      stockNo: stock.stockNo,
-    });
+      if (stock.stockNo) {
+      const resp = await axiosAPI.post("/myPage/addSawStock", {
+        memberNo: stock.memberNo,
+        stockNo: stock.stockNo,
+      });
+    }
+
 
     stock.stockNo
       ? navigate(`/stock/${stock.stockNo}`, {
