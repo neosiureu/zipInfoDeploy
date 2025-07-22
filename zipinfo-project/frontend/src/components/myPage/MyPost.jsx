@@ -111,7 +111,7 @@ const MyPost = () => {
               )}
             </tbody>
           </table>
-          <div className="my-stock-pagination">
+<div className="my-stock-page-center">            
             <button
               className="my-stock-page-prev"
               onClick={() => handlePageChange(1)}
