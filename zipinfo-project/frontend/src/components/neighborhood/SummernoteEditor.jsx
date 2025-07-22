@@ -464,10 +464,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
           // 키보드 이벤트 (바이트 체크 제거)
           onKeydown: function (e) {
             /* Enter 처리 : 무조건 <p> 생성 */
-            if (e.key === "Enter" && !e.shiftKey && !e.altKey && !e.ctrlKey) {
-              e.preventDefault();
-              document.execCommand("formatBlock", false, "p");
-            }
+            
 
             /* 타이핑 감지 로직 */
             if (e.key && e.key.length === 1 && !isComposing.current) {
