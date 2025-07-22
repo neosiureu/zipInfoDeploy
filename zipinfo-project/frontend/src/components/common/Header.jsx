@@ -137,7 +137,7 @@ const Header = () => {
             ) : (
               <>
                    {member.memberAuth === 3 && (
-            <li id="add-stock" className="Header-admin-page">
+            <li id="add-stock" className="Header-stock-add-page">
               <Link to="/addStock">매물 등록</Link>
             </li>
           )}

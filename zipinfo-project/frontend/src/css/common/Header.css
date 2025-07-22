@@ -52,7 +52,8 @@ a {
 .Header-my-page:hover,
 .Header-admin-page:hover,
 .Header-logout-btn:hover,
-.Header-menu li:hover {
+.Header-menu li:hover,
+.Header-stock-add-page:hover {
   color: #495cf8;
 }
 
@@ -106,6 +107,16 @@ a {
   font-size: 16px;
   font-weight: 600;
   margin-right: 12px;
+  cursor: pointer;
+  color: #111;
+  list-style: none;
+  padding: 12px 12px;
+}
+
+.Header-stock-add-page {
+  font-size: 16px;
+  font-weight: 600;
+  margin-right: 8x;
   cursor: pointer;
   color: #111;
   list-style: none;
