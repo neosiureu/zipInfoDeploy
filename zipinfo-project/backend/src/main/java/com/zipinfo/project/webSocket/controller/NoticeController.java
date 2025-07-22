@@ -55,6 +55,30 @@ public class NoticeController {
         }
     }
 
+    @PostMapping("/neighbor/update")
+    public void editBoardToast(@AuthenticationPrincipal Member loginMember,
+                           @RequestBody Member board) {
+
+        int memberLocation = loginMember.getMemberLocation();      //  예전 그대로
+        int boardLocation  = board.getMemberLocation();
+        int sliceLocation  = boardLocation / 1000;
+        
+        System.out.println("명령 입력 완료!");
+        System.out.println(loginMember);
+
+        if (String.valueOf(memberLocation).length() == 5) {
+            messagingTemplate.convertAndSend(
+                "/topic/region/" + boardLocation,
+                "우리동네 게시판에서 확인하세요!"
+            );
+        } else {
+            messagingTemplate.convertAndSend(
+                "/topic/region/" + sliceLocation,
+                "우리동네 게시판에서 확인하세요!"
+            );
+        }
+    }
+
     // 클라이언트가 보낼 경우 사용
     @MessageMapping("/send")
     public void receiveFromClient(String message) {
