@@ -155,13 +155,7 @@ header.Header-navbar .Header-menu li a:hover {
   color: #495cf8 !important;
 }
 
-.Header-stock-add-page > a {
-  color: #111 !important;
-}
 
-.Header-stock-add-page > a:hover {
-  color: #495cf8 !important;
-}
 
 /* 마이페이지 버튼의 링크 색상 */
 .Header-my-page > a {
@@ -169,5 +163,14 @@ header.Header-navbar .Header-menu li a:hover {
 }
 
 .Header-my-page > a:hover {
+  color: #495cf8 !important;
+}
+
+/* 로그아웃 버튼의 링크 색상 */
+.Header-logout-btn > a {
+  color: #111 !important;
+}
+
+.Header-logout-btn > a:hover {
   color: #495cf8 !important;
 }
