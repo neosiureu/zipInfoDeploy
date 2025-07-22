@@ -225,8 +225,9 @@ const NeighborhoodEdit = () => {
           boardSubject: selectedSubject, // 주제 코드 (QRE중 하나)
         };
         const { data: result } = await axiosAPI.put("/editBoard", params);
-await axiosAPI.get("/neighbor/update");
-        // ResponseEntity로 변경된 서버 응답 처리
+ await axiosAPI.post("/neighbor/update", {
+          memberLocation: selectedTown,
+        });        // ResponseEntity로 변경된 서버 응답 처리
         const actualResult =
           typeof result === "object" ? result.data || result : result;
 
