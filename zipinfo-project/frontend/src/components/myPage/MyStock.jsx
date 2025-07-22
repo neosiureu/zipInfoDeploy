@@ -392,7 +392,7 @@ export default function MyStock() {
                   <div className="my-stock-page-end">
                     <button
                       className="stock-add-btn"
-                      onClick={() => nav("/myPage/addStock")}
+                      onClick={() => nav("/addStock")}
                     >
                       매물 등록
                     </button>
