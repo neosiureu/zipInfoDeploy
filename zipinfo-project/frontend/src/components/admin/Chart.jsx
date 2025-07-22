@@ -286,7 +286,7 @@ function Chart() {
               fill="url(#stockGradient)"
               fillOpacity={1}
               strokeWidth={2}
-              name="분양등록"
+              name="실거래 등록"
             />
             {/* 그라데이션 정의 */}
             <defs>
