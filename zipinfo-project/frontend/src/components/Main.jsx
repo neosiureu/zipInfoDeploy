@@ -139,13 +139,13 @@ const Main = () => {
         });
   };
 
-  const deleteRecentSearch = (e) => {
+    const deleteRecentSearch = (e) => {
     let number = 0;
-    e.stockNo ? (number = e.stockNo) : (number = e.saleNo);
+    e.stockNo ? (number = e.stockNo) : (number = e.saleStockNo);
     let history = JSON.parse(localStorage.getItem("recentSearch")) || [];
 
     history = history.filter((item) =>
-      e.stockNo ? item.stockNo !== number : item.saleNo !== number
+      e.stockNo ? item.stockNo !== number : item.saleStockNo !== number
     );
 
     localStorage.setItem("recentSearch", JSON.stringify(history));
