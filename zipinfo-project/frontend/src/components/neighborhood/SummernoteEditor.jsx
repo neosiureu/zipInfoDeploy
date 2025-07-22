@@ -463,7 +463,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
           // 키보드 이벤트 (바이트 체크 제거)
           onKeydown: function (e) {
-            /* Enter 처리 : 무조건 <p> 생성 */
             
 
             /* 타이핑 감지 로직 */
@@ -656,7 +655,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
                     direction: ltr !important;
                     text-align: left !important;
                     word-wrap: break-word !important;
-                    word-break: break-all !important;
                   }
 
                   .note-editable * {
