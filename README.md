@@ -163,7 +163,7 @@ ZipInfo는 사용자의 안전한 부동산 거래를 위해 다음과 같은 �
 
 <div align="center">
   <sub>Built with ❤️ for Korean Real Estate Market</sub><br>
-  <sub>© 2024 ZipInfo. All rights reserved.</sub>
+  <sub>© 2025 ZipInfo. All rights reserved.</sub>
 </div>
 
 
