@@ -586,7 +586,7 @@ export default function AddStock() {
               </div>
             </div>
           );
-          nav("/myPage");
+          nav("/myStock");
         }
       }
     } catch (error) {
