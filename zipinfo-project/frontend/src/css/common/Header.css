@@ -154,3 +154,39 @@ header.Header-navbar .Header-menu li a:hover {
 .Header-navbar .Header-menu li > a:hover {
   color: #495cf8 !important;
 }
+
+/* 헤더 오른쪽 메뉴 링크들 기본 색상 강제 적용 */
+.Header-navbar .Header-member li > a {
+  color: #111 !important;
+}
+
+/* 헤더 오른쪽 메뉴 링크들 hover 시에만 파란색 */
+.Header-navbar .Header-member li > a:hover {
+  color: #495cf8 !important;
+}
+
+/* 특정 클래스들에 대한 색상 강제 적용 */
+.Header-navbar .Header-admin-page,
+.Header-navbar .Header-my-page,
+.Header-navbar .Header-stock-add-page {
+  color: #111 !important;
+}
+
+.Header-navbar .Header-admin-page:hover,
+.Header-navbar .Header-my-page:hover,
+.Header-navbar .Header-stock-add-page:hover {
+  color: #495cf8 !important;
+}
+
+/* 링크 태그 내부의 색상도 강제 적용 */
+.Header-navbar .Header-admin-page a,
+.Header-navbar .Header-my-page a,
+.Header-navbar .Header-stock-add-page a {
+  color: #111 !important;
+}
+
+.Header-navbar .Header-admin-page a:hover,
+.Header-navbar .Header-my-page a:hover,
+.Header-navbar .Header-stock-add-page a:hover {
+  color: #495cf8 !important;
+}
