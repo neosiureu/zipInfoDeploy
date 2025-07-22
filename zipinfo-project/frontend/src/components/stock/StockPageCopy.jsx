@@ -1040,7 +1040,7 @@ src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls[1]}`}        alt="평�
                     </tr>
                     <tr>
                       <td>관리비</td>
-                      <td>{item.stockManageFee}</td>
+                      <td>{item.stockManageFee/10000}만원</td>
                     </tr>
                     <tr>
                       <td>입주가능일</td>
