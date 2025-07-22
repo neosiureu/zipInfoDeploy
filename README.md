@@ -1,10 +1,5 @@
 #  ZipInfo - 부동산 정보 통합 플랫폼
 
-<div align="center">
-  <img src="https://img.shields.io/badge/Platform-Real%20Estate-blue?style=for-the-badge" alt="Platform">
-  <img src="https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge" alt="Status">
-  <img src="https://img.shields.io/badge/Auth-Kakao%20%7C%20Naver-yellow?style=for-the-badge" alt="Authentication">
-</div>
 
 ##  프로젝트 소개
 
@@ -19,7 +14,6 @@ ZipInfo는 복잡한 부동산 시장에서 투명하고 신뢰할 수 있는 �
 ###  **스마트 인증 시스템**
 - **OAuth 2.0 소셜 로그인**: 카카오, 네이버 간편 로그인 지원
 - **Kakao SDK**: JavaScript SDK를 활용한 매끄러운 로그인 UX
-- **전문가 인증**: 중개자 등록번호 검증을 통한 신뢰성 보장
 - **이메일 인증**: 중개자 회원가입 시 필수 본인확인
 
 ###  **고급 에디터 & 콘텐츠 관리**
@@ -54,7 +48,6 @@ ZipInfo는 복잡한 부동산 시장에서 투명하고 신뢰할 수 있는 �
 ###  **관리자 대시보드**
 - 회원 관리 및 게시글 모니터링
 - 회원 및 거래 매물 통계 분석
-- **중개자 검증 시스템**: 실제 중개 등록번호 확인을 통한 사이트 무결성 보장
 
 ---
 
@@ -117,7 +110,7 @@ ZipInfo는 사용자의 안전한 부동산 거래를 위해 다음과 같은 �
 - [ ] 지역별 부동산 관련 뉴스
 - [ ] 부동산 투자 분석 도구 추가
 - [ ] 실시간 채팅 상담 서비스
-
+- [ ] 전문가 인증: 중개자 등록번호 검증을 통한 신뢰성 보장
 ---
 
 ##  문의 및 지원
