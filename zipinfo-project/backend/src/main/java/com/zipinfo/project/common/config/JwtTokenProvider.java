@@ -23,8 +23,8 @@ import io.jsonwebtoken.security.Keys;
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}") private String secretKey;
-    @Value("${jwt.exp:1800000}") private long expMillis; // 기본 30분
-
+@Value("${jwt.access.expiration-ms:1800000}")  // 안전함
+private long expMillis;
     public String createAccessToken(Member member) {
         Date now = new Date();
         return Jwts.builder()

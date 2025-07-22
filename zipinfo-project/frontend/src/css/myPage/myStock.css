@@ -207,6 +207,11 @@
   font-weight: 500;
 }
 
+.no-like-stocks h1 {
+  font-size: 18px;
+  font-weight: 500;
+}
+
 .my-stock-page-center button {
   border: none;
   background: none;
@@ -286,6 +291,15 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
+}
+
+.no-like-stocks {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-top: -120px;
+  margin-bottom: 120px;
 }
 
 .like-stock-bookmark {

@@ -328,7 +328,7 @@ export default function MyStock() {
                 })}
               </div>
 
-              <div className="no-like-stock">
+              <div className="no-like-stocks">
                 <div className="my-stock-pagination-none">
                   {/* 맨 처음 페이지로 */}
                   <div></div>
