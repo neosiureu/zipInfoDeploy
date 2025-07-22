@@ -249,17 +249,16 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
     // 커서 복원 (타이핑 중이 아닐 때만)
     const currentCursor = saveCursorPosition();
-    if (currentCursor && !isTyping.current) {
-      requestAnimationFrame(() => {
-        // 커서 복원 후 React 상태 업데이트
-        setTimeout(() => {
-          if (onChange) onChange(contents);
-        }, 10);
-      });
-    } else {
-      // 커서 복원을 하지 않는 경우에는 즉시 onChange 호출
-      if (onChange) onChange(contents);
+    if (currentCursor) {
+  requestAnimationFrame(() => {
+    if (restoreCursorPosition(currentCursor)) {
+      /* 복원 성공 */
     }
+    onChange(contents);
+  });
+} else {
+  onChange(contents);
+}
 
     isProcessingChange.current = false;
   };
