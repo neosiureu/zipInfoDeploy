@@ -279,7 +279,7 @@ const Main = () => {
           ) : item.stockType === 2 ? (
             <>
               <span>월세 </span>
-              {formatPrice(item.stockSellPrice)} / {item.stockFeeMonth}
+              {formatPrice(item.stockSellPrice)} / {item.stockFeeMonth / 10000}
             </>
           ) : (
             "기타"
