@@ -116,8 +116,8 @@ const MyPost = () => {
               <div className="no-my-post">작성한 문의글이 없습니다.</div>
             )}
           </div>
-          <div className="my-stock-pagination">
-            <button
+<div className="my-stock-page-center">            
+  <button
               className="my-stock-page-prev"
               onClick={() => handlePageChange(1)}
               disabled={currentPage === 1}
