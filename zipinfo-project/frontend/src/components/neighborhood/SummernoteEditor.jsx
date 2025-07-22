@@ -206,7 +206,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
     typingTimeout.current = setTimeout(() => {
       isTyping.current = false;
       processQueuedChanges();
-    }, 200);
+    }, 100);
   };
 
   // 큐에 쌓인 변경사항 처리
