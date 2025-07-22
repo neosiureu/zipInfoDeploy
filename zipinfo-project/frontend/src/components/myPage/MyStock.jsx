@@ -165,55 +165,60 @@ export default function MyStock() {
               <h1>등록한 매물이 없습니다.</h1>
               <div className="my-stock-pagination-none">
                 {/* 맨 처음 페이지로 */}
-                <button
-                  className="my-stock-page-prev"
-                  onClick={() => handlePageChange(1)}
-                  disabled={currentPage === 1}
-                >
-                  ‹‹
-                </button>
+                <div></div>
+                <div className="my-stock-page-center">
+                  <button
+                    className="my-stock-page-prev"
+                    onClick={() => handlePageChange(1)}
+                    disabled={currentPage === 1}
+                  >
+                    ‹‹
+                  </button>
 
-                {/* 이전 그룹 이동 */}
-                <button
-                  className="my-stock-page-prev"
-                  onClick={() => handlePageChange(Math.max(1, startPage - 1))}
-                  disabled={startPage === 1}
-                >
-                  ‹
-                </button>
+                  {/* 이전 그룹 이동 */}
+                  <button
+                    className="my-stock-page-prev"
+                    onClick={() => handlePageChange(Math.max(1, startPage - 1))}
+                    disabled={startPage === 1}
+                  >
+                    ‹
+                  </button>
 
-                {/* 현재 그룹의 페이지들 */}
-                <button
-                  onClick={() => handlePageChange(page)}
-                  className={"active-page-none"}
-                >
-                  1
-                </button>
+                  {/* 현재 그룹의 페이지들 */}
+                  <button
+                    onClick={() => handlePageChange(page)}
+                    className={"active-page-none"}
+                  >
+                    1
+                  </button>
 
-                {/* 다음 그룹 이동 */}
-                <button
-                  className="my-stock-page-next"
-                  onClick={() => handlePageChange(endPage + 1)}
-                  disabled={endPage >= totalPages}
-                >
-                  ›
-                </button>
+                  {/* 다음 그룹 이동 */}
+                  <button
+                    className="my-stock-page-next"
+                    onClick={() => handlePageChange(endPage + 1)}
+                    disabled={endPage >= totalPages}
+                  >
+                    ›
+                  </button>
 
-                {/* 맨 마지막 페이지로 */}
-                <button
-                  className="my-stock-page-next"
-                  onClick={() => handlePageChange(totalPages)}
-                  disabled={currentPage === totalPages}
-                >
-                  ››
-                </button>
+                  {/* 맨 마지막 페이지로 */}
+                  <button
+                    className="my-stock-page-next"
+                    onClick={() => handlePageChange(totalPages)}
+                    disabled={currentPage === totalPages}
+                  >
+                    ››
+                  </button>
+                </div>
+                <div className="my-stock-page-end">
+                  <button
+                    className="stock-add-btn"
+                    onClick={() => nav("/addStock")}
+                  >
+                    매물 등록
+                  </button>
+                </div>
               </div>
-              <button
-                className="stock-add-btn"
-                onClick={() => nav("/addStock")}
-              >
-                매물 등록
-              </button>
             </div>
           ) : (
             <>
@@ -324,66 +329,75 @@ export default function MyStock() {
               </div>
 
               <div className="no-like-stock">
-                <div className="my-stock-pagination">
+                <div className="my-stock-pagination-none">
                   {/* 맨 처음 페이지로 */}
-                  <button
-                    className="my-stock-page-prev"
-                    onClick={() => handlePageChange(1)}
-                    disabled={currentPage === 1}
-                  >
-                    ‹‹
-                  </button>
+                  <div></div>
+                  <div className="my-stock-page-center">
+                    <button
+                      className="my-stock-page-prev"
+                      onClick={() => handlePageChange(1)}
+                      disabled={currentPage === 1}
+                    >
+                      ‹‹
+                    </button>
 
-                  {/* 이전 그룹 이동 */}
-                  <button
-                    className="my-stock-page-prev"
-                    onClick={() => handlePageChange(Math.max(1, startPage - 1))}
-                    disabled={startPage === 1}
-                  >
-                    ‹
-                  </button>
+                    {/* 이전 그룹 이동 */}
+                    <button
+                      className="my-stock-page-prev"
+                      onClick={() =>
+                        handlePageChange(Math.max(1, startPage - 1))
+                      }
+                      disabled={startPage === 1}
+                    >
+                      ‹
+                    </button>
 
-                  {/* 현재 그룹의 페이지들 */}
-                  {Array.from(
-                    { length: endPage - startPage + 1 },
-                    (_, index) => {
-                      const page = startPage + index;
-                      return (
-                        <button
-                          key={page}
-                          onClick={() => handlePageChange(page)}
-                          className={currentPage === page ? "active-page" : ""}
-                        >
-                          {page}
-                        </button>
-                      );
-                    }
-                  )}
+                    {/* 현재 그룹의 페이지들 */}
+                    {Array.from(
+                      { length: endPage - startPage + 1 },
+                      (_, index) => {
+                        const page = startPage + index;
+                        return (
+                          <button
+                            key={page}
+                            onClick={() => handlePageChange(page)}
+                            className={
+                              currentPage === page ? "active-page" : ""
+                            }
+                          >
+                            {page}
+                          </button>
+                        );
+                      }
+                    )}
 
-                  {/* 다음 그룹 이동 */}
-                  <button
-                    className="my-stock-page-next"
-                    onClick={() => handlePageChange(endPage + 1)}
-                    disabled={endPage >= totalPages}
-                  >
-                    ›
-                  </button>
+                    {/* 다음 그룹 이동 */}
+                    <button
+                      className="my-stock-page-next"
+                      onClick={() => handlePageChange(endPage + 1)}
+                      disabled={endPage >= totalPages}
+                    >
+                      ›
+                    </button>
 
-                  {/* 맨 마지막 페이지로 */}
-                  <button
-                    className="my-stock-page-next"
-                    onClick={() => handlePageChange(totalPages)}
-                    disabled={currentPage === totalPages}
-                  >
-                    ››
-                  </button>
+                    {/* 맨 마지막 페이지로 */}
+                    <button
+                      className="my-stock-page-next"
+                      onClick={() => handlePageChange(totalPages)}
+                      disabled={currentPage === totalPages}
+                    >
+                      ››
+                    </button>
+                  </div>
+                  <div className="my-stock-page-end">
+                    <button
+                      className="stock-add-btn"
+                      onClick={() => nav("/myPage/addStock")}
+                    >
+                      매물 등록
+                    </button>
+                  </div>
                 </div>
-                <button
-                  className="stock-add-btn-yes"
-                  onClick={() => nav("/addStock")}
-                >
-                  매물 등록
-                </button>
               </div>
             </>
           )}
