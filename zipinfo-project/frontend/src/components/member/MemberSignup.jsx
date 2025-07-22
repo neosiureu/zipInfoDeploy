@@ -428,7 +428,7 @@ export default function MemberSignUp() {
     }
 
     // 2) 형식 검사
-const regExp = /^(\d{8}-\d{2,4}[가-힣a-zA-Z]?|\d{5}-\d{4}-\d{3,5}|\d{3,5}-\d{2,4}-\d{1,5})$/;
+const regExp = /^(\d{8}-\d{2,4}-[가-힣a-zA-Z]{1}|\d{8}-\d{2,4}|\d{5}-\d{4}-\d{3,5}|\d{3,5}-\d{2,4}-\d{1,5})$/;
     if (!regExp.test(inputBrokerNo)) {
       updateMessage(
         "brokerNoMessage",
