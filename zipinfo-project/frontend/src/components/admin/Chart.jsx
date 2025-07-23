@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   XAxis,
   YAxis,
@@ -11,12 +11,14 @@ import {
 import { axiosAPI } from "../../api/axiosApi";
 import { toast } from "react-toastify";
 import refresh from "../../assets/refresh.svg";
+import { MemberContext } from "../member/MemberContext";
 
 function Chart() {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const { member } = useContext(MemberContext);
   // 가입/탈퇴/분양 데이터를 하나로 합치는 함수
   const mergeChartData = (signupData, withdrawData, stockData) => {
     const dataMap = new Map();
@@ -96,15 +98,17 @@ function Chart() {
       toast.dismiss(loadingToastId);
 
       // 데이터 로딩 성공 toast
-      toast.success(
-        <div>
-          <div className="toast-success-title">데이터 로딩 완료!</div>
-          <div className="toast-success-body">
-            회원 가입/탈퇴 및 분양정보 차트 데이터를 성공적으로 불러왔습니다.
-          </div>
-        </div>,
-        { autoClose: 3000 }
-      );
+      if (member?.memberAuth === 0) {
+        toast.success(
+          <div>
+            <div className="toast-success-title">데이터 로딩 완료!</div>
+            <div className="toast-success-body">
+              회원 가입/탈퇴 및 분양정보 차트 데이터를 성공적으로 불러왔습니다.
+            </div>
+          </div>,
+          { autoClose: 3000 }
+        );
+      }
     } catch (err) {
       console.error("차트 데이터 로딩 에러:", err);
       setError(err.message || "데이터 로드 중 오류가 발생했습니다.");
