@@ -378,7 +378,7 @@ const isEnterPressed = useRef(false);
                 .find(".note-editable");
 
               // 이전 유효한 HTML로 되돌리기
-              
+
               if (lastValidHtml.current) {
                 $editable.html(lastValidHtml.current);
                 // 커서 위치 복원
@@ -750,20 +750,20 @@ const isEnterPressed = useRef(false);
             // 초기 커서 위치 설정
             setTimeout(() => {
               $editable.focus();
-              const range = document.createRange();
-              const sel = window.getSelection();
+              // const range = document.createRange();
+              // const sel = window.getSelection();
 
-              const firstChild = $editable[0].firstChild;
-              if (firstChild) {
-                if (firstChild.nodeType === Node.TEXT_NODE) {
-                  range.setStart(firstChild, 0);
-                } else {
-                  range.setStart(firstChild, 0);
-                }
-                range.collapse(true);
-                sel.removeAllRanges();
-                sel.addRange(range);
-              }
+              // const firstChild = $editable[0].firstChild;
+              // if (firstChild) {
+              //   if (firstChild.nodeType === Node.TEXT_NODE) {
+              //     range.setStart(firstChild, 0);
+              //   } else {
+              //     range.setStart(firstChild, 0);
+              //   }
+              //   range.collapse(true);
+              //   sel.removeAllRanges();
+              //   sel.addRange(range);
+              // }
             }, 100);
 
             setIsReady(true);
