@@ -463,38 +463,33 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
           // 키보드 이벤트 (바이트 체크 제거)
           onKeydown: function (e) {
-
-            if(e.key !== "backspace"){
-            /* Enter 처리 : 무조건 <p> 생성 */
-            if (e.key === "Enter" && !e.shiftKey && !e.altKey && !e.ctrlKey) {
-              e.preventDefault();
-              document.execCommand("formatBlock", false, "p");
-            }
-
-             setTimeout(() => {
-        const $editable = window.$(editorRef.current).next(".note-editor").find(".note-editable");
-        const paragraphs = $editable.find('p');
-        const lastP = paragraphs[paragraphs.length - 1];
-        
-        if (lastP) {
-          const range = document.createRange();
-          const sel = window.getSelection();
-          range.setStart(lastP, 0);
-          range.collapse(true);
-          sel.removeAllRanges();
-          sel.addRange(range);
-        }
-      }, 10);
-            /* 타이핑 감지 로직 */
-            if (e.key && e.key.length === 1 && !isComposing.current) {
-              startTyping();
-            }
-          
-          
-          }
-
+  /* Enter 처리 : 무조건 <p> 생성 */
+  if (e.key === "Enter" && !e.shiftKey && !e.altKey && !e.ctrlKey) {
+    e.preventDefault();
+    document.execCommand("formatBlock", false, "p");
+    
+    // 커서를 새로운 줄로 이동
+    setTimeout(() => {
+      const $editable = window.$(editorRef.current).next(".note-editor").find(".note-editable");
+      const paragraphs = $editable.find('p');
+      const lastP = paragraphs[paragraphs.length - 1];
       
-          },
+      if (lastP) {
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.setStart(lastP, 0);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }, 10);
+  }
+
+  /* 타이핑 감지 로직 */
+  if (e.key && e.key.length === 1 && !isComposing.current) {
+    startTyping();
+  }
+},
 
           onKeyup: function (e) {
             // 타이핑 감지
