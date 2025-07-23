@@ -249,7 +249,16 @@ const isEnterPressed = useRef(false);
 
     // 커서 복원 (타이핑 중이 아닐 때만)
     const currentCursor = saveCursorPosition();
-  if (currentCursor && !isEnterPressed.current) {  //  엔터키 체크 추가
+
+// 엔터키 플래그 먼저 리셋
+if (isEnterPressed.current) {
+  isEnterPressed.current = false;
+  onChange(contents); // 엔터키면 커서 복원 안하고 바로 처리
+  return;
+}
+
+// 일반적인 경우에만 커서 복원
+if (currentCursor) {
   requestAnimationFrame(() => {
     if (restoreCursorPosition(currentCursor)) {
       /* 복원 성공 */
@@ -258,7 +267,6 @@ const isEnterPressed = useRef(false);
   });
 } else {
   onChange(contents);
-  isEnterPressed.current = false;  //  플래그 리셋
 }
 
     isProcessingChange.current = false;
