@@ -222,52 +222,59 @@ const isEnterPressed = useRef(false);
 
   // 간소화된 변경사항 처리 함수 (바이트 체크 제거)
   const processChange = (contents) => {
-    if (isProcessingChange.current) {
+  if (isProcessingChange.current) {
+    return;
+  }
+
+  isProcessingChange.current = true;
+
+  try {
+    // 플레이스홀더 처리
+    const isEmpty = isContentEmpty(contents);
+    const $editable = window
+      .$(editorRef.current)
+      .next(".note-editor")
+      .find(".note-editable");
+
+    const shouldShowPlaceholder =
+      isEmpty && $editable.text().trim().length === 0;
+    const currentlyHasPlaceholder = $editable.hasClass("force-placeholder");
+
+    if (shouldShowPlaceholder !== currentlyHasPlaceholder) {
+      if (shouldShowPlaceholder) {
+        $editable.addClass("force-placeholder");
+      } else {
+        $editable.removeClass("force-placeholder");
+      }
+    }
+
+    // 엔터키면 커서 복원 안함
+    if (isEnterPressed.current) {
+      isEnterPressed.current = false;
+      onChange(contents);
       return;
     }
 
-    isProcessingChange.current = true;
-
-   const isEmpty = isContentEmpty(contents);
-const $editable = window
-  .$(editorRef.current)
-  .next(".note-editor")
-  .find(".note-editable");
-
-const shouldShowPlaceholder =
-  isEmpty && $editable.text().trim().length === 0;
-const currentlyHasPlaceholder = $editable.hasClass("force-placeholder");
-
-if (shouldShowPlaceholder !== currentlyHasPlaceholder) {
-  if (shouldShowPlaceholder) {
-    $editable.addClass("force-placeholder");
-  } else {
-    $editable.removeClass("force-placeholder");
-  }
-}
-
-// 엔터키 처리 (플레이스홀더 처리 후)
-if (isEnterPressed.current) {
-  isEnterPressed.current = false;
-  onChange(contents);
-  return;
-}
-
-// 일반적인 커서 복원
-const currentCursor = saveCursorPosition();
-if (currentCursor) {
-  requestAnimationFrame(() => {
-    if (restoreCursorPosition(currentCursor)) {
-      /* 복원 성공 */
+    //  커서 복원 로직 대폭 간소화 - 타이핑 중일 때만 복원
+    if (isTyping.current) {
+      const currentCursor = saveCursorPosition();
+      if (currentCursor) {
+        requestAnimationFrame(() => {
+          restoreCursorPosition(currentCursor);
+          onChange(contents);
+        });
+      } else {
+        onChange(contents);
+      }
+    } else {
+      // 타이핑 중이 아니면 커서 복원 안함
+      onChange(contents);
     }
-    onChange(contents);
-  });
-} else {
-  onChange(contents);
-}
 
+  } finally {
     isProcessingChange.current = false;
-  };
+  }
+};
 
   // 진짜 썸머노츠 동적 로딩
   const loadSummernoteCSS = () => {
