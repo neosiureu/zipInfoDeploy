@@ -228,36 +228,33 @@ const isEnterPressed = useRef(false);
 
     isProcessingChange.current = true;
 
-    // 플레이스홀더 처리
-    const isEmpty = isContentEmpty(contents);
-    const $editable = window
-      .$(editorRef.current)
-      .next(".note-editor")
-      .find(".note-editable");
+   const isEmpty = isContentEmpty(contents);
+const $editable = window
+  .$(editorRef.current)
+  .next(".note-editor")
+  .find(".note-editable");
 
-    const shouldShowPlaceholder =
-      isEmpty && $editable.text().trim().length === 0;
-    const currentlyHasPlaceholder = $editable.hasClass("force-placeholder");
+const shouldShowPlaceholder =
+  isEmpty && $editable.text().trim().length === 0;
+const currentlyHasPlaceholder = $editable.hasClass("force-placeholder");
 
-    if (shouldShowPlaceholder !== currentlyHasPlaceholder) {
-      if (shouldShowPlaceholder) {
-        $editable.addClass("force-placeholder");
-      } else {
-        $editable.removeClass("force-placeholder");
-      }
-    }
+if (shouldShowPlaceholder !== currentlyHasPlaceholder) {
+  if (shouldShowPlaceholder) {
+    $editable.addClass("force-placeholder");
+  } else {
+    $editable.removeClass("force-placeholder");
+  }
+}
 
-    // 커서 복원 (타이핑 중이 아닐 때만)
-    const currentCursor = saveCursorPosition();
-
-// 엔터키 플래그 먼저 리셋
+// 엔터키 처리 (플레이스홀더 처리 후)
 if (isEnterPressed.current) {
   isEnterPressed.current = false;
-  onChange(contents); // 엔터키면 커서 복원 안하고 바로 처리
+  onChange(contents);
   return;
 }
 
-// 일반적인 경우에만 커서 복원
+// 일반적인 커서 복원
+const currentCursor = saveCursorPosition();
 if (currentCursor) {
   requestAnimationFrame(() => {
     if (restoreCursorPosition(currentCursor)) {
