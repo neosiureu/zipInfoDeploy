@@ -105,7 +105,11 @@ const Header = () => {
                 location.pathname.startsWith("/myStock") ? "active" : ""
               }
             >
-              <Link to="/myStock">관심목록</Link>
+              {member?.memberAuth === 3 ? (
+                <Link to="/myStock">관심목록</Link>
+              ) : (
+                <Link to="/sawStock">최근 본 매물</Link>
+              )}
             </li>
           )}
           {member?.memberAuth === 0 && (
@@ -136,11 +140,11 @@ const Header = () => {
               </>
             ) : (
               <>
-                   {member.memberAuth === 3 && (
-            <li id="add-stock" className="Header-stock-add-page">
-              <Link to="/addStock">매물 등록</Link>
-            </li>
-          )}
+                {member.memberAuth === 3 && (
+                  <li id="add-stock" className="Header-stock-add-page">
+                    <Link to="/addStock">매물 등록</Link>
+                  </li>
+                )}
                 <li id="my-page" className="Header-my-page">
                   <Link to="/myPage">마이페이지</Link>
                 </li>
