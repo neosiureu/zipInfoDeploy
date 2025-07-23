@@ -378,12 +378,13 @@ const isEnterPressed = useRef(false);
                 .find(".note-editable");
 
               // 이전 유효한 HTML로 되돌리기
+              
               if (lastValidHtml.current) {
                 $editable.html(lastValidHtml.current);
                 // 커서 위치 복원
-                if (savedCursor.current) {
-                  restoreCursorPosition(savedCursor.current);
-                }
+                // if (savedCursor.current) {
+                //   restoreCursorPosition(savedCursor.current);
+                // }
               }
 
               // 토스트 메시지 표시
@@ -400,7 +401,7 @@ const isEnterPressed = useRef(false);
 
             // 유효한 내용이면 저장
             lastValidHtml.current = contents;
-            savedCursor.current = saveCursorPosition();
+            // savedCursor.current = saveCursorPosition();
 
             const currentTime = Date.now();
             const timeDiff = currentTime - lastChangeTime.current;
