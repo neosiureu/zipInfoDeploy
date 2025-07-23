@@ -428,8 +428,7 @@ export default function MemberSignUp() {
     }
 
     // 2) 형식 검사
-const regExp = /^(\d{8}-\d{2,4}-[가-힣a-zA-Z]{1}|\d{8}-\d{2,5}|\d{8}-[가-힣a-zA-Z]{1}\d{3}|\d{8}-\d{2}[가-힣a-zA-Z]{1}|\d{5}-\d{4}-\d{3,5}|\d{3,5}-\d{2,4}-\d{1,5})$/;
-    if (!regExp.test(inputBrokerNo)) {
+const regExp = /^(\d{8}-\d{2,4}-[가-힣a-zA-Z]{1}|\d{8}-\d{2,5}|\d{8}-[가-힣a-zA-Z]{1}\d{3}|\d{8}-\d{2}[가-힣a-zA-Z]{1}|\d{5}-\d{4}-\d{3,5}|\d{3,5}-\d{2,4}-\d{1,5}|\d{5}-\d{4}-\d{5}-\d{3}|[가-힣a-zA-Z]{1}\d{8}-\d{4})$/;    if (!regExp.test(inputBrokerNo)) {
       updateMessage(
         "brokerNoMessage",
         "중개사 번호 형식이 올바르지 않습니다.",
