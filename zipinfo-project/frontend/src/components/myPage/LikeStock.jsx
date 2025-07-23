@@ -250,7 +250,7 @@ export default function MyStock() {
                 })}
               </div>
 
-              <div className="my-stock-pagination">
+              <div className="my-stock-page-center">
                 {/* 맨 처음 페이지로 */}
                 <button
                   className="my-stock-page-prev"
