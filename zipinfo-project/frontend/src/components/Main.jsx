@@ -11,12 +11,13 @@ import agent from "../assets/agent-icon.svg";
 import deleteBtn from "../assets/delete-icon.svg";
 
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { axiosAPI } from "../api/axiosApi";
 
 import { formatPrice } from "../components/common/priceConvert";
 import { convertToJSDate, getTimeAgo } from "../components/common/dateConvert";
 import { X } from "lucide-react";
+import { MemberContext } from "./member/MemberContext";
 
 const Main = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const Main = () => {
   const [stockList, setStockList] = useState([]);
   const [saleList, setSaleList] = useState([]);
   const [mainAd, setMainAd] = useState(null);
- useEffect(() => {
+  useEffect(() => {
     console.log("[DEBUG] mainAd.adImgUrl ▶", mainAd?.adImgUrl);
   }, [mainAd]);
   const [searchContent, setSearchContent] = useState("");
@@ -38,6 +39,8 @@ const Main = () => {
   const [searchSale, setSearchSale] = useState([]);
 
   const [recentSearch, setRecentSearch] = useState([]);
+
+  const { member } = useContext(MemberContext);
 
   const handleSearchActive = () => {
     setIsSearchActive(true);
@@ -122,13 +125,12 @@ const Main = () => {
     localStorage.setItem("recentSearch", JSON.stringify(history));
     console.log(stock);
 
-      if (stock.stockNo) {
+    if (stock.stockNo && member) {
       const resp = await axiosAPI.post("/myPage/addSawStock", {
         memberNo: stock.memberNo,
         stockNo: stock.stockNo,
       });
     }
-
 
     stock.stockNo
       ? navigate(`/stock/${stock.stockNo}`, {
@@ -139,7 +141,7 @@ const Main = () => {
         });
   };
 
-    const deleteRecentSearch = (e) => {
+  const deleteRecentSearch = (e) => {
     let number = 0;
     e.stockNo ? (number = e.stockNo) : (number = e.saleStockNo);
     let history = JSON.parse(localStorage.getItem("recentSearch")) || [];
@@ -233,7 +235,6 @@ const Main = () => {
       <div className="card" key={item.stockNo}>
         <img
           src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrl}`}
-
           alt="실거래 집 썸네일 이미지"
           onClick={() => {
             navigate(`/stock/${item.stockNo}`, {
@@ -581,7 +582,11 @@ const Main = () => {
 
       {mainAd && mainAd.adImgUrl !== null ? (
         <div className="banner">
-<img  src={`https://www.zipinfo.site${mainAd.adImgUrl}`}                        alt="배너광고 이미지" />     </div>
+          <img
+            src={`https://www.zipinfo.site${mainAd.adImgUrl}`}
+            alt="배너광고 이미지"
+          />{" "}
+        </div>
       ) : (
         <div />
       )}
