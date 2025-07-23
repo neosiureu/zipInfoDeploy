@@ -16,39 +16,11 @@ import arrowDown from "../../assets/arrow-down.svg";
 import refresh from "../../assets/refresh.svg";
 
 const NeighborhoodBoard = ({}) => {
-  // 환경변수 디버깅 로그 추가
-  // useEffect(() => {
-  //   console.log("🔍 === 우리동네게시판 환경변수 체크 ===");
-  //   console.log("🔍 VITE_KAKAOMAP_KEY:", import.meta.env.VITE_KAKAOMAP_KEY);
-  //   console.log("🔍 VITE_KAKAO_JS_KEY:", import.meta.env.VITE_KAKAO_JS_KEY);
-  //   console.log(
-  //     "🔍 VITE_KAKAO_REST_API_KEY:",
-  //     import.meta.env.VITE_KAKAO_REST_API_KEY
-  //   );
-  //   console.log("🔍 VITE_VWORLD_KEY:", import.meta.env.VITE_VWORLD_KEY);
-  //   console.log("🔍 VITE_VWORLD_DOMAIN:", import.meta.env.VITE_VWORLD_DOMAIN);
-  //   console.log(
-  //     "🔍 VITE_PUBLIC_DATA_API_KEY:",
-  //     import.meta.env.VITE_PUBLIC_DATA_API_KEY
-  //   );
-  //   console.log(
-  //     "🔍 VITE_NAVER_CLIENT_ID:",
-  //     import.meta.env.VITE_NAVER_CLIENT_ID
-  //   );
-  //   console.log(
-  //     "🔍 VITE_NAVER_CALLBACK_URI:",
-  //     import.meta.env.VITE_NAVER_CALLBACK_URI
-  //   );
-  //   console.log("🔍 모든 환경변수:", import.meta.env);
-  // }, []);
  
   const [searchParams, setSearchParams] = useSearchParams();
   const { member } = useContext(MemberContext);
 useEffect(() => {
-    console.log("=== 우리동네 게시판 페이지 ===");
-    console.log("member:", member);
-    console.log("memberLocation:", member?.memberLocation);
-    console.log("memberNo:", member?.memberNo);
+ 
   }, [member]);
   const initCp = Number(searchParams.get("cp") ?? 1);
 
