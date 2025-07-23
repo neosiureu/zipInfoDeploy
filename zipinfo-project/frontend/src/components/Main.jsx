@@ -20,6 +20,25 @@ import { X } from "lucide-react";
 import { MemberContext } from "./member/MemberContext";
 
 const Main = () => {
+  console.log('%c', 'color: #000; background: #000');
+console.log('%c🚨🚨🚨 극혐 주의 CANNIBALISTIC HOUSE 🚨🚨🚨', 'color: #FF0000; font-size: 12px; font-weight: bold; background: #000');
+
+console.log('%c          ████████████████████████████████████████████████', 'color: #0F0F0F; background: #000');
+console.log('%c         ██🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖██', 'color: #8B4513; background: #000');
+console.log('%c        ██🍖  ┌─────────┐🍖🍖🍖🍖🍖🍖🍖┌─────────┐  🍖██', 'color: #2F4F4F; background: #000');
+console.log('%c       ██🍖   │💀👄💀👄💀│🍖🍖🍖🍖🍖🍖│💀👄💀👄💀│   🍖██', 'color: #FF0000; background: #000');
+console.log('%c      ██🍖    │ 🩸👅👅🩸 │🍖🍖🍖🍖🍖🍖│ 🩸👅👅🩸 │    🍖██', 'color: #8B0000; background: #000');
+console.log('%c     ██🍖     │🦷🦷🦷🦷🦷│🍖🍖🍖🍖🍖🍖│🦷🦷🦷🦷🦷│     🍖██', 'color: #FFFFFF; background: #000');
+console.log('%c  ██🍖🍖🍖     ┌─────────────────────────┐     🍖🍖🍖██', 'color: #2F4F4F; background: #000');
+console.log('%c ██🍖🍖🍖      │🦷🦷🦷🦷🦷🦷🦷🦷🦷🦷🦷🦷🦷│      🍖🍖🍖██', 'color: #FFFFFF; background: #000');
+console.log('%c██🍖🍖🍖       │🦷 🍖 I  E A T  P E O P L E 🍖🦷│       🍖🍖🍖██', 'color: #8B4513; background: #000');
+console.log('%c██🍖🍖🍖       │🦷 🩸 Y U M M Y  M E A T 🩸 🦷│       🍖🍖🍖██', 'color: #8B0000; background: #000');
+console.log('%c██🍖🍖🍖       │🦷 👅 C O M E  C L O S E R 👅🦷│       🍖🍖🍖██', 'color: #FF69B4; background: #000');
+console.log('%c██🍖🍖🍖       │🦷🦷🦷🦷🦷🦷🦷🦷🦷🦷🦷🦷🦷│       🍖🍖🍖██', 'color: #FFFFFF; background: #000');
+
+console.log('%c', 'color: #000; background: #000');
+console.log('%c🍽️ 저녁식사 준비됐어요... 당신이 메인요리! 🍽️', 'color: #8B0000; font-weight: bold; background: #000');
+console.log('%c🔪 이미 늦었어요... 집이 당신을 냄새맡고 있어요 🔪', 'color: #FF0000; font-weight: bold; background: #000');
   const navigate = useNavigate();
 
   const [stockList, setStockList] = useState([]);
