@@ -750,20 +750,7 @@ const isEnterPressed = useRef(false);
             // 초기 커서 위치 설정
             setTimeout(() => {
               $editable.focus();
-              // const range = document.createRange();
-              // const sel = window.getSelection();
-
-              // const firstChild = $editable[0].firstChild;
-              // if (firstChild) {
-              //   if (firstChild.nodeType === Node.TEXT_NODE) {
-              //     range.setStart(firstChild, 0);
-              //   } else {
-              //     range.setStart(firstChild, 0);
-              //   }
-              //   range.collapse(true);
-              //   sel.removeAllRanges();
-              //   sel.addRange(range);
-              // }
+             
             }, 100);
 
             setIsReady(true);
