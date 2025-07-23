@@ -20,31 +20,7 @@ import { X } from "lucide-react";
 import { MemberContext } from "./member/MemberContext";
 
 const Main = () => {
-  console.log('%c', 'color: #000; background: #000');
-console.log('%c          ████████████████████████████████████████████████', 'color: #000000; background: #000');
-console.log('%c         ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██', 'color: #1A1A1A; background: #000');
-console.log('%c        ██▒  ┌─────────┐▒▒▒▒▒▒▒▒▒▒▒┌─────────┐  ▒██', 'color: #2F4F4F; background: #000');
-console.log('%c       ██▒   │█████████│▒▒▒▒▒▒▒▒▒▒▒│█████████│   ▒██', 'color: #8B0000; background: #000');
-console.log('%c      ██▒    │██▓▓▓▓▓██│▒▒▒▒▒▒▒▒▒▒▒│██▓▓▓▓▓██│    ▒██', 'color: #B22222; background: #000');
-console.log('%c     ██▒     │█████████│▒▒▒▒▒▒▒▒▒▒▒│█████████│     ▒██', 'color: #8B0000; background: #000');
-console.log('%c    ██▒      └─────────┘▒▒▒▒▒▒▒▒▒▒▒└─────────┘      ▒██', 'color: #2F4F4F; background: #000');
-console.log('%c   ██▒▒      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒       ▒▒██', 'color: #1A1A1A; background: #000');
-console.log('%c  ██▒▒▒     ┌─────────────────────────┐     ▒▒▒██', 'color: #2F4F4F; background: #000');
-console.log('%c ██▒▒▒      │█████████████████████████│      ▒▒▒██', 'color: #8B0000; background: #000');
-console.log('%c██▒▒▒       │█ T H E   V O I D   C A L L S █│       ▒▒▒██', 'color: #B22222; background: #000');
-console.log('%c██▒▒▒       │█                         █│       ▒▒▒██', 'color: #8B0000; background: #000');
-console.log('%c██▒▒▒       │█ E T E R N A L   S U F F E R I N G █│       ▒▒▒██', 'color: #B22222; background: #000');
-console.log('%c██▒▒▒       │█                         █│       ▒▒▒██', 'color: #8B0000; background: #000');
-console.log('%c██▒▒▒       │█  Y O U   A R E   M I N E  █│       ▒▒▒██', 'color: #B22222; background: #000');
-console.log('%c██▒▒▒       │█████████████████████████│       ▒▒▒██', 'color: #8B0000; background: #000');
-console.log('%c██▒▒▒       └─────────────────────────┘       ▒▒▒██', 'color: #2F4F4F; background: #000');
-console.log('%c ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██', 'color: #1A1A1A; background: #000');
-console.log('%c  ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██', 'color: #1A1A1A; background: #000');
-console.log('%c   ████████████████████████████████████████████████████', 'color: #000000; background: #000');
-
-console.log('%c', 'color: #000; background: #000');
-console.log('%cRUN. IT SEES YOU. RUN. IT SMELLS YOUR FEAR. RUN.', 'color: #FF0000; font-weight: bold; background: #000');
-console.log('%cTHE HOUSE BREATHES. THE HOUSE HUNTS. THE HOUSE KILLS.', 'color: #8B0000; font-weight: bold; background: #000');
+  
   const navigate = useNavigate();
 
   const [stockList, setStockList] = useState([]);
