@@ -463,6 +463,8 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
           // 키보드 이벤트 (바이트 체크 제거)
           onKeydown: function (e) {
+
+            if(e.key !== "backspace"){
             /* Enter 처리 : 무조건 <p> 생성 */
             if (e.key === "Enter" && !e.shiftKey && !e.altKey && !e.ctrlKey) {
               e.preventDefault();
@@ -473,6 +475,11 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
             if (e.key && e.key.length === 1 && !isComposing.current) {
               startTyping();
             }
+          
+          
+          }
+
+      
           },
 
           onKeyup: function (e) {
