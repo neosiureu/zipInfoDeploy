@@ -16,7 +16,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
   const lastValidHtml = useRef(""); // 마지막 정상 HTML
   const savedCursor = useRef(null); // 마지막 커서 위치
   const isProgrammatic = useRef(false);
-
+const isEnterPressed = useRef(false); 
   // 개선된 텍스트 추출 함수
   const extractTextContent = (htmlContent) => {
     if (!htmlContent) return "";
@@ -249,7 +249,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
     // 커서 복원 (타이핑 중이 아닐 때만)
     const currentCursor = saveCursorPosition();
-    if (currentCursor) {
+  if (currentCursor && !isEnterPressed.current) {  //  엔터키 체크 추가
   requestAnimationFrame(() => {
     if (restoreCursorPosition(currentCursor)) {
       /* 복원 성공 */
@@ -258,6 +258,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
   });
 } else {
   onChange(contents);
+  isEnterPressed.current = false;  //  플래그 리셋
 }
 
     isProcessingChange.current = false;
@@ -463,6 +464,9 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
           // 키보드 이벤트 (바이트 체크 제거)
           onKeydown: function (e) {
+             if (e.key === "Enter") {
+    isEnterPressed.current = true;
+  }
   /* 타이핑 감지 로직 */
   if (e.key && e.key.length === 1 && !isComposing.current) {
     startTyping();
