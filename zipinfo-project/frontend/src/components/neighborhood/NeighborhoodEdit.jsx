@@ -151,12 +151,8 @@ const NeighborhoodEdit = () => {
       return;
     }
 
-    // 에디터에서 HTML 내용 가져오기
-    const html = window
-      .$(".note-editor") // 첫 번째 에디터
-      .first()
-      .find(".note-editable") // 실제 편집 영역
-      .html();
+    // 에디터에서 HTML 내용 가져오기 삭제 후 content로 간단히
+   const html = content;
 
     // 내용이 비어있는지 확인
     if (isContentEmpty(html)) {
@@ -380,29 +376,11 @@ const NeighborhoodEdit = () => {
 
         {/* 내용 에디터 */}
         <div style={{ marginBottom: "20px", position: "relative" }}>
-          <SummernoteEditor
-            value={content}
-            onChange={(val) => {
-              // HTML 태그 제거 후 텍스트 길이 계산
-              const tempDiv = document.createElement("div");
-              tempDiv.innerHTML = val;
-              const textOnly = tempDiv.textContent || tempDiv.innerText || "";
-              tempDiv.remove();
-              if (textOnly.trim().length <= 2000) {
-                setContent(val);
-              } else {
-                toast.error(
-                  <div>
-                    <div className="toast-error-title">오류 알림!</div>
-                    <div className="toast-error-body">
-                      본문은 2000자까지 입력할 수 있습니다.
-                    </div>
-                  </div>
-                );
-              }
-            }}
-            disabled={loading}
-          />
+        <SummernoteEditor
+  value={content}
+  onChange={(val) => setContent(val)} // 간단해짐!
+  disabled={loading}
+/>
         </div>
 
         {/* 버튼 영역 - 에디터 바로 아래 오른쪽 정렬 */}
