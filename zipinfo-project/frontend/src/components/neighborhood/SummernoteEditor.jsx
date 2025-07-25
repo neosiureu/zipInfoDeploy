@@ -99,15 +99,18 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
         $editor.summernote({
           height: 700,
           minHeight: 700,
-          placeholder: "", // 플레이스홀더 제거
+          placeholder: "",
           disableResizeEditor: true,
           focus: false,
+          lang: 'ko-KR',
+          // 가로 툴바로 설정
           toolbar: [
-            ["style", ["style"]],
-            ["font", ["bold", "italic", "underline"]],
-            ["color", ["color"]],
-            ["para", ["ul", "ol", "paragraph"]],
-            ["insert", ["picture"]],
+            ['style', ['bold', 'italic', 'underline']],
+            ['fontsize', ['fontsize']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['insert', ['picture']],
+            ['view', ['codeview']]
           ],
           callbacks: {
             onChange: function (contents) {
@@ -174,6 +177,21 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
             onInit: function () {
               const $noteEditor = $editor.next(".note-editor");
               const $editable = $noteEditor.find(".note-editable");
+              const $toolbar = $noteEditor.find(".note-toolbar");
+
+              // 툴바 강제로 가로 레이아웃
+              $toolbar.css({
+                display: 'block',
+                width: '100%',
+                padding: '10px'
+              });
+
+              // 툴바 버튼들 가로 정렬
+              $toolbar.find('.note-btn-group').css({
+                display: 'inline-block',
+                marginRight: '5px',
+                verticalAlign: 'top'
+              });
 
               // 기본 스타일 적용
               $editable.css({
@@ -262,6 +280,25 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
           border-radius: 4px !important;
         }
         
+        .note-toolbar {
+          display: block !important;
+          width: 100% !important;
+          background: #f8f9fa !important;
+          border-bottom: 1px solid #dee2e6 !important;
+          padding: 10px !important;
+        }
+        
+        .note-toolbar .note-btn-group {
+          display: inline-block !important;
+          margin-right: 8px !important;
+          vertical-align: top !important;
+        }
+        
+        .note-toolbar .note-btn {
+          display: inline-block !important;
+          margin-right: 2px !important;
+        }
+        
         .note-editable {
           min-height: 600px !important;
           max-height: 600px !important;
@@ -287,6 +324,11 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
           margin: 8px 0 !important;
           line-height: 1.8 !important;
         }
+        
+        /* 드롭다운 메뉴 숨기기 */
+        .note-dropdown-menu {
+          display: none !important;
+        }
       `}</style>
 
       <div style={{ 
@@ -304,7 +346,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
             padding: "15px",
             fontSize: "16px"
           }}
-          placeholder="내용을 입력해주세요..."
         />
       </div>
     </>
