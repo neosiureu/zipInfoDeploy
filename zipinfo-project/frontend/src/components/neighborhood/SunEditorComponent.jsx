@@ -51,9 +51,9 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     onChange(content);
   };
 
-  // 이미지 업로드 핸들러
-  const handleImageUpload = (targetImgElement, index, state, imageInfo, remainingFilesCount) => {
-    const file = imageInfo;
+  // 이미지 업로드 Before 핸들러 (올바른 방식)
+  const handleImageUploadBefore = (files, info, uploadHandler) => {
+    const file = files[0];
     
     // 서버 업로드
     const formData = new FormData();
@@ -66,21 +66,21 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       .then((response) => response.text())
       .then((serverImageUrl) => {
         console.log("서버 업로드 성공:", serverImageUrl);
+        
+        // 성공 시 에디터에 삽입할 응답 형식
+        const response = {
+          result: [{
+            url: serverImageUrl,
+            name: file.name,
+            size: file.size
+          }]
+        };
+        uploadHandler(response);
       })
       .catch((error) => {
         console.error("서버 업로드 실패:", error);
+        uploadHandler("이미지 업로드에 실패했습니다.");
       });
-
-    // 로컬 이미지 표시 (기존 로직 유지)
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      targetImgElement.src = e.target.result;
-      targetImgElement.style.maxWidth = "100%";
-      targetImgElement.style.height = "auto";
-      targetImgElement.style.display = "block";
-      targetImgElement.style.margin = "5px 0";
-    };
-    reader.readAsDataURL(file);
   };
 
   // value prop 변경 시 에디터 업데이트
@@ -128,7 +128,7 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         ref={editorRef}
         setContents={value || ""}
         onChange={handleChange}
-        onImageUpload={handleImageUpload}
+        onImageUploadBefore={handleImageUploadBefore}
         setOptions={editorOptions}
         disable={disabled}
         height="700px"
