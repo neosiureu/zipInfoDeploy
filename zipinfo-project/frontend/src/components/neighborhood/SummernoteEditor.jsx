@@ -17,7 +17,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
   const savedCursor = useRef(null); // 마지막 커서 위치
   const isProgrammatic = useRef(false);
 const isEnterPressed = useRef(false); 
-  // 개선된 텍스트 추출 함수
+  // 개선된 텍스트 추출 함수!
   const extractTextContent = (htmlContent) => {
     if (!htmlContent) return "";
     const tempDiv = document.createElement("div");
@@ -206,7 +206,7 @@ const isEnterPressed = useRef(false);
     typingTimeout.current = setTimeout(() => {
       isTyping.current = false;
       processQueuedChanges();
-    }, 100);
+    }, 200);
   };
 
   // 큐에 쌓인 변경사항 처리
