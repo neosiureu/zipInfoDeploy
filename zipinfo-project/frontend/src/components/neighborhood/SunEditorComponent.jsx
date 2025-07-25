@@ -104,34 +104,17 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     placeholder: "내용을 입력해주세요",
     showPathLabel: false,
     resizingBar: false,
-    formats: [
-      "p", "div", "br", "span",
-      "b", "strong", "i", "em", "u", "s",
-      "ul", "ol", "li",
-      "img"
-    ],
     buttonList: [
-      ["bold", "italic", "underline"],
+      ["undo", "redo"],
+      ["formatBlock"],
+      ["bold", "underline", "italic"],
       ["fontColor", "hiliteColor"],
-      ["list", "orderlist"],
-      ["image"]
+      ["list", "orderList"],
+      ["image"],
+      ["fullScreen", "showBlocks", "codeView"]
     ],
-    imageUploadHeader: {
-      "Content-Type": "multipart/form-data"
-    },
-    imageMultipleFile: true,
-    imageAccept: ".jpg, .jpeg, .png, .gif, .bmp, .webp",
-    imageUploadSizeLimit: 10 * 1024 * 1024, // 10MB
-    font: ["Arial", "Helvetica", "sans-serif"],
-    fontSize: [14, 16, 18, 20, 22, 24, 28, 32],
-    defaultStyle: 'font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6;',
-    iframe: false,
-    codeMirror: false,
-    charCounter: false,
-    maxCharCount: null,
     width: "100%",
-    minWidth: "1000px",
-    lang: "en"
+    minWidth: "1000px"
   };
 
   return (
