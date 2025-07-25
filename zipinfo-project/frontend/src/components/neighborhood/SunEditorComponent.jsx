@@ -75,8 +75,14 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         // 에디터 인스턴스 가져오기
         const editor = editorRef.current?.editor;
         if (editor) {
-          // 이미지를 p 태그로 감싸서 삽입
-          const imageHtml = `<p><img src="${serverImageUrl.trim()}" style="max-width: 100%; height: auto; display: block; margin: 15px auto;" alt="${file.name}" /></p><p><br></p>`;
+          // 완전히 독립적인 div 블록으로 이미지 삽입
+          const imageHtml = `
+            <p><br></p>
+            <div style="width: 100%; display: block; margin: 20px 0; padding: 0; clear: both;">
+              <img src="${serverImageUrl.trim()}" style="max-width: 100%; height: auto; display: block; margin: 0 auto;" alt="${file.name}" />
+            </div>
+            <p><br></p>
+          `;
           editor.insertHTML(imageHtml);
         } else {
           // fallback: 일반적인 응답 형식
@@ -199,18 +205,29 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           max-width: 100% !important;
           height: auto !important;
           display: block !important;
-          margin: 15px auto !important;
+          margin: 0 auto !important;
           clear: both !important;
           float: none !important;
           vertical-align: top !important;
         }
         
-        .sun-editor-editable p img {
+        .sun-editor-editable div {
+          width: 100% !important;
           display: block !important;
-          margin: 15px auto !important;
+          margin: 20px 0 !important;
+          padding: 0 !important;
+          clear: both !important;
+          float: none !important;
         }
         
         .sun-editor-editable div img {
+          display: block !important;
+          margin: 0 auto !important;
+          width: auto !important;
+          max-width: 100% !important;
+        }
+        
+        .sun-editor-editable p img {
           display: block !important;
           margin: 15px auto !important;
         }
