@@ -14,7 +14,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
   const [isCSSReady, setIsCSSReady] = useState(false);
   const isComposing = useRef(false);
   const lastValidHtml = useRef(""); // 마지막 정상 HTML
-  const savedCursor = useRef(null); // 마지막 커서 위치
   const isProgrammatic = useRef(false);
   const isEnterPressed = useRef(false);
 
@@ -46,154 +45,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
     return isEmpty;
   };
 
-  // 텍스트 오프셋 계산 함수
-  const getTextOffset = (root, node, offset) => {
-    let textOffset = 0;
-    const walker = document.createTreeWalker(
-      root,
-      NodeFilter.SHOW_TEXT,
-      null,
-      false
-    );
-
-    let currentNode;
-    while ((currentNode = walker.nextNode())) {
-      if (currentNode === node) {
-        return textOffset + offset;
-      }
-      textOffset += currentNode.textContent.length;
-    }
-    return textOffset;
-  };
-
-  // 텍스트 오프셋에서 DOM 위치 찾기 함수
-  const getNodeFromTextOffset = (root, targetOffset) => {
-    let currentOffset = 0;
-    const walker = document.createTreeWalker(
-      root,
-      NodeFilter.SHOW_TEXT,
-      null,
-      false
-    );
-
-    let currentNode;
-    while ((currentNode = walker.nextNode())) {
-      const nodeLength = currentNode.textContent.length;
-      if (currentOffset + nodeLength >= targetOffset) {
-        return {
-          node: currentNode,
-          offset: targetOffset - currentOffset,
-        };
-      }
-      currentOffset += nodeLength;
-    }
-
-    // 텍스트 끝을 넘어선 경우
-    const lastTextNode = getLastTextNode(root);
-    if (lastTextNode) {
-      return {
-        node: lastTextNode,
-        offset: lastTextNode.textContent.length,
-      };
-    }
-
-    return null;
-  };
-
-  // 마지막 텍스트 노드 찾기
-  const getLastTextNode = (root) => {
-    const walker = document.createTreeWalker(
-      root,
-      NodeFilter.SHOW_TEXT,
-      null,
-      false
-    );
-
-    let lastNode = null;
-    let currentNode;
-    while ((currentNode = walker.nextNode())) {
-      lastNode = currentNode;
-    }
-    return lastNode;
-  };
-
-  // 텍스트 오프셋 기반 커서 위치 저장 함수
-  const saveCursorPosition = () => {
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      const $editable = window
-        .$(editorRef.current)
-        .next(".note-editor")
-        .find(".note-editable");
-
-      if ($editable[0] && $editable[0].contains(range.startContainer)) {
-        // 새로운 텍스트 오프셋 방식
-        const textOffset = getTextOffset(
-          $editable[0],
-          range.startContainer,
-          range.startOffset
-        );
-        const endTextOffset = getTextOffset(
-          $editable[0],
-          range.endContainer,
-          range.endOffset
-        );
-
-        const cursor = {
-          // 새로운 방식 (메인)
-          textOffset: textOffset,
-          endTextOffset: endTextOffset,
-          editable: $editable[0],
-        };
-
-        return cursor;
-      }
-    }
-    return null;
-  };
-
-  // 개선된 커서 위치 복원 함수
-  const restoreCursorPosition = (savedPosition) => {
-    if (!savedPosition) {
-      return false;
-    }
-
-    const $editable = window
-      .$(editorRef.current)
-      .next(".note-editor")
-      .find(".note-editable");
-
-    if (!$editable[0]) {
-      return false;
-    }
-
-    try {
-      const startPos = getNodeFromTextOffset(
-        $editable[0],
-        savedPosition.textOffset || 0
-      );
-      const endPos = getNodeFromTextOffset(
-        $editable[0],
-        savedPosition.endTextOffset || savedPosition.textOffset || 0
-      );
-
-      if (startPos && endPos) {
-        const range = document.createRange();
-        const selection = window.getSelection();
-
-        range.setStart(startPos.node, startPos.offset);
-        range.setEnd(endPos.node, endPos.offset);
-
-        selection.removeAllRanges();
-        selection.addRange(range);
-        return true;
-      }
-    } catch (e) {}
-
-    return false;
-  };
-
   // 타이핑 상태 관리 함수
   const startTyping = () => {
     isTyping.current = true;
@@ -207,7 +58,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
     typingTimeout.current = setTimeout(() => {
       isTyping.current = false;
       processQueuedChanges();
-    }, 200);
+    }, 100);
   };
 
   // 큐에 쌓인 변경사항 처리
@@ -236,13 +87,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
       $editable.toggleClass("force-placeholder", shouldShowPlaceholder);
     }
 
-    // 커서 복원 시스템 활성화
-    if (savedCursor.current) {
-      setTimeout(() => {
-        restoreCursorPosition(savedCursor.current);
-      }, 10);
-    }
-    
+    // 커서 복원 완전 제거, 브라우저에 맡김
     onChange(contents);
     isProcessingChange.current = false;
   };
@@ -360,8 +205,8 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
         placeholder: "",
         disableResizeEditor: true,
         focus: false,
-        // 가로 툴바 설정 - 기존 기능 모두 유지하면서 가로로 배치
         toolbar: [
+          ["style", ["style"]],
           ["font", ["bold", "italic", "underline"]],
           ["color", ["color"]],
           ["para", ["ul", "ol", "paragraph"]],
@@ -387,10 +232,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
               // 이전 유효한 HTML로 되돌리기
               if (lastValidHtml.current) {
                 $editable.html(lastValidHtml.current);
-                // 커서 위치 복원
-                if (savedCursor.current) {
-                  restoreCursorPosition(savedCursor.current);
-                }
               }
 
               // 토스트 메시지 표시
@@ -407,7 +248,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
             // 유효한 내용이면 저장
             lastValidHtml.current = contents;
-            savedCursor.current = saveCursorPosition();
 
             const currentTime = Date.now();
             const timeDiff = currentTime - lastChangeTime.current;
@@ -596,7 +436,7 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
               const style = document.createElement("style");
               style.id = "simple-summernote-fix";
               style.textContent = `
-                .note-editable {
+                  .note-editable {
                   writing-mode: horizontal-tb !important;
                   direction: ltr !important;
                   unicode-bidi: normal !important;
@@ -607,140 +447,120 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
                   overflow-x: hidden !important;
                   overflow-y: auto !important;
                   padding-bottom: 50px !important;
-                }
+                  }
 
-                .note-editable::-webkit-scrollbar {
-                  width: 8px !important;
-                }
+                  .note-editable::-webkit-scrollbar {
+                    width: 8px !important;
+                  }
 
-                .note-editable::-webkit-scrollbar-track {
-                  background: #f1f1f1 !important;
-                  border-radius: 4px !important;
-                }
+                  .note-editable::-webkit-scrollbar-track {
+                    background: #f1f1f1 !important;
+                    border-radius: 4px !important;
+                  }
 
-                .note-editable::-webkit-scrollbar-thumb {
-                  background: #c1c1c1 !important;
-                  border-radius: 4px !important;
-                }
+                  .note-editable::-webkit-scrollbar-thumb {
+                    background: #c1c1c1 !important;
+                    border-radius: 4px !important;
+                  }
 
-                .note-editable::-webkit-scrollbar-thumb:hover {
-                  background: #a8a8a8 !important;
-                }
-               
-                .note-editor, .note-toolbar {
-                  width: 100% !important;
-                  min-width: 0 !important;
+                  .note-editable::-webkit-scrollbar-thumb:hover {
+                    background: #a8a8a8 !important;
+                  }
+                 
+                  .note-editor, .note-toolbar {
+                 width: 100% !important;
+                min-width: 0 !important;
                   box-sizing: border-box !important;
-                }
+                  }
 
-                /* 툴바 가로 정렬 강제 */
-                .note-toolbar {
-                  display: flex !important;
-                  flex-wrap: wrap !important;
-                  align-items: center !important;
-                  background: #f8f9fa !important;
-                  border-bottom: 1px solid #dee2e6 !important;
-                  padding: 8px !important;
-                }
+                  .note-editable p {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    writing-mode: horizontal-tb !important;
+                    direction: ltr !important;
+                    text-align: left !important;
+                    word-wrap: break-word !important;
+                    word-break: break-all !important;
+                  }
 
-                .note-toolbar .note-btn-group {
-                  display: inline-flex !important;
-                  margin-right: 8px !important;
-                  margin-bottom: 0 !important;
-                }
+                  .note-editable * {
+                    writing-mode: horizontal-tb !important;
+                    direction: ltr !important;
+                    text-align: left !important;
+                  }
 
-                .note-toolbar .note-btn {
-                  margin-right: 2px !important;
-                }
+                  .note-editable:focus {
+                    direction: ltr !important;
+                    text-align: left !important;
+                  }
 
-                .note-editable p {
-                  margin: 0 !important;
-                  padding: 0 !important;
-                  writing-mode: horizontal-tb !important;
-                  direction: ltr !important;
-                  text-align: left !important;
-                  word-wrap: break-word !important;
-                  word-break: break-all !important;
-                }
+                  .note-editable.force-placeholder:before {
+                    content: '내용을 입력해주세요' !important;
+                    color: #999 !important;
+                    font-size: 18px !important;
+                    line-height: 2.5 !important;
+                    writing-mode: horizontal-tb !important;
+                    direction: ltr !important;
+                    padding-top: 5px !important;
+                    padding-left: 10px !important;
+                    display: block !important;
+                    position: absolute !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    pointer-events: none !important;
+                    z-index: 1 !important;
+                  }
 
-                .note-editable * {
-                  writing-mode: horizontal-tb !important;
-                  direction: ltr !important;
-                  text-align: left !important;
-                }
+                  .note-placeholder {
+                    writing-mode: horizontal-tb !important;
+                    direction: ltr !important;
+                    padding-top: 10px !important;
+                  }
 
-                .note-editable:focus {
-                  direction: ltr !important;
-                  text-align: left !important;
-                }
+                  .note-editable:empty:before {
+                    writing-mode: horizontal-tb !important;
+                    direction: ltr !important;
+                    padding-top: 10px !important;
+                  }
 
-                .note-editable.force-placeholder:before {
-                  content: '내용을 입력해주세요' !important;
-                  color: #999 !important;
-                  font-size: 18px !important;
-                  line-height: 2.5 !important;
-                  writing-mode: horizontal-tb !important;
-                  direction: ltr !important;
-                  padding-top: 5px !important;
-                  padding-left: 10px !important;
-                  display: block !important;
-                  position: absolute !important;
-                  top: 0 !important;
-                  left: 0 !important;
-                  pointer-events: none !important;
-                  z-index: 1 !important;
-                }
+                  .note-editable img {
+                    max-width: 100% !important;
+                    height: auto !important;
+                    display: block !important;
+                    margin: 5px 0 !important;
+                    object-fit: contain !important;
+                  }
 
-                .note-placeholder {
-                  writing-mode: horizontal-tb !important;
-                  direction: ltr !important;
-                  padding-top: 10px !important;
-                }
-
-                .note-editable:empty:before {
-                  writing-mode: horizontal-tb !important;
-                  direction: ltr !important;
-                  padding-top: 10px !important;
-                }
-
-                .note-editable img {
-                  max-width: 100% !important;
-                  height: auto !important;
-                  display: block !important;
-                  margin: 5px 0 !important;
-                  object-fit: contain !important;
-                }
-
-                .note-editable ul,
-                .note-editable ol {
-                  margin: 10px 0 !important;
-                  padding-left: 30px !important;
-                }
-                
-                .note-editable ul li,
-                .note-editable ol li {
-                  margin: 8px 0 !important;
-                  line-height: 1.8 !important;
-                  font-size: 16px !important;
-                }
-                
-                .note-editable ul li::marker {
-                  font-size: 14px !important;
-                  color: #666 !important;
-                }
-                
-                .note-editable ol li::marker {
-                  font-size: 16px !important;
-                  font-weight: bold !important;
-                  color: #333 !important;
-                }
-                
-                .note-editable ul ul,
-                .note-editable ol ol {
-                  margin: 5px 0 !important;
-                  padding-left: 20px !important;
-                }
-              `;
+                  .note-editable ul,
+                  .note-editable ol {
+                    margin: 10px 0 !important;
+                    padding-left: 30px !important;
+                  }
+                  
+                  .note-editable ul li,
+                  .note-editable ol li {
+                    margin: 8px 0 !important;
+                    line-height: 1.8 !important;
+                    font-size: 16px !important;
+                  }
+                  
+                  .note-editable ul li::marker {
+                    font-size: 14px !important;
+                    color: #666 !important;
+                  }
+                  
+                  .note-editable ol li::marker {
+                    font-size: 16px !important;
+                    font-weight: bold !important;
+                    color: #333 !important;
+                  }
+                  
+                  .note-editable ul ul,
+                  .note-editable ol ol {
+                    margin: 5px 0 !important;
+                    padding-left: 20px !important;
+                  }
+                  `;
 
               document.head.appendChild(style);
             }
