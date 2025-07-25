@@ -5,7 +5,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { axiosAPI } from "../../api/axiosApi";
-import SummernoteEditor from "./SummernoteEditor";
+import SunEditorComponent from "./SunEditorComponent";
 import { useContext, useEffect, useState } from "react";
 import NeighborhoodFilters from "./NeighborhoodFilters";
 import { MemberContext } from "../member/MemberContext";
@@ -151,8 +151,8 @@ const NeighborhoodEdit = () => {
       return;
     }
 
-    // 에디터에서 HTML 내용 가져오기 삭제 후 content로 간단히
-   const html = content;
+    // 에디터에서 HTML 내용 가져오기
+    const html = content;
 
     // 내용이 비어있는지 확인
     if (isContentEmpty(html)) {
@@ -221,9 +221,11 @@ const NeighborhoodEdit = () => {
           boardSubject: selectedSubject, // 주제 코드 (QRE중 하나)
         };
         const { data: result } = await axiosAPI.put("/editBoard", params);
- await axiosAPI.post("/neighbor/update", {
+        await axiosAPI.post("/neighbor/update", {
           memberLocation: selectedTown,
-        });        // ResponseEntity로 변경된 서버 응답 처리
+        });
+        
+        // ResponseEntity로 변경된 서버 응답 처리
         const actualResult =
           typeof result === "object" ? result.data || result : result;
 
@@ -249,7 +251,7 @@ const NeighborhoodEdit = () => {
       } else {
         const params = {
           boardTitle: title.trim(),
-          boardContent: html, // content가 아닌 html 사용
+          boardContent: html,
           cityNo: selectedCity, // 시도 코드 (숫자)
           townNo: selectedTown, // 시군구 코드 (숫자)
           boardSubject: selectedSubject, // 주제 코드 (QRE중 하나)
@@ -376,11 +378,11 @@ const NeighborhoodEdit = () => {
 
         {/* 내용 에디터 */}
         <div style={{ marginBottom: "20px", position: "relative" }}>
-        <SummernoteEditor
-  value={content}
-  onChange={(val) => setContent(val)} // 간단해짐!
-  disabled={loading}
-/>
+          <SunEditorComponent
+            value={content}
+            onChange={setContent}
+            disabled={loading}
+          />
         </div>
 
         {/* 버튼 영역 - 에디터 바로 아래 오른쪽 정렬 */}

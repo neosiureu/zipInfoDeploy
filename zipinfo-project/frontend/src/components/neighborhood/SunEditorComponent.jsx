@@ -1,0 +1,221 @@
+import React, { useRef, useEffect } from "react";
+import SunEditor from "suneditor-react";
+import "suneditor/dist/css/suneditor.min.css";
+import { toast } from "react-toastify";
+
+export default function SunEditorComponent({ value, onChange, disabled }) {
+  const editorRef = useRef(null);
+  const isUpdating = useRef(false);
+
+  // 텍스트만 추출하는 함수
+  const extractTextContent = (htmlContent) => {
+    if (!htmlContent) return "";
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = htmlContent;
+    // 이미지 태그 제거 후 텍스트만 추출
+    const images = tempDiv.querySelectorAll("img");
+    images.forEach((img) => img.remove());
+    const textOnly = tempDiv.textContent || tempDiv.innerText || "";
+    tempDiv.remove();
+    return textOnly.trim();
+  };
+
+  // 내용이 비어있는지 확인
+  const isContentEmpty = (htmlContent) => {
+    if (!htmlContent) return true;
+    const textContent = extractTextContent(htmlContent);
+    const hasImage = htmlContent.includes("<img");
+    const hasListContent = htmlContent.includes("<ul") || htmlContent.includes("<ol") || htmlContent.includes("<li");
+    
+    return textContent.length === 0 && !hasImage && !hasListContent;
+  };
+
+  // 변경 핸들러
+  const handleChange = (content) => {
+    if (isUpdating.current) return;
+
+    // 텍스트 길이 체크 (2000자 제한)
+    const textContent = extractTextContent(content);
+    if (textContent.length > 2000) {
+      toast.error(
+        <div>
+          <div className="toast-error-title">글자수 초과</div>
+          <div className="toast-error-body">
+            텍스트는 최대 2000자까지 입력할 수 있습니다.
+          </div>
+        </div>
+      );
+      return;
+    }
+
+    onChange(content);
+  };
+
+  // 이미지 업로드 핸들러
+  const handleImageUpload = (targetImgElement, index, state, imageInfo, remainingFilesCount) => {
+    const file = imageInfo;
+    
+    // 서버 업로드
+    const formData = new FormData();
+    formData.append("image", file);
+
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/editBoard/uploadImage`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.text())
+      .then((serverImageUrl) => {
+        console.log("서버 업로드 성공:", serverImageUrl);
+      })
+      .catch((error) => {
+        console.error("서버 업로드 실패:", error);
+      });
+
+    // 로컬 이미지 표시 (기존 로직 유지)
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      targetImgElement.src = e.target.result;
+      targetImgElement.style.maxWidth = "100%";
+      targetImgElement.style.height = "auto";
+      targetImgElement.style.display = "block";
+      targetImgElement.style.margin = "5px 0";
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // value prop 변경 시 에디터 업데이트
+  useEffect(() => {
+    if (editorRef.current && value !== undefined) {
+      const editor = editorRef.current.editor;
+      const currentContent = editor.getContents();
+      
+      if (currentContent !== value) {
+        isUpdating.current = true;
+        editor.setContents(value || "");
+        setTimeout(() => {
+          isUpdating.current = false;
+        }, 100);
+      }
+    }
+  }, [value]);
+
+  const editorOptions = {
+    height: 700,
+    placeholder: "내용을 입력해주세요",
+    showPathLabel: false,
+    resizingBar: false,
+    formats: [
+      "p", "div", "br", "span",
+      "b", "strong", "i", "em", "u", "s",
+      "ul", "ol", "li",
+      "img"
+    ],
+    buttonList: [
+      ["bold", "italic", "underline"],
+      ["fontColor", "hiliteColor"],
+      ["list", "orderlist"],
+      ["image"]
+    ],
+    imageUploadHeader: {
+      "Content-Type": "multipart/form-data"
+    },
+    imageMultipleFile: true,
+    imageAccept: ".jpg, .jpeg, .png, .gif, .bmp, .webp",
+    imageUploadSizeLimit: 10 * 1024 * 1024, // 10MB
+    font: ["Arial", "Helvetica", "sans-serif"],
+    fontSize: [14, 16, 18, 20, 22, 24, 28, 32],
+    defaultStyle: 'font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6;',
+    iframe: false,
+    codeMirror: false,
+    charCounter: false,
+    maxCharCount: null,
+    width: "100%",
+    minWidth: "1000px",
+    lang: "en"
+  };
+
+  return (
+    <div
+      style={{
+        border: "1px solid #ddd",
+        borderRadius: "4px",
+        minHeight: "700px",
+        width: "100%",
+        minWidth: "1000px",
+      }}
+    >
+      <SunEditor
+        ref={editorRef}
+        setContents={value || ""}
+        onChange={handleChange}
+        onImageUpload={handleImageUpload}
+        setOptions={editorOptions}
+        disable={disabled}
+        height="700px"
+        setDefaultStyle="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; padding: 10px;"
+      />
+      
+      <style jsx global>{`
+        .sun-editor {
+          border: none !important;
+        }
+        
+        .se-wrapper {
+          border: none !important;
+        }
+        
+        .se-container {
+          border: none !important;
+        }
+        
+        .se-toolbar {
+          border-bottom: 1px solid #ddd !important;
+          background: #f8f9fa !important;
+        }
+        
+        .se-wrapper-inner .se-wrapper-wysiwyg {
+          border: none !important;
+        }
+        
+        .se-wrapper-inner .se-wrapper-code {
+          border: none !important;
+        }
+        
+        .sun-editor-editable {
+          padding: 15px !important;
+          min-height: 650px !important;
+          font-size: 16px !important;
+          line-height: 1.6 !important;
+          word-break: break-word !important;
+          overflow-wrap: break-word !important;
+        }
+        
+        .sun-editor-editable img {
+          max-width: 100% !important;
+          height: auto !important;
+          display: block !important;
+          margin: 5px 0 !important;
+        }
+        
+        .sun-editor-editable ul,
+        .sun-editor-editable ol {
+          margin: 10px 0 !important;
+          padding-left: 30px !important;
+        }
+        
+        .sun-editor-editable ul li,
+        .sun-editor-editable ol li {
+          margin: 8px 0 !important;
+          line-height: 1.6 !important;
+        }
+        
+        .se-placeholder {
+          color: #999 !important;
+          font-size: 16px !important;
+          line-height: 1.6 !important;
+          padding: 15px !important;
+        }
+      `}</style>
+    </div>
+  );
+}
