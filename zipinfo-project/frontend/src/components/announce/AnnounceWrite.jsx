@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import SummernoteEditor from "../neighborhood/SummernoteEditor";
+import SunEditorComponent from "../neighborhood/SunEditorComponent";
 import "../../css/Announce/AnnounceWrite.css";
 import { axiosAPI } from "../../api/axiosApi";
 import { toast } from "react-toastify";
@@ -115,9 +115,9 @@ export default function AnnounceWrite() {
           />
         </div>
 
-        {/* Summernote 에디터 */}
+        {/* SunEditor 에디터 */}
         <div style={{ marginBottom: "20px", position: "relative" }}>
-          <SummernoteEditor
+          <SunEditorComponent
             value={content}
             onChange={setContent}
             disabled={isSubmitting}
