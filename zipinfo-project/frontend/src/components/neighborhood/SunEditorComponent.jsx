@@ -72,15 +72,23 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       .then((serverImageUrl) => {
         console.log("서버 업로드 성공:", serverImageUrl);
         
-        // 성공 시 에디터에 삽입할 응답 형식
-        const response = {
-          result: [{
-            url: serverImageUrl.trim(), // 공백 제거
-            name: file.name,
-            size: file.size
-          }]
-        };
-        uploadHandler(response);
+        // 에디터 인스턴스 가져오기
+        const editor = editorRef.current?.editor;
+        if (editor) {
+          // 이미지를 p 태그로 감싸서 삽입
+          const imageHtml = `<p><img src="${serverImageUrl.trim()}" style="max-width: 100%; height: auto; display: block; margin: 15px auto;" alt="${file.name}" /></p><p><br></p>`;
+          editor.insertHTML(imageHtml);
+        } else {
+          // fallback: 일반적인 응답 형식
+          const response = {
+            result: [{
+              url: serverImageUrl.trim(),
+              name: file.name,
+              size: file.size
+            }]
+          };
+          uploadHandler(response);
+        }
       })
       .catch((error) => {
         console.error("서버 업로드 실패:", error);
@@ -191,7 +199,20 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           max-width: 100% !important;
           height: auto !important;
           display: block !important;
-          margin: 5px 0 !important;
+          margin: 15px auto !important;
+          clear: both !important;
+          float: none !important;
+          vertical-align: top !important;
+        }
+        
+        .sun-editor-editable p img {
+          display: block !important;
+          margin: 15px auto !important;
+        }
+        
+        .sun-editor-editable div img {
+          display: block !important;
+          margin: 15px auto !important;
         }
         
         .sun-editor-editable ul,
