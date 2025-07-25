@@ -1,9 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import $ from 'jquery';
+import 'summernote/dist/summernote-bs4.min.js';
 
-// CSS 임포트
+// CSS 임포트 - 정확한 경로
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'summernote/dist/summernote-bs4.min.css';
+
+// jQuery를 window에 할당
+window.$ = window.jQuery = $;
 
 export default function SummernoteEditor({ value, onChange, disabled }) {
   const editorRef = useRef(null);
@@ -50,8 +55,8 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
       );
       
       // 이전 유효한 내용으로 복원
-      if (window.$ && editorRef.current) {
-        window.$(editorRef.current).summernote('code', lastValidContent.current);
+      if (editorRef.current) {
+        $(editorRef.current).summernote('code', lastValidContent.current);
       }
       return;
     }
@@ -61,21 +66,11 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
     onChange(content);
   };
 
-  // Summernote 초기화 - 간소화됨
+  // Summernote 초기화 - 안전한 방식
   useEffect(() => {
     if (!editorRef.current || isInitialized.current) return;
 
-    // jQuery와 Summernote 로드 확인
-    if (typeof window.$ === "undefined" || !window.$.fn.summernote) {
-      // 동적 로드
-      import('jquery').then((jQuery) => {
-        window.$ = window.jQuery = jQuery.default;
-        import('summernote');
-      });
-      return;
-    }
-
-    const $editor = window.$(editorRef.current);
+    const $editor = $(editorRef.current);
 
     try {
       $editor.summernote({
@@ -201,9 +196,9 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
     }
 
     return () => {
-      if (isInitialized.current && window.$ && editorRef.current) {
+      if (isInitialized.current && editorRef.current) {
         try {
-          window.$(editorRef.current).summernote('destroy');
+          $(editorRef.current).summernote('destroy');
           isInitialized.current = false;
         } catch (e) {
           console.error("Summernote 제거 오류:", e);
@@ -214,8 +209,8 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
   // value prop 변경 처리
   useEffect(() => {
-    if (isReady && isInitialized.current && window.$) {
-      const $editor = window.$(editorRef.current);
+    if (isReady && isInitialized.current) {
+      const $editor = $(editorRef.current);
       const currentCode = $editor.summernote('code');
 
       if (currentCode !== value) {
@@ -227,8 +222,8 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
   // disabled prop 처리
   useEffect(() => {
-    if (isReady && isInitialized.current && window.$) {
-      const $editor = window.$(editorRef.current);
+    if (isReady && isInitialized.current) {
+      const $editor = $(editorRef.current);
       if (disabled) {
         $editor.summernote('disable');
       } else {
