@@ -25,7 +25,9 @@
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.3",
     "sockjs-client": "^1.6.1",
-    "summernote": "^0.9.1"
+    "summernote": "^0.9.1",
+    "suneditor": "^2.47.6",
+    "suneditor-react": "^3.6.1"
   },
   "overrides": {
     "react-summernote": {
