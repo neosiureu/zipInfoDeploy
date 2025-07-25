@@ -105,13 +105,10 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     showPathLabel: false,
     resizingBar: false,
     buttonList: [
-      ["undo", "redo"],
-      ["formatBlock"],
       ["bold", "underline", "italic"],
       ["fontColor", "hiliteColor"],
-      ["list", "orderList"],
-      ["image"],
-      ["fullScreen", "showBlocks", "codeView"]
+      ["list"],
+      ["image"]
     ],
     width: "100%",
     minWidth: "1000px"
