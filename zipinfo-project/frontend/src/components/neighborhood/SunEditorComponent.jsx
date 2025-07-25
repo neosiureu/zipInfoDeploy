@@ -63,14 +63,19 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       method: "POST",
       body: formData,
     })
-      .then((response) => response.text())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`서버 오류: ${response.status}`);
+        }
+        return response.text(); // 서버가 텍스트로 URL만 반환
+      })
       .then((serverImageUrl) => {
         console.log("서버 업로드 성공:", serverImageUrl);
         
         // 성공 시 에디터에 삽입할 응답 형식
         const response = {
           result: [{
-            url: serverImageUrl,
+            url: serverImageUrl.trim(), // 공백 제거
             name: file.name,
             size: file.size
           }]
@@ -79,8 +84,12 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       })
       .catch((error) => {
         console.error("서버 업로드 실패:", error);
+        toast.error("이미지 업로드에 실패했습니다.");
         uploadHandler("이미지 업로드에 실패했습니다.");
       });
+    
+    // undefined 반환으로 uploadHandler 완료까지 대기
+    return undefined;
   };
 
   // value prop 변경 시 에디터 업데이트
@@ -110,6 +119,14 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       ["list"],
       ["image"]
     ],
+    // 이미지 Base64 처리 방지
+    imageFileInput: true,
+    imageUrlInput: false, 
+    imageAccept: ".jpg, .jpeg, .png, .gif, .bmp, .webp",
+    imageUploadSizeLimit: 10 * 1024 * 1024, // 10MB
+    // Base64 사용 안함
+    videoFileInput: false,
+    audioFileInput: false,
     width: "100%",
     minWidth: "1000px"
   };
