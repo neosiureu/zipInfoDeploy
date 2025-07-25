@@ -1,15 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
-// 설치한 패키지들 직접 import
-import $ from 'jquery';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'summernote/dist/summernote-bs4.min.css';
-import 'summernote/dist/summernote-bs4.min.js';
-
-// jQuery를 window에 할당
-window.$ = window.jQuery = $;
-
 export default function SummernoteEditor({ value, onChange, disabled }) {
   const editorRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
@@ -26,13 +17,11 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
     return textOnly.trim();
   };
 
-  // 간단한 변경 핸들러 - 복잡한 시스템 제거
+  // 변경 핸들러
   const handleChange = (content) => {
-    // 글자수 체크 (2000자 제한)
     const textContent = extractTextContent(content);
     
     if (textContent.length > 2000) {
-      // 2000자 초과시 이전 상태로 복원
       toast.error(
         <div>
           <div className="toast-error-title">글자수 초과</div>
@@ -42,48 +31,86 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
         </div>
       );
       
-      // 이전 유효한 내용으로 복원
-      if (editorRef.current) {
-        $(editorRef.current).summernote('code', lastValidContent.current);
+      if (window.$ && editorRef.current) {
+        window.$(editorRef.current).summernote('code', lastValidContent.current);
       }
       return;
     }
 
-    // 유효한 내용이면 저장하고 상위로 전달
     lastValidContent.current = content;
     onChange(content);
   };
 
-  // Summernote 초기화 - 간소화됨
+  // 리소스 로딩
+  const loadResources = async () => {
+    return new Promise((resolve) => {
+      // Bootstrap CSS가 없으면 추가
+      if (!document.getElementById('bootstrap-css-cdn')) {
+        const bootstrapLink = document.createElement('link');
+        bootstrapLink.id = 'bootstrap-css-cdn';
+        bootstrapLink.rel = 'stylesheet';
+        bootstrapLink.href = 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css';
+        document.head.appendChild(bootstrapLink);
+      }
+
+      // Summernote CSS가 없으면 추가
+      if (!document.getElementById('summernote-css-cdn')) {
+        const summernoteLink = document.createElement('link');
+        summernoteLink.id = 'summernote-css-cdn';
+        summernoteLink.rel = 'stylesheet';
+        summernoteLink.href = 'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css';
+        document.head.appendChild(summernoteLink);
+      }
+
+      // jQuery 로딩
+      if (!window.$) {
+        const jqueryScript = document.createElement('script');
+        jqueryScript.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
+        jqueryScript.onload = () => {
+          // Summernote 로딩
+          const summernoteScript = document.createElement('script');
+          summernoteScript.src = 'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js';
+          summernoteScript.onload = () => resolve();
+          document.head.appendChild(summernoteScript);
+        };
+        document.head.appendChild(jqueryScript);
+      } else if (window.$.fn.summernote) {
+        resolve();
+      } else {
+        const summernoteScript = document.createElement('script');
+        summernoteScript.src = 'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js';
+        summernoteScript.onload = () => resolve();
+        document.head.appendChild(summernoteScript);
+      }
+    });
+  };
+
+  // 초기화
   useEffect(() => {
     if (!editorRef.current || isInitialized.current) return;
 
-    const $editor = $(editorRef.current);
+    loadResources().then(() => {
+      const $editor = window.$(editorRef.current);
 
-    try {
       $editor.summernote({
         height: 700,
         minHeight: 700,
-        placeholder: "내용을 입력해주세요", // 새로운 플레이스홀더
+        placeholder: "내용을 입력해주세요",
         disableResizeEditor: true,
         focus: false,
         lang: 'ko-KR',
-        // 가로 툴바로 설정
         toolbar: [
-          ['font', ['bold', 'italic', 'underline']],
+          ['style', ['bold', 'italic', 'underline']],
           ['color', ['color']],
-          ['para', ['ul', 'ol', 'paragraph']],
-          ['insert', ['picture']],
+          ['para', ['ul', 'ol']],
+          ['insert', ['picture']]
         ],
         callbacks: {
-          // 간단한 onChange - 복잡한 큐잉/타이핑 감지 시스템 제거
-          onChange: function (contents) {
+          onChange: function(contents) {
             handleChange(contents);
           },
-
-          onImageUpload: function (files) {
+          onImageUpload: function(files) {
             Array.from(files).forEach((file) => {
-              // 파일 크기 체크 (5MB 제한)
               if (file.size > 5 * 1024 * 1024) {
                 toast.error(
                   <div>
@@ -96,7 +123,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
                 return;
               }
 
-              // 서버 업로드
               const formData = new FormData();
               formData.append("image", file);
 
@@ -112,10 +138,9 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
                   console.error("서버 업로드 실패:", error);
                 });
 
-              // 로컬에서 이미지 표시
               const reader = new FileReader();
               reader.onload = (e) => {
-                $editor.summernote('insertImage', e.target.result, function ($image) {
+                $editor.summernote('insertImage', e.target.result, function($image) {
                   $image.css({
                     "max-width": "100%",
                     "height": "auto",
@@ -127,46 +152,23 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
               reader.readAsDataURL(file);
             });
           },
-
-          onPaste: function (e) {
-            // 붙여넣기 후 글자수 체크
-            setTimeout(() => {
-              const content = $editor.summernote('code');
-              handleChange(content);
-            }, 100);
-          },
-
-          onDrop: function (e) {
-            e.preventDefault();
-          },
-
-          onInit: function () {
+          onInit: function() {
             const $noteEditor = $editor.next(".note-editor");
             const $editable = $noteEditor.find(".note-editable");
 
-            // 기본 스타일 적용
             $editable.css({
               padding: "15px",
               "line-height": "2.5",
               "font-size": "18px",
-              width: "100%",
-              "min-width": "1000px",
               "word-wrap": "break-word",
-              "word-break": "break-all",
-              "writing-mode": "horizontal-tb !important",
-              direction: "ltr !important",
-              "text-align": "left !important"
+              "word-break": "break-all"
             });
 
-            // 에디터 크기 설정
             $noteEditor.css({
-              width: "100%",
-              "min-width": "1000px",
               border: "1px solid #ddd",
               borderRadius: "4px"
             });
 
-            // 초기값 설정
             if (value) {
               $editor.summernote('code', value);
               lastValidContent.current = value;
@@ -178,30 +180,25 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
             setIsReady(true);
             isInitialized.current = true;
-          },
-        },
+          }
+        }
       });
-    } catch (error) {
-      console.error("Summernote 초기화 오류:", error);
-      setIsReady(false);
-    }
+    });
 
     return () => {
-      if (isInitialized.current && editorRef.current) {
+      if (isInitialized.current && window.$ && editorRef.current) {
         try {
-          $(editorRef.current).summernote('destroy');
+          window.$(editorRef.current).summernote('destroy');
           isInitialized.current = false;
-        } catch (e) {
-          console.error("Summernote 제거 오류:", e);
-        }
+        } catch (e) {}
       }
     };
   }, []);
 
-  // value prop 변경 처리 - 간소화
+  // value 변경 처리
   useEffect(() => {
-    if (isReady && isInitialized.current) {
-      const $editor = $(editorRef.current);
+    if (isReady && window.$ && editorRef.current) {
+      const $editor = window.$(editorRef.current);
       const currentCode = $editor.summernote('code');
 
       if (currentCode !== value) {
@@ -211,10 +208,10 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
     }
   }, [value, isReady]);
 
-  // disabled prop 처리
+  // disabled 처리
   useEffect(() => {
-    if (isReady && isInitialized.current) {
-      const $editor = $(editorRef.current);
+    if (isReady && window.$ && editorRef.current) {
+      const $editor = window.$(editorRef.current);
       if (disabled) {
         $editor.summernote('disable');
       } else {
@@ -234,33 +231,15 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
         }
         
         .note-toolbar {
-          display: flex !important;
-          flex-wrap: wrap !important;
-          align-items: center !important;
           background: #f8f9fa !important;
           border-bottom: 1px solid #dee2e6 !important;
           padding: 8px !important;
-        }
-        
-        .note-toolbar .note-btn-group {
-          display: inline-flex !important;
-          margin-right: 8px !important;
-          margin-bottom: 0 !important;
-        }
-        
-        .note-toolbar .note-btn {
-          margin-right: 2px !important;
         }
         
         .note-editable {
           min-height: 600px !important;
           max-height: 600px !important;
           overflow-y: auto !important;
-          word-wrap: break-word !important;
-          word-break: break-all !important;
-          writing-mode: horizontal-tb !important;
-          direction: ltr !important;
-          text-align: left !important;
         }
         
         .note-editable img {
@@ -269,35 +248,15 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
           display: block !important;
           margin: 10px 0 !important;
         }
-        
-        .note-editable ul,
-        .note-editable ol {
-          margin: 10px 0 !important;
-          padding-left: 30px !important;
-        }
-        
-        .note-editable li {
-          margin: 8px 0 !important;
-          line-height: 1.8 !important;
-        }
       `}</style>
 
       <div style={{ 
         width: "100%",
         minWidth: "1000px"
       }}>
-        <textarea
+        <textarea 
           ref={editorRef}
-          style={{ 
-            display: isReady ? "none" : "block", 
-            width: "100%",
-            height: "700px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-            padding: "15px",
-            fontSize: "16px"
-          }}
-          placeholder="내용을 입력해주세요..."
+          style={{ width: "100%" }}
         />
       </div>
     </>
