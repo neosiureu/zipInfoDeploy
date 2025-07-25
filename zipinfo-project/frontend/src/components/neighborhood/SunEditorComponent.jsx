@@ -51,7 +51,7 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     onChange(content);
   };
 
-  // 이미지 업로드 Before 핸들러 (파일 선택 즉시 업로드)
+  // 이미지 업로드 Before 핸들러 (올바른 방식)
   const handleImageUploadBefore = (files, info, uploadHandler) => {
     const file = files[0];
     
@@ -75,29 +75,15 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         // 에디터 인스턴스 가져오기
         const editor = editorRef.current?.editor;
         if (editor) {
-          // 현재 커서 위치에 이미지 삽입
+          // 완전히 독립적인 div 블록으로 이미지 삽입
           const imageHtml = `
+            <p><br></p>
             <div style="width: 100%; display: block; margin: 20px 0; padding: 0; clear: both;">
               <img src="${serverImageUrl.trim()}" style="max-width: 100%; height: auto; display: block; margin: 0 auto;" alt="${file.name}" />
             </div>
             <p><br></p>
           `;
-          
-          // HTML 삽입
           editor.insertHTML(imageHtml);
-          
-          // 커서를 이미지 다음 줄로 이동
-          setTimeout(() => {
-            editor.focus();
-            const range = editor.getRange();
-            if (range) {
-              // 커서를 콘텐츠 끝으로 이동
-              range.selectNodeContents(editor.getContext().element.wysiwyg);
-              range.collapse(false);
-              editor.setRange(range);
-            }
-          }, 100);
-          
         } else {
           // fallback: 일반적인 응답 형식
           const response = {
@@ -147,15 +133,12 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       ["list"],
       ["image"]
     ],
-    // 이미지 업로드 설정 - 파일 선택 즉시 업로드
+    // 이미지 Base64 처리 방지
     imageFileInput: true,
-    imageUrlInput: false, // URL 입력 탭 숨김
-    imageTabDisabled: ['url'], // URL 탭 완전 비활성화
+    imageUrlInput: false, 
     imageAccept: ".jpg, .jpeg, .png, .gif, .bmp, .webp",
     imageUploadSizeLimit: 10 * 1024 * 1024, // 10MB
-    // 다이얼로그 없이 바로 업로드
-    imageMultipleFile: false,
-    // 기타 비활성화
+    // Base64 사용 안함
     videoFileInput: false,
     audioFileInput: false,
     width: "100%",
@@ -226,7 +209,6 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           clear: both !important;
           float: none !important;
           vertical-align: top !important;
-          pointer-events: none !important; /* 이미지 클릭 방지 */
         }
         
         .sun-editor-editable div {
@@ -236,8 +218,6 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           padding: 0 !important;
           clear: both !important;
           float: none !important;
-          overflow: hidden !important;
-          position: relative !important;
         }
         
         .sun-editor-editable div img {
@@ -245,34 +225,11 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           margin: 0 auto !important;
           width: auto !important;
           max-width: 100% !important;
-          pointer-events: none !important;
-        }
-        
-        .sun-editor-editable p {
-          margin: 10px 0 !important;
-          padding: 0 !important;
-          min-height: 20px !important;
-          line-height: 1.6 !important;
-          clear: both !important;
         }
         
         .sun-editor-editable p img {
           display: block !important;
           margin: 15px auto !important;
-        }
-        
-        /* 이미지 컨테이너 div에 텍스트가 들어가지 않도록 */
-        .sun-editor-editable div:has(img) {
-          text-align: center !important;
-          white-space: nowrap !important;
-          overflow: hidden !important;
-        }
-        
-        .sun-editor-editable div:has(img)::before,
-        .sun-editor-editable div:has(img)::after {
-          content: "" !important;
-          display: block !important;
-          clear: both !important;
         }
         
         .sun-editor-editable ul,
