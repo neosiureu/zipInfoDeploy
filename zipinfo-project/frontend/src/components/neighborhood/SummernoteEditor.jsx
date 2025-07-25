@@ -1,14 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
-import $ from 'jquery';
-import 'summernote/dist/summernote-bs4.min.js';
-
-// CSS 임포트 - 정확한 경로
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'summernote/dist/summernote-bs4.min.css';
-
-// jQuery를 window에 할당
-window.$ = window.jQuery = $;
 
 export default function SummernoteEditor({ value, onChange, disabled }) {
   const editorRef = useRef(null);
@@ -26,25 +17,11 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
     return textOnly.trim();
   };
 
-  // 내용이 비어있는지 확인하는 함수
-  const isContentEmpty = (htmlContent) => {
-    if (!htmlContent) return true;
-    const textContent = extractTextContent(htmlContent);
-    const hasImage = htmlContent.includes("<img");
-    const hasListContent = htmlContent.includes("<ul") || 
-                          htmlContent.includes("<ol") || 
-                          htmlContent.includes("<li");
-    
-    return textContent.length === 0 && !hasImage && !hasListContent;
-  };
-
-  // 변경 핸들러 - 간소화됨
+  // 변경 핸들러
   const handleChange = (content) => {
-    // 글자수 체크 (2000자 제한)
     const textContent = extractTextContent(content);
     
     if (textContent.length > 2000) {
-      // 2000자 초과시 이전 상태로 복원
       toast.error(
         <div>
           <div className="toast-error-title">글자수 초과</div>
@@ -54,151 +31,194 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
         </div>
       );
       
-      // 이전 유효한 내용으로 복원
-      if (editorRef.current) {
-        $(editorRef.current).summernote('code', lastValidContent.current);
+      if (window.$ && editorRef.current) {
+        window.$(editorRef.current).summernote('code', lastValidContent.current);
       }
       return;
     }
 
-    // 유효한 내용이면 저장하고 상위로 전달
     lastValidContent.current = content;
     onChange(content);
   };
 
-  // Summernote 초기화 - 안전한 방식
+  // CSS와 JS 동적 로딩
+  const loadResources = () => {
+    return new Promise((resolve) => {
+      // 이미 로드되었으면 바로 리턴
+      if (window.$ && window.$.fn.summernote) {
+        resolve();
+        return;
+      }
+
+      // Bootstrap CSS
+      if (!document.getElementById('bootstrap-css')) {
+        const bootstrapCSS = document.createElement('link');
+        bootstrapCSS.id = 'bootstrap-css';
+        bootstrapCSS.rel = 'stylesheet';
+        bootstrapCSS.href = 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css';
+        document.head.appendChild(bootstrapCSS);
+      }
+
+      // Summernote CSS
+      if (!document.getElementById('summernote-css')) {
+        const summernoteCSS = document.createElement('link');
+        summernoteCSS.id = 'summernote-css';
+        summernoteCSS.rel = 'stylesheet';
+        summernoteCSS.href = 'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css';
+        document.head.appendChild(summernoteCSS);
+      }
+
+      // jQuery
+      if (!window.$) {
+        const jqueryScript = document.createElement('script');
+        jqueryScript.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
+        jqueryScript.onload = () => {
+          // Summernote
+          const summernoteScript = document.createElement('script');
+          summernoteScript.src = 'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js';
+          summernoteScript.onload = () => {
+            resolve();
+          };
+          document.head.appendChild(summernoteScript);
+        };
+        document.head.appendChild(jqueryScript);
+      } else {
+        resolve();
+      }
+    });
+  };
+
+  // Summernote 초기화
   useEffect(() => {
     if (!editorRef.current || isInitialized.current) return;
 
-    const $editor = $(editorRef.current);
+    loadResources().then(() => {
+      const $editor = window.$(editorRef.current);
 
-    try {
-      $editor.summernote({
-        height: 700,
-        minHeight: 700,
-        lang: "ko-KR",
-        placeholder: "내용을 입력해주세요",
-        disableResizeEditor: true,
-        focus: false,
-        toolbar: [
-          ["style", ["style"]],
-          ["font", ["bold", "italic", "underline"]],
-          ["color", ["color"]],
-          ["para", ["ul", "ol", "paragraph"]],
-          ["insert", ["picture"]],
-        ],
-        callbacks: {
-          onChange: function (contents) {
-            handleChange(contents);
-          },
+      try {
+        $editor.summernote({
+          height: 700,
+          minHeight: 700,
+          placeholder: "", // 플레이스홀더 제거
+          disableResizeEditor: true,
+          focus: false,
+          toolbar: [
+            ["style", ["style"]],
+            ["font", ["bold", "italic", "underline"]],
+            ["color", ["color"]],
+            ["para", ["ul", "ol", "paragraph"]],
+            ["insert", ["picture"]],
+          ],
+          callbacks: {
+            onChange: function (contents) {
+              handleChange(contents);
+            },
 
-          onImageUpload: function (files) {
-            Array.from(files).forEach((file) => {
-              // 파일 크기 체크 (5MB 제한)
-              if (file.size > 5 * 1024 * 1024) {
-                toast.error(
-                  <div>
-                    <div className="toast-error-title">파일 크기 초과</div>
-                    <div className="toast-error-body">
-                      이미지는 5MB 이하만 업로드 가능합니다.
+            onImageUpload: function (files) {
+              Array.from(files).forEach((file) => {
+                if (file.size > 5 * 1024 * 1024) {
+                  toast.error(
+                    <div>
+                      <div className="toast-error-title">파일 크기 초과</div>
+                      <div className="toast-error-body">
+                        이미지는 5MB 이하만 업로드 가능합니다.
+                      </div>
                     </div>
-                  </div>
-                );
-                return;
+                  );
+                  return;
+                }
+
+                // 서버 업로드
+                const formData = new FormData();
+                formData.append("image", file);
+
+                fetch(`${import.meta.env.VITE_API_BASE_URL}/editBoard/uploadImage`, {
+                  method: "POST",
+                  body: formData,
+                })
+                  .then((response) => response.text())
+                  .then((serverImageUrl) => {
+                    console.log("서버 업로드 성공:", serverImageUrl);
+                  })
+                  .catch((error) => {
+                    console.error("서버 업로드 실패:", error);
+                  });
+
+                // 로컬에서 이미지 표시
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  $editor.summernote('insertImage', e.target.result, function ($image) {
+                    $image.css({
+                      "max-width": "100%",
+                      "height": "auto",
+                      "display": "block",
+                      "margin": "10px 0"
+                    });
+                  });
+                };
+                reader.readAsDataURL(file);
+              });
+            },
+
+            onPaste: function (e) {
+              setTimeout(() => {
+                const content = $editor.summernote('code');
+                handleChange(content);
+              }, 100);
+            },
+
+            onDrop: function (e) {
+              e.preventDefault();
+            },
+
+            onInit: function () {
+              const $noteEditor = $editor.next(".note-editor");
+              const $editable = $noteEditor.find(".note-editable");
+
+              // 기본 스타일 적용
+              $editable.css({
+                padding: "15px",
+                "line-height": "2.5",
+                "font-size": "18px",
+                width: "100%",
+                "min-width": "1000px",
+                "word-wrap": "break-word",
+                "word-break": "break-all"
+              });
+
+              // 에디터 크기 설정
+              $noteEditor.css({
+                width: "100%",
+                "min-width": "1000px",
+                border: "1px solid #ddd",
+                borderRadius: "4px"
+              });
+
+              // 초기값 설정
+              if (value) {
+                $editor.summernote('code', value);
+                lastValidContent.current = value;
               }
 
-              // 서버 업로드
-              const formData = new FormData();
-              formData.append("image", file);
+              if (disabled) {
+                $editor.summernote('disable');
+              }
 
-              fetch(`${import.meta.env.VITE_API_BASE_URL}/editBoard/uploadImage`, {
-                method: "POST",
-                body: formData,
-              })
-                .then((response) => response.text())
-                .then((serverImageUrl) => {
-                  console.log("서버 업로드 성공:", serverImageUrl);
-                })
-                .catch((error) => {
-                  console.error("서버 업로드 실패:", error);
-                });
-
-              // 로컬에서 이미지 표시
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                $editor.summernote('insertImage', e.target.result, function ($image) {
-                  $image.css({
-                    "max-width": "100%",
-                    "height": "auto",
-                    "display": "block",
-                    "margin": "10px 0"
-                  });
-                });
-              };
-              reader.readAsDataURL(file);
-            });
+              setIsReady(true);
+              isInitialized.current = true;
+            },
           },
-
-          onPaste: function (e) {
-            // 붙여넣기 후 글자수 체크
-            setTimeout(() => {
-              const content = $editor.summernote('code');
-              handleChange(content);
-            }, 100);
-          },
-
-          onDrop: function (e) {
-            e.preventDefault(); // 드래그 앤 드롭 방지
-          },
-
-          onInit: function () {
-            const $noteEditor = $editor.next(".note-editor");
-            const $editable = $noteEditor.find(".note-editable");
-
-            // 기본 스타일 적용
-            $editable.css({
-              padding: "15px",
-              "line-height": "2.5",
-              "font-size": "18px",
-              "writing-mode": "horizontal-tb !important",
-              direction: "ltr !important",
-              "text-align": "left !important",
-              width: "100%",
-              "min-width": "1000px",
-              "word-wrap": "break-word",
-              "word-break": "break-all"
-            });
-
-            // 에디터 크기 설정
-            $noteEditor.css({
-              width: "100%",
-              "min-width": "1000px"
-            });
-
-            // 초기값 설정
-            if (value) {
-              $editor.summernote('code', value);
-              lastValidContent.current = value;
-            }
-
-            if (disabled) {
-              $editor.summernote('disable');
-            }
-
-            setIsReady(true);
-            isInitialized.current = true;
-          },
-        },
-      });
-    } catch (error) {
-      console.error("Summernote 초기화 오류:", error);
-      setIsReady(false);
-    }
+        });
+      } catch (error) {
+        console.error("Summernote 초기화 오류:", error);
+        setIsReady(false);
+      }
+    });
 
     return () => {
-      if (isInitialized.current && editorRef.current) {
+      if (isInitialized.current && window.$ && editorRef.current) {
         try {
-          $(editorRef.current).summernote('destroy');
+          window.$(editorRef.current).summernote('destroy');
           isInitialized.current = false;
         } catch (e) {
           console.error("Summernote 제거 오류:", e);
@@ -209,8 +229,8 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
   // value prop 변경 처리
   useEffect(() => {
-    if (isReady && isInitialized.current) {
-      const $editor = $(editorRef.current);
+    if (isReady && isInitialized.current && window.$) {
+      const $editor = window.$(editorRef.current);
       const currentCode = $editor.summernote('code');
 
       if (currentCode !== value) {
@@ -222,8 +242,8 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
   // disabled prop 처리
   useEffect(() => {
-    if (isReady && isInitialized.current) {
-      const $editor = $(editorRef.current);
+    if (isReady && isInitialized.current && window.$) {
+      const $editor = window.$(editorRef.current);
       if (disabled) {
         $editor.summernote('disable');
       } else {
@@ -234,7 +254,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
 
   return (
     <>
-      {/* 커스텀 CSS */}
       <style>{`
         .note-editor {
           width: 100% !important;
@@ -249,9 +268,6 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
           overflow-y: auto !important;
           word-wrap: break-word !important;
           word-break: break-all !important;
-          writing-mode: horizontal-tb !important;
-          direction: ltr !important;
-          text-align: left !important;
         }
         
         .note-editable img {
@@ -279,7 +295,16 @@ export default function SummernoteEditor({ value, onChange, disabled }) {
       }}>
         <textarea
           ref={editorRef}
-          style={{ display: isReady ? "none" : "block", width: "100%" }}
+          style={{ 
+            display: isReady ? "none" : "block", 
+            width: "100%",
+            height: "700px",
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+            padding: "15px",
+            fontSize: "16px"
+          }}
+          placeholder="내용을 입력해주세요..."
         />
       </div>
     </>
