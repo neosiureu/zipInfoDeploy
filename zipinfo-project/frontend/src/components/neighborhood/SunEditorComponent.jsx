@@ -226,6 +226,7 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           clear: both !important;
           float: none !important;
           vertical-align: top !important;
+          pointer-events: none !important; /* 이미지 클릭 방지 */
         }
         
         .sun-editor-editable div {
@@ -235,6 +236,8 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           padding: 0 !important;
           clear: both !important;
           float: none !important;
+          overflow: hidden !important;
+          position: relative !important;
         }
         
         .sun-editor-editable div img {
@@ -242,11 +245,34 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           margin: 0 auto !important;
           width: auto !important;
           max-width: 100% !important;
+          pointer-events: none !important;
+        }
+        
+        .sun-editor-editable p {
+          margin: 10px 0 !important;
+          padding: 0 !important;
+          min-height: 20px !important;
+          line-height: 1.6 !important;
+          clear: both !important;
         }
         
         .sun-editor-editable p img {
           display: block !important;
           margin: 15px auto !important;
+        }
+        
+        /* 이미지 컨테이너 div에 텍스트가 들어가지 않도록 */
+        .sun-editor-editable div:has(img) {
+          text-align: center !important;
+          white-space: nowrap !important;
+          overflow: hidden !important;
+        }
+        
+        .sun-editor-editable div:has(img)::before,
+        .sun-editor-editable div:has(img)::after {
+          content: "" !important;
+          display: block !important;
+          clear: both !important;
         }
         
         .sun-editor-editable ul,
