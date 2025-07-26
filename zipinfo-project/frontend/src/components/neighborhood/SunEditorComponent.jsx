@@ -51,45 +51,36 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     onChange(content);
   };
 
-  // 이미지 업로드 완료 후 처리 - 수정된 버전
+  // 이미지 업로드 완료 후 처리 - 강제 커서 이동
   const handleImageUpload = (targetImgElement, index, state, imageInfo, remainingFilesCount) => {
     if (state === 'create') {
       setTimeout(() => {
         const editor = editorRef.current?.editor;
         if (editor && targetImgElement) {
           try {
-            // 에디터 컨텍스트 가져오기
             const context = editor.getContext();
             const editable = context.element.wysiwyg;
             
-            // 이미지를 p 태그로 감싸기
-            const imgWrapper = document.createElement('p');
-            imgWrapper.style.cssText = 'margin: 15px 0; padding: 0; text-align: center; clear: both;';
-            
-            // 이미지의 부모가 p 태그가 아니라면 p 태그로 감싸기
-            if (targetImgElement.parentNode && targetImgElement.parentNode.tagName !== 'P') {
-              targetImgElement.parentNode.insertBefore(imgWrapper, targetImgElement);
-              imgWrapper.appendChild(targetImgElement);
-            }
-            
-            // 이미지 다음에 새로운 빈 p 태그 추가
+            // 이미지 바로 다음에 새로운 p 태그 생성
             const newP = document.createElement('p');
             newP.innerHTML = '<br>';
-            newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6;';
+            newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6; display: block; clear: both;';
             
-            // 이미지가 포함된 p 태그 다음에 새 p 태그 삽입
-            const imageContainer = targetImgElement.closest('p') || imgWrapper;
-            if (imageContainer.nextSibling) {
-              editable.insertBefore(newP, imageContainer.nextSibling);
+            // 이미지 요소 바로 다음에 p 태그 삽입
+            if (targetImgElement.parentNode) {
+              targetImgElement.parentNode.insertAdjacentElement('afterend', newP);
             } else {
               editable.appendChild(newP);
             }
             
-            // 새 p 태그로 커서 이동
+            // 강제로 커서를 새 p 태그로 이동
             const range = document.createRange();
             const selection = window.getSelection();
             
-            // br 태그가 있으면 그 앞에, 없으면 p 태그 시작에 커서 설정
+            // 선택 영역 완전 제거
+            selection.removeAllRanges();
+            
+            // 새 p 태그의 br 요소 앞에 커서 위치 설정
             if (newP.firstChild && newP.firstChild.nodeName === 'BR') {
               range.setStartBefore(newP.firstChild);
               range.setEndBefore(newP.firstChild);
@@ -98,31 +89,48 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
               range.setEnd(newP, 0);
             }
             
-            selection.removeAllRanges();
             selection.addRange(range);
             
-            // 에디터에 포커스
-            editable.focus();
-            
-            // 이미지 선택 해제
+            // 이미지 선택 상태 완전 제거
             targetImgElement.blur();
+            if (targetImgElement.parentNode) {
+              targetImgElement.parentNode.blur();
+            }
+            
+            // 에디터에 포커스 및 커서 재설정
+            setTimeout(() => {
+              editable.focus();
+              
+              // 커서 위치 재확인 및 재설정
+              const newSelection = window.getSelection();
+              if (newSelection.rangeCount === 0 || !newSelection.getRangeAt(0).collapsed) {
+                const newRange = document.createRange();
+                newRange.setStart(newP, 0);
+                newRange.setEnd(newP, 0);
+                newSelection.removeAllRanges();
+                newSelection.addRange(newRange);
+              }
+              
+              // 이미지 컨트롤러 강제 제거
+              const imageController = document.querySelector('.se-controller-image');
+              if (imageController) {
+                imageController.style.display = 'none';
+                imageController.remove();
+              }
+              
+              const lineBreaker = document.querySelector('.se-line-breaker');
+              if (lineBreaker) {
+                lineBreaker.style.display = 'none';
+                lineBreaker.remove();
+              }
+              
+            }, 50);
             
           } catch (error) {
             console.error('이미지 업로드 후 처리 중 오류:', error);
-            // 에러 발생 시 단순히 에디터 마지막으로 커서 이동
-            const context = editor.getContext();
-            const editable = context.element.wysiwyg;
-            const range = document.createRange();
-            const selection = window.getSelection();
-            
-            range.selectNodeContents(editable);
-            range.collapse(false);
-            selection.removeAllRanges();
-            selection.addRange(range);
-            editable.focus();
           }
         }
-      }, 150);
+      }, 100);
     }
   };
 
@@ -244,6 +252,12 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     imageWidthShow: false,
     imageAlignShow: false,
     imageSizeOnlyPercentage: false,
+    // 이미지 컨트롤러 완전 비활성화
+    imageRotation: false,
+    imageGalleryUrl: false,
+    // 라인브레이커 비활성화
+    lineBreaker: false,
+    // 기타 비활성화
     videoFileInput: false,
     audioFileInput: false,
     width: "100%",
@@ -344,9 +358,28 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         .se-controller-image {
           display: none !important;
           visibility: hidden !important;
+          pointer-events: none !important;
         }
         
         .se-resizing-bar {
+          display: none !important;
+        }
+        
+        /* 이미지 컨트롤러 화살표 완전 제거 */
+        .se-controller-image-btn {
+          display: none !important;
+        }
+        
+        .se-controller-image .se-btn {
+          display: none !important;
+        }
+        
+        /* 이미지 선택 시 나타나는 모든 컨트롤 숨김 */
+        .se-line-breaker {
+          display: none !important;
+        }
+        
+        .se-line-breaker-component {
           display: none !important;
         }
         
