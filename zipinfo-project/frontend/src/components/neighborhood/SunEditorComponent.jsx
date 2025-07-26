@@ -51,75 +51,78 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     onChange(content);
   };
 
-  // 에디터 클릭 이벤트 - 이미지 선택 방지
-  const handleEditorClick = () => {
-    setTimeout(() => {
-      const editor = editorRef.current?.editor;
-      if (editor) {
-        // 현재 선택된 요소가 이미지인지 확인
-        const selection = window.getSelection();
-        if (selection.anchorNode && selection.anchorNode.nodeName === 'IMG') {
-          // 이미지가 선택되었다면 선택 해제하고 다음 줄로 이동
-          const editable = editor.getContext().element.wysiwyg;
-          const range = document.createRange();
-          const newSelection = window.getSelection();
-          
-          // 에디터의 마지막 위치로 커서 이동
-          range.selectNodeContents(editable);
-          range.collapse(false);
-          newSelection.removeAllRanges();
-          newSelection.addRange(range);
-        }
-      }
-    }, 50);
-  };
-
-  // 이미지 업로드 완료 후 처리 - 선택 상태 해제
+  // 이미지 업로드 완료 후 처리 - 수정된 버전
   const handleImageUpload = (targetImgElement, index, state, imageInfo, remainingFilesCount) => {
     if (state === 'create') {
-      // 이미지 삽입 완료 후 즉시 선택 해제하고 커서 이동
       setTimeout(() => {
         const editor = editorRef.current?.editor;
-        if (editor) {
-          // 선택 상태 완전 해제
-          const selection = window.getSelection();
-          selection.removeAllRanges();
-          
-          // 에디터 영역으로 포커스 이동
-          const editable = editor.getContext().element.wysiwyg;
-          
-          // 새로운 p 태그 생성하고 이미지 다음에 추가
-          const newP = document.createElement('p');
-          newP.innerHTML = '<br>';
-          newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6; clear: both;';
-          
-          // 이미지 요소 다음에 p 태그 삽입
-          if (targetImgElement && targetImgElement.parentNode) {
-            targetImgElement.parentNode.insertAdjacentElement('afterend', newP);
-          } else {
-            editable.appendChild(newP);
-          }
-          
-          // 새 p 태그로 커서 이동
-          const range = document.createRange();
-          const newSelection = window.getSelection();
-          
-          range.setStart(newP, 0);
-          range.setEnd(newP, 0);
-          newSelection.removeAllRanges();
-          newSelection.addRange(range);
-          
-          // 에디터에 포커스
-          editable.focus();
-          editor.focus();
-          
-          // 이미지 선택 상태 강제 해제
-          if (targetImgElement) {
+        if (editor && targetImgElement) {
+          try {
+            // 에디터 컨텍스트 가져오기
+            const context = editor.getContext();
+            const editable = context.element.wysiwyg;
+            
+            // 이미지를 p 태그로 감싸기
+            const imgWrapper = document.createElement('p');
+            imgWrapper.style.cssText = 'margin: 15px 0; padding: 0; text-align: center; clear: both;';
+            
+            // 이미지의 부모가 p 태그가 아니라면 p 태그로 감싸기
+            if (targetImgElement.parentNode && targetImgElement.parentNode.tagName !== 'P') {
+              targetImgElement.parentNode.insertBefore(imgWrapper, targetImgElement);
+              imgWrapper.appendChild(targetImgElement);
+            }
+            
+            // 이미지 다음에 새로운 빈 p 태그 추가
+            const newP = document.createElement('p');
+            newP.innerHTML = '<br>';
+            newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6;';
+            
+            // 이미지가 포함된 p 태그 다음에 새 p 태그 삽입
+            const imageContainer = targetImgElement.closest('p') || imgWrapper;
+            if (imageContainer.nextSibling) {
+              editable.insertBefore(newP, imageContainer.nextSibling);
+            } else {
+              editable.appendChild(newP);
+            }
+            
+            // 새 p 태그로 커서 이동
+            const range = document.createRange();
+            const selection = window.getSelection();
+            
+            // br 태그가 있으면 그 앞에, 없으면 p 태그 시작에 커서 설정
+            if (newP.firstChild && newP.firstChild.nodeName === 'BR') {
+              range.setStartBefore(newP.firstChild);
+              range.setEndBefore(newP.firstChild);
+            } else {
+              range.setStart(newP, 0);
+              range.setEnd(newP, 0);
+            }
+            
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            // 에디터에 포커스
+            editable.focus();
+            
+            // 이미지 선택 해제
             targetImgElement.blur();
-            targetImgElement.style.outline = 'none';
+            
+          } catch (error) {
+            console.error('이미지 업로드 후 처리 중 오류:', error);
+            // 에러 발생 시 단순히 에디터 마지막으로 커서 이동
+            const context = editor.getContext();
+            const editable = context.element.wysiwyg;
+            const range = document.createRange();
+            const selection = window.getSelection();
+            
+            range.selectNodeContents(editable);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            editable.focus();
           }
         }
-      }, 100);
+      }, 150);
     }
   };
 
@@ -166,6 +169,43 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     return false;
   };
 
+  // Enter 키 처리 개선
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      const editor = editorRef.current?.editor;
+      if (editor) {
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+        
+        // 현재 커서가 이미지 근처에 있는지 확인
+        const currentElement = range.commonAncestorContainer;
+        const imgElement = currentElement.nodeType === Node.ELEMENT_NODE 
+          ? currentElement.querySelector('img') 
+          : currentElement.parentElement?.querySelector('img');
+          
+        if (imgElement) {
+          // 이미지가 있는 경우 새 줄 추가 강제 처리
+          event.preventDefault();
+          
+          const newP = document.createElement('p');
+          newP.innerHTML = '<br>';
+          newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6;';
+          
+          const context = editor.getContext();
+          const editable = context.element.wysiwyg;
+          editable.appendChild(newP);
+          
+          const newRange = document.createRange();
+          const newSelection = window.getSelection();
+          newRange.setStart(newP, 0);
+          newRange.setEnd(newP, 0);
+          newSelection.removeAllRanges();
+          newSelection.addRange(newRange);
+        }
+      }
+    }
+  };
+
   // value prop 변경 시 에디터 업데이트
   useEffect(() => {
     if (editorRef.current && value !== undefined) {
@@ -193,18 +233,17 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       ["list"],
       ["image"]
     ],
-    // 이미지 관련 설정 - 선택/리사이징 비활성화
+    // 이미지 관련 설정
     imageFileInput: true,
-    imageUrlInput: false, // URL 입력 탭 숨김
+    imageUrlInput: false,
     imageAccept: ".jpg, .jpeg, .png, .gif, .bmp, .webp",
-    imageUploadSizeLimit: 10 * 1024 * 1024, // 10MB
-    imageMultipleFile: false, // 단일 파일만
-    imageResizing: false, // 이미지 리사이징 완전 비활성화
-    imageHeightShow: false, // 높이 조절 비활성화
-    imageWidthShow: false, // 너비 조절 비활성화
-    imageAlignShow: false, // 정렬 옵션 비활성화
-    imageSizeOnlyPercentage: false, // 퍼센트 리사이징 비활성화
-    // 기타 비활성화
+    imageUploadSizeLimit: 10 * 1024 * 1024,
+    imageMultipleFile: false,
+    imageResizing: false,
+    imageHeightShow: false,
+    imageWidthShow: false,
+    imageAlignShow: false,
+    imageSizeOnlyPercentage: false,
     videoFileInput: false,
     audioFileInput: false,
     width: "100%",
@@ -227,7 +266,7 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         onChange={handleChange}
         onImageUploadBefore={handleImageUploadBefore}
         onImageUpload={handleImageUpload}
-        onClick={handleEditorClick}
+        onKeyDown={handleKeyDown}
         setOptions={editorOptions}
         disable={disabled}
         height="700px"
@@ -286,6 +325,16 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           -ms-user-select: none !important;
         }
         
+        /* 이미지를 포함한 p 태그 스타일 */
+        .sun-editor-editable p:has(img) {
+          margin: 15px 0 !important;
+          padding: 0 !important;
+          text-align: center !important;
+          clear: both !important;
+          display: block !important;
+          width: 100% !important;
+        }
+        
         /* 이미지 리사이징 컨트롤 완전 숨김 */
         .se-resizing-container {
           display: none !important;
@@ -323,6 +372,12 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         
         .sun-editor-editable p:empty {
           min-height: 20px !important;
+        }
+        
+        .sun-editor-editable p:empty:before {
+          content: '';
+          display: inline-block;
+          height: 20px;
         }
         
         .sun-editor-editable ul,
