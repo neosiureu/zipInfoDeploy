@@ -1,10 +1,12 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 import SunEditor from "suneditor-react";
 import "suneditor/dist/css/suneditor.min.css";
 import { toast } from "react-toastify";
 
 export default function SunEditorComponent({ value, onChange, disabled }) {
   const editorRef = useRef(null);
+  const sunEditorInstanceRef = useRef(null);
+  const observerRef = useRef(null);
   const isUpdating = useRef(false);
 
   // 텍스트만 추출하는 함수
@@ -51,93 +53,172 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     onChange(content);
   };
 
-  // SunEditor 공식 방법으로 커서를 마지막 위치로 이동
-  const moveCaretToEnd = (editor) => {
-    try {
-      const context = editor.getContext();
-      const editorNode = context.element.wysiwyg;
-      
-      // 새로운 p 태그 생성 및 추가
-      const newP = document.createElement('p');
-      newP.innerHTML = '<br>';
-      newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6;';
-      editorNode.appendChild(newP);
-      
-      // SunEditor 공식 방법으로 커서 위치 설정
-      const range = document.createRange();
-      const selection = window.getSelection();
-      
-      setTimeout(() => {
-        range.setStartAfter(editorNode.lastChild);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        editor.core.focus();
-      }, 50);
-      
-    } catch (error) {
-      console.error('커서 이동 실패:', error);
-    }
-  };
+  // 브라우저 호환성을 고려한 커서 이동 함수 (연구 결과 적용)
+  const browserCompatibleCursorFix = useCallback((imageElement) => {
+    if (!sunEditorInstanceRef.current) return;
 
-  // 이미지 업로드 완료 후 처리 - SunEditor 공식 API 사용
-  const handleImageUpload = (targetImgElement, index, state, imageInfo, remainingFilesCount) => {
-    if (state === 'create' && targetImgElement) {
-      setTimeout(() => {
-        const editor = editorRef.current?.editor;
-        if (editor) {
-          // 모든 컨트롤러 제거
-          document.querySelectorAll('.se-controller-image, .se-line-breaker, .se-resizing-container').forEach(el => {
-            el.remove();
-          });
+    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const delay = isFirefox ? 150 : isSafari ? 50 : 120;
+
+    const executeCursorFix = () => {
+      const fallbackStrategies = [
+        // 전략 1: 표준 Range API + 새 단락 생성 (가장 안정적)
+        () => {
+          const range = document.createRange();
+          const selection = window.getSelection();
           
-          try {
-            // 방법 1: SunEditor의 insertHTML 사용
-            editor.insertHTML('<p><br></p>', false, false);
-            
-            // 방법 2: 직접 DOM 조작 + SunEditor API 조합
-            setTimeout(() => {
-              const context = editor.getContext();
-              const editorNode = context.element.wysiwyg;
-              
-              // 에디터 마지막에 새 p 태그가 없다면 추가
-              const lastChild = editorNode.lastChild;
-              if (!lastChild || lastChild.tagName !== 'P' || lastChild.innerHTML !== '<br>') {
-                const newP = document.createElement('p');
-                newP.innerHTML = '<br>';
-                newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6;';
-                editorNode.appendChild(newP);
-              }
-              
-              // 커서를 마지막 요소 뒤로 이동 (공식 방법)
-              const range = document.createRange();
-              const selection = window.getSelection();
-              
-              range.setStartAfter(editorNode.lastChild);
-              range.collapse(true);
-              selection.removeAllRanges();
-              selection.addRange(range);
-              
-              // 에디터 포커스
-              editor.core.focus();
-              
-              // 내용 변경 이벤트 발생시켜서 SunEditor 내부 상태 동기화
-              const inputEvent = new Event('input', { bubbles: true });
-              editorNode.dispatchEvent(inputEvent);
-              
-            }, 50);
-            
-          } catch (error) {
-            console.error('SunEditor API 사용 실패, 대안 방법 사용:', error);
-            // 대안: 직접 커서 이동
-            moveCaretToEnd(editor);
+          // 이미지 다음에 빈 단락 생성
+          let nextElement = imageElement.nextSibling;
+          if (!nextElement || nextElement.nodeType !== Node.ELEMENT_NODE) {
+            const p = document.createElement('p');
+            p.innerHTML = '<br>';
+            p.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6;';
+            imageElement.parentNode.insertBefore(p, imageElement.nextSibling);
+            nextElement = p;
+          }
+          
+          range.setStart(nextElement, 0);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          
+          sunEditorInstanceRef.current.core.focus();
+        },
+
+        // 전략 2: SunEditor 내부 API 사용
+        () => {
+          const core = sunEditorInstanceRef.current.core;
+          const nextElement = imageElement.nextSibling || 
+            (() => {
+              const p = core.util.createElement('p');
+              p.innerHTML = '<br>';
+              imageElement.parentNode.insertBefore(p, imageElement.nextSibling);
+              return p;
+            })();
+          
+          if (core.setRange) {
+            core.setRange(nextElement, 0, nextElement, 0);
+          }
+          core.focus();
+        },
+
+        // 전략 3: 텍스트 노드 삽입 방식
+        () => {
+          const range = document.createRange();
+          const selection = window.getSelection();
+          
+          const textNode = document.createTextNode('\u00A0'); // Non-breaking space
+          imageElement.parentNode.insertBefore(textNode, imageElement.nextSibling);
+          
+          range.setStart(textNode, 1);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          
+          sunEditorInstanceRef.current.core.focus();
+          
+          // 불필요한 공백을 br로 교체
+          setTimeout(() => {
+            if (textNode.textContent === '\u00A0') {
+              const br = document.createElement('br');
+              textNode.parentNode.replaceChild(br, textNode);
+            }
+          }, 10);
+        },
+
+        // 전략 4: 에디터 끝으로 이동 (최후 수단)
+        () => {
+          const core = sunEditorInstanceRef.current.core;
+          const wysiwyg = core.context.element.wysiwyg;
+          const range = document.createRange();
+          const selection = window.getSelection();
+          
+          range.selectNodeContents(wysiwyg);
+          range.collapse(false);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          core.focus();
+        }
+      ];
+
+      // 각 전략을 순차적으로 시도
+      for (let i = 0; i < fallbackStrategies.length; i++) {
+        try {
+          fallbackStrategies[i]();
+          console.log(`커서 위치 설정 성공 (전략 ${i + 1})`);
+          return true;
+        } catch (error) {
+          console.warn(`전략 ${i + 1} 실패:`, error);
+          if (i === fallbackStrategies.length - 1) {
+            console.error('모든 커서 위치 설정 전략 실패');
+            return false;
           }
         }
-      }, 100);
-    }
-  };
+      }
+    };
 
-  // 이미지 업로드 Before 핸들러 - 파일 선택 즉시 업로드
+    if (isSafari) {
+      requestAnimationFrame(() => {
+        setTimeout(executeCursorFix, delay);
+      });
+    } else {
+      setTimeout(executeCursorFix, delay);
+    }
+  }, []);
+
+  // SunEditor 인스턴스 가져오기 (연구 결과의 핵심 권장사항)
+  const getSunEditorInstance = useCallback((sunEditor) => {
+    sunEditorInstanceRef.current = sunEditor;
+
+    // MutationObserver 설정 (연구 결과의 고급 해결책)
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    const wysiwyg = sunEditor.core.context.element.wysiwyg;
+    observerRef.current = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList') {
+          const addedImages = Array.from(mutation.addedNodes)
+            .filter(node => node.tagName === 'IMG');
+          
+          addedImages.forEach(img => {
+            // 이미지 로드 완료 후 커서 조정
+            if (img.complete) {
+              browserCompatibleCursorFix(img);
+            } else {
+              img.onload = () => browserCompatibleCursorFix(img);
+            }
+          });
+        }
+      });
+    });
+
+    observerRef.current.observe(wysiwyg, {
+      childList: true,
+      subtree: true
+    });
+  }, [browserCompatibleCursorFix]);
+
+  // 이미지 업로드 완료 후 처리
+  const handleImageUpload = useCallback((targetImgElement, index, state, imageInfo, remainingFilesCount) => {
+    if (state === 'create' && targetImgElement) {
+      // 모든 이미지 컨트롤러 제거
+      setTimeout(() => {
+        document.querySelectorAll('.se-controller-image, .se-line-breaker, .se-resizing-container').forEach(el => {
+          el.remove();
+        });
+      }, 50);
+
+      // 마지막 이미지 업로드 완료 시 커서 조정
+      if (remainingFilesCount === 0) {
+        browserCompatibleCursorFix(targetImgElement);
+      }
+    }
+  }, [browserCompatibleCursorFix]);
+
+  // 이미지 업로드 Before 핸들러 - 서버 업로드 유지
   const handleImageUploadBefore = (files, info, uploadHandler) => {
     const file = files[0];
     
@@ -167,7 +248,6 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           }]
         };
         
-        // uploadHandler로 응답 전달 - 이미지가 에디터에 자동 삽입됨
         uploadHandler(response);
       })
       .catch((error) => {
@@ -176,83 +256,58 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         uploadHandler({ result: [] });
       });
     
-    // false 반환으로 기본 Base64 처리 완전 차단
-    return false;
+    return false; // 기본 Base64 처리 완전 차단
   };
 
-  // 에디터 클릭 이벤트 처리 - 이미지 클릭 시 아래로 커서 이동
+  // 에디터 클릭 이벤트 처리
   const handleEditorClick = (event) => {
     setTimeout(() => {
-      // 클릭 후 이미지 컨트롤러가 나타나면 즉시 제거
+      // 이미지 컨트롤러 제거
       document.querySelectorAll('.se-controller-image, .se-line-breaker, .se-resizing-container').forEach(el => {
         el.remove();
       });
       
-      // 이미지를 클릭했을 경우 자동으로 아래로 커서 이동
+      // 이미지 클릭 시 아래로 커서 이동
       const clickedElement = event.target;
       if (clickedElement && clickedElement.tagName === 'IMG') {
-        const editor = editorRef.current?.editor;
-        if (editor) {
-          // SunEditor API로 새 단락 추가 및 커서 이동
-          editor.insertHTML('<p><br></p>', false, false);
-          setTimeout(() => {
-            moveCaretToEnd(editor);
-          }, 50);
-        }
+        browserCompatibleCursorFix(clickedElement);
       }
     }, 50);
   };
+
+  // Enter 키 처리
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
-      const editor = editorRef.current?.editor;
-      if (editor) {
-        const selection = window.getSelection();
-        const range = selection.getRangeAt(0);
-        
-        // 현재 커서가 이미지 근처에 있는지 확인
-        const currentElement = range.commonAncestorContainer;
-        const imgElement = currentElement.nodeType === Node.ELEMENT_NODE 
-          ? currentElement.querySelector('img') 
-          : currentElement.parentElement?.querySelector('img');
-          
-        if (imgElement) {
-          // 이미지가 있는 경우 새 줄 추가 강제 처리
-          event.preventDefault();
-          
-          const newP = document.createElement('p');
-          newP.innerHTML = '<br>';
-          newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6;';
-          
-          const context = editor.getContext();
-          const editable = context.element.wysiwyg;
-          editable.appendChild(newP);
-          
-          const newRange = document.createRange();
-          const newSelection = window.getSelection();
-          newRange.setStart(newP, 0);
-          newRange.setEnd(newP, 0);
-          newSelection.removeAllRanges();
-          newSelection.addRange(newRange);
-        }
-      }
+      // 이미지 컨트롤러가 있다면 제거
+      document.querySelectorAll('.se-controller-image, .se-line-breaker, .se-resizing-container').forEach(el => {
+        el.remove();
+      });
     }
   };
 
   // value prop 변경 시 에디터 업데이트
   useEffect(() => {
-    if (editorRef.current && value !== undefined) {
-      const editor = editorRef.current.editor;
-      const currentContent = editor.getContents();
+    if (sunEditorInstanceRef.current && value !== undefined) {
+      const currentContent = sunEditorInstanceRef.current.getContents();
       
       if (currentContent !== value) {
         isUpdating.current = true;
-        editor.setContents(value || "");
+        sunEditorInstanceRef.current.setContents(value || "");
         setTimeout(() => {
           isUpdating.current = false;
         }, 100);
       }
     }
   }, [value]);
+
+  // 컴포넌트 정리
+  useEffect(() => {
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, []);
 
   const editorOptions = {
     height: 700,
@@ -276,12 +331,9 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     imageWidthShow: false,
     imageAlignShow: false,
     imageSizeOnlyPercentage: false,
-    // 이미지 컨트롤러 완전 비활성화
     imageRotation: false,
     imageGalleryUrl: false,
-    // 라인브레이커 비활성화
     lineBreaker: false,
-    // 기타 비활성화
     videoFileInput: false,
     audioFileInput: false,
     width: "100%",
@@ -300,6 +352,7 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     >
       <SunEditor
         ref={editorRef}
+        getSunEditorInstance={getSunEditorInstance}
         setContents={value || ""}
         onChange={handleChange}
         onImageUploadBefore={handleImageUploadBefore}
@@ -365,27 +418,6 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           cursor: default !important;
         }
         
-        .sun-editor-editable img:hover {
-          cursor: default !important;
-        }
-        
-        .sun-editor-editable img:active,
-        .sun-editor-editable img:focus {
-          outline: none !important;
-          border: none !important;
-          box-shadow: none !important;
-        }
-        
-        /* 이미지를 포함한 p 태그 스타일 */
-        .sun-editor-editable p:has(img) {
-          margin: 15px 0 !important;
-          padding: 0 !important;
-          text-align: center !important;
-          clear: both !important;
-          display: block !important;
-          width: 100% !important;
-        }
-        
         /* 이미지 리사이징 컨트롤 완전 숨김 */
         .se-resizing-container,
         .se-controller-image,
@@ -409,16 +441,6 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           display: none !important;
         }
         
-        /* 이미지 선택 방지 */
-        .sun-editor-editable img:focus {
-          outline: none !important;
-          border: none !important;
-        }
-        
-        .sun-editor-editable img::selection {
-          background: transparent !important;
-        }
-        
         .sun-editor-editable p {
           margin: 10px 0 !important;
           padding: 0 !important;
@@ -431,12 +453,6 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         
         .sun-editor-editable p:empty {
           min-height: 20px !important;
-        }
-        
-        .sun-editor-editable p:empty:before {
-          content: '';
-          display: inline-block;
-          height: 20px;
         }
         
         .sun-editor-editable ul,
