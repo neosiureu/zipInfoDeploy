@@ -51,7 +51,44 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     onChange(content);
   };
 
-  // 이미지 업로드 Before 핸들러 (파일 선택 즉시 업로드)
+  // 이미지 업로드 완료 후 처리
+  const handleImageUpload = (targetImgElement, index, state, imageInfo, remainingFilesCount) => {
+    if (state === 'create') {
+      // 이미지 삽입 후 커서를 다음 줄로 이동
+      setTimeout(() => {
+        const editor = editorRef.current?.editor;
+        if (editor) {
+          const editable = editor.getContext().element.wysiwyg;
+          
+          // 새로운 p 태그 생성
+          const newP = document.createElement('p');
+          newP.innerHTML = '<br>';
+          newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6; clear: both;';
+          
+          // 이미지 뒤에 p 태그 추가
+          if (targetImgElement && targetImgElement.parentNode) {
+            targetImgElement.parentNode.insertAdjacentElement('afterend', newP);
+          } else {
+            editable.appendChild(newP);
+          }
+          
+          // 커서를 새 p 태그로 이동
+          const range = document.createRange();
+          const selection = window.getSelection();
+          
+          range.setStart(newP, 0);
+          range.setEnd(newP, 0);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          
+          // 에디터 포커스
+          editor.focus();
+        }
+      }, 300);
+    }
+  };
+
+  // 이미지 업로드 Before 핸들러 (완전히 새로운 방식)
   const handleImageUploadBefore = (files, info, uploadHandler) => {
     const file = files[0];
     
@@ -72,7 +109,7 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       .then((serverImageUrl) => {
         console.log("서버 업로드 성공:", serverImageUrl);
         
-        // SunEditor가 요구하는 응답 형식으로 전달
+        // SunEditor가 요구하는 정확한 응답 형식
         const response = {
           result: [{
             url: serverImageUrl.trim(),
@@ -81,46 +118,60 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           }]
         };
         
-        // uploadHandler로 응답 전달 - 이미지가 에디터에 자동 삽입됨
+        // uploadHandler 호출 - 이미지가 에디터에 자동 삽입됨
         uploadHandler(response);
-        
-        // 이미지 삽입 후 커서를 다음 줄로 이동
-        setTimeout(() => {
-          const editor = editorRef.current?.editor;
-          if (editor) {
-            const editable = editor.getContext().element.wysiwyg;
-            
-            // 새로운 p 태그 생성
-            const newP = document.createElement('p');
-            newP.innerHTML = '<br>';
-            newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6; clear: both;';
-            
-            // 에디터 끝에 p 태그 추가
-            editable.appendChild(newP);
-            
-            // 커서를 새 p 태그로 이동
-            const range = document.createRange();
-            const selection = window.getSelection();
-            
-            range.setStart(newP, 0);
-            range.setEnd(newP, 0);
-            selection.removeAllRanges();
-            selection.addRange(range);
-            
-            // 에디터 포커스
-            editor.focus();
-          }
-        }, 500);
-        
       })
       .catch((error) => {
         console.error("서버 업로드 실패:", error);
         toast.error("이미지 업로드에 실패했습니다.");
-        uploadHandler("이미지 업로드에 실패했습니다.");
+        // 에러 발생 시 빈 result로 uploadHandler 호출
+        uploadHandler({ result: [] });
       });
     
-    // undefined 반환 - uploadHandler 완료까지 대기
-    return undefined;
+    // false 반환으로 기본 Base64 처리 완전 차단
+    return false;
+  };
+  const handleImageUploadBefore = (files, info, uploadHandler) => {
+    const file = files[0];
+    
+    // 서버 업로드
+    const formData = new FormData();
+    formData.append("image", file);
+
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/editBoard/uploadImage`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`서버 오류: ${response.status}`);
+        }
+        return response.text(); // 서버가 텍스트로 URL만 반환
+      })
+      .then((serverImageUrl) => {
+        console.log("서버 업로드 성공:", serverImageUrl);
+        
+        // SunEditor가 요구하는 정확한 응답 형식
+        const response = {
+          result: [{
+            url: serverImageUrl.trim(),
+            name: file.name,
+            size: file.size
+          }]
+        };
+        
+        // uploadHandler 호출 - 이미지가 에디터에 자동 삽입됨
+        uploadHandler(response);
+      })
+      .catch((error) => {
+        console.error("서버 업로드 실패:", error);
+        toast.error("이미지 업로드에 실패했습니다.");
+        // 에러 발생 시 빈 result로 uploadHandler 호출
+        uploadHandler({ result: [] });
+      });
+    
+    // false 반환으로 기본 Base64 처리 완전 차단
+    return false;
   };
 
   // value prop 변경 시 에디터 업데이트
@@ -150,7 +201,7 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       ["list"],
       ["image"]
     ],
-    // 이미지 업로드 설정
+    // 파일 선택 즉시 업로드 설정
     imageFileInput: true,
     imageUrlInput: false, // URL 입력 탭 숨김
     imageAccept: ".jpg, .jpeg, .png, .gif, .bmp, .webp",
@@ -178,6 +229,7 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         setContents={value || ""}
         onChange={handleChange}
         onImageUploadBefore={handleImageUploadBefore}
+        onImageUpload={handleImageUpload}
         setOptions={editorOptions}
         disable={disabled}
         height="700px"
@@ -243,26 +295,6 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         
         .sun-editor-editable p:empty {
           min-height: 20px !important;
-        }
-        
-        .sun-editor-editable p img {
-          display: block !important;
-          margin: 15px auto !important;
-        }
-        
-        /* 이미지를 포함한 div나 figure 요소 스타일링 */
-        .sun-editor-editable div,
-        .sun-editor-editable figure {
-          margin: 15px 0 !important;
-          clear: both !important;
-          text-align: center !important;
-        }
-        
-        .sun-editor-editable div img,
-        .sun-editor-editable figure img {
-          display: block !important;
-          margin: 0 auto !important;
-          max-width: 100% !important;
         }
         
         .sun-editor-editable ul,
