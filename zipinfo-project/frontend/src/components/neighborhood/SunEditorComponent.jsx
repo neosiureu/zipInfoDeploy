@@ -51,112 +51,88 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     onChange(content);
   };
 
-  // MutationObserver로 이미지 삽입 감지
-  useEffect(() => {
-    const editor = editorRef.current?.editor;
-    if (!editor) return;
-
-    const context = editor.getContext();
-    const editable = context.element.wysiwyg;
-
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              const img = node.tagName === 'IMG' ? node : node.querySelector?.('img');
-              if (img) {
-                // 이미지가 감지되면 즉시 처리
-                setTimeout(() => {
-                  forceCursorAfterImage(img, editor);
-                }, 50);
-              }
-            }
-          });
-        }
-      });
-    });
-
-    observer.observe(editable, {
-      childList: true,
-      subtree: true
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  // 이미지 다음으로 커서 강제 이동
-  const forceCursorAfterImage = (imgElement, editor) => {
+  // SunEditor 공식 방법으로 커서를 마지막 위치로 이동
+  const moveCaretToEnd = (editor) => {
     try {
       const context = editor.getContext();
-      const editable = context.element.wysiwyg;
+      const editorNode = context.element.wysiwyg;
       
-      // 모든 컨트롤러 즉시 제거
-      document.querySelectorAll('.se-controller-image, .se-line-breaker, .se-resizing-container').forEach(el => {
-        el.remove();
-      });
-      
-      // 이미지를 p 태그로 감싸기 (아직 감싸져 있지 않다면)
-      let imgContainer = imgElement.closest('p');
-      if (!imgContainer) {
-        imgContainer = document.createElement('p');
-        imgContainer.style.cssText = 'margin: 15px 0; padding: 0; text-align: center; clear: both;';
-        imgElement.parentNode.insertBefore(imgContainer, imgElement);
-        imgContainer.appendChild(imgElement);
-      }
-      
-      // 새로운 빈 p 태그 생성
+      // 새로운 p 태그 생성 및 추가
       const newP = document.createElement('p');
       newP.innerHTML = '<br>';
-      newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6; clear: both;';
+      newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6;';
+      editorNode.appendChild(newP);
       
-      // 이미지 컨테이너 다음에 새 p 태그 삽입
-      imgContainer.insertAdjacentElement('afterend', newP);
-      
-      // 강제로 커서를 새 p 태그로 이동
+      // SunEditor 공식 방법으로 커서 위치 설정
       const range = document.createRange();
       const selection = window.getSelection();
       
-      // 모든 선택 해제
-      selection.removeAllRanges();
-      
-      // 새 p 태그의 시작 부분에 커서 설정
-      range.setStart(newP, 0);
-      range.setEnd(newP, 0);
-      selection.addRange(range);
-      
-      // 에디터에 포커스
-      editable.focus();
-      
-      // 강제로 SunEditor 내부 상태 업데이트
       setTimeout(() => {
-        const event = new Event('input', { bubbles: true });
-        editable.dispatchEvent(event);
-        
-        // 커서 위치 재확인
-        const currentSelection = window.getSelection();
-        if (!currentSelection.rangeCount || !currentSelection.getRangeAt(0).collapsed) {
-          const newRange = document.createRange();
-          newRange.setStart(newP, 0);
-          newRange.setEnd(newP, 0);
-          currentSelection.removeAllRanges();
-          currentSelection.addRange(newRange);
-        }
-      }, 10);
+        range.setStartAfter(editorNode.lastChild);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        editor.core.focus();
+      }, 50);
       
     } catch (error) {
       console.error('커서 이동 실패:', error);
     }
   };
 
-  // 이미지 업로드 완료 후 처리 - 단순화
+  // 이미지 업로드 완료 후 처리 - SunEditor 공식 API 사용
   const handleImageUpload = (targetImgElement, index, state, imageInfo, remainingFilesCount) => {
     if (state === 'create' && targetImgElement) {
-      // MutationObserver가 처리하므로 여기서는 컨트롤러만 제거
       setTimeout(() => {
-        document.querySelectorAll('.se-controller-image, .se-line-breaker, .se-resizing-container').forEach(el => {
-          el.remove();
-        });
+        const editor = editorRef.current?.editor;
+        if (editor) {
+          // 모든 컨트롤러 제거
+          document.querySelectorAll('.se-controller-image, .se-line-breaker, .se-resizing-container').forEach(el => {
+            el.remove();
+          });
+          
+          try {
+            // 방법 1: SunEditor의 insertHTML 사용
+            editor.insertHTML('<p><br></p>', false, false);
+            
+            // 방법 2: 직접 DOM 조작 + SunEditor API 조합
+            setTimeout(() => {
+              const context = editor.getContext();
+              const editorNode = context.element.wysiwyg;
+              
+              // 에디터 마지막에 새 p 태그가 없다면 추가
+              const lastChild = editorNode.lastChild;
+              if (!lastChild || lastChild.tagName !== 'P' || lastChild.innerHTML !== '<br>') {
+                const newP = document.createElement('p');
+                newP.innerHTML = '<br>';
+                newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6;';
+                editorNode.appendChild(newP);
+              }
+              
+              // 커서를 마지막 요소 뒤로 이동 (공식 방법)
+              const range = document.createRange();
+              const selection = window.getSelection();
+              
+              range.setStartAfter(editorNode.lastChild);
+              range.collapse(true);
+              selection.removeAllRanges();
+              selection.addRange(range);
+              
+              // 에디터 포커스
+              editor.core.focus();
+              
+              // 내용 변경 이벤트 발생시켜서 SunEditor 내부 상태 동기화
+              const inputEvent = new Event('input', { bubbles: true });
+              editorNode.dispatchEvent(inputEvent);
+              
+            }, 50);
+            
+          } catch (error) {
+            console.error('SunEditor API 사용 실패, 대안 방법 사용:', error);
+            // 대안: 직접 커서 이동
+            moveCaretToEnd(editor);
+          }
+        }
       }, 100);
     }
   };
@@ -204,7 +180,7 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     return false;
   };
 
-  // 에디터 클릭 이벤트 처리
+  // 에디터 클릭 이벤트 처리 - 이미지 클릭 시 아래로 커서 이동
   const handleEditorClick = (event) => {
     setTimeout(() => {
       // 클릭 후 이미지 컨트롤러가 나타나면 즉시 제거
@@ -217,7 +193,11 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       if (clickedElement && clickedElement.tagName === 'IMG') {
         const editor = editorRef.current?.editor;
         if (editor) {
-          forceCursorAfterImage(clickedElement, editor);
+          // SunEditor API로 새 단락 추가 및 커서 이동
+          editor.insertHTML('<p><br></p>', false, false);
+          setTimeout(() => {
+            moveCaretToEnd(editor);
+          }, 50);
         }
       }
     }, 50);
