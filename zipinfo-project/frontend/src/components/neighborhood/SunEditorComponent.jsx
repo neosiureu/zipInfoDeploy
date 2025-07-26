@@ -51,6 +51,78 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     onChange(content);
   };
 
+  // 에디터 클릭 이벤트 - 이미지 선택 방지
+  const handleEditorClick = () => {
+    setTimeout(() => {
+      const editor = editorRef.current?.editor;
+      if (editor) {
+        // 현재 선택된 요소가 이미지인지 확인
+        const selection = window.getSelection();
+        if (selection.anchorNode && selection.anchorNode.nodeName === 'IMG') {
+          // 이미지가 선택되었다면 선택 해제하고 다음 줄로 이동
+          const editable = editor.getContext().element.wysiwyg;
+          const range = document.createRange();
+          const newSelection = window.getSelection();
+          
+          // 에디터의 마지막 위치로 커서 이동
+          range.selectNodeContents(editable);
+          range.collapse(false);
+          newSelection.removeAllRanges();
+          newSelection.addRange(range);
+        }
+      }
+    }, 50);
+  };
+
+  // 이미지 업로드 완료 후 처리 - 선택 상태 해제
+  const handleImageUpload = (targetImgElement, index, state, imageInfo, remainingFilesCount) => {
+    if (state === 'create') {
+      // 이미지 삽입 완료 후 즉시 선택 해제하고 커서 이동
+      setTimeout(() => {
+        const editor = editorRef.current?.editor;
+        if (editor) {
+          // 선택 상태 완전 해제
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          
+          // 에디터 영역으로 포커스 이동
+          const editable = editor.getContext().element.wysiwyg;
+          
+          // 새로운 p 태그 생성하고 이미지 다음에 추가
+          const newP = document.createElement('p');
+          newP.innerHTML = '<br>';
+          newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6; clear: both;';
+          
+          // 이미지 요소 다음에 p 태그 삽입
+          if (targetImgElement && targetImgElement.parentNode) {
+            targetImgElement.parentNode.insertAdjacentElement('afterend', newP);
+          } else {
+            editable.appendChild(newP);
+          }
+          
+          // 새 p 태그로 커서 이동
+          const range = document.createRange();
+          const newSelection = window.getSelection();
+          
+          range.setStart(newP, 0);
+          range.setEnd(newP, 0);
+          newSelection.removeAllRanges();
+          newSelection.addRange(range);
+          
+          // 에디터에 포커스
+          editable.focus();
+          editor.focus();
+          
+          // 이미지 선택 상태 강제 해제
+          if (targetImgElement) {
+            targetImgElement.blur();
+            targetImgElement.style.outline = 'none';
+          }
+        }
+      }, 100);
+    }
+  };
+
   // 이미지 업로드 Before 핸들러 - 파일 선택 즉시 업로드
   const handleImageUploadBefore = (files, info, uploadHandler) => {
     const file = files[0];
@@ -83,35 +155,6 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         
         // uploadHandler로 응답 전달 - 이미지가 에디터에 자동 삽입됨
         uploadHandler(response);
-        
-        // 이미지 삽입 후 커서를 다음 줄로 이동
-        setTimeout(() => {
-          const editor = editorRef.current?.editor;
-          if (editor) {
-            const editable = editor.getContext().element.wysiwyg;
-            
-            // 새로운 p 태그 생성
-            const newP = document.createElement('p');
-            newP.innerHTML = '<br>';
-            newP.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6; clear: both;';
-            
-            // 에디터 끝에 p 태그 추가
-            editable.appendChild(newP);
-            
-            // 커서를 새 p 태그로 이동
-            const range = document.createRange();
-            const selection = window.getSelection();
-            
-            range.setStart(newP, 0);
-            range.setEnd(newP, 0);
-            selection.removeAllRanges();
-            selection.addRange(range);
-            
-            // 에디터 포커스
-            editor.focus();
-          }
-        }, 500);
-        
       })
       .catch((error) => {
         console.error("서버 업로드 실패:", error);
@@ -150,12 +193,17 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       ["list"],
       ["image"]
     ],
-    // 파일 선택 즉시 업로드 설정
+    // 이미지 관련 설정 - 선택/리사이징 비활성화
     imageFileInput: true,
     imageUrlInput: false, // URL 입력 탭 숨김
     imageAccept: ".jpg, .jpeg, .png, .gif, .bmp, .webp",
     imageUploadSizeLimit: 10 * 1024 * 1024, // 10MB
     imageMultipleFile: false, // 단일 파일만
+    imageResizing: false, // 이미지 리사이징 완전 비활성화
+    imageHeightShow: false, // 높이 조절 비활성화
+    imageWidthShow: false, // 너비 조절 비활성화
+    imageAlignShow: false, // 정렬 옵션 비활성화
+    imageSizeOnlyPercentage: false, // 퍼센트 리사이징 비활성화
     // 기타 비활성화
     videoFileInput: false,
     audioFileInput: false,
@@ -178,6 +226,8 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         setContents={value || ""}
         onChange={handleChange}
         onImageUploadBefore={handleImageUploadBefore}
+        onImageUpload={handleImageUpload}
+        onClick={handleEditorClick}
         setOptions={editorOptions}
         disable={disabled}
         height="700px"
@@ -229,6 +279,36 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           vertical-align: top !important;
           border: none !important;
           outline: none !important;
+          user-select: none !important;
+          pointer-events: none !important;
+          -webkit-user-select: none !important;
+          -moz-user-select: none !important;
+          -ms-user-select: none !important;
+        }
+        
+        /* 이미지 리사이징 컨트롤 완전 숨김 */
+        .se-resizing-container {
+          display: none !important;
+          visibility: hidden !important;
+        }
+        
+        .se-controller-image {
+          display: none !important;
+          visibility: hidden !important;
+        }
+        
+        .se-resizing-bar {
+          display: none !important;
+        }
+        
+        /* 이미지 선택 방지 */
+        .sun-editor-editable img:focus {
+          outline: none !important;
+          border: none !important;
+        }
+        
+        .sun-editor-editable img::selection {
+          background: transparent !important;
         }
         
         .sun-editor-editable p {
