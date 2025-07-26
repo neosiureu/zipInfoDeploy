@@ -7,6 +7,7 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
   const editorRef = useRef(null);
   const sunEditorInstanceRef = useRef(null);
   const observerRef = useRef(null);
+  const figureCursorManagerRef = useRef(null);
   const isUpdating = useRef(false);
 
   // 텍스트만 추출하는 함수
@@ -53,27 +54,191 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     onChange(content);
   };
 
-  // 브라우저 호환성을 고려한 커서 이동 함수 (연구 결과 적용)
-  const browserCompatibleCursorFix = useCallback((imageElement) => {
-    if (!sunEditorInstanceRef.current) return;
+  // Figure 커서 갇힘 해결을 위한 통합 클래스 (연구 결과 적용)
+  const createFigureCursorManager = useCallback((editorElement) => {
+    return {
+      // figure 영역에서 강제 커서 탈출
+      forceCursorEscapeFromFigure() {
+        const selection = window.getSelection();
+        if (selection.rangeCount === 0) return false;
+        
+        const range = selection.getRangeAt(0);
+        const container = range.commonAncestorContainer;
+        
+        // figure 요소 감지 (se-component 포함)
+        const figureElement = container.nodeType === Node.TEXT_NODE ? 
+          container.parentElement?.closest('figure') : 
+          container.closest?.('figure');
+          
+        const seComponent = container.nodeType === Node.TEXT_NODE ?
+          container.parentElement?.closest('.se-component') :
+          container.closest?.('.se-component');
+        
+        const targetContainer = seComponent || figureElement;
+        
+        if (targetContainer) {
+          // se-component 또는 figure 뒤에 paragraph가 없으면 생성
+          let nextElement = targetContainer.nextSibling;
+          if (!nextElement || nextElement.nodeType !== Node.ELEMENT_NODE) {
+            const newParagraph = document.createElement('p');
+            newParagraph.innerHTML = '<br>';
+            newParagraph.className = 'cursor-escape-helper';
+            newParagraph.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6; cursor: text;';
+            targetContainer.parentNode.insertBefore(newParagraph, nextElement);
+            nextElement = newParagraph;
+          }
+          
+          // 커서를 새 위치로 강제 이동
+          const newRange = document.createRange();
+          try {
+            if (nextElement.firstChild && nextElement.firstChild.nodeType === Node.TEXT_NODE) {
+              newRange.setStart(nextElement.firstChild, 0);
+            } else {
+              newRange.setStart(nextElement, 0);
+            }
+            newRange.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+            
+            // 포커스 유지
+            if (editorElement) {
+              editorElement.focus();
+            }
+            
+            console.log('커서가 figure 영역에서 탈출했습니다:', nextElement);
+            return true;
+          } catch (error) {
+            console.warn('커서 탈출 실패:', error);
+            return false;
+          }
+        }
+        return false;
+      },
+
+      // se-component 영역 강제 탈출 (핵심 해결책)
+      escapeSeComponent(seComponentElement) {
+        try {
+          // se-component 다음에 빈 paragraph 생성
+          let nextElement = seComponentElement.nextElementSibling;
+          if (!nextElement || !nextElement.classList.contains('cursor-escape-helper')) {
+            const escapeParagraph = document.createElement('p');
+            escapeParagraph.innerHTML = '<br>';
+            escapeParagraph.className = 'cursor-escape-helper';
+            escapeParagraph.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6; cursor: text;';
+            seComponentElement.parentNode.insertBefore(escapeParagraph, nextElement);
+            nextElement = escapeParagraph;
+          }
+          
+          // 커서를 escape paragraph로 이동
+          const range = document.createRange();
+          const selection = window.getSelection();
+          
+          range.setStart(nextElement, 0);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          
+          editorElement.focus();
+          return true;
+        } catch (error) {
+          console.error('se-component 탈출 실패:', error);
+          return false;
+        }
+      },
+
+      // figure 처리 (연구 결과 적용)
+      processFigure(figureElement) {
+        // 1. figure에 처리 완료 마크 추가
+        figureElement.classList.add('cursor-escape-processed');
+        
+        // 2. se-component 찾기
+        const seComponent = figureElement.closest('.se-component');
+        if (seComponent) {
+          // se-component 다음에 탈출 경로 확보
+          this.escapeSeComponent(seComponent);
+        }
+        
+        // 3. figure 자체에도 탈출 경로 확보
+        if (!figureElement.nextElementSibling || 
+            !figureElement.nextElementSibling.classList.contains('cursor-escape-helper')) {
+          
+          const helper = document.createElement('p');
+          helper.className = 'cursor-escape-helper';
+          helper.innerHTML = '<br>';
+          helper.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6; cursor: text;';
+          
+          const parentContainer = figureElement.closest('.se-component') || figureElement;
+          parentContainer.parentNode.insertBefore(helper, parentContainer.nextSibling);
+        }
+      },
+
+      // 키보드 이벤트 처리
+      handleKeyboardNavigation(e) {
+        if (['ArrowRight', 'ArrowDown', 'End'].includes(e.key)) {
+          setTimeout(() => {
+            this.forceCursorEscapeFromFigure();
+          }, 10);
+        } else if (e.key === 'Enter') {
+          setTimeout(() => {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+              const range = selection.getRangeAt(0);
+              const seComponent = range.commonAncestorContainer.nodeType === Node.TEXT_NODE ?
+                range.commonAncestorContainer.parentElement?.closest('.se-component') :
+                range.commonAncestorContainer.closest?.('.se-component');
+              
+              if (seComponent) {
+                e.preventDefault();
+                this.escapeSeComponent(seComponent);
+              }
+            }
+          }, 10);
+        }
+      }
+    };
+  }, []);
+
+  // 브라우저 호환성을 고려한 강화된 커서 이동 (연구 결과 + figure 해결책 통합)
+  const enhancedCursorFix = useCallback((imageElement) => {
+    if (!sunEditorInstanceRef.current || !figureCursorManagerRef.current) return;
 
     const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     const delay = isFirefox ? 150 : isSafari ? 50 : 120;
 
     const executeCursorFix = () => {
+      // 1. se-component 찾기 및 탈출 (핵심 해결책)
+      const seComponent = imageElement.closest('.se-component');
+      if (seComponent) {
+        if (figureCursorManagerRef.current.escapeSeComponent(seComponent)) {
+          console.log('se-component 탈출 성공');
+          return;
+        }
+      }
+
+      // 2. figure 요소 탈출
+      const figureElement = imageElement.closest('figure');
+      if (figureElement) {
+        figureCursorManagerRef.current.processFigure(figureElement);
+        if (figureCursorManagerRef.current.forceCursorEscapeFromFigure()) {
+          console.log('figure 탈출 성공');
+          return;
+        }
+      }
+
+      // 3. 기존 fallback 전략들
       const fallbackStrategies = [
-        // 전략 1: 표준 Range API + 새 단락 생성 (가장 안정적)
+        // 전략 1: 표준 Range API + 새 단락 생성
         () => {
           const range = document.createRange();
           const selection = window.getSelection();
           
-          // 이미지 다음에 빈 단락 생성
           let nextElement = imageElement.nextSibling;
           if (!nextElement || nextElement.nodeType !== Node.ELEMENT_NODE) {
             const p = document.createElement('p');
             p.innerHTML = '<br>';
-            p.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6;';
+            p.className = 'cursor-escape-helper';
+            p.style.cssText = 'margin: 10px 0; padding: 0; min-height: 20px; line-height: 1.6; cursor: text;';
             imageElement.parentNode.insertBefore(p, imageElement.nextSibling);
             nextElement = p;
           }
@@ -93,6 +258,7 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
             (() => {
               const p = core.util.createElement('p');
               p.innerHTML = '<br>';
+              p.className = 'cursor-escape-helper';
               imageElement.parentNode.insertBefore(p, imageElement.nextSibling);
               return p;
             })();
@@ -100,44 +266,6 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           if (core.setRange) {
             core.setRange(nextElement, 0, nextElement, 0);
           }
-          core.focus();
-        },
-
-        // 전략 3: 텍스트 노드 삽입 방식
-        () => {
-          const range = document.createRange();
-          const selection = window.getSelection();
-          
-          const textNode = document.createTextNode('\u00A0'); // Non-breaking space
-          imageElement.parentNode.insertBefore(textNode, imageElement.nextSibling);
-          
-          range.setStart(textNode, 1);
-          range.collapse(true);
-          selection.removeAllRanges();
-          selection.addRange(range);
-          
-          sunEditorInstanceRef.current.core.focus();
-          
-          // 불필요한 공백을 br로 교체
-          setTimeout(() => {
-            if (textNode.textContent === '\u00A0') {
-              const br = document.createElement('br');
-              textNode.parentNode.replaceChild(br, textNode);
-            }
-          }, 10);
-        },
-
-        // 전략 4: 에디터 끝으로 이동 (최후 수단)
-        () => {
-          const core = sunEditorInstanceRef.current.core;
-          const wysiwyg = core.context.element.wysiwyg;
-          const range = document.createRange();
-          const selection = window.getSelection();
-          
-          range.selectNodeContents(wysiwyg);
-          range.collapse(false);
-          selection.removeAllRanges();
-          selection.addRange(range);
           core.focus();
         }
       ];
@@ -147,13 +275,9 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         try {
           fallbackStrategies[i]();
           console.log(`커서 위치 설정 성공 (전략 ${i + 1})`);
-          return true;
+          return;
         } catch (error) {
           console.warn(`전략 ${i + 1} 실패:`, error);
-          if (i === fallbackStrategies.length - 1) {
-            console.error('모든 커서 위치 설정 전략 실패');
-            return false;
-          }
         }
       }
     };
@@ -167,29 +291,52 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     }
   }, []);
 
-  // SunEditor 인스턴스 가져오기 (연구 결과의 핵심 권장사항)
+  // SunEditor 인스턴스 가져오기 + Figure 커서 매니저 초기화
   const getSunEditorInstance = useCallback((sunEditor) => {
     sunEditorInstanceRef.current = sunEditor;
 
-    // MutationObserver 설정 (연구 결과의 고급 해결책)
+    const wysiwyg = sunEditor.core.context.element.wysiwyg;
+    
+    // Figure 커서 매니저 초기화
+    figureCursorManagerRef.current = createFigureCursorManager(wysiwyg);
+
+    // MutationObserver 설정 (figure, se-component 모두 감지)
     if (observerRef.current) {
       observerRef.current.disconnect();
     }
 
-    const wysiwyg = sunEditor.core.context.element.wysiwyg;
     observerRef.current = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type === 'childList') {
+          // 이미지 요소 감지
           const addedImages = Array.from(mutation.addedNodes)
             .filter(node => node.tagName === 'IMG');
           
           addedImages.forEach(img => {
-            // 이미지 로드 완료 후 커서 조정
             if (img.complete) {
-              browserCompatibleCursorFix(img);
+              enhancedCursorFix(img);
             } else {
-              img.onload = () => browserCompatibleCursorFix(img);
+              img.onload = () => enhancedCursorFix(img);
             }
+          });
+
+          // se-component 요소 감지
+          const addedComponents = Array.from(mutation.addedNodes)
+            .filter(node => node.classList && node.classList.contains('se-component'));
+          
+          addedComponents.forEach(component => {
+            const figures = component.querySelectorAll('figure');
+            figures.forEach(figure => {
+              figureCursorManagerRef.current.processFigure(figure);
+            });
+          });
+
+          // figure 요소 감지
+          const addedFigures = Array.from(mutation.addedNodes)
+            .filter(node => node.tagName === 'FIGURE');
+          
+          addedFigures.forEach(figure => {
+            figureCursorManagerRef.current.processFigure(figure);
           });
         }
       });
@@ -199,7 +346,13 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       childList: true,
       subtree: true
     });
-  }, [browserCompatibleCursorFix]);
+
+    // 키보드 이벤트 핸들러 설정
+    wysiwyg.addEventListener('keydown', (e) => {
+      figureCursorManagerRef.current.handleKeyboardNavigation(e);
+    });
+
+  }, [createFigureCursorManager, enhancedCursorFix]);
 
   // 이미지 업로드 완료 후 처리
   const handleImageUpload = useCallback((targetImgElement, index, state, imageInfo, remainingFilesCount) => {
@@ -211,12 +364,12 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         });
       }, 50);
 
-      // 마지막 이미지 업로드 완료 시 커서 조정
+      // 마지막 이미지 업로드 완료 시 강화된 커서 조정
       if (remainingFilesCount === 0) {
-        browserCompatibleCursorFix(targetImgElement);
+        enhancedCursorFix(targetImgElement);
       }
     }
-  }, [browserCompatibleCursorFix]);
+  }, [enhancedCursorFix]);
 
   // 이미지 업로드 Before 핸들러 - 서버 업로드 유지
   const handleImageUploadBefore = (files, info, uploadHandler) => {
@@ -267,10 +420,10 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
         el.remove();
       });
       
-      // 이미지 클릭 시 아래로 커서 이동
+      // 이미지 클릭 시 강화된 커서 이동
       const clickedElement = event.target;
       if (clickedElement && clickedElement.tagName === 'IMG') {
-        browserCompatibleCursorFix(clickedElement);
+        enhancedCursorFix(clickedElement);
       }
     }, 50);
   };
@@ -416,6 +569,58 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
           -moz-user-select: none !important;
           -ms-user-select: none !important;
           cursor: default !important;
+        }
+        
+        /* 연구 결과 적용: figure:after pseudo-element 완전 제거 */
+        [contenteditable="true"] figure:after,
+        [contenteditable] figure:after,
+        .sun-editor-editable figure:after,
+        .se-wrapper-inner figure:after,
+        .se-component figure:after {
+          content: none !important;
+          display: none !important;
+        }
+        
+        /* figure:before도 제거 */
+        [contenteditable="true"] figure:before,
+        [contenteditable] figure:before,
+        .sun-editor-editable figure:before,
+        .se-wrapper-inner figure:before,
+        .se-component figure:before {
+          content: none !important;
+          display: none !important;
+        }
+        
+        /* 처리된 figure 요소의 pseudo-element 제거 */
+        .cursor-escape-processed:after,
+        .cursor-escape-processed:before {
+          content: none !important;
+          display: none !important;
+        }
+        
+        /* 커서 탈출 도우미 요소 스타일 */
+        .cursor-escape-helper {
+          min-height: 20px !important;
+          line-height: 1.6 !important;
+          margin: 10px 0 !important;
+          padding: 0 !important;
+          border: none !important;
+          outline: none !important;
+          cursor: text !important;
+          clear: both !important;
+        }
+        
+        /* se-component 다음의 cursor-escape-helper */
+        .se-component + .cursor-escape-helper {
+          cursor: text !important;
+          background: transparent !important;
+        }
+        
+        /* figure 상호작용 차단 (추가 안전 장치) */
+        figure:after {
+          pointer-events: none !important;
+          position: absolute !important;
+          z-index: -1 !important;
         }
         
         /* 이미지 리사이징 컨트롤 완전 숨김 */
