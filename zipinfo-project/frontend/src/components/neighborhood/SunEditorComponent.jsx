@@ -54,6 +54,115 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     onChange(content);
   };
 
+  // 자동 Submit 기능 설정
+  const setupAutoSubmit = useCallback((core) => {
+    console.log('자동 Submit 기능 설정 시작');
+    
+    // 이미지 다이얼로그가 열릴 때를 감지하기 위한 MutationObserver
+    const dialogObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList') {
+          // 이미지 다이얼로그가 추가되었는지 확인
+          const addedNodes = Array.from(mutation.addedNodes);
+          addedNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              // 이미지 다이얼로그 찾기
+              const imageDialog = node.querySelector?.('.se-dialog-image') || 
+                                (node.classList?.contains('se-dialog-image') ? node : null);
+              
+              if (imageDialog) {
+                console.log('이미지 다이얼로그 감지됨');
+                
+                // 파일 입력 요소 찾기
+                const fileInput = imageDialog.querySelector('input[type="file"]');
+                if (fileInput) {
+                  console.log('파일 입력 요소 찾음');
+                  
+                  // 이미 이벤트 리스너가 추가되었는지 확인
+                  if (!fileInput.hasAttribute('data-auto-submit-attached')) {
+                    fileInput.setAttribute('data-auto-submit-attached', 'true');
+                    
+                    // 파일 선택 시 자동 Submit
+                    fileInput.addEventListener('change', function(e) {
+                      console.log('파일 선택됨:', e.target.files);
+                      
+                      if (e.target.files && e.target.files.length > 0) {
+                        // 잠시 후 Submit 버튼 클릭 (DOM 업데이트 대기)
+                        setTimeout(() => {
+                          // Submit/OK 버튼 찾기 (다양한 선택자 시도)
+                          const submitSelectors = [
+                            '.se-btn-primary',
+                            '.se-dialog-btn-primary', 
+                            '[data-command="ok"]',
+                            '.se-dialog-image .se-btn[onclick*="ok"]',
+                            '.se-dialog-image button[type="button"]:last-child',
+                            '.se-dialog-image .se-dialog-footer button:last-child'
+                          ];
+                          
+                          let submitButton = null;
+                          for (const selector of submitSelectors) {
+                            submitButton = imageDialog.querySelector(selector);
+                            if (submitButton) {
+                              console.log(`Submit 버튼 찾음 (${selector}):`, submitButton);
+                              break;
+                            }
+                          }
+                          
+                          // 버튼 텍스트로도 찾기 시도
+                          if (!submitButton) {
+                            const allButtons = imageDialog.querySelectorAll('button');
+                            for (const button of allButtons) {
+                              const buttonText = button.textContent.trim().toLowerCase();
+                              if (buttonText.includes('확인') || buttonText.includes('ok') || 
+                                  buttonText.includes('submit') || buttonText.includes('추가')) {
+                                submitButton = button;
+                                console.log('텍스트로 Submit 버튼 찾음:', submitButton);
+                                break;
+                              }
+                            }
+                          }
+                          
+                          if (submitButton && !submitButton.disabled) {
+                            console.log('Submit 버튼 클릭 실행');
+                            submitButton.click();
+                          } else {
+                            console.warn('Submit 버튼을 찾을 수 없거나 비활성화됨');
+                            
+                            // 대안: Enter 키 이벤트 트리거
+                            const enterEvent = new KeyboardEvent('keydown', {
+                              key: 'Enter',
+                              code: 'Enter',
+                              keyCode: 13,
+                              which: 13,
+                              bubbles: true
+                            });
+                            imageDialog.dispatchEvent(enterEvent);
+                          }
+                        }, 150); // 파일 처리 대기 시간
+                      }
+                    });
+                  }
+                }
+              }
+            }
+          });
+        }
+      });
+    });
+
+    // document.body 관찰 시작
+    dialogObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    // 컴포넌트 언마운트 시 observer 정리를 위해 저장
+    if (!core._autoSubmitObserver) {
+      core._autoSubmitObserver = dialogObserver;
+    }
+
+  }, []);
+
   // Figure 커서 갇힘 해결을 위한 통합 클래스 (연구 결과 적용)
   const createFigureCursorManager = useCallback((editorElement) => {
     return {
@@ -291,7 +400,7 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     }
   }, []);
 
-  // SunEditor 인스턴스 가져오기 + Figure 커서 매니저 초기화
+  // SunEditor 인스턴스 가져오기 + Figure 커서 매니저 초기화 + 자동 Submit 설정
   const getSunEditorInstance = useCallback((sunEditor) => {
     sunEditorInstanceRef.current = sunEditor;
 
@@ -299,6 +408,9 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     
     // Figure 커서 매니저 초기화
     figureCursorManagerRef.current = createFigureCursorManager(wysiwyg);
+
+    // 자동 Submit 기능 설정 (새로 추가된 부분)
+    setupAutoSubmit(sunEditor.core);
 
     // MutationObserver 설정 (figure, se-component 모두 감지)
     if (observerRef.current) {
@@ -352,7 +464,7 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       figureCursorManagerRef.current.handleKeyboardNavigation(e);
     });
 
-  }, [createFigureCursorManager, enhancedCursorFix]);
+  }, [createFigureCursorManager, enhancedCursorFix, setupAutoSubmit]);
 
   // 이미지 업로드 완료 후 처리
   const handleImageUpload = useCallback((targetImgElement, index, state, imageInfo, remainingFilesCount) => {
@@ -459,6 +571,11 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
+      
+      // 자동 Submit observer도 정리
+      if (sunEditorInstanceRef.current?.core?._autoSubmitObserver) {
+        sunEditorInstanceRef.current.core._autoSubmitObserver.disconnect();
+      }
     };
   }, []);
 
@@ -475,10 +592,10 @@ export default function SunEditorComponent({ value, onChange, disabled }) {
     ],
     // 이미지 관련 설정
     imageFileInput: true,
-    imageUrlInput: false,
+    imageUrlInput: false, // URL 입력 비활성화로 파일 선택에 집중
     imageAccept: ".jpg, .jpeg, .png, .gif, .bmp, .webp",
     imageUploadSizeLimit: 10 * 1024 * 1024,
-    imageMultipleFile: false,
+    imageMultipleFile: false, // 단일 파일만 허용
     imageResizing: false,
     imageHeightShow: false,
     imageWidthShow: false,
