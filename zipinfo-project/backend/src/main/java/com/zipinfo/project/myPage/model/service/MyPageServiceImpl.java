@@ -124,14 +124,20 @@ public class MyPageServiceImpl implements MyPageService{
 	}
 	
 	@Override
-	public int addStock(Stock stock) {
-		int addResult = mapper.addStock(stock);
-		int stockNo = stock.getStockNo();
-		
-		int addSellDate = mapper.addSellDate(stockNo);
-		
-	    return addResult+addSellDate;
-	}
+public int addStock(Stock stock) {
+    // [로그 1] 프론트에서 받아온 데이터(특히 regionNo) 확인용
+    log.info("[매물등록 전] 매물명: {}, 지역코드(regionNo): {}", stock.getStockName(), stock.getRegionNo());
+
+    int addResult = mapper.addStock(stock);
+    int stockNo = stock.getStockNo();
+    
+    int addSellDate = mapper.addSellDate(stockNo);
+    
+    // [로그 2] DB 저장 후 결과 확인용
+    log.info("[매물등록 후] 생성된 매물번호(stockNo): {}, 결과값: {}", stockNo, (addResult + addSellDate));
+
+    return addResult + addSellDate;
+}
 	
 	@Override
 	public int addStockImg(List<MultipartFile> stockImg, int memberNo) {

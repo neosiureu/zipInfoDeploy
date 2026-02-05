@@ -42,7 +42,7 @@ ORDER BY TO_CHAR(REGIST_DATE, 'YYYY-MM-DD')
       <result property="useApprovalDate" column="USE_APPROVAL_DATE" />
       <result property="registDate" column="REGIST_DATE" />
       <result property="stockDetail" column="STOCK_DETAIL" />
-      <result property="stockAddress" column="STOCK_ADDRESS" />
+      <result property="stockAddress" column="STOCK_ADDRESS_CLEAN" />
       <result property="regionNo" column="REGION_NO" />
       <result property="sellYn" column="SELL_YN" />
       <result property="imgUrl" column="IMG_URL" />
@@ -89,7 +89,7 @@ ORDER BY TO_CHAR(REGIST_DATE, 'YYYY-MM-DD')
       <result property="useApprovalDate" column="USE_APPROVAL_DATE" />
       <result property="registDate" column="REGIST_DATE" />
       <result property="stockDetail" column="STOCK_DETAIL" />
-      <result property="stockAddress" column="STOCK_ADDRESS" />
+      <result property="stockAddress" column="STOCK_ADDRESS_CLEAN" />
       <result property="regionNo" column="REGION_NO" />
       <result property="sellYn" column="SELL_YN" />
       <result property="companyName" column="COMPANY_NAME" />
@@ -204,15 +204,13 @@ ORDER BY TO_CHAR(REGIST_DATE, 'YYYY-MM-DD')
       )
       i ON c.stockNo = i.STOCK_NO
    </select>
-   <select id="selectAnyFour"><!--위치 상관 x -->
-      SELECT *
-      FROM (
-      SELECT *
-      FROM (
-      SELECT
-      c.STOCK_NO AS stockNo,
-      c.LAT AS lat,
-      c.LNG AS lng,
+<select id="selectAnyFour" resultMap="stockMap">
+  SELECT *
+  FROM (
+    SELECT
+      c.STOCK_NO,
+      c.LAT,
+      c.LNG,
       i.STOCK_NAME,
       i.STOCK_TYPE,
       i.STOCK_SELL_PRICE,
@@ -224,22 +222,25 @@ ORDER BY TO_CHAR(REGIST_DATE, 'YYYY-MM-DD')
       i.FLOOR_TOTAL_COUNT,
       i.STOCK_FORM,
       i.REGIST_DATE,
-      b.MEMBER_NO AS memberNo,
+      b.MEMBER_NO,
+      -- 1. 주소: resultMap의 column="STOCK_ADDRESS_CLEAN"과 일치
+      REGEXP_SUBSTR(i.STOCK_ADDRESS, '[^^^]+', 1, 2) AS STOCK_ADDRESS_CLEAN,
       b.COMPANY_NAME,
-      b.COMPANY_LOCATION,
+      REGEXP_SUBSTR(b.COMPANY_LOCATION, '[^^^]+', 1, 2) AS COMPANY_LOCATION,
       b.PRESIDENT_NAME,
       b.BROKER_NO,
       b.PRESIDENT_PHONE,
-      img.IMG_URL AS imgUrl
-      FROM STOCK_COORD c
-      INNER JOIN STOCK_INFO i ON c.STOCK_NO = i.STOCK_NO
-      INNER JOIN BROKER_INFO b ON i.MEMBER_NO = b.MEMBER_NO
-      LEFT JOIN STOCK_IMG img ON img.STOCK_NO = i.STOCK_NO AND img.IMG_ORDER = 0
-      ORDER BY i.STOCK_NO DESC
-      )
-      )
-      WHERE ROWNUM &lt;= 4
-   </select>
+      -- 2. 이미지: resultMap의 column="IMG_URL"과 일치 (대문자로 변경)
+      img.IMG_URL AS IMG_URL 
+    FROM STOCK_COORD c
+    INNER JOIN STOCK_INFO i ON c.STOCK_NO = i.STOCK_NO
+    INNER JOIN BROKER_INFO b ON i.MEMBER_NO = b.MEMBER_NO
+    LEFT JOIN STOCK_IMG img ON img.STOCK_NO = i.STOCK_NO AND img.IMG_ORDER = 0
+    ORDER BY i.STOCK_NO DESC
+  )
+  WHERE ROWNUM &lt;= 4
+</select>
+ 
    
 <select id="selectOneStock"
         parameterType="int"
@@ -265,11 +266,11 @@ ORDER BY TO_CHAR(REGIST_DATE, 'YYYY-MM-DD')
         i.USE_APPROVAL_DATE,
         i.REGIST_DATE,
         i.STOCK_DETAIL,
-        i.STOCK_ADDRESS,
+        REGEXP_SUBSTR(i.STOCK_ADDRESS, '[^^^]+', 1, 2) AS STOCK_ADDRESS_CLEAN,
         i.REGION_NO,
         i.SELL_YN,
         b.COMPANY_NAME,
-        b.COMPANY_LOCATION,
+        REGEXP_SUBSTR(b.COMPANY_LOCATION, '[^^^]+', 1, 2) AS COMPANY_LOCATION,
         b.PRESIDENT_NAME,
         b.BROKER_NO,
         b.PRESIDENT_PHONE,

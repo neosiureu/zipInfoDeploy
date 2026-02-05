@@ -30,10 +30,10 @@ public class StockServiceImpl implements StockService {
    /** 좌표 내부에 있는 매물들을 반환하는 함수.
     *
     */
-   @Override
-   public List<Stock> getStockListInRange(SearchRequest sr) {
-      
-      return mapper.selectStockInRange(
+ @Override
+public List<Stock> getStockListInRange(SearchRequest sr) {
+    // 1. 매퍼로부터 리스트를 일단 받습니다.
+    List<Stock> list = mapper.selectStockInRange(
             sr.getCoords().get("swLat"),
             sr.getCoords().get("swLng"),
             sr.getCoords().get("neLat"),
@@ -42,9 +42,29 @@ public class StockServiceImpl implements StockService {
             sr.getLocationCode(),
             sr.getStockForm(),
             sr.getStockType()
-            );
-      
-   }
+    );
+
+    // 2. 로그를 찍어봅니다.
+    if (list != null && !list.isEmpty()) {
+        // 첫 번째 매물만 샘플로 조사
+        Stock sample = list.get(0);
+        log.info("[검증 로그] 매물명: {}, 좌표: ({}, {}), 지역코드(regionNo): {}", 
+                 sample.getStockName(), sample.getLat(), sample.getLng(), sample.getRegionNo());
+        
+        // 만약 특정 매물(장수군 등)을 찾고 싶다면 루프를 돌려보세요
+        /*
+        for(Stock s : list) {
+            if(s.getRegionNo() == 0) {
+                log.warn("[경고] regionNo가 0인 매물 발견! 매물번호: {}", s.getStockNo());
+            }
+        }
+        */
+    } else {
+        log.info("[검증 로그] 해당 범위에 검색된 매물이 없습니다.");
+    }
+
+    return list;
+}
 
    /** 시군구 코드를 입력하면 시군구의 이름을 반환하는 함수
     * 11110 -> 종로구
@@ -77,12 +97,20 @@ public class StockServiceImpl implements StockService {
    
    @Override
    public List<Stock> selectAnyFour(){
-      return mapper.selectAnyFour();
+      List<Stock> list = mapper.selectAnyFour();
+      if(list != null && !list.isEmpty()) {
+          log.info("[DEBUG] selectAnyFour 첫번째 매물 주소: {}", list.get(0).getStockAddress());
+      }
+      return list;
    }
 
    @Override
    public Stock selectStockDetail(int stockNo) {
-      return mapper.selectOneStock(stockNo);   
+      Stock stock = mapper.selectOneStock(stockNo);
+      if(stock != null) {
+          log.info("[DEBUG] selectStockDetail 상세주소 (stockNo: {}): {}", stockNo, stock.getStockAddress());
+      }
+      return stock;
    }
 
    @Override

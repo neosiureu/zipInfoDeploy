@@ -177,7 +177,10 @@ public class MyPageController {
    
    @PostMapping("addStock")
    public ResponseEntity<Object> addStock(@AuthenticationPrincipal Member loginMember,  @RequestBody Stock stock){
-      
+    log.info("[컨트롤러 시작] 매물 등록 요청 수신");
+    log.info("- 매물명: {}", stock.getStockName());
+    log.info("- 주소: {}", stock.getStockAddress());
+    log.info("- 넘어온 지역번호(regionNo): {}", stock.getRegionNo());
       try {
          
          

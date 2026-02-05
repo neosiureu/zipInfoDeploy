@@ -54,16 +54,19 @@
 
 
 	<insert id="signupBroker">
-		INSERT INTO "BROKER_INFO"
-		VALUES(SEQ_MEMBER.CURRVAL,
-		#{companyLocation},
-		#{companyName},
-		#{presidentName},
-		#{brokerNo},
-		#{presidentPhone}
-
-		)
-	</insert>
+    INSERT INTO "BROKER_INFO" (
+        MEMBER_NO,
+        COMPANY_NAME,      COMPANY_LOCATION,  PRESIDENT_NAME,
+        BROKER_NO,
+        PRESIDENT_PHONE
+    )
+    VALUES (
+        SEQ_MEMBER.CURRVAL,
+        #{companyName},     #{companyLocation}, #{presidentName},
+        #{brokerNo},
+        #{presidentPhone}
+    )
+</insert>
 
 	<insert id="createTokenTable">
 		INSERT INTO "TOKEN_INFO"
