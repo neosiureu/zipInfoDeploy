@@ -229,7 +229,13 @@ export default function AddStock() {
         setAddress(addr);
         document.getElementsByName("detailAddress")[0].focus();
 
-        execJusoAPI(addr);
+        // [기존 코드 주석 처리] - 불안하시면 그대로 두셔도 됩니다.
+        // execJusoAPI(addr); 
+
+        // [새로 추가하는 코드] 
+        // 외부 API(juso.go.kr)를 한 번 더 거치지 않고, 
+        // 다음 주소 API가 즉시 제공하는 시군구코드(5자리)를 변수에 담습니다.
+        const sigunguCode = parseInt(data.sigunguCode); 
 
         const res = await fetch(
           `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(
@@ -237,8 +243,8 @@ export default function AddStock() {
           )}`,
           {
             method: "GET",
-            mode: "cors", // CORS 모드로 요청
-            credentials: "omit", // 쿠키·자격증명 전송 금지
+            mode: "cors",
+            credentials: "omit",
             headers: {
               Authorization: `KakaoAK ${restApiKey}`,
             },
@@ -252,8 +258,10 @@ export default function AddStock() {
         const coordData = await res.json();
         if (coordData.documents.length > 0) {
           const { x, y } = coordData.documents[0]; // 경도 x, 위도 y
+          
           setFormData((prev) => ({
             ...prev,
+            regionNo: sigunguCode, // <- 여기에 지역번호(5자리)를 명시적으로 추가합니다.
             lat: y,
             lng: x,
           }));
@@ -266,6 +274,7 @@ export default function AddStock() {
           );
           setFormData((prev) => ({
             ...prev,
+            regionNo: sigunguCode, // <- 좌표를 못 찾아도 지역번호는 저장되도록 여기에 추가합니다.
             lat: 0,
             lng: 0,
           }));
