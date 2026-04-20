@@ -19,7 +19,7 @@ const Footer = () => {
       </div>
       <div className="footer-info">
         <div>
-          상호명 : 집인포 <span>|</span> 대표 : 김용제
+          상호명 : 집인포 <span>|</span> 대표 : 이주원
         </div>
         <div>사업자등록번호 : 123-45-67890</div>
         <div>
