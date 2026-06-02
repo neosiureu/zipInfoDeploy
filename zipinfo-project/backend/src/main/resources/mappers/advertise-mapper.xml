@@ -5,8 +5,22 @@
 <mapper namespace="com.zipinfo.project.admin.model.mapper.AdvertisementMapper">
 
   <insert id="saveFile">
-  	INSERT INTO "ADVERTISE_IMG"
-  	VALUES(SEQ_AD_NO.NEXTVAL, #{memberNo}, #{finalPath}, #{originalName}, #{rename}, 'N')
+    INSERT INTO "ADVERTISE_IMG" (
+        AD_NO, 
+        MEMBER_NO, 
+        AD_IMG_URL, 
+        AD_ORIGIN_NAME, 
+        AD_RENAME, 
+        AD_MAIN
+    )
+    VALUES (
+        SEQ_AD_NO.NEXTVAL, 
+        #{memberNo}, 
+        #{finalPath}, 
+        #{originalName}, 
+        #{rename}, 
+        'N'
+    )
   </insert>
   
   <select id="getAdList">

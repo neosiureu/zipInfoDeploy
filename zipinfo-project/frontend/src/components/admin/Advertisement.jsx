@@ -39,7 +39,7 @@ const Advertisement = () => {
     setSelectedFile(file);
   };
 
-  // ✅ 광고 업로드 핸들러 (서버에 파일 저장 요청)
+  //  광고 업로드 핸들러 (서버에 파일 저장 요청)
   const handleAdUpload = async () => {
     const maxFileSize = 10 * 1024 * 1024;
 
@@ -105,7 +105,7 @@ const Advertisement = () => {
     }
   };
 
-  // ✅ 광고 메인 등록/해제 토글
+  // 광고 메인 등록/해제 토글
   const handleToggleMain = async (adNo) => {
     const response = await axiosAPI.post(
       "/advertisement/updateMain",
@@ -163,7 +163,7 @@ const Advertisement = () => {
               </tr>
             )}
             {ads.map((ad, index) => (
-              <tr key={ad.id}>
+              <tr key={ad.adNo}>
                 <td>{index + 1}</td>
                 <td>
                   <img

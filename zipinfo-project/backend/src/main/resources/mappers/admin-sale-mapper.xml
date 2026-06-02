@@ -6,35 +6,35 @@
 <mapper namespace="com.zipinfo.project.admin.model.mapper.AdminSaleMapper">
 
   <!-- 관리자 분양 정보 목록 조회 -->
-  <select id="selectSaleList" resultType="com.zipinfo.project.sale.model.dto.Sale">
+ <select id="selectSaleList" resultType="com.zipinfo.project.sale.model.dto.Sale">
     SELECT
-	    S.SALE_STOCK_NO,
-	    S.MEMBER_NO,
-	    M.MEMBER_EMAIL,
-	    S.SALE_STOCK_FORM,
-	    S.SALE_STOCK_NAME,
-	    S.SALE_PRICE,
-	    S.SALE_STATUS,
-	    S.SALE_ADDRESS,
-	    S.SCALE,
-	    TO_CHAR(S.APPLICATION_START_DATE, 'YYYY-MM-DD') AS APPLICATION_START_DATE,
-	    TO_CHAR(S.APPLICATION_END_DATE, 'YYYY-MM-DD') AS APPLICATION_END_DATE,
-	    TO_CHAR(S.ANNOUNCEMENT_DATE, 'YYYY-MM-DD') AS ANNOUNCEMENT_DATE,
-	    S.COMPANY,
-	    S.CONTACT_INFO,
-	    S.ACQUISITION_TAX,
-	    S.SALE_SUPPLY_AREA,
-	    S.SALE_EXCLUSIVE_AREA,
-	    S.SALE_ROOM_COUNT,
-	    S.SALE_BATHROOM_COUNT,
-	    S.DEPOSIT,
-	    S.MIDDLE_PAYMENT,
-	    S.BALANCE_PAYMENT,
-	    S.REGION_NO,
-	    TO_CHAR(S.REG_DATE, 'YYYY-MM-DD') AS REG_DATE
-	FROM SALE_INFO S
-	JOIN MEMBER M ON S.MEMBER_NO = M.MEMBER_NO
-	ORDER BY S.SALE_STOCK_NO DESC
+        S.SALE_STOCK_NO,
+        S.MEMBER_NO,
+        M.MEMBER_EMAIL,
+        S.SALE_STOCK_FORM,
+        S.SALE_STOCK_NAME,
+        S.SALE_PRICE,
+        S.SALE_STATUS,
+        S.SALE_ADDRESS,
+        S.SCALE,
+        TO_CHAR(S.APPLICATION_START_DATE, 'YYYY-MM-DD') AS APPLICATION_START_DATE,
+        TO_CHAR(S.APPLICATION_END_DATE, 'YYYY-MM-DD') AS APPLICATION_END_DATE,
+        TO_CHAR(S.ANNOUNCEMENT_DATE, 'YYYY-MM-DD') AS ANNOUNCEMENT_DATE,
+        S.COMPANY,
+        S.CONTACT_INFO,
+        S.ACQUISITION_TAX,
+        S.SALE_SUPPLY_AREA,
+        S.SALE_EXCLUSIVE_AREA,
+        S.SALE_ROOM_COUNT,
+        S.SALE_BATHROOM_COUNT,
+        S.DEPOSIT,
+        S.MIDDLE_PAYMENT,
+        S.BALANCE_PAYMENT,
+        S.REGION_NO,
+        TO_CHAR(S.SALE_REGIST_DATE, 'YYYY-MM-DD') AS REG_DATE
+    FROM SALE_INFO S
+    LEFT JOIN MEMBER M ON S.MEMBER_NO = M.MEMBER_NO
+    ORDER BY S.SALE_STOCK_NO DESC
   </select>
 
   <!-- 관리자 분양 정보 등록 -->
