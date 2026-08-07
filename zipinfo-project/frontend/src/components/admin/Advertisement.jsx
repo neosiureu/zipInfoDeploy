@@ -116,7 +116,7 @@ const Advertisement = () => {
     fetchAds();
   };
 
-  // ✅ 광고 삭제 (클라이언트 상태에서만 삭제)
+  //  광고 삭제 (클라이언트 상태에서만 삭제)
   const handleDelete = async (adNo) => {
     const response = await axiosAPI.post(
       "/advertisement/delete",
