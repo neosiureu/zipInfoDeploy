@@ -42,7 +42,7 @@ public class SecurityConfig {
 		config.addAllowedHeader("*");
 		config.addAllowedMethod("*");
 		
-	    System.out.println("씨발좀 CORS 설정 시작 - 모든 origin 허용");
+	    System.out.println("CORS 설정 시작 - 모든 origin 허용");
 
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

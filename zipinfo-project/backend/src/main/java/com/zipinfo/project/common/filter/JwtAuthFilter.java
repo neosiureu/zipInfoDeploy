@@ -52,7 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
            Claims c = provider.parse(token);
            Member m = new Member();
            
-           System.out.println("응애"+c);
+           System.out.println("표기"+c);
 
            try {
                // 일반 JWT 토큰 처리
