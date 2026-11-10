@@ -200,11 +200,11 @@ const StockPageCopy = () => {
             {
               searchKeyWord: searchParams.get("keyWord") || "",
               locationCode: Number(
-                searchParams.get("sigungu") || searchParams.get("sido") || -1
+                searchParams.get("sigungu") || searchParams.get("sido") || -1,
               ),
               stockType: Number(searchParams.get("type") ?? -1),
               stockForm: Number(searchParams.get("form") ?? -1),
-            }
+            },
           );
           if (resp.data) {
             const { latCenter, lngCenter, minLat, minLng, maxLat, maxLng } =
@@ -282,11 +282,11 @@ const StockPageCopy = () => {
         if (!limit.contain(c)) {
           const lat = Math.min(
             Math.max(c.getLat(), swLimit.getLat()),
-            neLimit.getLat()
+            neLimit.getLat(),
           );
           const lng = Math.min(
             Math.max(c.getLng(), swLimit.getLng()),
-            neLimit.getLng()
+            neLimit.getLng(),
           );
           map.panTo(new kakao.maps.LatLng(lat, lng));
         }
@@ -345,7 +345,8 @@ const StockPageCopy = () => {
     clearMarkers(sigunguMarkersRef);
     clearMarkers(sidoMarkersRef);
 
-    if (mode === "item") updateMarker(); // 기존 함수
+    if (mode === "item")
+      updateMarker(); // 기존 함수
     else if (mode === "sigungu")
       drawClusterMarkers(sigunguClusters, sigunguMarkersRef, "sigungu-cluster");
     else if (mode === "sido")
@@ -574,7 +575,7 @@ const StockPageCopy = () => {
     stockList?.forEach((item) => {
       const itemMarkerPosition = new window.kakao.maps.LatLng(
         item.lat,
-        item.lng
+        item.lng,
       );
       // /********************todo : 여기부터 겹치는 마커 처리로직 입력할것.*************************
       //  * ******해시격자 로직******
@@ -679,24 +680,24 @@ const StockPageCopy = () => {
         item.sellYn === "N" ? "custom-overlay" : "custom-overlay-sold"
       }>
         <div class=${item.sellYn === "N" ? "area" : "soldArea"}>${
-        item.exclusiveArea
-      }㎡</div>
+          item.exclusiveArea
+        }㎡</div>
         ${
           item.stockType === 0
             ? `<div class="label">
               매매 <strong>${priceConvertToString(item.stockSellPrice)}</strong>
               </div>`
             : item.stockType === 1
-            ? `<div class="label">
+              ? `<div class="label">
               전세 <strong>${priceConvertToString(item.stockSellPrice)}</strong>
               </div>`
-            : item.stockType === 2
-            ? `<div class="label">
+              : item.stockType === 2
+                ? `<div class="label">
               월세 <strong>${priceConvertToString(
-                item.stockSellPrice
+                item.stockSellPrice,
               )}/${priceConvertToString(item.stockFeeMonth)}</strong>
               </div>`
-            : "기타 "
+                : "기타 "
         }
       </div>
     `; // 커스텀 마커 저장
@@ -751,7 +752,7 @@ const StockPageCopy = () => {
   };
 
   const subDate = (e) => {
-    return e.substring(0, 10);
+    return e ? String(e).substring(0, 10) : "";
   };
 
   useEffect(() => {
@@ -828,7 +829,7 @@ const StockPageCopy = () => {
           setIsAsideVisible(true);
           const movedLatLng = new window.kakao.maps.LatLng(
             res.data.lat,
-            res.data.lng
+            res.data.lng,
           );
           /********************* */
           const map = mapInstanceRef.current;
@@ -837,7 +838,7 @@ const StockPageCopy = () => {
             const projection = map.getProjection();
             const markerLatLng = new window.kakao.maps.LatLng(
               res.data.lat,
-              res.data.lng
+              res.data.lng,
             );
 
             const totalWidth = window.innerWidth;
@@ -904,8 +905,6 @@ const StockPageCopy = () => {
       return (
         <>
           <div className="stock-detail-panel">
-           
-
             <div className="stock-detail-panel">
               <div className="stock-detail-images">
                 <StockImgModal item={item} />
@@ -948,23 +947,23 @@ const StockPageCopy = () => {
                   {item.stockType === 0
                     ? "매매 "
                     : item.stockType === 1
-                    ? "전세 "
-                    : item.stockType === 2
-                    ? "월세 "
-                    : "기타 "}
+                      ? "전세 "
+                      : item.stockType === 2
+                        ? "월세 "
+                        : "기타 "}
                 </span>
                 <span className="stock-detail-price">
                   {item.stockType === 0
                     ? priceConvertToString(item.stockSellPrice)
                     : item.stockType === 1
-                    ? priceConvertToString(item.stockSellPrice)
-                    : item.stockType === 2
-                    ? " " +
-                      priceConvertToString(item.stockSellPrice) +
-                      " / " +
-                      priceConvertToString(item.stockFeeMonth) +
-                      " "
-                    : "기타"}
+                      ? priceConvertToString(item.stockSellPrice)
+                      : item.stockType === 2
+                        ? " " +
+                          priceConvertToString(item.stockSellPrice) +
+                          " / " +
+                          priceConvertToString(item.stockFeeMonth) +
+                          " "
+                        : "기타"}
                 </span>
               </div>
               <div className="stock-detail-name">{item.stockName}</div>
@@ -989,16 +988,17 @@ const StockPageCopy = () => {
             <div className="sale-section-divider" />
 
             {/* Block 2: 평면도 */}
-         <div className="stock-detail-info-block">
-  <div className="stock-detail-plan">
-    {item?.imgUrls && (
-      <img
-src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls[1]}`}        alt="평면도 이미지"
-        className="sale-floorplan"
-      />
-    )}
-  </div>
-</div>
+            <div className="stock-detail-info-block">
+              <div className="stock-detail-plan">
+                {item?.imgUrls && (
+                  <img
+                    src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls[1]}`}
+                    alt="평면도 이미지"
+                    className="sale-floorplan"
+                  />
+                )}
+              </div>
+            </div>
 
             <div className="sale-section-divider" />
 
@@ -1014,7 +1014,11 @@ src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls[1]}`}        alt="평�
                     </tr>
                     <tr>
                       <td>주소</td>
-                      <td>{item.stockAddress.split("^^^")[1]}</td>
+                      <td>
+                        {item.stockAddress?.includes("^^^")
+                          ? item.stockAddress.split("^^^")[1]
+                          : (item.stockAddress ?? "")}
+                      </td>
                     </tr>
                     <tr>
                       <td>전용/공급면적</td>
@@ -1040,7 +1044,7 @@ src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls[1]}`}        alt="평�
                     </tr>
                     <tr>
                       <td>관리비</td>
-                                            <td>
+                      <td>
                         {item.stockManageFee === 0
                           ? "없음"
                           : `${item.stockManageFee / 10000}만원`}
@@ -1091,7 +1095,11 @@ src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls[1]}`}        alt="평�
                     </tr>
                     <tr>
                       <td>주소</td>
-                      <td>{item.companyLocation?.split("^^^")[1]}</td>
+                      <td>
+                        {item.companyLocation?.includes("^^^")
+                          ? item.companyLocation.split("^^^")[1]
+                          : (item.companyLocation ?? "")}
+                      </td>
                     </tr>
                     <tr>
                       <td>대표</td>
@@ -1139,35 +1147,35 @@ src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls[1]}`}        alt="평�
               onClick={() => handleItemClick(item, index)}
             >
               <div className="stock-header">
-               <img
-  src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls?.[0] ?? ""}`}
-  alt="썸네일"
-  className="stock-img"
-/>
+                <img
+                  src={`${import.meta.env.VITE_API_BASE_URL}${item.imgUrls?.[0] ?? ""}`}
+                  alt="썸네일"
+                  className="stock-img"
+                />
                 <div>
                   <div className="stock-item-price">
                     <span className="item-type">
                       {item.stockType === 0
                         ? "매매 "
                         : item.stockType === 1
-                        ? "전세 "
-                        : item.stockType === 2
-                        ? "월세 "
-                        : "기타 "}
+                          ? "전세 "
+                          : item.stockType === 2
+                            ? "월세 "
+                            : "기타 "}
                     </span>
                     <span>&nbsp;</span> {/* 띄어쓰기용 */}
                     <span className="item-price">
                       {item.stockType === 0
                         ? priceConvertToString(item.stockSellPrice)
                         : item.stockType === 1
-                        ? priceConvertToString(item.stockSellPrice)
-                        : item.stockType === 2
-                        ? " " +
-                          priceConvertToString(item.stockSellPrice) +
-                          " / " +
-                          priceConvertToString(item.stockFeeMonth) +
-                          " "
-                        : "기타"}
+                          ? priceConvertToString(item.stockSellPrice)
+                          : item.stockType === 2
+                            ? " " +
+                              priceConvertToString(item.stockSellPrice) +
+                              " / " +
+                              priceConvertToString(item.stockFeeMonth) +
+                              " "
+                            : "기타"}
                     </span>
                   </div>
 
