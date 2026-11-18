@@ -107,3 +107,10 @@ hs_err_pid*
 replay_pid*
 
 # End of https://www.toptal.com/developers/gitignore/api/java,eclipse
+
+# experiment (rule v1 sec 7, plan sec 6): not committed
+__pycache__/
+stock_list.csv
+juso_lookup.csv
+snapshot/
+snapshot_T/
