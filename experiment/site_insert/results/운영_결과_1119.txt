@@ -1,0 +1,67 @@
+# ⑧ 운영 DB에 넣기 결과 (2026-11-19 KST, 사용자 PC → 운영 Oracle 19c SE2, 스키마 ADMIN)
+# DB 시계는 UTC다. KST = UTC + 9시간. 결과 표는 사용자가 DBeaver에서 복사해 보낸 탭 구분 글을 옮겼다.
+
+## 쓴 파일 (sql_gen/out_real, 돌리기 전 사용자 PC에서 SHA-256 확인)
+A49025FF0AEAB88711474368B3B607EC603EEE4902F4AFFA46745C133344D5F1  0_EXAMPLE_STOCK_만들기_운영.sql
+3D18BFCE710817480648648138FF19F0FD0540484068980565C8B09A608D0EBC  1_줄수.sql
+264C6CEED168F20BA26BF38B67287175D9931C494E7C53C5C29BC5E8BDB556D2  2_넣기_운영.sql
+CA2CB19A89E82F25226D3A7FA3B1AB2DEBB35C5240D48DEDCDE49CEA466935BD  3_대조.sql
+C952D27FE7C4E37C861E7615A65AA32A9ECD26CCDCB1E98B45742AE78598A0EA  4_되돌리기_운영.sql
+A659D976ABFC0B13E50C534F6FB5804B012B7CDCDBF9BE45E7BD2659C39CC4C7  5_남은줄.sql
+75719776F55196DA2052F31776BD8C4B73DE0F1D08B356DF7B66C600CEA15C81  6_EXAMPLE_STOCK_지우기_운영.sql
+# 4와 6은 쓰지 않았다(되돌리지 않음).
+
+## 차례
+1. 해시 확인: 위 일곱이 같다.
+2. RDS 수동 스냅샷: 14:31 KST에 만들기 시작, 상태 "사용 가능"(완료).
+3. 접속 확인: USER ADMIN, CURRENT_SCHEMA ADMIN. DBeaver 수동 커밋(Read committed), 편집기 탭 하나.
+4. 0_EXAMPLE_STOCK_만들기_운영: 오류 없음.
+5. 1_줄수 (넣기 전)
+TABLE_NAME	ROWS_NOW	OURS	OTHERS	EXPECTED
+STOCK_INFO	5	0	5	75
+SELL_DATE	5	0	5	75
+STOCK_COORD	5	0	5	75
+STOCK_IMG	15	0	15	225
+MEMBER	19	0	19	1
+TOKEN_INFO	18	0	18	1
+BROKER_INFO	14	0	14	1
+EXAMPLE_STOCK	0	0	0	75
+6. 2_넣기_운영: 14:42:26 KST(05:42:26 UTC), 오류 없음.
+7. 1_줄수 (넣은 뒤, 커밋 전)
+TABLE_NAME	ROWS_NOW	OURS	OTHERS	EXPECTED
+STOCK_INFO	80	75	5	75
+SELL_DATE	80	75	5	75
+STOCK_COORD	80	75	5	75
+STOCK_IMG	240	225	15	225
+MEMBER	20	1	19	1
+TOKEN_INFO	19	1	18	1
+BROKER_INFO	15	1	14	1
+EXAMPLE_STOCK	75	75	0	75
+8. 3_대조 (커밋 전)
+CHECK_NAME	BAD	UTC_TIME	KST_TIME
+ROWS_EXAMPLE_STOCK	0	[NULL]	[NULL]
+ROWS_MISSING	0	[NULL]	[NULL]
+META_EXAMPLE_STOCK	0	[NULL]	[NULL]
+STOCK_INFO_19_COLUMNS	0	[NULL]	[NULL]
+STOCK_INFO_OTHERS	0	[NULL]	[NULL]
+SELL_DATE_NULL	0	[NULL]	[NULL]
+STOCK_COORD	0	[NULL]	[NULL]
+STOCK_IMG	0	[NULL]	[NULL]
+MEMBER_ACCOUNT	0	[NULL]	[NULL]
+TOKEN_INFO	0	[NULL]	[NULL]
+BROKER_INFO	0	[NULL]	[NULL]
+REGIST_DATE_RANGE	0	2026-11-19 05.42.26 ~ 2026-11-19 05.42.26	2026-11-19 14.42.26 ~ 2026-11-19 14.42.26
+DB_CLOCK_NOW	0	2026-11-19 05.43.59 +00.00	[NULL]
+ENROLL_DATE	0	2026-11-19 05.42.26	2026-11-19 14.42.26
+9. COMMIT: 14:44:39 KST(05:44:39 UTC). 넣기부터 커밋까지 2분 13초.
+   - 커밋 뒤 같은 탭의 1_줄수가 7과 같다.
+   - 사이트 첫 화면 "최근 올라온 신규 매물" 네 칸이 CSV 75·74·73·72번 예시 매물로 바뀌었다(사이트는 DB에 따로 붙으므로 커밋이 된 것이다).
+10. 화면
+   - 목록과 상세: 썸네일 "예시 매물 / 실제 매물이 아닙니다", 상세 그림 "사진 없음"과 "평면도 없음", 문구 "예시 매물(실제 매물 아님)"
+   - 상세의 중개사무소 정보: 이름 "집인포 예시 매물(실제 중개사 아님)", 주소 "예시 매물 안내용(실제 사무소 아님)", 대표 "예시", 중개등록번호 "없음(예시 계정)", 대표번호 "000-0000-0000"
+   - 지도: 마커가 그 지역에 있다. 지도를 넓혀 시군구로 묶으면 2026년에 새로 생긴 시군구의 묶음 이름이 "null"로 보인다. 사이트의 지역 표에 새 시군구 코드가 없어서다(11/18 운영 DB 읽기에서 확인, 지역 검색은 실험 뒤 사이트 일로 미룸). 실험은 사이트 DB를 읽지 않으므로(규칙 1절) 실험 결과와는 상관없다.
+11. 대응표: SELECT * FROM EXAMPLE_STOCK ORDER BY CSV_ROW → results/example_stock_map_1119.tsv
+   - 75줄, CSV_ROW 1~75 차례, STOCK_NO 30~104(빈틈 없음), MEMBER_NO 모두 20.
+   - COMPLEX_ID·LAYER·SPLIT이 얼린 예시 매물 파일과 75줄 모두 같다. 층 화성형 27·광주형 24·일반 24, 연습 25·본시험 50.
+   - 사용자가 보낸 파일은 줄 끝이 CRLF였다(SHA-256 DD20FC3CB8F407E3D7958FFE30427F671B7B10C60FECFFB2FA536FC3EC16056C). 커밋본은 줄 끝만 LF로 바꿨다.
+12. 정리: DBeaver 트랜잭션 모드를 Auto-Commit으로 되돌렸다. 로컬 리허설 사용자는 지우지 않고 남겼다(사용자 PC의 로컬 DB라 운영·실험과 상관없음).

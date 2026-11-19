@@ -1,0 +1,1 @@
+2026-11-19T10:25:42+09:00 rejudge python 3.13.18 | 새로 얼린 응답 0(errCd 0 아님 0), 요청 0번(인증 0번 포함) | 끝: 75줄 모두 통과(full 75, nosido 0, old 0, jibun 0, old_jibun 0; 법정동 코드 35, 이름 39, 다름 1; errCd 0 아닌 꼴 20). utmk_sgis_v1.csv SHA-256 F0046564DF6692A999B6740121221EED9230E150A31F5EBDE709E8CD373E47BE

@@ -1,0 +1,47 @@
+# out_real 리허설용 → 운영용 diff -u (네 쌍). 쌍마다 스키마 확인 한 줄만 다르다.
+
+--- out_real/0_EXAMPLE_STOCK_만들기_리허설.sql
++++ out_real/0_EXAMPLE_STOCK_만들기_운영.sql
+@@ -1,6 +1,6 @@
+ DECLARE
+   -- 0. marker table EXAMPLE_STOCK (plan section 5). DDL commits by itself, so run it before the insert block.
+ BEGIN
+-  IF SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') <> 'ZIP_REHEARSAL' THEN RAISE_APPLICATION_ERROR(-20001, 'Schema is not ZIP_REHEARSAL. Nothing was created.'); END IF;
++  IF SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') <> 'ADMIN' THEN RAISE_APPLICATION_ERROR(-20001, 'Schema is not ADMIN. Nothing was created.'); END IF;
+   EXECUTE IMMEDIATE 'CREATE TABLE EXAMPLE_STOCK (STOCK_NO NUMBER NOT NULL, CSV_ROW NUMBER NOT NULL, COMPLEX_ID NVARCHAR2(100) NOT NULL, LAYER NVARCHAR2(10) NOT NULL, SPLIT NVARCHAR2(10) NOT NULL, MEMBER_NO NUMBER NOT NULL, CONSTRAINT PK_EXAMPLE_STOCK PRIMARY KEY (STOCK_NO), CONSTRAINT UQ_EXAMPLE_STOCK_ROW UNIQUE (CSV_ROW))';
+ END;
+
+--- out_real/2_넣기_리허설.sql
++++ out_real/2_넣기_운영.sql
+@@ -19,7 +19,7 @@
+     VALUES (v_no, p_row, p_complex, p_layer, p_split, v_member);
+   END add_one;
+ BEGIN
+-  IF SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') <> 'ZIP_REHEARSAL' THEN RAISE_APPLICATION_ERROR(-20001, 'Schema is not ZIP_REHEARSAL. Nothing was inserted.'); END IF;
++  IF SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') <> 'ADMIN' THEN RAISE_APPLICATION_ERROR(-20001, 'Schema is not ADMIN. Nothing was inserted.'); END IF;
+   SELECT COUNT(*) INTO n FROM MEMBER WHERE MEMBER_EMAIL = 'example-listings@example.invalid';
+   IF n > 0 THEN RAISE_APPLICATION_ERROR(-20002, 'The example account already exists. Nothing was inserted.'); END IF;
+   SELECT COUNT(*) INTO n FROM EXAMPLE_STOCK;
+
+--- out_real/4_되돌리기_리허설.sql
++++ out_real/4_되돌리기_운영.sql
+@@ -4,7 +4,7 @@
+   v_member NUMBER;
+   n NUMBER;
+ BEGIN
+-  IF SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') <> 'ZIP_REHEARSAL' THEN RAISE_APPLICATION_ERROR(-20001, 'Schema is not ZIP_REHEARSAL. Nothing was deleted.'); END IF;
++  IF SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') <> 'ADMIN' THEN RAISE_APPLICATION_ERROR(-20001, 'Schema is not ADMIN. Nothing was deleted.'); END IF;
+   SELECT COUNT(*) INTO n FROM MEMBER WHERE MEMBER_EMAIL = 'example-listings@example.invalid';
+   IF n <> 1 THEN RAISE_APPLICATION_ERROR(-20004, 'There is not exactly one example account. Nothing was deleted.'); END IF;
+   SELECT MEMBER_NO INTO v_member FROM MEMBER WHERE MEMBER_EMAIL = 'example-listings@example.invalid';
+
+--- out_real/6_EXAMPLE_STOCK_지우기_리허설.sql
++++ out_real/6_EXAMPLE_STOCK_지우기_운영.sql
+@@ -1,6 +1,6 @@
+ DECLARE
+   -- 6. drop the marker table after the rollback has been committed.
+ BEGIN
+-  IF SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') <> 'ZIP_REHEARSAL' THEN RAISE_APPLICATION_ERROR(-20001, 'Schema is not ZIP_REHEARSAL. Nothing was dropped.'); END IF;
++  IF SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') <> 'ADMIN' THEN RAISE_APPLICATION_ERROR(-20001, 'Schema is not ADMIN. Nothing was dropped.'); END IF;
+   EXECUTE IMMEDIATE 'DROP TABLE EXAMPLE_STOCK';
+ END;

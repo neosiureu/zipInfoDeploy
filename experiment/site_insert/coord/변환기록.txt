@@ -1,0 +1,6 @@
+python 3.13.18, pyproj 3.8.0, PROJ 9.8.1
+변환: Inverse of Korea Unified Belt + KGD2002 to WGS 84 (1) (with axis order normalized for visualization)
+파이프라인: proj=pipeline step inv proj=tmerc lat_0=38 lon_0=127.5 k=0.9996 x_0=1000000 y_0=2000000 ellps=GRS80 step proj=unitconvert xy_in=rad xy_out=deg
+입력 utmk_sgis_v1.csv SHA-256 F0046564DF6692A999B6740121221EED9230E150A31F5EBDE709E8CD373E47BE
+두 방법의 가장 큰 차: 위도 2.132e-14도, 경도 2.842e-14도 (허용 1e-8도)
+끝: 75줄. coord_wgs84_v1.csv SHA-256 7513F19222F2DD64DF3504D536263A18584C3D1C5694A15EBD3FAD9FB38F5DAB
