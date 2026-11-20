@@ -3,7 +3,8 @@
 만들기 설계안 4판 4.3절의 기록이다. 공용 모듈(`zipinfo-project/ai-core`)과 실험 실행기(`experiment/harness`)가 쓰는 외부 의존성을 사용자 PC에서 모았다.
 
 - 묶음 zip은 저장소에 넣지 않는다.
-- 판은 두 빌드의 `gradle.lockfile`이, 파일 바이트는 `gradle/verification-metadata.xml`이 고정한다.
+- 판은 두 빌드의 `gradle.lockfile`이 고정한다.
+- 파일 바이트는 두 빌드의 `gradle/verification-metadata.xml`(103개)과 이 폴더의 `SHA256SUMS.txt`(129개 모두)가 고정한다. 표지 POM 26개는 `SHA256SUMS.txt`에만 있다.
 
 ## 모은 것
 
@@ -40,10 +41,14 @@
 C:\workspace\zipInfoDeploy\zipinfo-project\backend\gradlew.bat -p experiment\harness build
 ```
 
-- **닿지 않는 곳:** 묶음을 풀고 `m2` 폴더를 `-PaiDepsRepo`로 넘긴다. `--offline`을 붙인다.
+- **닿지 않는 곳:** 묶음을 풀고 먼저 `SHA256SUMS.txt`로 129개를 모두 대 본다.
+    - 그다음 `m2` 폴더의 **절대 경로**를 `-PaiDepsRepo`로 넘기고 `--offline`을 붙인다.
+    - 상대 경로는 Gradle 데몬의 작업 폴더를 기준으로 읽혀 묶음을 찾지 못한다.
 
 ```sh
-gradle --offline -PaiDepsRepo=/path/to/m2 -p experiment/harness build
+sha256sum -c SHA256SUMS.txt
+gradle --offline -PaiDepsRepo=/absolute/path/to/m2 -p experiment/harness build
 ```
 
-- 묶음과 한 바이트라도 다르면 Gradle이 "Dependency verification failed"로 멈춘다.
+- 목록(`verification-metadata.xml`)에 든 103개는 한 바이트라도 다르면 Gradle이 "Dependency verification failed"로 멈춘다.
+- 표지 POM 26개는 Gradle이 대 보지 않는다. Gradle은 그 POM에서 표지만 읽고, 의존성은 대 본 `.module`에서 읽는다. 그래서 위 첫 줄로 먼저 대 본다.
