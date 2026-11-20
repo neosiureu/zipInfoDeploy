@@ -1,0 +1,17 @@
+# 순서 3b 커밋 해시목록 (2026-11-20). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# 새 파일만: ai-core의 model(모델 부르기 경계와 Anthropic 구현)·loop(문항 고리, 거는 자리, 기록)와 가짜 API 서버 시험. 고친 파일 없음.
+E9A756694D63ACF1726EC95222A0D5FB2E63C0C169A9D0D558D21F3A94037F8A  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/loop/Hook.java
+413AC6DF3C2DD3181685D3BBE34DC46AA57507C9A4E1C3C19799BE3642755EAA  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/loop/Prompts.java
+7431348D50BD9D32698C3D3105E26B2F9267F9D3E3DA9862C00794D93DB6DD64  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/loop/QuestionLoop.java
+094FFDD75D973D9B474DE11AB17F53125D97057772E74ED01EA3D113BC22ABD6  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/loop/RunRecord.java
+1C5BE3B7F91DEE77D754C486FCE4CAF9115241805B7EEE09922921B64FE88CA8  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/model/AnthropicModelClient.java
+CC347DBAB0B77F022524848F28D8F735019FB00019257D07F9684E5FE4E1248F  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/model/ModelClient.java
+58F85E637E6DDD790107A6DA1F85673807268CB1C8FAA6158034CBE6154A9297  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/model/ModelError.java
+ACA98CAE9E423484F4AD6D73C3F0528027804525A110570363B99D589148D818  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/model/ModelSession.java
+720717FBCF907C186A36DEE395288CC68972ABF92699074DF4AA6DA615FAAD2C  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/model/ModelSettings.java
+D9B2387C63CA5E65399C4516BF23A6ECDE177D8837A8299A00B48A876BDFCE93  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/model/ModelTurn.java
+A76078F83D835561627762D72852AE96D2D2A10579919AEEC6681344A1AF96BD  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/model/StopKind.java
+4D7D5D637EC69E3755D8F529A4E349E4BF4F9065523D1EF157ABD146E7C92DC8  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/model/ToolCall.java
+DCEFFEA69CF1C8DE24015303017C1F14EBEB1CD6EB13FB68753D0F480F0B9E49  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/model/UserPart.java
+C2AEAF812AB2A56CADC617DAC886087125915E2F6217AD8AE881251EDC487E7D  zipinfo-project/ai-core/src/test/java/com/zipinfo/ai/loop/QuestionLoopTest.java
+8DFC4FF4CB66B36466892A24C913E9ECE902EE8462798B147C9D9E0097A36EA3  zipinfo-project/ai-core/src/test/java/com/zipinfo/ai/model/FakeAnthropic.java
