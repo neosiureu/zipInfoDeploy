@@ -1,0 +1,15 @@
+// Shared AI module (build plan 4.1): Java 21, no Spring, no DB.
+// Repositories: Maven Central by default. A workspace that cannot reach Maven Central
+// passes -PaiDepsRepo=<folder m2 of the order-1 bundle> and builds with --offline.
+dependencyResolutionManagement {
+    repositories {
+        def offline = providers.gradleProperty('aiDepsRepo')
+        if (offline.present) {
+            maven { url = new File(offline.get()).toURI() }
+        } else {
+            mavenCentral()
+        }
+    }
+}
+
+rootProject.name = 'ai-core'

@@ -1,0 +1,2 @@
+// Order 1 dependency collector (build plan 4.3). Unpack outside the repository and run there.
+rootProject.name = 'ai-deps'

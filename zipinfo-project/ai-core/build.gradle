@@ -1,0 +1,28 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'com.zipinfo'
+version = '0.1.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+dependencies {
+    api 'com.anthropic:anthropic-java:3.11.0'
+    testImplementation platform('org.junit:junit-bom:5.14.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// Same versions everywhere (gradle.lockfile) and same bytes (gradle/verification-metadata.xml).
+dependencyLocking {
+    lockAllConfigurations()
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

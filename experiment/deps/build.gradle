@@ -1,0 +1,145 @@
+// Order 1 (build plan 4.3): collect the external dependencies of ai-core and the experiment harness.
+// No Java code is built here. The build resolves the dependencies, copies every downloaded file
+// into a Maven-layout folder (m2/) and packs it into one zip. Two workspaces that cannot reach
+// Maven Central build offline from that zip alone.
+//
+// Run in this folder, in order:
+//   1) gradlew -q javaToolchains                                               (see which JDKs exist)
+//   2) gradlew --write-locks --write-verification-metadata sha256 resolveAll  (resolve, write lock and checksums)
+//   3) gradlew zipRepo                                                         (copy to m2/, zip, print SHA-256)
+
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.security.MessageDigest
+
+plugins {
+    id 'java-library'
+}
+
+def sdkVersion = '3.11.0'    // Anthropic Java SDK, latest stable on the collection day (API version 2026-10-21)
+def junitVersion = '5.14.4'  // last JUnit 5 release, for tests only
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api "com.anthropic:anthropic-java:${sdkVersion}"
+    testImplementation platform("org.junit:junit-bom:${junitVersion}")
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyLocking {
+    lockAllConfigurations()
+}
+
+def classpaths = ['compileClasspath', 'runtimeClasspath', 'testCompileClasspath', 'testRuntimeClasspath']
+
+def sha256 = { File f ->
+    def md = MessageDigest.getInstance('SHA-256')
+    f.withInputStream { ins ->
+        byte[] buf = new byte[65536]
+        int r
+        while ((r = ins.read(buf)) > 0) {
+            md.update(buf, 0, r)
+        }
+    }
+    md.digest().collect { String.format('%02x', it) }.join()
+}
+
+def outDir = layout.buildDirectory.dir('ai-deps')
+def metaFile = file('gradle/verification-metadata.xml')
+def lockFile = file('gradle.lockfile')
+def scriptFile = file('build.gradle')
+def cacheDir = new File(gradle.gradleUserHomeDir, 'caches/modules-2/files-2.1')
+def gradleVer = gradle.gradleVersion
+
+tasks.register('resolveAll') {
+    description = 'Resolves the four classpaths. Run with --write-locks --write-verification-metadata sha256.'
+    def confs = classpaths.collect { configurations.getByName(it) }
+    doLast {
+        confs.each { c ->
+            println "${c.name}: ${c.resolve().size()} files"
+        }
+    }
+}
+
+tasks.register('packRepo') {
+    description = 'Copies every file listed in verification-metadata.xml from the Gradle cache into m2/ (Maven layout).'
+    doLast {
+        if (!metaFile.isFile() || !lockFile.isFile()) {
+            throw new GradleException('gradle/verification-metadata.xml or gradle.lockfile is missing. Run step 2 first.')
+        }
+        def out = outDir.get().asFile
+        out.deleteDir()
+        def doc = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(metaFile)
+        def comps = doc.getElementsByTagName('component')
+        def sums = []
+        for (int i = 0; i < comps.length; i++) {
+            def c = comps.item(i)
+            String g = c.getAttribute('group')
+            String n = c.getAttribute('name')
+            String v = c.getAttribute('version')
+            def arts = c.getElementsByTagName('artifact')
+            for (int j = 0; j < arts.length; j++) {
+                def a = arts.item(j)
+                String fname = a.getAttribute('name')
+                String want = a.getElementsByTagName('sha256').item(0).getAttribute('value')
+                File[] dirs = new File(cacheDir, "${g}/${n}/${v}").listFiles() ?: new File[0]
+                def src = dirs.collect { new File(it, fname) }.find { it.isFile() && sha256(it) == want }
+                if (src == null) {
+                    throw new GradleException("Not found in the Gradle cache: ${g}:${n}:${v} ${fname}")
+                }
+                String rel = "m2/${g.replace('.', '/')}/${n}/${v}/${fname}"
+                def dst = new File(out, rel)
+                dst.parentFile.mkdirs()
+                Files.copy(src.toPath(), dst.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                sums << "${want}  ${rel}"
+            }
+            // POM that only redirects to .module: Gradle reads it but does not list it. Copy it too.
+            String pomName = "${n}-${v}.pom"
+            boolean listed = (0..<arts.length).any { arts.item(it).getAttribute('name') == pomName }
+            if (!listed) {
+                File[] pdirs = new File(cacheDir, "${g}/${n}/${v}").listFiles() ?: new File[0]
+                def pom = pdirs.collect { new File(it, pomName) }.find { it.isFile() }
+                if (pom != null) {
+                    String prel = "m2/${g.replace('.', '/')}/${n}/${v}/${pomName}"
+                    def pdst = new File(out, prel)
+                    pdst.parentFile.mkdirs()
+                    Files.copy(pom.toPath(), pdst.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                    sums << "${sha256(pom)}  ${prel}"
+                }
+            }
+        }
+        Files.copy(metaFile.toPath(), new File(out, 'verification-metadata.xml').toPath())
+        Files.copy(lockFile.toPath(), new File(out, 'gradle.lockfile').toPath())
+        Files.copy(scriptFile.toPath(), new File(out, 'build.gradle').toPath())
+        sums.sort()
+        new File(out, 'SHA256SUMS.txt').setText(sums.join('\n') + '\n', 'UTF-8')
+        def info = [
+            "anthropic-java ${sdkVersion}, junit-bom ${junitVersion}",
+            "Gradle ${gradleVer}, Java ${System.getProperty('java.version')} (${System.getProperty('java.vendor')}), ${System.getProperty('os.name')}",
+            "collected at ${java.time.ZonedDateTime.now(java.time.ZoneId.of('Asia/Seoul')).withNano(0)}",
+            "components ${comps.length}, m2 files ${sums.size()}",
+        ]
+        new File(out, 'README.txt').setText(info.join('\n') + '\n', 'UTF-8')
+        println "components ${comps.length}, m2 files ${sums.size()}"
+    }
+}
+
+tasks.register('zipRepo', Zip) {
+    description = 'Packs build/ai-deps into one zip and prints its SHA-256.'
+    dependsOn 'packRepo'
+    from outDir
+    archiveFileName = "ai-deps_anthropic-java-${sdkVersion}.zip"
+    destinationDirectory = layout.buildDirectory
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    doLast {
+        def z = archiveFile.get().asFile
+        println "zip: ${z.name}"
+        println "zip size: ${z.length()} bytes"
+        println "zip SHA-256: ${sha256(z).toUpperCase()}"
+    }
+}
