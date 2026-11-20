@@ -31,6 +31,8 @@ import java.util.function.BiFunction;
  * - max_tokens, model_context_window_exceeded, refusal: 실패. refusal 가운데 reasoning_extraction은 멈추고 본다. 그 밖의 멈춘 까닭도 멈추고 본다.
  * - 턴 상한(모델 응답 수)을 넘으면 실패다. 모델 오류는 그대로 던지고, 하네스가 갈래대로 resume()으로 같은 요청을 다시 보낸다(턴으로 세지 않음).
  * - 기록(설계안 10.1): 응답마다 토큰 넷·시간·원문, 도구마다 입력·결과·시간(장치 판정 포함), 장치 판정, 대조 결과.
+ * - 장치: 앞 자리에서 거절이 나와도 뒤 자리까지 모든 부품을 묻고 판정을 남긴다. 돌려주는 것은 처음 거절 하나다(7.1).
+ *   그래서 부품의 decide는 판정만 하고 실행 상태를 바꾸지 않는다.
  */
 public final class QuestionLoop {
     /** 데이터·계산 도구: 시작 자리(⓪)가 거는 도구. */
@@ -167,6 +169,10 @@ public final class QuestionLoop {
         return first;
     }
 
+    private static Hook.Decision firstReject(Hook.Decision a, Hook.Decision b) {
+        return a.kind() == Hook.Decision.Kind.REJECT ? a : b;
+    }
+
     private static String rejected(String line) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("오류", "REJECTED");
@@ -188,8 +194,8 @@ public final class QuestionLoop {
         Hook.Decision d = Hook.Decision.PASS;
         if (DATA_TOOLS.contains(c.name())) {
             d = chain(Hook.Point.START, ctx);
-            if (d.kind() != Hook.Decision.Kind.REJECT && GUARDED_TOOLS.contains(c.name())) {
-                d = chain(Hook.Point.BEFORE_TOOL, ctx);
+            if (GUARDED_TOOLS.contains(c.name())) {
+                d = firstReject(d, chain(Hook.Point.BEFORE_TOOL, ctx));
             }
         }
         ToolResult r;
@@ -219,10 +225,8 @@ public final class QuestionLoop {
         }
         List<Finding> findings = Checker.check(r, st, data.validity());
         rec.add("submit", "input", c.input(), "findings", findings.stream().map(f -> f.where() + " " + f.code()).toList());
-        Hook.Decision d = chain(Hook.Point.START, new Hook.Context(st, c.name(), c.input(), r, findings));
-        if (d.kind() != Hook.Decision.Kind.REJECT) {
-            d = chain(Hook.Point.SUBMIT, new Hook.Context(st, c.name(), c.input(), r, findings));
-        }
+        Hook.Context ctx = new Hook.Context(st, c.name(), c.input(), r, findings);
+        Hook.Decision d = firstReject(chain(Hook.Point.START, ctx), chain(Hook.Point.SUBMIT, ctx));
         if (d.kind() == Hook.Decision.Kind.REJECT) {
             String text = rejected(d.line());
             rec.add("tool", "name", c.name(), "input", c.input(), "result", text, "is_error", true, "error_code", "REJECTED",

@@ -4,16 +4,20 @@ import com.zipinfo.ai.data.Listing;
 import com.zipinfo.ai.data.ListingMeta;
 import com.zipinfo.ai.num.Q;
 import java.text.Normalizer;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
-/** 실행 하나의 상태: 매물, 결과 ID 차례, 근거 ID 목록. 고리가 실행마다 새로 만든다. */
+/** 실행 하나의 상태: 매물, 결과 ID 차례, 근거 ID 목록, 읽은 카드. 고리가 실행마다 새로 만든다. */
 public final class RunState {
     private final Listing listing;
     private final ListingMeta meta;
     private final Map<String, Integer> counters = new HashMap<>();
     private final Map<String, Evidence> evidence = new LinkedHashMap<>();
+    private final Set<String> cardsRead = new LinkedHashSet<>();
 
     public RunState(Listing listing, ListingMeta meta) {
         if (!listing.key().equals(meta.key())) {
@@ -47,6 +51,16 @@ public final class RunState {
     }
 
     public Map<String, Evidence> evidence() {
-        return java.util.Collections.unmodifiableMap(evidence);
+        return Collections.unmodifiableMap(evidence);
+    }
+
+    /** read_card로 카드를 읽었다(설계안 7.4의 ③이 본다). */
+    public void cardRead(String id) {
+        cardsRead.add(id);
+    }
+
+    /** 이 실행에서 읽은 카드 ID(읽은 차례). */
+    public Set<String> cardsRead() {
+        return Collections.unmodifiableSet(cardsRead);
     }
 }

@@ -90,6 +90,9 @@ class ToolsTest {
         assertEquals("BAD_INPUT", err(tools.call("trade_stats", stats("apt_trade", "41591", "202610", "202609", "매매", "", ""), st)));
         assertEquals("BAD_INPUT", err(tools.call("trade_stats", stats("apt_trade", "41591", "202610", "202610", "매매", "", "12"), st)));
         assertEquals("BAD_INPUT", err(tools.call("trade_stats", stats("apt_trade", "41591", "202610", "202610", "매매", "가동", "12번지"), st)));
+        // 법정동코드처럼 긴 숫자를 jibun에 넣은 실수: 예외로 멈추지도, 0건이 나오지도 않고 BAD_INPUT(상대 3b·4 검토 가)
+        assertEquals("BAD_INPUT", err(tools.call("trade_stats", stats("apt_trade", "41591", "202610", "202610", "매매", "가동", "4159110100"), st)));
+        assertEquals("BAD_INPUT", err(tools.call("trade_stats", stats("apt_trade", "41591", "202610", "202610", "매매", "가동", "12-34567"), st)));
         assertEquals("UNKNOWN_EVIDENCE", err(tools.call("compare_prices", M.createObjectNode().put("listing_evidence", "매물.가격").put("basis_evidence", "S9.기준"), st)));
         assertEquals(null, st.find("S1.기준"));
     }

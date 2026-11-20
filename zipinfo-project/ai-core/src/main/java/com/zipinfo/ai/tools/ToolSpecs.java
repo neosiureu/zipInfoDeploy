@@ -87,7 +87,7 @@ public final class ToolSpecs {
                 new Spec("submit_report",
                         "최종 답을 낸다. text에는 숫자를 쓰지 않는다. 값은 {가}처럼 자리표시자로 쓰고, 자리표시자마다 같은 slot의 claim을 하나 낸다. "
                                 + "비싸다·싸다 같은 방향 말은 쓰지 않고 {가.방향}으로 쓴다. 차이 claim(근거 C?.차이)의 {가}는 부호 없는 크기로, {가.방향}은 비싸다·싸다·같다 가운데 하나로 그려진다. "
-                                + "stat_claims는 trade_stats 결과의 값이고, value_claims는 값 하나(매물 칸, 실거래 값, 계산 결과)이며, context_claims는 숫자 없는 근거 문장이다. "
+                                + "stat_claims는 trade_stats 결과의 값(기준값, 건수)이고, value_claims는 값 하나(매물 칸, 계산 결과)이며, context_claims는 숫자 없는 근거 문장이다. "
                                 + "모든 claim에 근거 ID를 적는다.",
                         object("text", pattern(TEXT_PATTERN, "숫자 없는 답 글"),
                                 "stat_claims", array(object(

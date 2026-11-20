@@ -31,7 +31,8 @@ public final class Tools {
     private static final Q PYEONG = Q.of(121, 400);
     private static final Pattern MONTH = Pattern.compile("[0-9]{4}(0[1-9]|1[0-2])");
     private static final Pattern CODE = Pattern.compile("[0-9]{5}");
-    private static final Pattern JIBUN = Pattern.compile("(산)?\\s*([0-9]+)(?:-([0-9]+))?");
+    /** 본번·부번은 넉 자리까지다(재생 저장소의 최대 3106·4161). 더 긴 숫자(법정동코드 등)는 BAD_INPUT(상대 3b·4 검토 가). */
+    private static final Pattern JIBUN = Pattern.compile("(산)?\\s*([0-9]{1,4})(?:-([0-9]{1,4}))?");
     private static final Pattern SPACES = Pattern.compile("\\s+", Pattern.UNICODE_CHARACTER_CLASS);
     static final ObjectMapper JSON = new ObjectMapper().configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
 

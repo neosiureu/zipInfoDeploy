@@ -277,4 +277,34 @@ class QuestionLoopTest {
         assertTrue(r1.toString().contains("이 매물의 지역 코드는 41591이다"));
         assertTrue(rec.events().stream().anyMatch(e -> e.get("type").equals("hook") && "REJECT".equals(e.get("decision"))));
     }
+
+    static Hook part(String name, Hook.Point at, boolean reject) {
+        return new Hook() {
+            public String name() { return name; }
+            public boolean at(Point p) { return p == at; }
+            public Decision decide(Point p, Context c) { return reject ? Decision.reject(name + " 거절") : Decision.PASS; }
+        };
+    }
+
+    /** 7.1: 시작 자리가 거절해도 도구 전·제출 자리의 부품을 묻고 판정을 남긴다. 돌려주는 것은 처음 거절이다(상대 3b·4 검토 나). */
+    @Test
+    void everyPartIsAskedAfterARejection() throws Exception {
+        List<Hook> hooks = List.of(part("시작", Hook.Point.START, true), part("도구 전", Hook.Point.BEFORE_TOOL, true),
+                part("제출", Hook.Point.SUBMIT, false));
+        api.then(FakeAnthropic.sse(List.of(FakeAnthropic.toolUse("toolu_1", "trade_stats", statsInput()),
+                FakeAnthropic.toolUse("toolu_2", "submit_report", report())), "tool_use", null));
+        api.then(FakeAnthropic.sse(List.of(FakeAnthropic.text("…")), "end_turn", null));
+        api.then(FakeAnthropic.sse(List.of(FakeAnthropic.text("…")), "end_turn", null));
+        RunRecord rec = loop(10, hooks).start(Prompts.SYSTEM, ToolSpecs.all(), "?", listing());
+        assertEquals(RunRecord.Outcome.FAILED_NO_SUBMIT, rec.outcome());
+        JsonNode results = api.requests.get(1).get("messages").get(2).get("content");
+        for (JsonNode r : results) {
+            assertTrue(r.get("is_error").asBoolean());
+            assertTrue(r.toString().contains("시작 거절") && !r.toString().contains("도구 전 거절"), r.toString());
+        }
+        List<String> asked = rec.events().stream().filter(e -> e.get("type").equals("hook"))
+                .map(e -> e.get("tool") + " " + e.get("point") + " " + e.get("part") + " " + e.get("decision")).toList();
+        assertEquals(List.of("trade_stats START 시작 REJECT", "trade_stats BEFORE_TOOL 도구 전 REJECT",
+                "submit_report START 시작 REJECT", "submit_report SUBMIT 제출 PASS"), asked);
+    }
 }
