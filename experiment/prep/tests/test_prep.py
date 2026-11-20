@@ -11,7 +11,7 @@ from fractions import Fraction
 from picker.clean import Rec
 from picker.common import write_csv
 from picker.juso import FrozenError, JusoError
-from prep import cli, juso_road, listings, replay, validity
+from prep import answers, cli, juso_road, listings, replay, validity
 
 KEY = "test-key-never-written"
 
@@ -183,6 +183,23 @@ class TestFiles(unittest.TestCase):
 
     def test_address_parts(self):
         self.assertEqual(listings.address_parts("03000^^^서울특별시  종로구 가로 1 ^^^"), ("03000", "서울특별시  종로구 가로 1 "))
+
+
+class TestAnswers(unittest.TestCase):
+    def test_windows_end_at_202610(self):
+        self.assertEqual(answers.months_back(1), ["202610"])
+        self.assertEqual(answers.months_back(3), ["202608", "202609", "202610"])
+        self.assertEqual(answers.months_back(6)[0], "202605")
+        self.assertEqual(answers.months_back(12)[0], "202511")
+
+    def test_round_unit_negative_tie(self):
+        self.assertEqual(answers.round_unit(Fraction("-12.25"), Fraction(1, 10)), Fraction("-12.2"))
+        self.assertEqual(answers.round_unit(Fraction(5, 2), 1), 3)
+
+    def test_assign_shape(self):
+        self.assertEqual(answers.assign("apt|41591|가동|0|1|0", "월세")[:2], ["T1", "T4"])
+        got = answers.assign("apt|41591|가동|0|1|0", "매매")
+        self.assertEqual((got[0], len(set(got)), set(got[1:]) <= {"T2", "T3", "T5"}), ("T1", 3, True))
 
 
 if __name__ == "__main__":

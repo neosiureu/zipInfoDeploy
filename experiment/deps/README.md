@@ -46,7 +46,9 @@ C:\workspace\zipInfoDeploy\zipinfo-project\backend\gradlew.bat -p experiment\har
     - 상대 경로는 Gradle 데몬의 작업 폴더를 기준으로 읽혀 묶음을 찾지 못한다.
 
 ```sh
+# 묶음을 푼 폴더에서
 sha256sum -c SHA256SUMS.txt
+# 저장소 뿌리에서
 gradle --offline -PaiDepsRepo=/absolute/path/to/m2 -p experiment/harness build
 ```
 

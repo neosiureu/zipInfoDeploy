@@ -15,6 +15,7 @@ python -X utf8 -B -m prep test
 python -X utf8 -B -m prep build --snap <snapshot_T.zip> --codes <codes_snapshot.txt>
 python -X utf8 -B -m prep check --snap <snapshot_T.zip> --codes <codes_snapshot.txt>
 python -X utf8 -B -m prep freeze-juso
+python -X utf8 -B -m prep answers
 ```
 
 - 매물 파일(`--listings`)의 기본값은 `frozen/example_listings_v1.csv`다. 3단계에서 얼린 것이고, 5단계에 커밋한다.
@@ -96,3 +97,11 @@ python -X utf8 -B -m prep freeze-juso
 - 끊기면 같은 명령으로 이어 부른다. 얼린 검색어는 다시 부르지 않는다.
 - 키는 환경 변수 `JUSO_KEY`에서만 읽고, 어디에도 쓰거나 찍지 않는다.
 - 결과 파일은 매물 파일과 함께 5단계에 커밋한다. 그때까지는 `.git/info/exclude`로 뺀다.
+
+## answers (순서 3)
+
+설계안 9.3 "같은 식을 두 곳에"의 파이썬 쪽이다(`answers.py`).
+
+- 문항마다(9.2 배정, T3는 1·3·6달을 모두) 맞는 부르기(API, 코드, 달, 거래, 법정동, 지번)와 정답 값(표본 수, 기준값, 환산, 차이, T5 건수)을 `prep/out/answers_check_v1.json`에 쓴다.
+- 하네스 시험 `AnswersCrossCheckTest`가 이 파일의 부르기를 Java 도구에 그대로 넣어 값이 같은지 본다.
+- build를 먼저 돌려야 한다(재생 저장소의 해시를 대 본다).

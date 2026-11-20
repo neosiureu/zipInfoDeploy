@@ -29,4 +29,11 @@ application {
 
 tasks.named('test') {
     useJUnitPlatform()
+    // AnswersCrossCheckTest reads the replay store (767,597 trades) when experiment/prep/out exists.
+    maxHeapSize = '2g'
+    // The test reads ../prep/out, which Gradle does not track. Always run it so the cross-check line prints every time.
+    outputs.upToDateWhen { false }
+    testLogging {
+        showStandardStreams = true
+    }
 }

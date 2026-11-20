@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""순서 2 명령: build, check, freeze-juso, test.
+"""순서 2·3 명령: build, check, freeze-juso, answers, test.
 
 experiment 폴더에서 `python -X utf8 -B -m prep <명령>`으로 돌린다.
 화면에는 셈한 수, 코드, 해시만 낸다. 거래 줄, 매물 이름·주소, 단지ID, 키는 내지 않는다.
@@ -20,7 +20,7 @@ from picker.clean import API_OF
 from picker.cli import DETAIL, HISTORY, LISTING_FIELDS, pick_all
 from picker.common import code_sorted, sha256_file
 
-from . import juso_road, listings, replay, validity
+from . import answers, juso_road, listings, replay, validity
 
 # 들어가는 파일의 SHA-256(설계안 5.1: 547be6d의 값과 대조, 매물 파일은 3단계에서 얼린 것)
 PINS = {
@@ -42,6 +42,7 @@ OUT_FILES = {
     "queries": "juso_queries_v1.csv",
 }
 MANIFEST = "prep_manifest_v1.txt"
+ANSWERS = "answers_check_v1.json"
 RECENT = ("202511", "202610")
 N_BASE = 5
 T1_WANT = (35, 38, 2)
@@ -275,7 +276,7 @@ def cmd_check(args):
     ev_ok = all(it["evidence"] == {name: int(x[col]) for name, col in listings.EVIDENCE} and it["fields"] == {h: x[h] for h in listings.NINE}
                 for it, (_, x) in zip(items, L))
     say(keys_ok and fields_ok and ev_ok and len(items) == len(L),
-        f"매물 입력 {len(items)}개: 키 L01~L{len(L):02d}, 칸은 아홉 칸뿐(층·나눔·단지ID 없음), 칸 값과 근거 ID 넷이 매물 파일과 같음")
+        f"매물 입력 {len(items)}개: 키 L01~L{len(L):02d}, 칸은 아홉 칸뿐(layer·split·complex_id 없음), 칸 값과 근거 ID 넷이 매물 파일과 같음")
     q = list(_read_rows(out["queries"], listings.QUERY_HEADER))
     say(len(q) == len(L) and len({r[1] for r in q}) == len(q), f"검색어 {len(q)}개, 겹치는 것 {len(q) - len({r[1] for r in q})}개")
     print("모두 맞음" if ok else "어긋난 것이 있다")
@@ -310,6 +311,24 @@ def cmd_freeze_juso(args):
     return 0
 
 
+def cmd_answers(args):
+    """순서 3 대조용(설계안 9.3 "같은 식을 두 곳에"): 문항마다 맞는 부르기와 정답 값을 answers_check_v1.json에 쓴다."""
+    check_pins(args, ("listings",))
+    trades = os.path.join(args.out, OUT_FILES["trades"])
+    want = read_expected()[OUT_FILES["trades"]][0]
+    if not os.path.exists(trades) or sha256_file(trades) != want:
+        raise Stop(f"{OUT_FILES['trades']}가 없거나 기대 해시와 다르다. 먼저 build를 돌린다")
+    L = listings.load(args.listings)
+    cases = answers.build(answers.Store(trades), L, answers.load_metas(args.listings))
+    path = os.path.join(args.out, ANSWERS)
+    answers.write(cases, path)
+    by = Counter(c["qtype"] for c in cases)
+    print("문항(T3는 창 셋을 따로 셈): " + ", ".join(f"{k} {by[k]}" for k in sorted(by)) + f", 모두 {len(cases)}")
+    print("범위: " + ", ".join(f"{k} {v}" for k, v in sorted(Counter(c["scope"] for c in cases).items())))
+    print(f"{sha256_file(path)}  {ANSWERS}  {os.path.getsize(path)}")
+    return 0
+
+
 def cmd_test(args):
     here = os.path.dirname(os.path.abspath(__file__))
     suite = unittest.defaultTestLoader.discover(os.path.join(here, "tests"), top_level_dir=os.path.dirname(here))
@@ -329,6 +348,9 @@ def build_parser():
     s = sub.add_parser("freeze-juso")
     s.add_argument("--listings", default=LISTINGS)
     s.add_argument("--out", default=JUSO_ROAD)
+    s = sub.add_parser("answers")
+    s.add_argument("--listings", default=LISTINGS)
+    s.add_argument("--out", default=OUT_DIR)
     sub.add_parser("test")
     return p
 
@@ -336,7 +358,8 @@ def build_parser():
 def main(argv=None):
     args = build_parser().parse_args(argv)
     try:
-        return {"build": cmd_build, "check": cmd_check, "freeze-juso": cmd_freeze_juso, "test": cmd_test}[args.cmd](args)
+        return {"build": cmd_build, "check": cmd_check, "freeze-juso": cmd_freeze_juso, "answers": cmd_answers,
+                "test": cmd_test}[args.cmd](args)
     except (Stop, picker_juso.JusoError, picker_juso.FrozenError, listings.BadListing, validity.MultiSource,
             replay.ReplayError) as e:
         print(f"멈춤: {e}", file=sys.stderr)
