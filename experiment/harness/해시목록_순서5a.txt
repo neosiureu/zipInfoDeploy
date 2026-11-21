@@ -1,0 +1,14 @@
+# 순서 5a 커밋 해시목록 (2026-11-21). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# 새 파일: ai-core reflex(부품 표시, ② 반사 규칙, ③ 학습 잠금, ④ 근거 게이트, 판 설정 읽기와 판별 짜기)와 시험, 판 설정 파일(experiment/variants), 하네스 DevicesCheckTest. 고친 파일: ai-core ValidityTable(영역의 후보 코드), Tools(달 목록을 공개).
+76E5DCC7174A14512098EB7BAD06FC7DE90C37758C1A8CBA3436E6F3588E8461  experiment/harness/src/test/java/com/zipinfo/harness/DevicesCheckTest.java
+85A392B4D1675CD816C7F60FAB6E81BFD667516AF8CCCC981D0A9DDCFD577BFA  experiment/variants/variants_v0.json
+CB46352D8B5E14E333152F3888A13D48EA855F7B90E244EDFF0428F564523AE6  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/data/ValidityTable.java
+6122A2E86D778BD9935882D167F427E7468E94D8F99E5552FC56ED90939CE3CA  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/EvidenceGate.java
+8C99FA6D87FE8A7D037D397D304D4AD4DCFEE8AF8E77105982FB2476064A1B24  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/LearningLock.java
+08D6BB1E469ED3E1AA0B5E7917C8215080FCD57FAEEBFCD9F15E458C2592F603  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/Part.java
+A5A68E8B6C350C371F9B1FDDACF67518160BC804232CDFE3B4E38B2D415E8002  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/ReflexRule.java
+78D30F32DFD9933F8CB11A2CD252F37177620BEDF0408FD0F060F80781A80948  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/Setup.java
+33ADE728D2E178D450EB9E53560A7E3AA6C9C0C2FC4365697FDC6741617EEC5D  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/Variant.java
+4A5FAF65632290261BA94F8026FDF17739F962AAE01A482DA54824CC47823DF5  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/Variants.java
+D11E3A3ACD15562018A6D5ED1BE10589CC292F561C703250EE18C29C1BB10A20  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/tools/Tools.java
+D0973286D72B29B46EA54753428382C3003652EBBD37EC4D55312E97A5E2EB17  zipinfo-project/ai-core/src/test/java/com/zipinfo/ai/reflex/ReflexTest.java

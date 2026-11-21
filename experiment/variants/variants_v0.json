@@ -1,0 +1,15 @@
+{
+  "version": "v0",
+  "variants": [
+    {"id": "c01", "name": "B0", "model": "claude-haiku-5-5", "cards": "none", "parts": []},
+    {"id": "c02", "name": "B0+", "model": "claude-haiku-5-5", "cards": "prompt", "parts": []},
+    {"id": "c03", "name": "①", "model": "claude-haiku-5-5", "cards": "tools", "parts": []},
+    {"id": "c04", "name": "①+⓪", "model": "claude-haiku-5-5", "cards": "tools", "parts": ["⓪"]},
+    {"id": "c05", "name": "①+②", "model": "claude-haiku-5-5", "cards": "tools", "parts": ["②"]},
+    {"id": "c06", "name": "①+③", "model": "claude-haiku-5-5", "cards": "tools", "parts": ["③"]},
+    {"id": "c07", "name": "①+④", "model": "claude-haiku-5-5", "cards": "tools", "parts": ["④"]},
+    {"id": "c08", "name": "①+⑤", "model": "claude-haiku-5-5", "cards": "tools", "parts": ["⑤"]},
+    {"id": "c09", "name": "전부", "model": "claude-haiku-5-5", "cards": "tools", "parts": ["⓪", "②", "③", "④", "⑤"]},
+    {"id": "c10", "name": "B1", "model": "claude-opus-5-5", "cards": "none", "parts": []}
+  ]
+}

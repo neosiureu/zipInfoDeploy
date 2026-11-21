@@ -148,7 +148,8 @@ public final class Tools {
         return listing.sub(basis).div(basis).mul(Q.of(100)).roundUnit(TENTH);
     }
 
-    static List<String> months(String start, String end) {
+    /** start~end의 달(YYYYMM). ②도 같은 것을 쓴다(순서 5a). */
+    public static List<String> months(String start, String end) {
         List<String> out = new ArrayList<>();
         int y = Integer.parseInt(start.substring(0, 4)), m = Integer.parseInt(start.substring(4));
         int ey = Integer.parseInt(end.substring(0, 4)), em = Integer.parseInt(end.substring(4));
