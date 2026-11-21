@@ -1,0 +1,14 @@
+# 순서 5b 커밋 해시목록 (2026-11-22, b판). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# 새 파일: ai-core reflex ⓪(의도 세기·목록 읽기·declare_intents·시작 자리)과 시험, ⓪의 목록 v0(experiment/intents). 고친 파일: ai-core History(법정동 이름), RunState(질문·의도 통과), QuestionLoop(질문을 실행 상태에), Setup(⓪ 짜기), ReflexTest, 하네스 DevicesCheckTest.
+9D2F46FC109D4D17B87885D7734A3690FFFB535A64F059B7DA3C249D78CB83B7  experiment/harness/src/test/java/com/zipinfo/harness/DevicesCheckTest.java
+C3F6DAC54E389D1ED0F784EFBD75D2675CD3AF6F98275F91A4457A5B36C6674F  experiment/intents/intent_lists_v0.json
+23AB7BF923B8C4BB5A2F4F01B2D4E87A3C8FDDF20E77DD8C5669C939F3495E3F  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/data/History.java
+5F527AECBFFD5FF8295EA207580A15C124B236AF4A3A8190FB1277818A1B7092  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/loop/QuestionLoop.java
+2262D9563E65FA1A87A975B5B64D6FA6DCD65986497320B5FB39C807F084CE85  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/IntentCheck.java
+4D05FE93E5DA29315E2A15F6D37CAD9F2504827947FBDDE51EE8C0B2791C6F6D  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/IntentLists.java
+C06158AB47E74FF1AB53A5B862D91F9CF77E2ABF28FE8B24D8897E40D38673E5  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/IntentLock.java
+B7C2B1738ECF06F7B0B85D0E5AD1609963BEC63DA0BEB61558CF365F9847F218  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/IntentTools.java
+38B9B345E437D1A0D32A9616B9E3A1E212A1DB7732C36F21E7BA8E96996BC262  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/Setup.java
+5AB3570E28AC8D4F65DB4E55D19AEC20EFC4BCB14A33685AC5F4D36F96140058  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/tools/RunState.java
+3849BF1570CCE7711424BB688CE2B7F44DC96B7130301EB0590A20F708C08269  zipinfo-project/ai-core/src/test/java/com/zipinfo/ai/reflex/IntentTest.java
+069607B62E98CB9F02E21CEFA55A2533DE33FC6D99C490E76C1984E365287388  zipinfo-project/ai-core/src/test/java/com/zipinfo/ai/reflex/ReflexTest.java

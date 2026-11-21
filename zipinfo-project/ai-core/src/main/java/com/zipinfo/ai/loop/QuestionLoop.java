@@ -68,6 +68,7 @@ public final class QuestionLoop {
     /** 세션을 열고 첫 사용자 글(안내 자리의 줄 + 질문 + 매물 블록)을 보낸다. */
     public RunRecord start(String system, List<ToolSpecs.Spec> specs, String question, RunState state) throws ModelError {
         this.st = state;
+        state.question(question);
         this.session = client.open(system, specs);
         List<String> notices = new ArrayList<>();
         for (Hook h : cfg.hooks()) {

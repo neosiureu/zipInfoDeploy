@@ -11,13 +11,15 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-/** 실행 하나의 상태: 매물, 결과 ID 차례, 근거 ID 목록, 읽은 카드. 고리가 실행마다 새로 만든다. */
+/** 실행 하나의 상태: 매물, 질문, 결과 ID 차례, 근거 ID 목록, 읽은 카드, 의도 통과. 고리가 실행마다 새로 만든다. */
 public final class RunState {
     private final Listing listing;
     private final ListingMeta meta;
     private final Map<String, Integer> counters = new HashMap<>();
     private final Map<String, Evidence> evidence = new LinkedHashMap<>();
     private final Set<String> cardsRead = new LinkedHashSet<>();
+    private String question = "";
+    private boolean intentsPassed;
 
     public RunState(Listing listing, ListingMeta meta) {
         if (!listing.key().equals(meta.key())) {
@@ -62,5 +64,23 @@ public final class RunState {
     /** 이 실행에서 읽은 카드 ID(읽은 차례). */
     public Set<String> cardsRead() {
         return Collections.unmodifiableSet(cardsRead);
+    }
+
+    /** 이 실행의 질문 글. 고리가 첫 사용자 글을 만들 때 넣는다. ⓪이 의도토큰의 원어를 이 글과 대 본다(설계안 7.2). */
+    public void question(String q) {
+        this.question = q;
+    }
+
+    public String question() {
+        return question;
+    }
+
+    /** declare_intents가 통과했다(⓪, 7.2). 한 번 통과하면 그 실행 끝까지 간다. 부품이 아니라 도구가 바꾼다(7.1). */
+    public void markIntentsPassed() {
+        intentsPassed = true;
+    }
+
+    public boolean intentsPassed() {
+        return intentsPassed;
     }
 }

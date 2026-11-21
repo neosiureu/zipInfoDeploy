@@ -2,6 +2,7 @@ package com.zipinfo.ai.data;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ public final class History {
 
     private final Map<String, Set<String>> paths = new HashMap<>();
     private final Map<String, Set<String>> parents = new HashMap<>();
+    private final Set<String> names = new HashSet<>();
 
     public static History load(Path csv) throws IOException {
         Map<String, String> sggName = new HashMap<>();
@@ -38,7 +40,9 @@ public final class History {
             }
             boolean inWindow = (v[1].isEmpty() || v[1].compareTo(WIN_END) <= 0) && (v[2].isEmpty() || v[2].compareTo(WIN_START) > 0);
             if (inWindow) {
-                h.paths.computeIfAbsent(code.substring(0, 5), k -> new HashSet<>()).add(v[0].substring(sgg.length() + 1));
+                String path = v[0].substring(sgg.length() + 1);
+                h.paths.computeIfAbsent(code.substring(0, 5), k -> new HashSet<>()).add(path);
+                Collections.addAll(h.names, path.split(" "));
             }
         }
         for (Map.Entry<String, Set<String>> e : h.paths.entrySet()) {
@@ -59,5 +63,10 @@ public final class History {
 
     public boolean hasDong(String sgg5, String path) {
         return paths.getOrDefault(sgg5, Set.of()).contains(path);
+    }
+
+    /** 창 안 법정동 경로의 이름 낱낱(…읍·…면·…동·…리). ⓪은 이 이름에서 절을 나누거나 어미를 떼지 않는다(설계안 7.2). */
+    public Set<String> names() {
+        return Collections.unmodifiableSet(names);
     }
 }

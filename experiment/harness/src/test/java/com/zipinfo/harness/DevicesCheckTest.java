@@ -1,20 +1,27 @@
 package com.zipinfo.harness;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.zipinfo.ai.cards.Cards;
+import com.zipinfo.ai.data.AddressBook;
 import com.zipinfo.ai.data.DataFiles;
+import com.zipinfo.ai.data.History;
 import com.zipinfo.ai.data.Listing;
 import com.zipinfo.ai.data.ListingMeta;
 import com.zipinfo.ai.loop.Hook;
 import com.zipinfo.ai.loop.Hook.Decision;
+import com.zipinfo.ai.reflex.IntentCheck;
+import com.zipinfo.ai.reflex.IntentLists;
 import com.zipinfo.ai.reflex.LearningLock;
 import com.zipinfo.ai.reflex.Part;
 import com.zipinfo.ai.reflex.ReflexRule;
+import com.zipinfo.ai.reflex.Setup;
+import com.zipinfo.ai.reflex.Variant;
 import com.zipinfo.ai.reflex.Variants;
 import com.zipinfo.ai.tools.DataSet;
 import com.zipinfo.ai.tools.RunState;
@@ -30,11 +37,13 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 /**
- * 순서 5a의 장치를 실제 파일에 대 본다(설계안 7.3·7.4·7.7).
+ * 순서 5의 장치를 실제 파일에 대 본다(설계안 7.2~7.4·7.7).
  * - 판 설정 파일이 설계안 7.7(01의 판 10개)과 같다.
  * - ③이 읽으라고 할 카드 둘이 연습 전 카드에 그 제목으로 있다.
  * - 정답 대조의 부르기는 ②를 모두 지난다. 지역 코드만 다른 코드로 바꾸면 모두 거절되고, 처방은 매물의 현재 코드와 그 부르기의 모든 달이다.
  * - ③은 개편 지역(후보 코드 둘 이상) 매물에서만 지역 코드 카드를 묻는다. 면적 환산은 모든 매물에서 묻는다.
+ * - (5b) ⓪의 목록 파일을 읽는다. 매물 75개의 이름·도로명주소 글은 질문 안에서 통째로 남는다(나누지 않고 분모에도 넣지 않음).
+ * - (5b) 판 설정대로 짜면 판마다 도구와 사슬이 맞다. ⑤가 든 판은 아직 짜이지 않는다(5c).
  * 자료 쪽은 순서 2 build·answers 결과와 얼린 매물 파일이 있을 때만 돈다.
  */
 class DevicesCheckTest {
@@ -127,6 +136,51 @@ class DevicesCheckTest {
         }
         System.out.println("장치 검사: 정답 부르기 " + calls + "건이 ②를 지남, 코드만 바꾼 부르기 " + rejected + "건 거절(코드 " + codes.size()
                 + "가지), ③이 지역 코드 카드를 묻는 매물 " + asks + "/" + meta.size() + ", 어긋난 것 " + bad.size());
+        bad.stream().limit(20).forEach(System.out::println);
+        assertEquals(List.of(), bad);
+
+        // 판 설정대로 짜 본다(5b): 도구 이름과 사슬. ⑤가 든 판(c08 ①+⑤, c09 전부)은 5c 뒤에 짜인다.
+        Cards cards = Cards.load(EXP.resolve("cards/v0"));
+        IntentLists lists = IntentLists.load(EXP.resolve("intents/intent_lists_v0.json"));
+        Map<String, String> got = new java.util.TreeMap<>();
+        for (Variant v : Variants.load(EXP.resolve("variants/variants_v0.json"))) {
+            if (v.parts().contains(Part.MEMORY)) {
+                assertThrows(UnsupportedOperationException.class, () -> Setup.of(v, data, cards, lists, 12));
+                continue;
+            }
+            Setup s = Setup.of(v, data, cards, lists, 12);
+            got.put(v.id(), s.specs().size() + " " + s.config().hooks().stream().map(Hook::name).collect(Collectors.joining()) + " "
+                    + s.system().contains("[카드]"));
+        }
+        assertEquals(Map.of("c01", "6  false", "c02", "6  true", "c03", "8  false", "c04", "9 ⓪ false", "c05", "8 ② false",
+                "c06", "8 ③ false", "c07", "8 ④ false", "c10", "6  false"), got);
+    }
+
+    @Test
+    void intentListsAndListingTextOnTheRealFiles() throws Exception {
+        Path out = EXP.resolve("prep/out");
+        Path history = EXP.resolve("frozen/codego/codego_history_v1.csv");
+        assumeTrue(Files.exists(out.resolve("listings_input_v1.json")) && Files.exists(history), "매물 입력과 이력 표가 있을 때만 돈다");
+        IntentLists lists = IntentLists.load(EXP.resolve("intents/intent_lists_v0.json"));
+        assertEquals("v0", lists.version());
+        Set<String> names = History.load(history).names();
+        IntentCheck check = new IntentCheck(lists, names, Cards.load(EXP.resolve("cards/v0")));
+        List<String> bad = new ArrayList<>();
+        int n = 0;
+        for (Listing l : Listing.load(out.resolve("listings_input_v1.json"))) {
+            n++;
+            String name = l.fields().get("stockName");
+            String road = AddressBook.clean(l.fields().get("stockAddress"));
+            for (String q : List.of(name + " 가격", road + " 가격", "가격 " + name + " " + road)) {
+                IntentCheck.Result r = check.check(q, l, List.of());
+                if (r.clauses().size() != 1 || r.total() != 2) {
+                    bad.add(l.key() + ": 절 " + r.clauses().size() + "개, 분모 " + r.total());
+                }
+            }
+        }
+        System.out.println("의도 검사: 매물 " + n + "개의 이름·주소 글이 통째로 남음, 목록 " + lists.version() + "(이음 말 " + lists.connectiveEndings().size()
+                + ", 이음 낱말 " + lists.connectiveWords().size() + ", 조사·어미 " + lists.particlesEndings().size() + ", 군말 " + lists.fillers().size()
+                + ", 낱말 예외 " + lists.wordExceptions().size() + "), 법정동 이름 " + names.size() + ", 어긋난 것 " + bad.size());
         bad.stream().limit(20).forEach(System.out::println);
         assertEquals(List.of(), bad);
     }

@@ -250,23 +250,23 @@ class ReflexTest {
     @Test
     void setupFollowsTheVariant() {
         Cards cs = cards();
-        Setup b0 = Setup.of(new Variant("c01", "B0", "m", Variant.CardMode.NONE, List.of()), small, cs, 12);
+        Setup b0 = Setup.of(new Variant("c01", "B0", "m", Variant.CardMode.NONE, List.of()), small, cs, null, 12);
         assertEquals(Prompts.SYSTEM, b0.system());
         assertEquals(ToolSpecs.all(), b0.specs());
         assertTrue(b0.config().hooks().isEmpty() && b0.config().extra().isEmpty());
         assertEquals(12, b0.config().maxTurns());
-        Setup plus = Setup.of(new Variant("c02", "B0+", "m", Variant.CardMode.PROMPT, List.of()), small, cs, 12);
+        Setup plus = Setup.of(new Variant("c02", "B0+", "m", Variant.CardMode.PROMPT, List.of()), small, cs, null, 12);
         assertEquals(Prompts.SYSTEM + "\n\n" + cs.fullText(), plus.system());
         assertEquals(ToolSpecs.all(), plus.specs());
         assertTrue(plus.config().extra().isEmpty());
-        Setup one = Setup.of(new Variant("c03", "①", "m", Variant.CardMode.TOOLS, List.of()), small, cs, 12);
+        Setup one = Setup.of(new Variant("c03", "①", "m", Variant.CardMode.TOOLS, List.of()), small, cs, null, 12);
         assertEquals(Prompts.SYSTEM, one.system());
         assertEquals(List.of("search_address", "trade_stats", "compare_prices", "convert_rent", "convert_area", "submit_report", "search_cards", "read_card"),
                 one.specs().stream().map(ToolSpecs.Spec::name).toList());
         assertEquals(Set.of("search_cards", "read_card"), one.config().extra().keySet());
         assertTrue(one.config().hooks().isEmpty());
         assertEquals(List.of("③", "②", "④"), Setup.hooks(EnumSet.of(Part.GATE, Part.REFLEX, Part.LOCK), small).stream().map(Hook::name).toList());
-        assertThrows(UnsupportedOperationException.class, () -> Setup.hooks(List.of(Part.INTENT), small));
+        assertEquals(List.of("⓪"), Setup.hooks(List.of(Part.INTENT), small).stream().map(Hook::name).toList());
         assertThrows(UnsupportedOperationException.class, () -> Setup.hooks(List.of(Part.MEMORY), small));
     }
 
@@ -309,7 +309,7 @@ class ReflexTest {
     }
 
     static Setup setup(Part... parts) {
-        return Setup.of(new Variant("t", "시험", "m", Variant.CardMode.TOOLS, List.of(parts)), fixture, cards(), 10);
+        return Setup.of(new Variant("t", "시험", "m", Variant.CardMode.TOOLS, List.of(parts)), fixture, cards(), null, 10);
     }
 
     @Test
