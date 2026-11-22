@@ -1,6 +1,7 @@
 package com.zipinfo.ai.reflex;
 
 import com.zipinfo.ai.cards.Card;
+import com.zipinfo.ai.cards.CardTools;
 import com.zipinfo.ai.cards.Cards;
 import com.zipinfo.ai.data.AddressBook;
 import com.zipinfo.ai.data.Listing;
@@ -42,14 +43,21 @@ public final class IntentCheck {
     private final IntentLists lists;
     private final Set<String> names;
     private final Cards cards;
+    private final Comparator<Card> order;
     private final List<String> suffixes;
     private final List<String> fillers;
 
-    /** names: 법정동 이름(History.names). */
+    /** names: 법정동 이름(History.names). 토큰마다 찾은 카드는 ID 순이다. */
     public IntentCheck(IntentLists lists, Set<String> names, Cards cards) {
+        this(lists, names, cards, CardTools.ID_ORDER);
+    }
+
+    /** 찾은 카드를 order 차례로 낸다. ⑤가 켜진 판은 좋아요 순이다(설계안 7.6, 순서 5c). */
+    public IntentCheck(IntentLists lists, Set<String> names, Cards cards, Comparator<Card> order) {
         this.lists = lists;
         this.names = names;
         this.cards = cards;
+        this.order = order;
         this.suffixes = lists.particlesEndings().stream().sorted(Comparator.comparingInt(String::length).reversed()).toList();
         this.fillers = lists.fillers().stream().sorted(Comparator.comparingInt(String::length).reversed()).toList();
     }
@@ -265,11 +273,11 @@ public final class IntentCheck {
         return c;
     }
 
-    /** 영어의도는 영어 태그와, 보정원어·의도보강은 저마다 한글 낱말과 대 본다(둘을 이어 붙여 생기는 낱말은 찾지 않는다). ID 순. */
+    /** 영어의도는 영어 태그와, 보정원어·의도보강은 저마다 한글 낱말과 대 본다(둘을 이어 붙여 생기는 낱말은 찾지 않는다). order 차례. */
     private List<Card> cardsFor(Token t) {
         Set<String> ids = new HashSet<>();
         cards.find(t.english(), t.corrected()).forEach(c -> ids.add(c.id()));
         cards.find("", t.expansion()).forEach(c -> ids.add(c.id()));
-        return cards.all().stream().filter(c -> ids.contains(c.id())).toList();
+        return cards.all().stream().filter(c -> ids.contains(c.id())).sorted(order).toList();
     }
 }

@@ -261,7 +261,7 @@ class IntentTest {
     @Test
     void inTheLoopDataToolsAndSubmitWaitForTheDeclaration(@TempDir Path dir) throws Exception {
         DataSet data = Fixture.data(dir);
-        Setup s = Setup.of(new Variant("c04", "①+⓪", "m", Variant.CardMode.TOOLS, List.of(Part.INTENT)), data, cards(), IntentLists.parse(LISTS), 12);
+        Setup s = Setup.of(new Variant("c04", "①+⓪", "m", Variant.CardMode.TOOLS, List.of(Part.INTENT)), data, cards(), IntentLists.parse(LISTS), null, 12);
         ObjectNode stats = M.createObjectNode().put("api", "apt_trade").put("region_code", "41591").put("start_month", "202610")
                 .put("end_month", "202610").put("deal", "매매").put("dong", "").put("jibun", "");
         try (FakeAnthropic api = new FakeAnthropic()) {

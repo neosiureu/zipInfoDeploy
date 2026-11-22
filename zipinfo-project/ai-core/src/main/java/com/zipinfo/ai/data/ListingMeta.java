@@ -18,6 +18,11 @@ public record ListingMeta(String key, String complexId, String deal, String laye
         return complexId.split("\\|")[0];
     }
 
+    /** 매물의 실거래 API: 종류 뒤에 매매면 _trade, 전세·월세면 _rent(피커 clean.py의 API_OF와 같다). ⑤의 열쇠에 쓴다(5c). */
+    public String api() {
+        return kind() + (deal.equals("매매") ? "_trade" : "_rent");
+    }
+
     public static List<ListingMeta> load(Path csv) throws IOException {
         List<ListingMeta> out = new ArrayList<>();
         try (var r = Files.newBufferedReader(csv, StandardCharsets.UTF_8)) {

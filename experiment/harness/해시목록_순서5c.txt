@@ -1,0 +1,12 @@
+# 순서 5c 커밋 해시목록 (2026-11-22, b판). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# 새 파일: ai-core reflex ⑤(기억·좋아요, 안내 자리)와 시험. 고친 파일: ai-core ListingMeta(매물의 API), CardTools·IntentCheck(카드 차례), Setup(⑤ 짜기), ReflexTest·IntentTest(Setup 꼴), 하네스 DevicesCheckTest(⑤ 판 짜기, 해마 검사).
+4054F32E82D9B0F05577265037EBC578431A9B6A8920FDF7FEEBE6E1AB86B67C  experiment/harness/src/test/java/com/zipinfo/harness/DevicesCheckTest.java
+77E6F90368EFDDFABB84AB19348178874D8B3659DCD21E26FF98B13BEFD07AD6  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/cards/CardTools.java
+D361B90C2A9CD19B2F7DA0447F98AB371707DDD9A3B066A0EEA4C8412291981C  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/data/ListingMeta.java
+3305A4BA4A70117788910A423E3AEAEAC8639ABDD92318558CFEB9A5795C7D8D  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/IntentCheck.java
+E386F011E9238D99660AEF2195373B356F508BD4D531890A47EFB984CC3E30EA  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/Memory.java
+6E48B209D0C7C47273C0E47F21B739F7D0897BF5E684BD6C10C736221D392ED3  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/MemoryNotice.java
+E34827F45B3E1E707E78B1DE1ACABA5E7101DED64B44A930038AC4405FAD9F7E  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/Setup.java
+88BA5EB80689357F04A096B182E8CD1CCE299540170A9096BC70368622A1E78E  zipinfo-project/ai-core/src/test/java/com/zipinfo/ai/reflex/IntentTest.java
+3C4577824F3A903D236ED849E7523B7F16A8915435E759F9A60402B92603681E  zipinfo-project/ai-core/src/test/java/com/zipinfo/ai/reflex/MemoryTest.java
+A2DE398E52EDD55FB84F1BD338120D2CAD5F7EDDF216433748F95ECE7024F019  zipinfo-project/ai-core/src/test/java/com/zipinfo/ai/reflex/ReflexTest.java

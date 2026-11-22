@@ -1,6 +1,7 @@
 package com.zipinfo.ai.reflex;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.zipinfo.ai.cards.Card;
 import com.zipinfo.ai.cards.CardTools;
 import com.zipinfo.ai.cards.Cards;
 import com.zipinfo.ai.loop.Hook;
@@ -13,6 +14,7 @@ import com.zipinfo.ai.tools.ToolSpecs;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,31 +24,38 @@ import java.util.function.BiFunction;
  * 판 하나를 고리에 넣는 꼴로 만든다(설계안 7.7): 시스템 글, 도구 설명, 고리 설정(턴 상한, 사슬, 더하는 도구).
  * - 시스템 글은 모든 판이 같다. B0+(PROMPT)만 그 뒤에 빈 줄 하나를 두고 카드 전문을 붙인다(6.4, 순서 4 메모).
  * - 카드를 도구로 읽는 판은 search_cards·read_card를 더한다. ⓪이 든 판은 declare_intents를 더한다(5b).
+ * - ⑤가 든 판은 안내 자리에 기억을 걸고, search_cards와 ⓪의 카드를 좋아요 순으로 낸다(5c). 꺼진 판은 카드 ID 순이다.
  * - 사슬은 부품의 차례(⓪ → ③ → ② → ④ → ⑤)로 놓는다(7.1).
  * - 턴 상한은 시운전에서 고른다(10.3). 그래서 받는다. 모델 설정도 하네스가 따로 준다.
- * - lists는 ⓪의 정해 둔 목록이다. ⓪이 없는 판에서는 쓰지 않는다.
+ * - lists는 ⓪의 정해 둔 목록, memory는 ⑤의 기억과 좋아요다. 그 부품이 없는 판에서는 쓰지 않는다(null이어도 된다).
+ *   ⑤가 든 판은 memory를 꼭 받는다. 채우기 전(시운전의 채울 실행)에는 Memory.EMPTY다.
  */
 public record Setup(String system, List<ToolSpecs.Spec> specs, QuestionLoop.Config config) {
 
-    public static Setup of(Variant v, DataSet data, Cards cards, IntentLists lists, int maxTurns) {
+    public static Setup of(Variant v, DataSet data, Cards cards, IntentLists lists, Memory memory, int maxTurns) {
         String system = Prompts.SYSTEM;
         List<ToolSpecs.Spec> specs = new ArrayList<>(ToolSpecs.all());
         Map<String, BiFunction<JsonNode, RunState, ToolResult>> extra = new LinkedHashMap<>();
+        List<Hook> hooks = hooks(v.parts(), data, memory);
+        Comparator<Card> order = v.parts().contains(Part.MEMORY) ? memory.cardOrder() : CardTools.ID_ORDER;
         if (v.cards() == Variant.CardMode.PROMPT) {
             system = Prompts.SYSTEM + "\n\n" + cards.fullText();
         } else if (v.cards() == Variant.CardMode.TOOLS) {
             specs.addAll(CardTools.SPECS);
-            extra.putAll(CardTools.handlers(cards));
+            extra.putAll(CardTools.handlers(cards, order));
         }
         if (v.parts().contains(Part.INTENT)) {
             specs.add(IntentTools.SPEC);
-            extra.put(IntentTools.NAME, IntentTools.handler(new IntentCheck(lists, data.history().names(), cards)));
+            extra.put(IntentTools.NAME, IntentTools.handler(new IntentCheck(lists, data.history().names(), cards, order)));
         }
-        return new Setup(system, List.copyOf(specs), new QuestionLoop.Config(maxTurns, hooks(v.parts(), data), Map.copyOf(extra)));
+        return new Setup(system, List.copyOf(specs), new QuestionLoop.Config(maxTurns, hooks, Map.copyOf(extra)));
     }
 
-    /** 켠 부품을 사슬 차례로 만든다. ⑤는 순서 5c에서 더한다. */
-    public static List<Hook> hooks(Collection<Part> parts, DataSet data) {
+    /** 켠 부품을 사슬 차례로 만든다. ⑤가 들면 memory가 있어야 한다. */
+    public static List<Hook> hooks(Collection<Part> parts, DataSet data, Memory memory) {
+        if (parts.contains(Part.MEMORY) && memory == null) {
+            throw new IllegalArgumentException("⑤가 든 판은 기억을 받아야 한다(채우기 전에는 Memory.EMPTY)");
+        }
         List<Hook> out = new ArrayList<>();
         for (Part p : Part.values()) {
             if (!parts.contains(p)) {
@@ -57,7 +66,7 @@ public record Setup(String system, List<ToolSpecs.Spec> specs, QuestionLoop.Conf
                 case LOCK -> new LearningLock(data.validity());
                 case REFLEX -> new ReflexRule(data);
                 case GATE -> new EvidenceGate();
-                case MEMORY -> throw new UnsupportedOperationException("⑤ 해마·좋아요는 순서 5c에서 만든다");
+                case MEMORY -> new MemoryNotice(memory);
             });
         }
         return List.copyOf(out);

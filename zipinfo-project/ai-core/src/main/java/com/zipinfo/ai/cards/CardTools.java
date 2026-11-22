@@ -8,6 +8,7 @@ import com.zipinfo.ai.tools.RunState;
 import com.zipinfo.ai.tools.ToolResult;
 import com.zipinfo.ai.tools.ToolSpecs;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,20 +41,30 @@ public final class CardTools {
         return o;
     }
 
-    /** 고리의 Config.extra에 넣는 처리기 둘. */
+    /** 카드 ID 순. ⑤가 꺼진 판의 차례다. */
+    public static final Comparator<Card> ID_ORDER = Comparator.comparing(Card::id);
+
+    /** 고리의 Config.extra에 넣는 처리기 둘. 찾은 카드는 ID 순이다. */
     public static Map<String, BiFunction<JsonNode, RunState, ToolResult>> handlers(Cards cards) {
+        return handlers(cards, ID_ORDER);
+    }
+
+    /** 찾은 카드를 order 차례로 낸다. ⑤가 켜진 판은 좋아요 순이다(설계안 7.6, 순서 5c). */
+    public static Map<String, BiFunction<JsonNode, RunState, ToolResult>> handlers(Cards cards, Comparator<Card> order) {
         Map<String, BiFunction<JsonNode, RunState, ToolResult>> m = new LinkedHashMap<>();
-        m.put("search_cards", (in, st) -> search(cards, text(in, "query")));
+        m.put("search_cards", (in, st) -> search(cards, text(in, "query"), order));
         m.put("read_card", (in, st) -> read(cards, text(in, "card_id"), st));
         return m;
     }
 
-    static ToolResult search(Cards cards, String query) {
+    static ToolResult search(Cards cards, String query, Comparator<Card> order) {
         if (query.isBlank()) {
             return error("BAD_INPUT", "검색어가 비었다");
         }
+        List<Card> hits = new ArrayList<>(cards.search(query));
+        hits.sort(order);
         List<Map<String, Object>> found = new ArrayList<>();
-        for (Card c : cards.search(query)) {
+        for (Card c : hits) {
             Map<String, Object> row = new LinkedHashMap<>();
             row.put("카드", c.id());
             row.put("제목", c.title());
