@@ -155,6 +155,23 @@ class QuestionLoopTest {
         assertTrue(rec.events().stream().anyMatch(e -> e.get("type").equals("accepted") && e.get("millis") instanceof Double));
     }
 
+    /** 순서 6a: 하네스는 사건을 생기는 대로 받아 파일에 쓴다. 받는 것은 기록과 같은 것, 같은 차례다. */
+    @Test
+    void listenerSeesEveryEventAsItHappens() throws Exception {
+        api.then(FakeAnthropic.sse(List.of(FakeAnthropic.toolUse("toolu_1", "trade_stats", statsInput())), "tool_use", null));
+        api.then(FakeAnthropic.sse(List.of(FakeAnthropic.toolUse("toolu_2", "compare_prices",
+                M.createObjectNode().put("listing_evidence", "매물.가격").put("basis_evidence", "S1.기준"))), "tool_use", null));
+        api.then(FakeAnthropic.sse(List.of(FakeAnthropic.toolUse("toolu_3", "submit_report", report())), "tool_use", null));
+        QuestionLoop q = loop(10, List.of());
+        List<Map<String, Object>> seen = new ArrayList<>();
+        q.record().onEvent(seen::add);
+        RunRecord rec = q.start(Prompts.SYSTEM, ToolSpecs.all(), "?", listing());
+        assertEquals(RunRecord.Outcome.SUBMITTED, rec.outcome());
+        assertEquals(rec.events(), seen);
+        assertEquals(List.of("first_message", "response", "tool", "response", "tool", "response", "submit", "accepted"),
+                seen.stream().map(e -> e.get("type")).toList());
+    }
+
     /** 01 209줄: 시스템 글·재촉·매물 블록에 사고 과정을 적게 하는 말이 없다. 카드가 가르치는 기본 기간·잠정도 없다(3a 도구 설명 시험과 같은 낱말). */
     @Test
     void promptsDoNotAskForReasoningOrTellDefaults() {

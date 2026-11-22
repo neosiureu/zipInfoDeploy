@@ -91,14 +91,23 @@ public final class FakeAnthropic implements AutoCloseable {
         return "event: " + name + "\ndata: " + data.toString() + "\n\n";
     }
 
-    /** 블록들을 SSE 사건으로(블록마다 시작·조각·끝). stopDetails는 null이면 없다. */
+    /** 블록들을 SSE 사건으로(블록마다 시작·조각·끝). stopDetails는 null이면 없다. usage는 정해 둔 값(100/80/20, 출력 42)이다. */
     public static Reply sse(List<ObjectNode> blocks, String stopReason, ObjectNode stopDetails) {
+        return sse(blocks, stopReason, stopDetails, null);
+    }
+
+    /** usage: message_start에 넣을 usage(null이면 100/80/20). 출력 토큰은 message_delta가 늘 42로 알린다(순서 6a). */
+    public static Reply sse(List<ObjectNode> blocks, String stopReason, ObjectNode stopDetails, ObjectNode usage) {
         StringBuilder sb = new StringBuilder();
         ObjectNode msg = M.createObjectNode().put("id", "msg_fake").put("type", "message").put("role", "assistant").put("model", "claude-haiku-5-5");
         msg.putArray("content");
         msg.putNull("stop_reason");
         msg.putNull("stop_sequence");
-        msg.putObject("usage").put("input_tokens", 100).put("cache_read_input_tokens", 80).put("cache_creation_input_tokens", 20).put("output_tokens", 1);
+        if (usage == null) {
+            msg.putObject("usage").put("input_tokens", 100).put("cache_read_input_tokens", 80).put("cache_creation_input_tokens", 20).put("output_tokens", 1);
+        } else {
+            msg.set("usage", usage);
+        }
         ObjectNode start = M.createObjectNode().put("type", "message_start");
         start.set("message", msg);
         sb.append(event("message_start", start));

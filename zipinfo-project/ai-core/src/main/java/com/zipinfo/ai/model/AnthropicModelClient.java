@@ -10,6 +10,7 @@ import com.anthropic.errors.AnthropicIoException;
 import com.anthropic.errors.AnthropicServiceException;
 import com.anthropic.errors.SseException;
 import com.anthropic.helpers.MessageAccumulator;
+import com.anthropic.models.messages.CacheControlEphemeral;
 import com.anthropic.models.messages.ContentBlock;
 import com.anthropic.models.messages.ContentBlockParam;
 import com.anthropic.models.messages.Message;
@@ -17,6 +18,7 @@ import com.anthropic.models.messages.MessageCreateParams;
 import com.anthropic.models.messages.MessageParam;
 import com.anthropic.models.messages.OutputConfig;
 import com.anthropic.models.messages.RawMessageStreamEvent;
+import com.anthropic.models.messages.TextBlockParam;
 import com.anthropic.models.messages.ThinkingConfigAdaptive;
 import com.anthropic.models.messages.ThinkingConfigDisabled;
 import com.anthropic.models.messages.Tool;
@@ -24,6 +26,7 @@ import com.anthropic.models.messages.ToolChoiceAuto;
 import com.anthropic.models.messages.ToolResultBlockParam;
 import com.anthropic.models.messages.ToolUnion;
 import com.anthropic.models.messages.Usage;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.zipinfo.ai.tools.ToolSpecs;
 import java.time.Duration;
@@ -36,18 +39,26 @@ import java.util.Map;
  * Anthropic 구현(Java SDK 3.11.0, API 판 2026-10-21). 01 하네스 규칙대로: SDK 자동 재시도 끔(max_retries 0),
  * 스트리밍으로 받아 SDK가 모은 최종 메시지를 쓰고, 받은 assistant 메시지는 toParam()으로 그대로 되돌린다(thinking 보존).
  * temperature·top_p·top_k는 보내지 않는다. tool_choice는 모든 판에서 auto다.
+ * timeout은 요청 하나 전체(연결부터 스트림 끝까지, OkHttp callTimeout)에 걸린다. 넘으면 연결 오류(RETRY)다.
+ * 캐시(순서 6a): CachePolicy가 정한 자리에만 cache_control을 둔다. NONE이면 순서 3b의 요청 꼴 그대로다.
  */
 public final class AnthropicModelClient implements ModelClient {
     private final AnthropicClient client;
     private final ModelSettings settings;
+    private final CachePolicy cache;
 
     public AnthropicModelClient(String apiKey, String baseUrl, ModelSettings settings, Duration timeout) {
+        this(apiKey, baseUrl, settings, timeout, CachePolicy.NONE);
+    }
+
+    public AnthropicModelClient(String apiKey, String baseUrl, ModelSettings settings, Duration timeout, CachePolicy cache) {
         AnthropicOkHttpClient.Builder b = AnthropicOkHttpClient.builder().apiKey(apiKey).maxRetries(0).timeout(timeout);
         if (baseUrl != null) {
             b.baseUrl(baseUrl);
         }
         this.client = b.build();
         this.settings = settings;
+        this.cache = cache;
     }
 
     @Override
@@ -85,23 +96,35 @@ public final class AnthropicModelClient implements ModelClient {
 
         @Override
         public ModelTurn send(List<UserPart> parts) throws ModelError {
-            List<ContentBlockParam> blocks = new ArrayList<>();
-            for (UserPart p : parts) {
-                if (p instanceof UserPart.Text t) {
-                    blocks.add(ContentBlockParam.ofText(com.anthropic.models.messages.TextBlockParam.builder().text(t.text()).build()));
-                } else if (p instanceof UserPart.ToolResult r) {
-                    blocks.add(ContentBlockParam.ofToolResult(ToolResultBlockParam.builder().toolUseId(r.toolUseId()).content(r.text())
-                            .isError(r.isError()).build()));
-                }
-            }
-            history.add(MessageParam.ofUserOfContentBlockParams(blocks));
+            history.add(user(parts));
             return resend();
+        }
+
+        @Override
+        public ModelTurn replay(List<UserPart> parts, JsonNode raw, long millis) {
+            history.add(user(parts));
+            Message m;
+            try {
+                m = ObjectMappers.jsonMapper().treeToValue(raw, Message.class);
+            } catch (JsonProcessingException | IllegalArgumentException e) {
+                throw new IllegalArgumentException("기록의 응답 원문을 메시지로 읽지 못했다", e);
+            }
+            history.add(m.toParam());
+            return turn(m, millis);
         }
 
         @Override
         public ModelTurn resend() throws ModelError {
             MessageCreateParams.Builder p = MessageCreateParams.builder().model(settings.model()).maxTokens(settings.maxTokens())
-                    .system(system).messages(history).tools(tools).toolChoice(ToolChoiceAuto.builder().build());
+                    .messages(history).tools(tools).toolChoice(ToolChoiceAuto.builder().build());
+            if (cache.system()) {
+                p.systemOfTextBlockParams(List.of(TextBlockParam.builder().text(system).cacheControl(ephemeral()).build()));
+            } else {
+                p.system(system);
+            }
+            if (cache.conversation()) {
+                p.cacheControl(ephemeral());
+            }
             switch (settings.thinking()) {
                 case ADAPTIVE -> p.thinking(ThinkingConfigAdaptive.builder().build());
                 case DISABLED -> p.thinking(ThinkingConfigDisabled.builder().build());
@@ -141,18 +164,40 @@ public final class AnthropicModelClient implements ModelClient {
             }
             long millis = (System.nanoTime() - t0) / 1_000_000;
             history.add(m.toParam());
-            List<ToolCall> calls = new ArrayList<>();
-            StringBuilder text = new StringBuilder();
-            for (ContentBlock cb : m.content()) {
-                cb.toolUse().ifPresent(tu -> calls.add(new ToolCall(tu.id(), tu.name(), tu._input().convert(JsonNode.class))));
-                cb.text().ifPresent(t -> text.append(t.text()));
-            }
-            String reason = m.stopReason().map(r -> r.asString()).orElse("");
-            String category = m.stopDetails().flatMap(d -> d.category()).map(c -> c.asString()).orElse("");
-            Usage u = m.usage();
-            return new ModelTurn(StopKind.of(reason), reason, category, calls, text.toString(), u.inputTokens(), u.cacheReadInputTokens().orElse(0L),
-                    u.cacheCreationInputTokens().orElse(0L), u.outputTokens(), millis, ObjectMappers.jsonMapper().valueToTree(m));
+            return turn(m, millis);
         }
+    }
+
+    private static MessageParam user(List<UserPart> parts) {
+        List<ContentBlockParam> blocks = new ArrayList<>();
+        for (UserPart p : parts) {
+            if (p instanceof UserPart.Text t) {
+                blocks.add(ContentBlockParam.ofText(TextBlockParam.builder().text(t.text()).build()));
+            } else if (p instanceof UserPart.ToolResult r) {
+                blocks.add(ContentBlockParam.ofToolResult(ToolResultBlockParam.builder().toolUseId(r.toolUseId()).content(r.text())
+                        .isError(r.isError()).build()));
+            }
+        }
+        return MessageParam.ofUserOfContentBlockParams(blocks);
+    }
+
+    private CacheControlEphemeral ephemeral() {
+        return CacheControlEphemeral.builder().ttl(CacheControlEphemeral.Ttl.of(cache.ttl())).build();
+    }
+
+    /** 받은(또는 기록에서 되살린) 메시지 하나를 고리가 쓰는 꼴로. */
+    private static ModelTurn turn(Message m, long millis) {
+        List<ToolCall> calls = new ArrayList<>();
+        StringBuilder text = new StringBuilder();
+        for (ContentBlock cb : m.content()) {
+            cb.toolUse().ifPresent(tu -> calls.add(new ToolCall(tu.id(), tu.name(), tu._input().convert(JsonNode.class))));
+            cb.text().ifPresent(t -> text.append(t.text()));
+        }
+        String reason = m.stopReason().map(r -> r.asString()).orElse("");
+        String category = m.stopDetails().flatMap(d -> d.category()).map(c -> c.asString()).orElse("");
+        Usage u = m.usage();
+        return new ModelTurn(StopKind.of(reason), reason, category, calls, text.toString(), u.inputTokens(), u.cacheReadInputTokens().orElse(0L),
+                u.cacheCreationInputTokens().orElse(0L), u.outputTokens(), millis, ObjectMappers.jsonMapper().valueToTree(m));
     }
 
     static ModelError error(AnthropicServiceException e, boolean streamEvent) {

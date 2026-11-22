@@ -1,0 +1,33 @@
+# 순서 6a 커밋 해시목록 (2026-11-22, b판). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다. b판: 요청 지문에 의존성 판(deps).
+# 새 파일: ai-core CachePolicy(캐시 지점)·ModelClientTest, 하네스 돌리기(Runner·RunClient·Replayer·RunFile·Control·Plan·Question·RunSettings·Prices·Fingerprint·Inputs·Summary·Json)와 시험, 설정 pilot_v0.json. 고친 파일: ai-core AnthropicModelClient(캐시·되살리기)·ModelSession(replay)·RunRecord(사건 받기)·FakeAnthropic(usage)·QuestionLoopTest, 하네스 Main(plan·run·summary)·MainTest·.gitignore(runs/).
+535C51DBC4E072557F8A8DDCEA80E4E8141BAF8D28AE5E68240285EE10B895F0  experiment/harness/.gitignore
+BBCCB79B341351F4EC116E66912CF632F53AD5451B4B0FBB4C65647529F31391  experiment/harness/settings/pilot_v0.json
+00A04D852845850AA975DD3715F64D59C3E83CEF5B2E486E09335843ACE42474  experiment/harness/src/main/java/com/zipinfo/harness/Control.java
+008E647253BFE517E1DAF11F9887C4D1DF54233A06C3044F847B2ADE6B2E6A39  experiment/harness/src/main/java/com/zipinfo/harness/Fingerprint.java
+119377F850F9CD77B9D7064F8426EB595A53AE9FB0E437425C21B494525F0EC5  experiment/harness/src/main/java/com/zipinfo/harness/Inputs.java
+375BDAABCE2E7FA8409682FCB2051516FEC18769B51E27873AAEEFF8C12EBB76  experiment/harness/src/main/java/com/zipinfo/harness/Json.java
+77D0B1249A95CE17A967CA86206F10375AB8869926E17EF655803EB91DCBB68C  experiment/harness/src/main/java/com/zipinfo/harness/Main.java
+6028602141FFB9952D1139B8B60822D3A9EFBAA9CA782D2FFC13ED484EC4BE0D  experiment/harness/src/main/java/com/zipinfo/harness/Plan.java
+61732CC598000C98F8C87B20E43F955E979198CF20F8082EAAF105C837C33F87  experiment/harness/src/main/java/com/zipinfo/harness/Prices.java
+E914F2A6D4F2C6ADED40E18C8D4046E724CE6806C257248AD8BE981F68F22C6D  experiment/harness/src/main/java/com/zipinfo/harness/Question.java
+29BA8F00F10C5E8CD8E3448DD850B6C80557181F75CEB7B3A46C2A3BFE213B8A  experiment/harness/src/main/java/com/zipinfo/harness/Replayer.java
+01A3DA0F9D53C1AB939C5B5B5423EE01E1EA28296D5542B2A8DF88781C31A37E  experiment/harness/src/main/java/com/zipinfo/harness/RunClient.java
+991ABCC34F7FF5A9C2EE8A85F9411A6EDE62B41F1407F57054299EEB72D2D9A9  experiment/harness/src/main/java/com/zipinfo/harness/RunFile.java
+840B88FE1BF797DCA85DD27573FF90467F5CB35E28F35954F80529F907263207  experiment/harness/src/main/java/com/zipinfo/harness/RunSettings.java
+31F3C232E7F9779A310745907188009969EC8F1D2689E68BF8CFFD9D03F64655  experiment/harness/src/main/java/com/zipinfo/harness/Runner.java
+EE2856E4E9F666A06C87A3E269E29E6DEDD674F54FEB65A76779CD7E8DE3E8DA  experiment/harness/src/main/java/com/zipinfo/harness/Summary.java
+61A075E319B7E688CE8CB1785670D89C8B4CB2B88C60F3B14ABB88E51A190C24  experiment/harness/src/test/java/com/zipinfo/harness/FakeAnthropic.java
+67F4AF246904C367412ADC77EF9CAF0818BD212F1E0B38C9A5F9BFC97BFB1D92  experiment/harness/src/test/java/com/zipinfo/harness/FingerprintTest.java
+CD7DE9E982E6FE33523F89E2BC9F8C0C3AEF6F60F6D9C4CEDC91A6EFDB4C8DB1  experiment/harness/src/test/java/com/zipinfo/harness/Fixture.java
+33EA1C8DE0188CF2219701EEA03E537F0AD16C7F8017ACCC5D863CB4AD9137F3  experiment/harness/src/test/java/com/zipinfo/harness/HarnessCheckTest.java
+F00076DFCF625691D2D37AEEE15B5B64B40668F7A4795674B7CAC677F9A1F2DC  experiment/harness/src/test/java/com/zipinfo/harness/MainTest.java
+A0A6317638C2C8FB0AE82E74FC43BDE907AD30E691FF0C3CD285624AF77B56C7  experiment/harness/src/test/java/com/zipinfo/harness/PlanTest.java
+B5E29E75E24D4D168E01CEE8A800BC9365191CFF7087486615EDAF5157A7B657  experiment/harness/src/test/java/com/zipinfo/harness/RunnerTest.java
+96117557FEC73FA7BCB6DE61B205A355909D40BEE5A8AB49C5C7953DC99C59BC  experiment/harness/src/test/java/com/zipinfo/harness/SettingsAndPricesTest.java
+5A6434A55D61DDEB423A009D77444725259F95D4D41754EDB479A6B7F2D5D2A5  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/loop/RunRecord.java
+071226B5B5F88B191DA88E4A93F65C501619719B88743D307BF3E37E39A154EC  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/model/AnthropicModelClient.java
+1CA2836997FD01BE329C7856BE8F355EC007FBFE6119CD21DCC10F716671D1B0  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/model/CachePolicy.java
+FC5EDC39EAC2BAB3A7E9A8C6DCA9B7B96FFC9028ACC83702B75D4DE201EF0827  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/model/ModelSession.java
+D6EC56BCB862EA86D6B267C7717681C8B00D35167B115D9F60910BDC452E740B  zipinfo-project/ai-core/src/test/java/com/zipinfo/ai/loop/QuestionLoopTest.java
+74859E2134C86F9DB916516742FAB428E0B751002EF8CAA355884E708F9E1B5B  zipinfo-project/ai-core/src/test/java/com/zipinfo/ai/model/FakeAnthropic.java
+EC8D37F1CAFAACCD37DDC845006EFD7FE3C278D5F3152656061169E09FCE4CF4  zipinfo-project/ai-core/src/test/java/com/zipinfo/ai/model/ModelClientTest.java

@@ -1,0 +1,38 @@
+{
+  "version": "v0",
+  "stage": "pilot",
+  "split": "연습",
+  "files": {
+    "variants": "variants/variants_v0.json",
+    "questions": "questions/questions_v0.json",
+    "cards": "cards/v0",
+    "lists": "intents/intent_lists_v0.json",
+    "memory": null,
+    "out": "harness/runs"
+  },
+  "select": {"variants": "all", "questions": "all", "reps": [1, 2]},
+  "models": {
+    "claude-haiku-5-5": {"max_tokens": 16000, "thinking": "adaptive", "effort": null},
+    "claude-opus-5-5": {"max_tokens": 16000, "thinking": "omit", "effort": null}
+  },
+  "max_turns": 20,
+  "cache": {"system": true, "conversation": true, "ttl": "5m"},
+  "retry": {"max_attempts": 8, "base_seconds": 2, "max_seconds": 120},
+  "timeout_seconds": 600,
+  "concurrency": 1,
+  "block_size": 25,
+  "cost_cap_usd": 20,
+  "prices": {
+    "date": "2026-11-22",
+    "batch_factor": 0.5,
+    "models": {
+      "claude-haiku-5-5": [
+        {"up_to_prompt_tokens": 100000, "input": 0.10, "output": 0.50, "cache_read": 0.01, "cache_write_5m": 0.125, "cache_write_1h": 0.20},
+        {"up_to_prompt_tokens": null, "input": 0.50, "output": 2.50, "cache_read": 0.05, "cache_write_5m": 0.625, "cache_write_1h": 1.00}
+      ],
+      "claude-opus-5-5": [
+        {"up_to_prompt_tokens": null, "input": 4, "output": 20, "cache_read": 0.20, "cache_write_5m": 5, "cache_write_1h": 8}
+      ]
+    }
+  }
+}
