@@ -16,6 +16,7 @@ python -X utf8 -B -m prep build --snap <snapshot_T.zip> --codes <codes_snapshot.
 python -X utf8 -B -m prep check --snap <snapshot_T.zip> --codes <codes_snapshot.txt>
 python -X utf8 -B -m prep freeze-juso
 python -X utf8 -B -m prep answers
+python -X utf8 -B -m prep questions
 ```
 
 - 매물 파일(`--listings`)의 기본값은 `frozen/example_listings_v1.csv`다. 3단계에서 얼린 것이고, 5단계에 커밋한다.
@@ -105,3 +106,14 @@ python -X utf8 -B -m prep answers
 - 문항마다(9.2 배정, T3는 1·3·6달을 모두) 맞는 부르기(API, 코드, 달, 거래, 법정동, 지번)와 정답 값(표본 수, 기준값, 환산, 차이, T5 건수)을 `prep/out/answers_check_v1.json`에 쓴다.
 - 하네스 시험 `AnswersCrossCheckTest`가 이 파일의 부르기를 Java 도구에 그대로 넣어 값이 같은지 본다.
 - build를 먼저 돌려야 한다(재생 저장소의 해시를 대 본다).
+
+## questions (순서 7)
+
+순서 7 설계 c판의 문항 만들기다(`questions.py`). 꼴과 규칙은 `experiment/questions/README.md`에 있다.
+
+- 틀 문장 파일(`questions/templates_v0.json`)을 읽어 검사한다. 하나라도 걸리면 걸린 것을 모두 찍고 아무것도 쓰지 않는다.
+- 문항 파일 `questions/questions_v0.json`과 문항별 정답 `prep/out/answers_v0.json`을 쓴다.
+    - 정답은 대조용 정답(`answers_check_v1.json`)의 줄이다. 지금 셈이 그 파일과 다르면 멈춘다.
+    - 정답 파일에는 문항 파일의 SHA-256(줄 끝 LF로 맞춤)을 적는다.
+- build와 answers를 먼저 돌려야 한다(해시를 대 본다).
+- 시험(`tests/test_questions.py`)은 지어낸 틀 문장과 매물로 본다.

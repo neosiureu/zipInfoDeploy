@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""순서 2·3 명령: build, check, freeze-juso, answers, test.
+"""순서 2·3·7 명령: build, check, freeze-juso, answers, questions, test.
 
 experiment 폴더에서 `python -X utf8 -B -m prep <명령>`으로 돌린다.
 화면에는 셈한 수, 코드, 해시만 낸다. 거래 줄, 매물 이름·주소, 단지ID, 키는 내지 않는다.
@@ -20,7 +20,7 @@ from picker.clean import API_OF
 from picker.cli import DETAIL, HISTORY, LISTING_FIELDS, pick_all
 from picker.common import code_sorted, sha256_file
 
-from . import answers, juso_road, listings, replay, validity
+from . import answers, juso_road, listings, questions, replay, validity
 
 # 들어가는 파일의 SHA-256(설계안 5.1: 547be6d의 값과 대조, 매물 파일은 3단계에서 얼린 것)
 PINS = {
@@ -43,6 +43,7 @@ OUT_FILES = {
 }
 MANIFEST = "prep_manifest_v1.txt"
 ANSWERS = "answers_check_v1.json"
+TEMPLATES = "questions/templates_v0.json"
 RECENT = ("202511", "202610")
 N_BASE = 5
 T1_WANT = (35, 38, 2)
@@ -329,6 +330,43 @@ def cmd_answers(args):
     return 0
 
 
+def cmd_questions(args):
+    """순서 7a(순서 7 설계 c판): 틀 문장 파일로 문항 파일(questions/questions_<판>.json)과 문항별 정답(prep/out/answers_<판>.json)을 쓴다.
+
+    틀 문장 검사에 걸리거나 들어가는 파일이 기대와 다르면 아무것도 쓰지 않고 멈춘다. 이름·주소·단지ID·질문 글은 찍지 않는다.
+    """
+    check_pins(args, ("listings",))
+    want = read_expected()
+    for k in ("trades", "input"):
+        path = os.path.join(args.out, OUT_FILES[k])
+        if not os.path.exists(path) or sha256_file(path) != want[OUT_FILES[k]][0]:
+            raise Stop(f"{OUT_FILES[k]}가 없거나 기대 해시와 다르다. 먼저 build를 돌린다")
+    check_path = os.path.join(args.out, ANSWERS)
+    if not os.path.exists(check_path):
+        raise Stop(f"{ANSWERS}가 없다. 먼저 answers를 돌린다")
+    if not os.path.exists(args.templates):
+        raise Stop(f"틀 문장 파일({args.templates})이 없다")
+    version, templates = questions.load_templates(args.templates)
+    L = listings.load(args.listings)
+    cases = answers.build(answers.Store(os.path.join(args.out, OUT_FILES["trades"])), L, answers.load_metas(args.listings))
+    with open(check_path, "r", encoding="utf-8") as f:
+        check_cases = json.load(f)
+    try:
+        rows = questions.build(L, questions.names(os.path.join(args.out, OUT_FILES["input"]), [k for k, _ in L]), templates)
+        ans = questions.answers_for(rows, cases, check_cases)
+    except ValueError as e:
+        raise Stop(str(e)) from e
+    qpath = os.path.join(os.path.dirname(args.templates), f"questions_{version}.json")
+    apath = os.path.join(args.out, f"answers_{version}.json")
+    questions.write_json(questions.questions_doc(rows, version), qpath)
+    questions.write_json({"version": version, "questions_sha256": questions.sha256_lf(qpath), "answers": ans}, apath)
+    for line in questions.summary(rows, ans, templates):
+        print(line)
+    for path in (qpath, apath):
+        print(f"{sha256_file(path)}  {os.path.basename(path)}  {os.path.getsize(path)}")
+    return 0
+
+
 def cmd_test(args):
     here = os.path.dirname(os.path.abspath(__file__))
     suite = unittest.defaultTestLoader.discover(os.path.join(here, "tests"), top_level_dir=os.path.dirname(here))
@@ -351,6 +389,10 @@ def build_parser():
     s = sub.add_parser("answers")
     s.add_argument("--listings", default=LISTINGS)
     s.add_argument("--out", default=OUT_DIR)
+    s = sub.add_parser("questions")
+    s.add_argument("--listings", default=LISTINGS)
+    s.add_argument("--out", default=OUT_DIR)
+    s.add_argument("--templates", default=TEMPLATES)
     sub.add_parser("test")
     return p
 
@@ -359,7 +401,12 @@ def main(argv=None):
     args = build_parser().parse_args(argv)
     try:
         return {"build": cmd_build, "check": cmd_check, "freeze-juso": cmd_freeze_juso, "answers": cmd_answers,
-                "test": cmd_test}[args.cmd](args)
+                "questions": cmd_questions, "test": cmd_test}[args.cmd](args)
+    except questions.BadTemplates as e:
+        print("멈춤: 틀 문장 파일이 검사에 걸렸다. 아무것도 쓰지 않았다", file=sys.stderr)
+        for p in e.problems:
+            print("  - " + p, file=sys.stderr)
+        return 2
     except (Stop, picker_juso.JusoError, picker_juso.FrozenError, listings.BadListing, validity.MultiSource,
             replay.ReplayError) as e:
         print(f"멈춤: {e}", file=sys.stderr)

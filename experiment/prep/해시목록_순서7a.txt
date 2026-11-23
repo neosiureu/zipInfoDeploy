@@ -1,0 +1,9 @@
+# 순서 7a 커밋 해시목록 (2026-11-23). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# 새 파일: prep questions.py(틀 문장 검사·고르기·채우기, 문항 파일, 문항별 정답), 시험 tests/test_questions.py, questions/README.md(두 파일의 꼴과 규칙), questions/.gitignore(틀 문장 파일과 문항 파일은 관문 3까지 git 밖).
+# 고친 파일: prep cli.py(questions 명령), prep README.md(questions 절). 하네스·ai-core는 그대로다.
+218CBF6B436E5972AF0BF853EC2509711A1BB26D45948F9F6DC51BD0A620AD82  experiment/prep/README.md
+1B0F083235735FCFCC93EA00CDFE1A4129E997D466A126672C88CCF107D42872  experiment/prep/cli.py
+4F9AC38C963BE95155DF7D50E4B7BBB6EB2A54A7F288E19B1420C24FB430E4A5  experiment/prep/questions.py
+2BE9294A4D1D87B0FF2E4E2C2160DBC2694ECF750E70DC46F5D193DCE87E6425  experiment/prep/tests/test_questions.py
+2B4232541C99C1BCF7A7F59877853953B739AD09697663DF8DFCBCE3A0D25EC4  experiment/questions/.gitignore
+55482AB0F79A91875482965DF7BA16869C930FF053505DD752C3C489ECEE2EE8  experiment/questions/README.md
