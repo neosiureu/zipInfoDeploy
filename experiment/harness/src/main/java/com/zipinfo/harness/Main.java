@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
  * <li>plan: 계획과 기록을 대 본다(요청을 보내지 않는다). 기록 폴더에 plan.txt로도 쓴다.</li>
  * <li>run: 돌린다. ANTHROPIC_API_KEY 환경 변수를 쓴다(값은 찍지 않는다). 찍는 줄은 기록 폴더의 run.log에도 쓴다.</li>
  * <li>summary: 판마다 모은 숫자를 찍고 기록 폴더에 summary.tsv로 쓴다.</li>
+ * <li>memory: 그 단계 기록에서 채울 판의 끝난 실행으로 ⑤의 기억·좋아요를 얼린다(순서 6b, MemoryFile). 얼릴 파일은 experiment 폴더에서 본 경로이고,
+ *     본실험 설정의 files.memory에 같은 경로를 적는다. 이미 있으면 쓰지 않는다.</li>
  * </ul>
  * 기록 폴더는 experiment/(files.out)/(stage)다. 찍는 글은 UTF-8이다.
  */
@@ -34,11 +36,13 @@ public final class Main {
     }
 
     static String usage() {
-        return "쓰는 법: plan|run|summary <설정 파일>  (예: plan settings/pilot_v0.json)";
+        return "쓰는 법: plan|run|summary <설정 파일>  (예: plan settings/pilot_v0.json)\n"
+                + "        memory <설정 파일> <채울 판> <얼릴 파일>  (예: memory settings/pilot_v0.json c09 harness/frozen/memory_v0.json, 얼릴 파일은 experiment 폴더에서 본 경로)";
     }
 
     static int run(String[] args, PrintStream out, Path experiment, String apiKey) throws Exception {
-        if (args.length != 2 || !List.of("plan", "run", "summary").contains(args[0])) {
+        boolean known = args.length == 2 && List.of("plan", "run", "summary").contains(args[0]) || args.length == 4 && args[0].equals("memory");
+        if (!known) {
             out.println(usage());
             return 2;
         }
@@ -70,6 +74,11 @@ public final class Main {
                 Files.createDirectories(dir);
                 Files.writeString(dir.resolve("summary.tsv"), t, StandardCharsets.UTF_8);
                 out.print(t);
+                return 0;
+            }
+            case "memory" -> {
+                Runner r = new Runner(in, s, dir, clients, Thread::sleep, out);
+                out.print(MemoryFile.report(MemoryFile.freeze(r, in, s, args[2], experiment.resolve(args[3])), args[3]));
                 return 0;
             }
             default -> {

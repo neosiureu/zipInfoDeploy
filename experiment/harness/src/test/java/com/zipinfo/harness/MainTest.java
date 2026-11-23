@@ -20,6 +20,14 @@ class MainTest {
     }
 
     @Test
+    void memoryTakesASettingsFileAVariantAndAPath() throws Exception {
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        int code = Main.run(new String[] {"memory", "settings/pilot_v0.json", "c09"}, new PrintStream(b, true, StandardCharsets.UTF_8), Path.of(".."), null);
+        assertEquals(2, code);
+        assertTrue(b.toString(StandardCharsets.UTF_8).contains("memory <설정 파일> <채울 판> <얼릴 파일>"), b.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
     void aMissingSettingsFileIsReportedNotThrown() throws Exception {
         ByteArrayOutputStream b = new ByteArrayOutputStream();
         int code = Main.run(new String[] {"plan", "settings/없는_설정.json"}, new PrintStream(b, true, StandardCharsets.UTF_8), Path.of(".."), null);

@@ -1,0 +1,17 @@
+# 순서 6b 커밋 해시목록 b판 (2026-11-23). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# b판: 채울 실행은 계획에 든 그 판의 실행 모두(하나라도 끝나지 않았거나 기록이 없거나 계획 밖 기록이 있으면 얼리지 않음), 사전 등록 글에 안내 자리·꼴과 10.3 줄.
+# 새 파일: 하네스 MemoryFile(얼린 기억 파일·memory 명령)과 시험(MemoryFileTest·MemoryFreezeChild), 사전 등록 글 prereg_memory_v0.md. 고친 파일: ai-core Memory(L: 막힘은 매물의 부르기로만 닫힘, D: 같은 길은 한 항목, 정한 차례, Memory.of)·MemoryTest, 하네스 Main(memory)·Inputs·RunSettings(files.memory 경로)·Fingerprint(주석)·Fixture·HarnessCheckTest·MainTest·SettingsAndPricesTest.
+F227EF8EE62FFFD69AF67FE31B6DF9099A182CD200A511BCBC63ED35BFBF108D  experiment/harness/prereg_memory_v0.md
+F37D7B5F745B95DDC3844E304CAFCD7F1753F5688BB550DCF47FF618CDBF23D2  experiment/harness/src/main/java/com/zipinfo/harness/Fingerprint.java
+D24AC87F33B2BA99E0E2CA6DF87AF4D664F32948D722FBB5270F07ECB58CD377  experiment/harness/src/main/java/com/zipinfo/harness/Inputs.java
+390185091FCBA74AF301E21779BAFD7A89284E4599CE0B5117AF86C0A6C6ECC2  experiment/harness/src/main/java/com/zipinfo/harness/Main.java
+9EE72882EFF1C41D6B99ABDE52DFF9768D3995814BDA24A9C7AFB9A589A2D2E7  experiment/harness/src/main/java/com/zipinfo/harness/MemoryFile.java
+A0ACD77057603F4653C299F7EF6F38AC0BA402BE260AC21E6DA857B856DB6322  experiment/harness/src/main/java/com/zipinfo/harness/RunSettings.java
+8EC4F10E55014380F5416050059E13FF9F9BEF40652595D7FC010FDC35B80CFB  experiment/harness/src/test/java/com/zipinfo/harness/Fixture.java
+9D12458C494EB33C941D63FD37E93A2B877EEBBC8D216A3596091EBE7A5118BA  experiment/harness/src/test/java/com/zipinfo/harness/HarnessCheckTest.java
+AAD314716D1600EEBEDABC72B5E0E1F8ED0DA10073991CC1F00A579555F74794  experiment/harness/src/test/java/com/zipinfo/harness/MainTest.java
+0F77667CDCDA703220C9C40125D61B1DF94AF11A2037791A1131F86CA0E124CF  experiment/harness/src/test/java/com/zipinfo/harness/MemoryFileTest.java
+804395A2FC936CC1C999CFFB686CB9E5262D26D662AEB330042E826F37D158B9  experiment/harness/src/test/java/com/zipinfo/harness/MemoryFreezeChild.java
+6B79919EAFC9C1AC74D2597BC8BDEC18A3B745C3CAD75AF74CE3468215FDEC8A  experiment/harness/src/test/java/com/zipinfo/harness/SettingsAndPricesTest.java
+BF076522A2362B41BB53A3E99AF2F2A34E7CDBE5F879FCA6641BA15EC317F780  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/reflex/Memory.java
+11E69E2C9B244407F14392E5006C26BE73414873F6D78D75567B00C67FDB2257  zipinfo-project/ai-core/src/test/java/com/zipinfo/ai/reflex/MemoryTest.java

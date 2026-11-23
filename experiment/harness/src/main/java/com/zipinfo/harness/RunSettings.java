@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  * <ul>
  * <li>stage: 기록 폴더 이름(files.out 아래). 단계(사용자 PC 시험, 시운전, 얼린 뒤 한 번 더, 본실험 주기)마다 따로 둔다.</li>
  * <li>split: 돌릴 문항의 나눔. "연습"이 기본이고, "본시험"은 본실험 설정에서만 쓴다(설계안 557줄: 본시험 문항은 본실험 전까지 모델에 보이지 않는다).</li>
- * <li>files: experiment 폴더에서 본 경로. memory는 6b까지 null이다(⑤가 든 판은 빈 기억).</li>
+ * <li>files: experiment 폴더에서 본 경로. memory는 null이면 빈 기억(채우기 전: 시운전의 채울 실행), 경로면 memory 명령이 얼린 파일이다(순서 6b).</li>
  * <li>select: 판(variants)·문항(questions)은 "all"이나 ID 목록, 회차(reps)는 1부터의 정수 목록(01 343줄의 두 주기를 나눠 돌릴 수 있게).</li>
  * <li>models: 판 설정 파일의 모델 ID마다 max_tokens·thinking(adaptive·disabled·omit)·effort(null이면 보내지 않음).
  *     max_tokens는 모든 모델에 같아야 한다(01 210줄). 한 모델의 판은 모두 같은 설정이다(01 183줄).</li>
@@ -67,9 +67,6 @@ public record RunSettings(String version, String stage, String split, FileSet fi
         Json.fields(f, "files", "variants", "questions", "cards", "lists", "memory", "out");
         FileSet files = new FileSet(Json.text(f, "variants", "files"), Json.text(f, "questions", "files"), Json.text(f, "cards", "files"),
                 Json.text(f, "lists", "files"), Json.textOrNull(f, "memory", "files"), Json.text(f, "out", "files"));
-        if (files.memory() != null) {
-            throw new IllegalArgumentException("files.memory는 6b에서 정한다. 지금은 null이다(⑤가 든 판은 빈 기억)");
-        }
         JsonNode sel = n.get("select");
         Json.fields(sel, "select", "variants", "questions", "reps");
         JsonNode reps = sel.get("reps");

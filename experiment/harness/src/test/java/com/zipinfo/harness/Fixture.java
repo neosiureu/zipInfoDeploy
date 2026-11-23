@@ -11,6 +11,7 @@ import com.zipinfo.ai.data.TradeStore;
 import com.zipinfo.ai.data.ValidityTable;
 import com.zipinfo.ai.reflex.IntentLists;
 import com.zipinfo.ai.reflex.Memory;
+import com.zipinfo.ai.reflex.Part;
 import com.zipinfo.ai.reflex.Variant;
 import com.zipinfo.ai.tools.DataSet;
 import java.io.IOException;
@@ -24,7 +25,7 @@ import java.util.function.Consumer;
 
 /**
  * 하네스 시험용 작은 자료. 도구 자료는 ai-core 시험의 Fixture와 같다(41591·41590, 값은 지어낸 것).
- * 매물 셋(L01·L02 연습, L03 본시험), 판 셋(c01 B0, c03 ①, c10 B1), 문항 셋(q001·q002 연습, q900 본시험).
+ * 매물 셋(L01·L02 연습, L03 본시험), 판 셋(c01 B0, c03 ①, c10 B1, ⑤ 시험은 c08 ①+⑤를 더함), 문항 셋(q001·q002 연습, q900 본시험).
  * 카드와 ⓪의 목록은 저장소의 것(experiment/cards/v0, intents)을 쓴다. 지문의 해시는 지어낸 글이다.
  */
 final class Fixture {
@@ -35,6 +36,7 @@ final class Fixture {
     static final Variant B0 = new Variant("c01", "B0", HAIKU, Variant.CardMode.NONE, List.of());
     static final Variant ONE = new Variant("c03", "①", HAIKU, Variant.CardMode.TOOLS, List.of());
     static final Variant B1 = new Variant("c10", "B1", OPUS, Variant.CardMode.NONE, List.of());
+    static final Variant MEM = new Variant("c08", "①+⑤", HAIKU, Variant.CardMode.TOOLS, List.of(Part.MEMORY));
     static final Question Q1 = new Question("q001", "L01", "T1", "연습", "시험 글 가");
     static final Question Q2 = new Question("q002", "L02", "T1", "연습", "시험 글 나");
     static final Question Q9 = new Question("q900", "L03", "T1", "본시험", "본시험 글 다");
@@ -102,10 +104,18 @@ final class Fixture {
     }
 
     static Inputs.Digests digests(String code, String cards, String deps) {
-        return new Inputs.Digests(code, "HARNESS", cards, "LISTS", "EMPTY", deps, Map.of("trades", "T1", "juso", "J1"));
+        return digests(code, cards, deps, "EMPTY");
+    }
+
+    static Inputs.Digests digests(String code, String cards, String deps, String memory) {
+        return new Inputs.Digests(code, "HARNESS", cards, "LISTS", memory, deps, Map.of("trades", "T1", "juso", "J1"));
     }
 
     static Inputs inputs(Path dir, Inputs.Digests d, List<Question> questions) throws IOException {
+        return inputs(dir, d, questions, List.of(B0, ONE, B1), Memory.EMPTY);
+    }
+
+    static Inputs inputs(Path dir, Inputs.Digests d, List<Question> questions, List<Variant> variants, Memory memory) throws IOException {
         Map<String, Listing> listings = new LinkedHashMap<>();
         Map<String, ListingMeta> metas = new LinkedHashMap<>();
         String[][] rows = {{"L01", "연습"}, {"L02", "연습"}, {"L03", "본시험"}};
@@ -113,8 +123,8 @@ final class Fixture {
             listings.put(r[0], listing(r[0], 350_000_000L));
             metas.put(r[0], new ListingMeta(r[0], "apt|41591|가동|0|12|0", "매매", "화성형", r[1]));
         }
-        return new Inputs(data(dir), listings, metas, List.of(B0, ONE, B1), questions, Cards.load(EXP.resolve("cards/v0")),
-                IntentLists.load(EXP.resolve("intents/intent_lists_v0.json")), Memory.EMPTY, d);
+        return new Inputs(data(dir), listings, metas, variants, questions, Cards.load(EXP.resolve("cards/v0")),
+                IntentLists.load(EXP.resolve("intents/intent_lists_v0.json")), memory, d);
     }
 
     static Inputs inputs(Path dir) throws IOException {

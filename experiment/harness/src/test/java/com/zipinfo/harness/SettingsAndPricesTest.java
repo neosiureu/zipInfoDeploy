@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 
-/** 순서 6a: 설정 파일(pilot_v0.json)과 단가표(01 333·342줄). */
+/** 순서 6a: 설정 파일(pilot_v0.json)과 단가표(01 333·342줄). 6b: files.memory가 얼린 기억 파일의 경로를 받는다. */
 class SettingsAndPricesTest {
     static void bad(Consumer<ObjectNode> edit) {
         assertThrows(IllegalArgumentException.class, () -> Fixture.settings(edit));
@@ -31,6 +31,9 @@ class SettingsAndPricesTest {
         assertEquals(List.of(20, 600, 1, 25), List.of(s.maxTurns(), s.timeoutSeconds(), s.concurrency(), s.blockSize()));
         assertEquals(0, new BigDecimal("20").compareTo(s.costCapUsd()));
         assertEquals(List.of("2026-11-22", "0.5"), List.of(s.prices().date(), s.prices().batchFactor().toPlainString()));
+        assertEquals(null, s.files().memory(), "시운전은 빈 기억으로 돈다");
+        RunSettings frozen = Fixture.settings(n -> ((ObjectNode) n.get("files")).put("memory", "harness/frozen/memory_v0.json"));
+        assertEquals("harness/frozen/memory_v0.json", frozen.files().memory(), "순서 6b: 얼린 기억 파일의 경로를 받는다");
     }
 
     @Test
@@ -44,7 +47,7 @@ class SettingsAndPricesTest {
         bad(n -> ((ObjectNode) n.get("models").get("claude-opus-5-5")).put("thinking", "enabled"));
         bad(n -> ((ObjectNode) n.get("models").get("claude-haiku-5-5")).put("effort", "highest"));
         bad(n -> ((ObjectNode) n.get("select")).putArray("reps").add(1).add(1));
-        bad(n -> ((ObjectNode) n.get("files")).put("memory", "frozen/memory_v1.json"));
+        bad(n -> ((ObjectNode) n.get("files")).put("memory", ""));
         bad(n -> ((ObjectNode) n.get("retry")).put("max_seconds", 1));
         bad(n -> ((ObjectNode) n.get("prices").get("models")).remove("claude-opus-5-5"));
         bad(n -> ((ArrayNode) n.get("prices").get("models").get("claude-haiku-5-5")).remove(1));

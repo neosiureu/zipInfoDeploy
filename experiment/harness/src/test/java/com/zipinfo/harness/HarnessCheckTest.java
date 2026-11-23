@@ -21,6 +21,7 @@ import org.junit.jupiter.api.io.TempDir;
  * 순서 6a: 실제 파일로 하네스를 짜 본다(요청은 보내지 않는다). 저장소의 pilot_v0.json과 판 설정 파일의 판 10개로 plan을 돌린다.
  * 문항 파일은 순서 7이 만든다. 여기서는 연습 매물 둘로 시험용 문항 파일을 임시로 만든다(질문 글은 지어낸 짧은 글이다).
  * 찍는 줄(하네스 검사)의 해시는 줄 끝을 LF로 맞춰 셈하므로 사용자 PC(Windows, git이 CRLF로 꺼냄)에서도 같아야 한다.
+ * 순서 6b: 설정에 얼린 기억 파일을 걸면 ⑤가 든 판(c08·c09)의 지문만 바뀌는지도 본다.
  * 자료 쪽은 순서 2 결과와 얼린 매물·주소 파일이 있을 때만 돈다.
  */
 class HarnessCheckTest {
@@ -55,10 +56,27 @@ class HarnessCheckTest {
             throw new IllegalStateException("요청을 보내지 않는다");
         }, x -> { }, new PrintStream(OutputStream.nullOutputStream()));
         assertEquals(10, r.prints().size());
+        assertEquals("EMPTY", in.digests().memory(), "시운전 설정은 빈 기억이다");
         String all = Fingerprint.sha256(String.join("\n", r.prints().values()));
+        // 순서 6b: 얼린 기억 파일을 걸면 ⑤가 든 판의 지문만 바뀐다(지문 memory 칸 = 그 파일의 해시)
+        Path mem = tmp.resolve("memory_check.json");
+        Files.writeString(mem, MemoryFile.text(new MemoryFile.Source("pilot", "c09", "연습", List.of("c09-t1-r1")), com.zipinfo.ai.reflex.Memory.EMPTY),
+                StandardCharsets.UTF_8);
+        ((ObjectNode) n.get("files")).put("memory", mem.toString());
+        Path sfile2 = tmp.resolve("pilot_memory_check.json");
+        Files.writeString(sfile2, n.toString(), StandardCharsets.UTF_8);
+        RunSettings s2 = RunSettings.load(sfile2);
+        Inputs in2 = new Inputs(in.data(), in.listings(), in.metas(), in.variants(), in.questions(), in.cards(), in.lists(), MemoryFile.read(mem).memory(),
+                Inputs.digests(exp, s2));
+        assertEquals(Fingerprint.file(mem), in2.digests().memory());
+        Runner r2 = new Runner(in2, s2, tmp.resolve("runs/pilot"), (ms, c, t) -> {
+            throw new IllegalStateException("요청을 보내지 않는다");
+        }, x -> { }, new PrintStream(OutputStream.nullOutputStream()));
+        List<String> moved = r.prints().keySet().stream().filter(k -> !r.prints().get(k).equals(r2.prints().get(k))).toList();
+        assertEquals(List.of("c08", "c09"), moved);
         System.out.println("하네스 검사: pilot_v0 설정으로 판 10개 요청 지문(합) " + all.substring(0, 12) + ", 코드 " + in.digests().code().substring(0, 12)
                 + ", 카드 " + in.digests().cards().substring(0, 12) + ", 목록 " + in.digests().lists().substring(0, 12)
                 + ", 의존성 " + Fingerprint.runtimeDeps(exp.resolve("harness/gradle.lockfile")).size() + "개 " + in.digests().deps().substring(0, 12)
-                + ", 시험 계획 2문항 × 10판 × 2회 = 40실행");
+                + ", 시험 계획 2문항 × 10판 × 2회 = 40실행, 얼린 기억을 걸면 지문이 바뀌는 판 " + String.join(" ", moved));
     }
 }

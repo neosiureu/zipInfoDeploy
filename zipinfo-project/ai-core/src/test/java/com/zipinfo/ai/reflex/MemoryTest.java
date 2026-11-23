@@ -37,6 +37,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 /**
  * 순서 5c: ⑤ 해마·좋아요(설계안 7.6, 열린 결정 5). 기억 뽑기, 찾기와 차례, 좋아요, 안내 자리, 카드 차례, 판 짜기, 고리에 걸었을 때.
+ * 순서 6b: 막힘은 매물의 부르기로만 닫힌다(L), 같은 길은 한 항목(D), 정한 차례와 얼린 것(Memory.of).
  * 자료는 Fixture(영역 41591, 옛 코드 41590은 202610에 무효, 202609는 정말 0건)다. 값은 지어낸 것이다.
  */
 class MemoryTest {
@@ -123,7 +124,7 @@ class MemoryTest {
                 ok(stats("apt_trade", "41591", "202609", "202610"), 4)), "기간·deal·dong·jibun이 바뀐 것은 세지 않는다");
         assertEquals(List.of(API), extract(failed(stats("apt", "41591", "202610", "202610"), "BAD_INPUT"), ok(stats("41591"), 4)));
         assertEquals(List.of(), extract(failed(stats("apt", "41591", "202610", "202610"), "BAD_INPUT"), ok(stats("rh_trade", "41591", "202610", "202610"), 1)),
-                "매물의 API가 아닌 부르기로 풀린 것은 뽑지 않는다");
+                "매물의 API가 아닌 부르기는 막힘을 닫지 않고, 풀린 것으로 뽑지도 않는다");
         assertEquals(List.of(), extract(rejected(stats("41591")), ok(stats("41590"), 0)), "그 달에 무효인 코드로 풀린 것도 뽑지 않는다");
         assertEquals(List.of(), extract(rejected(stats("apt_trade", "41591", "202609", "202609")), ok(stats("apt_trade", "41590", "202609", "202609"), 0)),
                 "정말 0건 달에만 부른 옛 코드는 표에서 유효여도 매물의 현재 코드가 아니라 풀린 것이 아니다(거꾸로 된 길을 막는다)");
@@ -141,22 +142,78 @@ class MemoryTest {
                 "받아들여진 결과에 표본 수가 없으면 기록이 틀린 것이다");
     }
 
+    // ---------------------------------------------------------------- 막힘은 매물의 부르기로만 닫힌다(순서 6b L)
+
+    @Test
+    void blocksStayOpenUntilTheListingsOwnCall() {
+        ObjectNode rent = stats("apt_rent", "41591", "202610", "202610");
+        assertEquals(List.of(CODE), extract(rejected(stats("41590")), ok(rent, 3), ok(stats("41591"), 4)),
+                "틀린 API의 받아들여진 부르기는 거절을 닫지 않는다. 그 뒤 매물의 부르기로 뽑는다");
+        assertEquals(List.of(ZERO), extract(ok(stats("41590"), 0), ok(rent, 3), ok(stats("41591"), 4)),
+                "0건도 같다. 표본이 있는 틀린 API의 부르기는 닫지 않는다");
+        assertEquals(List.of(CODE), extract(rejected(stats("41590")), ok(stats("41591"), 0)), "거절·오류는 매물의 부르기가 0건이어도 닫힌다");
+        assertEquals(List.of(), extract(rejected(stats("41590")), ok(rent, 3)), "매물의 부르기가 오지 않으면 뽑지 않는다");
+        assertEquals(List.of(new Item("거절", "region_code=41593", "region_code=41591", ""), ZERO),
+                extract(rejected(stats("41593")), ok(stats("41590"), 0), ok(stats("41591"), 0), ok(stats("41591"), 4)),
+                "매물의 부르기가 0건이면 거절은 닫히고 0건은 열려 있다가, 표본이 있는 매물의 부르기에서 닫힌다");
+    }
+
+    // ---------------------------------------------------------------- 같은 길은 한 항목(순서 6b D)
+
+    @Test
+    void oneItemPerWayCountedOncePerRun() {
+        List<JsonNode> both = List.of(failed(stats("41590"), "BAD_INPUT"), rejected(stats("41590")), ok(stats("41591"), 4));
+        assertEquals(List.of(new Item("오류", "region_code=41590", "region_code=41591", ""), CODE), Memory.extract(run(RunRecord.Outcome.FAILED_NO_SUBMIT, both)),
+                "한 실행이 같은 길을 두 꼴로 낸다(창 밖 오류 뒤 같은 옛 코드로 거절)");
+        assertEquals(Map.of("41591", Map.of(CODE, 1)), Memory.build(List.of(run(RunRecord.Outcome.FAILED_NO_SUBMIT, both))).items(),
+                "길로 합쳐 실행 하나에 한 번 센다. 꼴이 하나씩이면 글자 순(거절 < 오류)");
+        Memory m = Memory.build(List.of(run(RunRecord.Outcome.FAILED_NO_SUBMIT, both), run(RunRecord.Outcome.FAILED_NO_SUBMIT, ZERO_RUN),
+                run(RunRecord.Outcome.FAILED_NO_SUBMIT, ZERO_RUN)));
+        assertEquals(Map.of("41591", Map.of(ZERO, 3)), m.items(), "꼴은 그 길을 낸 실행에서 가장 많이 본 꼴(0건 2, 거절 1, 오류 1)");
+        assertEquals(List.of(ZERO), m.lookup("41591", "apt_trade"), "같은 길이 K 자리를 둘 다 쓰지 않는다");
+    }
+
     // ---------------------------------------------------------------- 찾기와 차례(열린 결정 5 (다))
 
     @Test
     void lookupKeepsKPerListingByRunsThenText() {
+        Item other = new Item("거절", "region_code=41593", "region_code=41591", "");
         List<Memory.Run> runs = List.of(run(RunRecord.Outcome.FAILED_NO_SUBMIT, CODE_RUN), run(RunRecord.Outcome.FAILED_NO_SUBMIT, seq(CODE_RUN, API_RUN)),
-                run(RunRecord.Outcome.FAILED_NO_SUBMIT, seq(API_RUN, ZERO_RUN)), run(RunRecord.Outcome.FAILED_NO_SUBMIT, API_RUN));
+                run(RunRecord.Outcome.FAILED_NO_SUBMIT, seq(API_RUN, ZERO_RUN)), run(RunRecord.Outcome.FAILED_NO_SUBMIT, API_RUN),
+                run(RunRecord.Outcome.FAILED_NO_SUBMIT, List.of(rejected(stats("41593")), ok(stats("41591"), 4))));
         Memory m = Memory.build(runs);
-        assertEquals(Map.of("41591", Map.of(API, 3, CODE, 2, ZERO, 1)), m.items(), "항목은 매물의 현재 시군구 아래에 둔다");
-        assertEquals(List.of(API, CODE), m.lookup("41591", "apt_trade"), "낸 실행이 많은 순으로 K개");
+        assertEquals(Map.of("41591", Map.of(CODE, 3, API, 3, other, 1)), m.items(), "항목은 매물의 현재 시군구 아래에 둔다. 0건 길은 거절 길과 같은 길이다");
+        assertEquals(List.of(CODE, API, other), List.copyOf(m.items().get("41591").keySet()), "정한 차례: 낸 실행이 많은 순, 같으면 글자 순");
+        assertEquals(List.of(CODE, API), m.lookup("41591", "apt_trade"), "그 차례로 K개");
         assertEquals(2, Memory.K);
-        assertEquals(m.lookup("41591", "apt_trade"), Memory.build(runs.reversed()).lookup("41591", "apt_trade"), "실행 차례와 상관없다");
-        assertEquals(List.of(CODE, ZERO), m.lookup("41591", "apt_rent"), "지역 코드 길은 같은 시군구면 API가 달라도 보이고, api가 바뀐 길은 그 API에만 보인다");
+        assertEquals(List.copyOf(m.items().get("41591").entrySet()), List.copyOf(Memory.build(runs.reversed()).items().get("41591").entrySet()),
+                "실행 차례와 상관없다");
+        assertEquals(List.of(CODE, other), m.lookup("41591", "apt_rent"), "지역 코드 길은 같은 시군구면 API가 달라도 보이고, api가 바뀐 길은 그 API에만 보인다");
         assertEquals(List.of(), m.lookup("11680", "apt_trade"));
         Memory tie = Memory.build(List.of(run(RunRecord.Outcome.FAILED_NO_SUBMIT, CODE_RUN), run(RunRecord.Outcome.FAILED_NO_SUBMIT, ZERO_RUN)));
-        assertEquals(List.of(ZERO, CODE), tie.lookup("41591", "apt_trade"), "같으면 (막힌 꼴, 막힌 값, 풀린 값)의 글자 순");
+        assertEquals(Map.of("41591", Map.of(ZERO, 2)), tie.items(), "꼴의 수가 같으면 글자 순(0건 < 거절)");
         assertTrue(Memory.EMPTY.items().isEmpty() && Memory.EMPTY.likes().isEmpty());
+    }
+
+    // ---------------------------------------------------------------- 얼린 것(순서 6b)
+
+    @Test
+    void aFrozenCopyIsTheSameMemoryInTheSameOrder() {
+        Memory m = Memory.build(List.of(run(RunRecord.Outcome.SUBMITTED, seq(CODE_RUN, List.of(read("K03"), submit()))),
+                run(RunRecord.Outcome.SUBMITTED, seq(API_RUN, CODE_RUN, List.of(read("K01"), read("K03"), submit())))));
+        Map<Item, Integer> reversed = new java.util.LinkedHashMap<>();
+        List.copyOf(m.items().get("41591").entrySet()).reversed().forEach(e -> reversed.put(e.getKey(), e.getValue()));
+        Memory copy = Memory.of(Map.of("41591", reversed), Map.of("K03", 2, "K01", 1));
+        assertEquals(List.copyOf(m.items().get("41591").entrySet()), List.copyOf(copy.items().get("41591").entrySet()), "읽은 차례와 상관없이 정한 차례");
+        assertEquals(m.likes(), copy.likes());
+        assertEquals(List.of("K01", "K03"), List.copyOf(copy.likes().keySet()), "좋아요는 카드 ID 순");
+        assertEquals(m.lookup("41591", "apt_trade"), copy.lookup("41591", "apt_trade"));
+        assertEquals(List.of("K03", "K01", "K02"), six().all().stream().limit(3).sorted(copy.cardOrder()).map(Card::id).toList());
+        assertThrows(IllegalArgumentException.class, () -> Memory.of(Map.of("41591", Map.of(CODE, 1, ZERO, 2)), Map.of()), "한 시군구에 같은 길이 둘");
+        assertThrows(IllegalArgumentException.class, () -> Memory.of(Map.of("41591", Map.of(new Item("막힘", "a=1", "a=2", ""), 1)), Map.of()));
+        assertThrows(IllegalArgumentException.class, () -> Memory.of(Map.of("41591", Map.of(CODE, 0)), Map.of()));
+        assertThrows(IllegalArgumentException.class, () -> Memory.of(Map.of(), Map.of("K01", 0)));
+        assertTrue(Memory.of(Map.of(), Map.of()).items().isEmpty());
     }
 
     // ---------------------------------------------------------------- 좋아요
@@ -198,9 +255,8 @@ class MemoryTest {
         assertEquals("지난 실행에서 막혔다 풀린 길(같은 시군구, 거절): region_code=41590 → region_code=41591\n"
                 + "지난 실행에서 막혔다 풀린 길(같은 시군구·API, 오류): api=apt → api=apt_trade", d.line());
         Hook.Decision rent = notice(n, Fixture.run("L02", "1", 300_000_000L, 0, "84"));
-        assertEquals("지난 실행에서 막혔다 풀린 길(같은 시군구, 거절): region_code=41590 → region_code=41591\n"
-                + "지난 실행에서 막혔다 풀린 길(같은 시군구, 0건): region_code=41590 → region_code=41591", rent.line(),
-                "전세 매물(apt_rent)에는 지역 코드 길만 보인다");
+        assertEquals("지난 실행에서 막혔다 풀린 길(같은 시군구, 거절): region_code=41590 → region_code=41591", rent.line(),
+                "전세 매물(apt_rent)에는 지역 코드 길만 보인다. 0건으로 낸 같은 길은 거절 길과 한 줄이다(D)");
         assertEquals(Hook.Decision.Kind.PASS, notice(new MemoryNotice(Memory.EMPTY), Fixture.run("L01", "0", 350_000_000L, 0, "84")).kind());
         assertTrue(n.at(Hook.Point.NOTICE));
         assertFalse(n.at(Hook.Point.START) || n.at(Hook.Point.BEFORE_TOOL) || n.at(Hook.Point.SUBMIT));
