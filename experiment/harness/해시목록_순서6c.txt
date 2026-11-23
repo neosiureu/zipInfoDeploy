@@ -1,0 +1,20 @@
+# 순서 6c 커밋 해시목록 (2026-11-23). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# 새 파일: 하네스 Judge(judge 명령: 대상 고르기, 요청 짓기, 결과 가르기, 판정 지문)·JudgeFiles(판정 파일)·JudgeSettings(judge 칸)·BatchClient(배치 만들기·상태 보기·결과 받기), 시험 JudgeTest·FakeBatches(가짜 배치 서버)·RecordNameTest, 판정 지시문 judge/judge_v0.md, 사전 등록 글 prereg_judge_v0.md.
+# 고친 파일: 하네스 Main(judge)·RunSettings(judge 칸)·Runner·Summary(기록 파일 이름 검사), settings/pilot_v0.json(judge 칸 v0), 시험 HarnessCheckTest(판정 지문)·MemoryFileTest(복사본은 이름 검사가 먼저 잡음)·SettingsAndPricesTest(judge 칸). ai-core는 그대로다.
+41AB6A8F5CCC300739E988EFFEC2258A2F6079FC776B424AEF4FAB1AF5C0331B  experiment/harness/judge/judge_v0.md
+D787C392806C46EC03ED2BC9CC5E22A5F010A5A631A63067CA257F35CDE3B885  experiment/harness/prereg_judge_v0.md
+7A5EA0A94483A5C666551A69F01D7F6B4B3166487CA8959703738618717C565E  experiment/harness/settings/pilot_v0.json
+950BD9A15BAFDE62A1990174B603987EA4C473B1CFBE212594BF22E0E4C6556D  experiment/harness/src/main/java/com/zipinfo/harness/BatchClient.java
+2309E87BDB6C95A87902698F6F0658428552136F8FBF91FFEB34EE581D7E80CD  experiment/harness/src/main/java/com/zipinfo/harness/Judge.java
+2076B86CFBC2E455BC4D7C2DD0585744B1D7DD7BBBE80CF7E2870577D241B929  experiment/harness/src/main/java/com/zipinfo/harness/JudgeFiles.java
+C42A7EB37A4C3BD7B9E88576FE59837E57E706787E92C04F0ABA492CD336E77A  experiment/harness/src/main/java/com/zipinfo/harness/JudgeSettings.java
+887EA3C75D3736987634DC6E560A2A65E9C79308102B1E22C294DD1CD74B71E1  experiment/harness/src/main/java/com/zipinfo/harness/Main.java
+39EDDA76F39DF6556A1129D20F21EDC1818DBC69B54FD5031486C6BA4BA9B7D6  experiment/harness/src/main/java/com/zipinfo/harness/RunSettings.java
+275BC3EAABEEE7E3264726C2FDF009CC557349C40CF0E6F05B0F10115A345DB3  experiment/harness/src/main/java/com/zipinfo/harness/Runner.java
+97CCA1C35ACD156BDFCAFF106B6D153F1A329CE879763D49DBFCF3D2B06D82E0  experiment/harness/src/main/java/com/zipinfo/harness/Summary.java
+34DA6532D53652CE4EA2360A8B4AB926350571615FA4B6644BBF8750AFCB7C44  experiment/harness/src/test/java/com/zipinfo/harness/FakeBatches.java
+9ED113DF9DD1F6A427D54528EC55FD633742CD2BADC665045B1E5D9AE7D9DF5F  experiment/harness/src/test/java/com/zipinfo/harness/HarnessCheckTest.java
+0A984A980C1263C08820406A43D727EC77CB141AFBC6EA36AE1D02503CB3A831  experiment/harness/src/test/java/com/zipinfo/harness/JudgeTest.java
+EEE0CE3B328B6528CE013B5971DC22475E02F028301C0487903150C79189B797  experiment/harness/src/test/java/com/zipinfo/harness/MemoryFileTest.java
+556E900B0E9680BE7164C1E05F49776DB2F29633001266CA07567169EDB505DE  experiment/harness/src/test/java/com/zipinfo/harness/RecordNameTest.java
+F8FEE647F4BC146EC3A49E4C91964CFC6942597AA36FBCC10A4AB5B022FAE5D4  experiment/harness/src/test/java/com/zipinfo/harness/SettingsAndPricesTest.java

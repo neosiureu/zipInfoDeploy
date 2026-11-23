@@ -59,7 +59,7 @@ public final class Runner {
     /** 지문이 다른 기록: 파일, 판, 달라진 칸. */
     public record Stale(String file, String variant, List<String> changed) {}
 
-    /** 계획과 기록을 대 본 것. problems: 판·문항이 없거나 나눔이 다른 기록, 읽지 못한 파일. */
+    /** 계획과 기록을 대 본 것. problems: 판·문항이 없거나 나눔이 다른 기록, 읽지 못한 파일, 이름이 머리의 실행 ID와 다른 파일(순서 6c). */
     public record Status(List<Plan.RunSpec> plan, Set<String> done, Set<String> started, List<Stale> stale, List<String> problems,
                          BigDecimal spent) {
         public int remaining() {
@@ -130,6 +130,11 @@ public final class Runner {
             if (h == null) {
                 continue;
             }
+            String misnamed = misnamed(name, h);
+            if (misnamed != null) {
+                problems.add(misnamed);
+                continue;
+            }
             String vid = h.path("variant").path("id").asText();
             Variant v = variants.get(vid);
             Question q = questions.get(h.path("question").path("id").asText());
@@ -152,6 +157,18 @@ public final class Runner {
         }
         started.removeAll(done);
         return new Status(plan, done, started, stale, problems, spent);
+    }
+
+    /**
+     * 기록 파일 이름이 머리의 run_id + ".jsonl"이 아니면 그 까닭(순서 6c, 상대 09:5x). 손으로 복사한 파일과 이름을 바꾼 파일을 둘 다 잡는다.
+     * 그런 파일은 세지 않는다(쓴 돈·끝난 실행). plan은 찍기만 하고, run·memory·judge는 멈추고, summary는 2로 끝난다.
+     */
+    static String misnamed(String fileName, JsonNode header) {
+        String id = header.path("run_id").asText("");
+        if (fileName.equals(id + ".jsonl")) {
+            return null;
+        }
+        return fileName + ": 파일 이름이 머리의 실행 ID(" + id + ")와 다르다. 손으로 복사했거나 이름을 바꾼 기록이다. 다른 폴더로 옮긴다";
     }
 
     private List<Path> files() throws IOException {

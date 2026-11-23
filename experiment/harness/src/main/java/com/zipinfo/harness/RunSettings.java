@@ -29,11 +29,12 @@ import java.util.regex.Pattern;
  * <li>retry: 같은 요청을 몇 번까지(max_attempts, 처음 것 포함), 기다림(base_seconds × 2^(n−1), 많아야 max_seconds. retry-after가 있으면 그 값).</li>
  * <li>timeout_seconds: 요청 하나 전체의 시간 초과. concurrency: 동시 실행 수(천천히 올린다, 01 212줄). block_size: 시간 블록 하나의 실행 수(01 341줄).</li>
  * <li>cost_cap_usd: 이 단계 기록 전체의 캐시 있음 비용이 닿으면 멈춘다. prices: 단가표.</li>
+ * <li>judge: 답변 판정 Batch의 설정(순서 6c, JudgeSettings). 판정 비용은 cost_cap_usd에 넣지 않는다.</li>
  * </ul>
  */
 public record RunSettings(String version, String stage, String split, FileSet files, Select select, Map<String, ModelSettings> models,
                           int maxTurns, CachePolicy cache, Retry retry, int timeoutSeconds, int concurrency, int blockSize,
-                          BigDecimal costCapUsd, Prices prices) {
+                          BigDecimal costCapUsd, Prices prices, JudgeSettings judge) {
     public static final String PRACTICE = "연습";
     public static final String TEST = "본시험";
     private static final Pattern STAGE = Pattern.compile("[a-z0-9_-]{1,32}");
@@ -53,7 +54,7 @@ public record RunSettings(String version, String stage, String split, FileSet fi
     public static RunSettings parse(String text) {
         JsonNode n = Json.read(text, "하네스 설정");
         Json.fields(n, "설정", "version", "stage", "split", "files", "select", "models", "max_turns", "cache", "retry", "timeout_seconds",
-                "concurrency", "block_size", "cost_cap_usd", "prices");
+                "concurrency", "block_size", "cost_cap_usd", "prices", "judge");
         String version = Json.text(n, "version", "설정");
         String stage = Json.text(n, "stage", "설정");
         if (!STAGE.matcher(stage).matches()) {
@@ -100,7 +101,8 @@ public record RunSettings(String version, String stage, String split, FileSet fi
         }
         return new RunSettings(version, stage, split, files, select, models, maxTurns, cache, retry,
                 Json.integer(n, "timeout_seconds", "설정", 1, 3600), Json.integer(n, "concurrency", "설정", 1, 16),
-                Json.integer(n, "block_size", "설정", 1, 100_000), Json.positive(n, "cost_cap_usd", "설정"), prices);
+                Json.integer(n, "block_size", "설정", 1, 100_000), Json.positive(n, "cost_cap_usd", "설정"), prices,
+                JudgeSettings.parse(n.get("judge"), prices));
     }
 
     private static Map<String, ModelSettings> models(JsonNode ms) {

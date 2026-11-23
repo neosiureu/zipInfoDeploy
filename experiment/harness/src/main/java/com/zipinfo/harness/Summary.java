@@ -26,6 +26,7 @@ import java.util.stream.Stream;
  * <li>실패한 시도 수, 멈춤 까닭마다 수</li>
  * </ul>
  * 끝난 꼴·토큰·비용은 폴더에 있는 그 판의 기록 모두를 센다. 문항 글이나 답 글은 넣지 않는다(ID와 수만).
+ * 파일 이름이 머리의 실행 ID와 다른 기록이 있으면 세지 않고 멈춘다(순서 6c, Runner.misnamed. 복사본이 끝난 꼴과 비용을 부풀리지 않게).
  */
 public final class Summary {
     static final long LINE = 100_000;
@@ -108,6 +109,10 @@ public final class Summary {
             JsonNode h = rf.header();
             if (h == null) {
                 continue;
+            }
+            String misnamed = Runner.misnamed(f.getFileName().toString(), h);
+            if (misnamed != null) {
+                throw new IOException("기록 문제: " + misnamed);
             }
             Row row = by.get(h.path("variant").path("id").asText());
             if (row == null) {

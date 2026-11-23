@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,10 @@ import java.util.stream.Collectors;
  * <li>summary: 판마다 모은 숫자를 찍고 기록 폴더에 summary.tsv로 쓴다.</li>
  * <li>memory: 그 단계 기록에서 채울 판의 끝난 실행으로 ⑤의 기억·좋아요를 얼린다(순서 6b, MemoryFile). 얼릴 파일은 experiment 폴더에서 본 경로이고,
  *     본실험 설정의 files.memory에 같은 경로를 적는다. 이미 있으면 쓰지 않는다.</li>
+ * <li>judge: 그 단계의 끝난 SUBMITTED 실행을 답변 판정 Batch로 낸다(순서 6c, Judge). 끝날 때까지 기다려 결과를 기록 폴더의 judge 폴더에 적는다.
+ *     ANTHROPIC_API_KEY를 쓴다. 끊겨도 다시 치면 잇는다(낸 배치를 다시 내지 않는다).</li>
  * </ul>
+ * 끝 코드: 0 다 됨, 3 멈춤(run·judge의 멈춤과 나중에 이어서 모두), 2 쓰는 법·설정·파일 읽기 오류.
  * 기록 폴더는 experiment/(files.out)/(stage)다. 찍는 글은 UTF-8이다.
  */
 public final class Main {
@@ -36,12 +40,12 @@ public final class Main {
     }
 
     static String usage() {
-        return "쓰는 법: plan|run|summary <설정 파일>  (예: plan settings/pilot_v0.json)\n"
+        return "쓰는 법: plan|run|summary|judge <설정 파일>  (예: plan settings/pilot_v0.json)\n"
                 + "        memory <설정 파일> <채울 판> <얼릴 파일>  (예: memory settings/pilot_v0.json c09 harness/frozen/memory_v0.json, 얼릴 파일은 experiment 폴더에서 본 경로)";
     }
 
     static int run(String[] args, PrintStream out, Path experiment, String apiKey) throws Exception {
-        boolean known = args.length == 2 && List.of("plan", "run", "summary").contains(args[0]) || args.length == 4 && args[0].equals("memory");
+        boolean known = args.length == 2 && List.of("plan", "run", "summary", "judge").contains(args[0]) || args.length == 4 && args[0].equals("memory");
         if (!known) {
             out.println(usage());
             return 2;
@@ -80,6 +84,15 @@ public final class Main {
                 Runner r = new Runner(in, s, dir, clients, Thread::sleep, out);
                 out.print(MemoryFile.report(MemoryFile.freeze(r, in, s, args[2], experiment.resolve(args[3])), args[3]));
                 return 0;
+            }
+            case "judge" -> {
+                if (apiKey == null || apiKey.isBlank()) {
+                    out.println("ANTHROPIC_API_KEY 환경 변수가 없다");
+                    return 2;
+                }
+                Judge j = new Judge(in, s, experiment, dir, BatchClient.anthropic(apiKey, null, Duration.ofSeconds(s.timeoutSeconds())), Thread::sleep, out);
+                Judge.Result res = j.run();
+                return res.stop() == null && res.unjudged() == 0 ? 0 : 3;
             }
             default -> {
                 if (apiKey == null || apiKey.isBlank()) {

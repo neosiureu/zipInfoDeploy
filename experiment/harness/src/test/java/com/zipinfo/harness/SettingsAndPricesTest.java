@@ -1,7 +1,9 @@
 package com.zipinfo.harness;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -12,7 +14,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 
-/** 순서 6a: 설정 파일(pilot_v0.json)과 단가표(01 333·342줄). 6b: files.memory가 얼린 기억 파일의 경로를 받는다. */
+/** 순서 6a: 설정 파일(pilot_v0.json)과 단가표(01 333·342줄). 6b: files.memory가 얼린 기억 파일의 경로를 받는다. 6c: 판정 설정(judge 칸). */
 class SettingsAndPricesTest {
     static void bad(Consumer<ObjectNode> edit) {
         assertThrows(IllegalArgumentException.class, () -> Fixture.settings(edit));
@@ -34,6 +36,44 @@ class SettingsAndPricesTest {
         assertEquals(null, s.files().memory(), "시운전은 빈 기억으로 돈다");
         RunSettings frozen = Fixture.settings(n -> ((ObjectNode) n.get("files")).put("memory", "harness/frozen/memory_v0.json"));
         assertEquals("harness/frozen/memory_v0.json", frozen.files().memory(), "순서 6b: 얼린 기억 파일의 경로를 받는다");
+        assertEquals(new JudgeSettings("claude-haiku-5-5", 8000, 16000, ModelSettings.Thinking.ADAPTIVE, null, "auto", "harness/judge/judge_v0.md", 60),
+                s.judge(), "순서 6c: 판정 설정 v0");
+    }
+
+    static ObjectNode judge(ObjectNode n) {
+        return (ObjectNode) n.get("judge");
+    }
+
+    static String refused(Consumer<ObjectNode> edit) {
+        return assertThrows(IllegalArgumentException.class, () -> Fixture.settings(edit)).getMessage();
+    }
+
+    @Test
+    void theJudgeSectionIsCheckedWhenRead() throws Exception {
+        bad(n -> n.remove("judge"));
+        bad(n -> judge(n).put("extra", 1));
+        bad(n -> judge(n).put("poll_seconds", 9));
+        bad(n -> judge(n).put("poll_seconds", 3601));
+        bad(n -> judge(n).put("instructions", ""));
+        bad(n -> judge(n).put("thinking", "enabled"));
+        bad(n -> judge(n).put("effort", "highest"));
+        bad(n -> judge(n).put("tool_choice", "any"));
+        assertTrue(refused(n -> judge(n).put("model", "claude-sonnet-5-5")).contains("단가표에 없는 모델"));
+        assertTrue(refused(n -> judge(n).put("max_tokens_raised", 8000)).contains("max_tokens보다 크다"));
+        // 강제 호출은 thinking이 disabled일 때만(강제하면 thinking을 건너뛴다)
+        assertTrue(refused(n -> judge(n).put("tool_choice", "tool")).contains("thinking은 disabled다"));
+        assertTrue(refused(n -> judge(n).put("tool_choice", "tool").put("thinking", "omit")).contains("thinking은 disabled다"));
+        assertEquals("tool", Fixture.settings(n -> judge(n).put("tool_choice", "tool").put("thinking", "disabled")).judge().toolChoice());
+        // disabled이면 effort는 null·low·medium·high(xhigh·max면 400)
+        assertTrue(refused(n -> judge(n).put("thinking", "disabled").put("effort", "xhigh")).contains("null·low·medium·high"));
+        assertTrue(refused(n -> judge(n).put("thinking", "disabled").put("effort", "max")).contains("null·low·medium·high"));
+        assertEquals("high", Fixture.settings(n -> judge(n).put("thinking", "disabled").put("effort", "high")).judge().effort());
+        assertNull(Fixture.settings(n -> judge(n).put("thinking", "disabled")).judge().effort());
+        // Opus는 disabled와 tool을 받지 않는다(400)
+        assertTrue(refused(n -> judge(n).put("model", "claude-opus-5-5").put("thinking", "disabled")).contains("Opus 판정은 thinking disabled"));
+        assertTrue(refused(n -> judge(n).put("model", "claude-opus-5-5").put("tool_choice", "tool")).contains("Opus 판정은 tool_choice auto뿐"));
+        assertEquals("claude-opus-5-5", Fixture.settings(n -> judge(n).put("model", "claude-opus-5-5").put("thinking", "omit").put("effort", "max"))
+                .judge().model());
     }
 
     @Test

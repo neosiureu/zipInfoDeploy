@@ -1,0 +1,102 @@
+# 답변 판정 사전 등록 글 (v0, 순서 6c)
+
+관문 3의 계획서(01 219~231줄, 설계안 9.4)에 넣을 답변 판정의 몫이다. 코드는 하네스의 `Judge`·`JudgeFiles`·`JudgeSettings`·`BatchClient`(judge 명령)다. 최종본은 시운전에서 고르고 이 글을 고쳐 사전 등록한다. [ ] 칸은 그때 채운다.
+
+## 1. 판정 대상과 입력
+
+- 설정의 계획(select·split)에 든 실행 가운데, 기록이 끝났고(`end`) 끝난 꼴이 `SUBMITTED`인 것이다.
+    - 입력은 그 기록의 받아들여진 답(`accepted` 사건의 `answer`, 그린 답) 하나다. 제출이 받아들여지면 고리가 바로 끝나므로 실행마다 하나다.
+    - 제출 없이 끝난 실행은 판정하지 않는다. 채점(순서 8)이 실패로 센다.
+    - 계획 밖의 기록은 내지 않고 수만 찍는다.
+- 판정 모델에는 사용자 글 하나만 보낸다.
+
+    ```
+    [질문]
+    (기록 머리의 question.text: 문항 파일의 글 그대로)
+
+    [답]
+    (받아들여진 답)
+    ```
+
+    - 판 이름, 모델, 도구 기록, 장치 글, 기록 전용 검사 결과, 에이전트가 받은 `[매물]` 블록과 ⑤의 안내 줄은 넣지 않는다(01 220줄).
+- 기록 문제(읽지 못한 파일, 없는 판·문항, 나눔이 다른 기록, 파일 이름이 머리의 실행 ID와 다른 기록)나 요청 지문이 다른 기록이 하나라도 있으면 아무것도 내지 않고 멈춘다.
+
+## 2. 판정 모델과 설정(v0)
+
+- 설정 파일의 `judge` 칸이다. v0(`settings/pilot_v0.json`)
+
+    | 칸 | v0 |
+    | --- | --- |
+    | model | claude-haiku-5-5 |
+    | max_tokens / max_tokens_raised | 8000 / 16000 |
+    | thinking | adaptive |
+    | effort | null(보내지 않음) |
+    | tool_choice | auto |
+    | instructions | harness/judge/judge_v0.md |
+    | poll_seconds | 60 |
+
+- 지시문은 읽을 때 줄 끝을 LF로, 글자를 NFC로 맞추고 그 글을 그대로 시스템 글로 보낸다.
+- 판정은 strict 도구 `submit_verdict` 하나로 받는다. 칸은 `answered`(답했으면 true)와 `reason`(근거 한 문장)이고, 둘 다 필수, `additionalProperties`는 false다.
+    - `disable_parallel_tool_use`는 주지 않는다. 두 번 부르면 판정이 아니다(3절).
+- 캐시, 서버 쪽 fallback, temperature 등은 두지 않는다. 거절된 요청을 다른 모델로 다시 내지 않는다(판정 모델은 이 글의 하나다).
+- 설정을 읽을 때 막는 것(배치는 틀린 params를 다 끝난 뒤에야 알려 준다)
+    - raised는 max_tokens보다 크다. model은 단가표에 있다. poll_seconds는 10~3600이다.
+    - thinking이 disabled이면 effort는 null·low·medium·high다.
+    - tool_choice가 tool(강제)이면 thinking은 disabled다(강제하면 thinking을 건너뛴다, 01 185줄).
+    - Opus 판정은 thinking disabled와 tool_choice tool을 받지 않는다(01 179·181·186줄).
+- 시운전에서 사용자가 판정 표본을 읽어 맞는 비율을 적는다(01 219줄). 낮으면 판정 모델이나 지시문을 바꾼다. Opus로 바꾸면 본실험 전에 판정 비용 상한을 다시 정한다.
+- 최종 판정 설정·지시문: [ ], 판정 지문: [ ], 사용자가 읽은 표본 수와 맞는 비율: [ ]
+
+## 3. 결과 가르기
+
+결과마다 위에서부터 처음 맞는 줄로 가른다.
+
+| 차례 | 결과 | 처리 |
+| --- | --- | --- |
+| 1 | succeeded, stop_reason tool_use, `submit_verdict`를 꼭 한 번 부름 | 판정 |
+| 2 | errored, 한도 표지(오류 글이 "You have reached your specified"나 "Your credit balance is too low to access the Anthropic API"로 시작, type `billing_error`, `details.error_code`가 있으면 `enforced_spend_limit_reached`) | 나중에 이어서 |
+| 3 | errored `invalid_request_error`(2가 아닌 것) | 멈춘다(요청을 고친다) |
+| 3 | succeeded, refusal, 범주 `reasoning_extraction` | 멈춘다(문구를 고친다). 다시 쳐도 다시 내지 않는다 |
+| 4 | succeeded, stop_reason max_tokens | 기본 max_tokens로 낸 것이면 raised로 다시 낸다. raised로 낸 것이면 멈춘다 |
+| 5 | succeeded, 그 밖의 refusal(범주 없음 포함), 도구를 안 부르거나 두 번 부름, 그 밖의 stop_reason | 그 기록에서 처음이면 다시 낸다. 되풀이되면 멈춘다 |
+| 6 | errored(그 밖), canceled, expired | 다시 낸다. 끝에서 셋이 잇달아 이 꼴이면 멈춘다 |
+| - | 그 밖의 결과 꼴 | 멈춘다 |
+
+- 판정이 아닌 결과는 "답하지 않음"으로 적지 않는다(01 222줄). 결과 원문에만 남는다.
+- 낼 때의 max_tokens: 그 기록의 결과 가운데 max_tokens로 끝난 것이 한 번이라도 있으면 raised, 없으면 기본값이다. 올린 값은 내리지 않는다. 다시 칠 때도 같다.
+- 결과는 custom_id(`단계_실행 ID`)로 낸 요청과 짝짓는다. 낸 적 없는 custom_id, 결과가 둘인 요청, 결과가 없는 요청이 있으면 멈춘다(결과가 없는 요청은 다시 치면 다시 낸다).
+
+## 4. 멈춤과 다시 치기
+
+- 3절의 멈춤과 나중에 이어서는 **이번에 새로 받은 결과**를 가를 때만 건다.
+    - 걸리면 새 배치를 내지 않는다. 이미 받은 판정은 남긴다. 걸린 실행과 까닭을 찍고 3으로 끝난다.
+- 다시 치면 걸렸던 실행도 한 번은 다시 낸다. 그 결과가 또 걸리면 다시 멈춘다.
+- 예외: 그 기록의 마지막 결과가 `reasoning_extraction` 거절인 실행이 있으면, 다시 쳐도 새 배치를 내지 않고 멈춘다(01 226줄). 지시문이나 입력 틀을 고치면 판정 지문이 바뀌어 5절대로 처음부터 판정한다.
+- 내고 아직 결과를 받지 않은 배치가 있으면 다시 내지 않고 그것부터 기다린다. 배치 ID는 받자마자 적는다.
+- 끝 코드: 0 모두 판정했다. 3 멈춤과 나중에 이어서 모두. 2 설정·파일 읽기 오류(judge 칸이 틀림, 지시문 파일이 없음 등).
+
+## 5. 판정을 기록과 판정 설정에 묶기
+
+- 요청과 판정 줄마다 그 기록 파일의 SHA-256(줄 끝 LF로 맞춤, `record_sha256`)을 적는다. 지금 기록과 해시가 같은 판정만 그 실행의 판정이다.
+    - 옮기고 다시 돌린 실행은 판정이 없는 것으로 보고 다시 낸다. 쓰지 않는 옛 판정 줄의 수를 찍는다.
+    - 같은 (실행 ID, record_sha256)의 판정 줄이 둘이면 멈춘다.
+- 판정 지문은 자리표시자 질문·답으로 지은 요청 본문 JSON 둘(기본 max_tokens, raised)과 하네스의 runtime 의존성(SDK 판)을 이은 것의 SHA-256이다. 배치에 넣는 요청을 짓는 함수로 짓는다.
+    - 판정 설정, 지시문, 요청을 짓는 코드, SDK 판 가운데 무엇이 바뀌어도 지문이 바뀐다.
+    - 판정 파일에 지금과 다른 지문의 줄이 있으면 멈춘다. 그때는 판정 폴더를 옮기고 처음부터 다시 판정한다(01 200줄과 같은 잣대).
+    - 하네스 검사 줄이 pilot_v0의 판정 지문 앞 12자를 찍는다.
+
+## 6. 남기는 파일과 비용
+
+- 기록 폴더 아래 `judge/`에 둔다.
+    - `batches.jsonl`: 낸 배치마다 한 줄(배치 ID, 차례, 판정 지문과 그 칸, 요청마다 custom_id·실행 ID·record_sha256·max_tokens). 결과를 다 가르면 done 줄.
+    - `results/(배치 ID).jsonl`: 받은 결과 원문. 서버에서는 29일 뒤 사라지니 남긴다.
+    - `verdicts.jsonl`: 판정마다 한 줄. 순서 8 채점기가 읽는다.
+- 쓰는 차례는 결과 원문 → 판정 줄 → done 줄이다. 어디서 끊겨도 다시 치면 같은 판정이 된다. 덜 쓴 마지막 줄은 잘라 낸다.
+- 비용: succeeded 결과의 usage × 판정 모델 단가 × `batch_factor`(0.5). 거절도 usage대로 센다. errored·canceled·expired는 0이다.
+    - 판정 비용은 실행의 비용 상한(`cost_cap_usd`)에 넣지 않고 따로 찍는다. Haiku 판정이면 본실험 한 주기가 약 $2.4다.
+
+## 7. 채점에서 쓰는 법(순서 8)
+
+- 완전 정답률은 판정이 "답함"이어야 통과다(01 231줄).
+- 판정 열쇠는 (단계, 실행 ID, record_sha256)다. 판정이 없는 SUBMITTED 실행이 있으면 채점기가 멈춘다(실패로 세지 않는다).
+- 비교하는 단계들의 판정 지문이 같아야 한다.

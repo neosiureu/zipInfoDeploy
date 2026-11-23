@@ -220,10 +220,11 @@ class MemoryFileTest {
             Fixture.questions(n, "q001");
         });
         assertTrue(refused(() -> MemoryFile.freeze(runner(in, narrow), in, narrow, "c08", out)).endsWith("계획 밖 기록 1개(c08-q002-r1)"));
-        // 실행 ID가 같은 기록이 둘(손으로 복사한 파일)
+        // 손으로 복사한 파일(실행 ID가 같은 기록이 둘): 순서 6c부터는 기록 이름 검사가 먼저 잡는다(Runner.misnamed)
         Path copy = tmp.resolve("runs/c08-q001-r1-copy.jsonl");
         Files.copy(tmp.resolve("runs/c08-q001-r1.jsonl"), copy);
-        assertTrue(refused(() -> MemoryFile.freeze(runner(in, s), in, s, "c08", out)).contains("실행 ID가 같은 기록이 둘이다: c08-q001-r1"));
+        assertTrue(refused(() -> MemoryFile.freeze(runner(in, s), in, s, "c08", out))
+                .contains("기록 문제가 있어 얼리지 않는다: c08-q001-r1-copy.jsonl: 파일 이름이 머리의 실행 ID(c08-q001-r1)와 다르다"));
         Files.delete(copy);
         assertFalse(Files.exists(out));
         // 다른 판의 지문이 다른 기록은 막지 않는다: c10(Opus) 기록을 만든 뒤 Opus 설정만 바꾼다

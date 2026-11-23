@@ -22,6 +22,7 @@ import org.junit.jupiter.api.io.TempDir;
  * 문항 파일은 순서 7이 만든다. 여기서는 연습 매물 둘로 시험용 문항 파일을 임시로 만든다(질문 글은 지어낸 짧은 글이다).
  * 찍는 줄(하네스 검사)의 해시는 줄 끝을 LF로 맞춰 셈하므로 사용자 PC(Windows, git이 CRLF로 꺼냄)에서도 같아야 한다.
  * 순서 6b: 설정에 얼린 기억 파일을 걸면 ⑤가 든 판(c08·c09)의 지문만 바뀌는지도 본다.
+ * 순서 6c: pilot_v0의 판정 지문(보내는 요청 본문과 deps로 셈한다)도 찍는다. 지시문은 LF·NFC로 맞춰 읽으므로 CRLF로 꺼내도 같아야 한다.
  * 자료 쪽은 순서 2 결과와 얼린 매물·주소 파일이 있을 때만 돈다.
  */
 class HarnessCheckTest {
@@ -74,9 +75,10 @@ class HarnessCheckTest {
         }, x -> { }, new PrintStream(OutputStream.nullOutputStream()));
         List<String> moved = r.prints().keySet().stream().filter(k -> !r.prints().get(k).equals(r2.prints().get(k))).toList();
         assertEquals(List.of("c08", "c09"), moved);
+        String judge = Judge.print(s.judge(), Judge.instructions(exp, s.judge()), in.digests().deps());
         System.out.println("하네스 검사: pilot_v0 설정으로 판 10개 요청 지문(합) " + all.substring(0, 12) + ", 코드 " + in.digests().code().substring(0, 12)
                 + ", 카드 " + in.digests().cards().substring(0, 12) + ", 목록 " + in.digests().lists().substring(0, 12)
                 + ", 의존성 " + Fingerprint.runtimeDeps(exp.resolve("harness/gradle.lockfile")).size() + "개 " + in.digests().deps().substring(0, 12)
-                + ", 시험 계획 2문항 × 10판 × 2회 = 40실행, 얼린 기억을 걸면 지문이 바뀌는 판 " + String.join(" ", moved));
+                + ", 시험 계획 2문항 × 10판 × 2회 = 40실행, 얼린 기억을 걸면 지문이 바뀌는 판 " + String.join(" ", moved) + ", 판정 지문 " + judge.substring(0, 12));
     }
 }
