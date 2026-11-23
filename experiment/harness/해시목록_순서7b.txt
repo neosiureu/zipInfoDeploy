@@ -1,0 +1,8 @@
+# 순서 7b 커밋 해시목록 (2026-11-23). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# 새 파일: 하네스 시험 TemplatesCheckTest(틀 문장 파일이 있을 때만: 지문, 유형 카드, ⓪ 분모·절 수).
+# 고친 파일: ⓪ 목록 v0(군말 32개 더함, 72→104), 카드 v0 K04(주위·차이·에 비해)·K08(얼마나 거래), questions README(사람이 볼 것 한 줄, 시험 설명). 틀 문장 파일은 git 밖이라 넣지 않는다.
+1CF8C12744C0DAA58F6C7250F4B70DBE93DC43EF5718CC160C626062592367D7  experiment/cards/v0/K04.md
+4D2A2C61FD6F6CA7341677F8C9CB91786C78C00DA2B80FE8A4C1440169D29C5B  experiment/cards/v0/K08.md
+1C44F3A49546EA1B1EF3FFF6E6B40792E9FC99E5F52BE8D24DA18DDB85967667  experiment/harness/src/test/java/com/zipinfo/harness/TemplatesCheckTest.java
+528BEC8905C65D26BCB22B3E32C220905A22F960B08EA4403164E2E93C8C2C4E  experiment/intents/intent_lists_v0.json
+DF3DAEA42A73BC0EEEF0F2E8F465DD086D21FBAE326A7388BB8665823747E07E  experiment/questions/README.md
