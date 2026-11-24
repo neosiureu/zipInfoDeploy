@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""순서 8a: 채점기(prep score, 순서 8 설계 d판 7절).
+"""순서 8a: 채점기(prep score, 순서 8 설계 d판 7절). 8b(설계 2판 2절 가·나, 시험 자료 넓힘)도 여기서 본다. 8b 지표는 test_metrics.py.
 
 - 실제 꼴의 기록: data/score_fx는 하네스(Java)가 가짜 모델·배치 서버로 지은 단계 폴더다(ScoreFixtureTest). 매물·거래는 하네스 시험의 지어낸 자료다.
   여기에 정답 파일·매물 파일·K10을 더해 experiment 폴더처럼 꾸리고 끝까지 매긴다. 묶기 검사는 그 폴더를 한 곳씩 바꿔 본다.
@@ -23,11 +23,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 FX = os.path.join(HERE, "data", "score_fx")
 STAGE = os.path.join("harness", "runs", "pilot")
 K10 = os.path.join(score.CODE_ROOT, "cards", "v0", "K10.md")
-RUNS = ["c01-q001-r1", "c01-q002-r1", "c07-q001-r1", "c07-q002-r1"]
+RUNS = ["c01-q001-r1", "c01-q002-r1", "c04-q001-r1", "c04-q002-r1", "c05-q001-r1", "c05-q002-r1", "c06-q001-r1", "c06-q002-r1", "c07-q001-r1",
+        "c07-q002-r1"]
+OUTPUTS = ("runs.jsonl", "summary.tsv", "metrics.tsv")
 
 
 def fx_answers(qsha):
-    call = {"api": "apt_trade", "region_code": "00000", "start_month": "202610", "end_month": "202610", "deal": "매매", "dong": "", "jibun": ""}
+    call = {"api": "apt_trade", "region_code": "41591", "start_month": "202610", "end_month": "202610", "deal": "매매", "dong": "", "jibun": ""}
     t1 = {"months": 1, "scope": "시군구", "call": call, "sample": 4, "listing_value": "350000000", "basis": "33741", "diff": "3.7"}
     t2 = {"months": 1, "scope": "단지", "call": dict(call, dong="가동", jibun="12"), "sample": 2, "listing_value": "350000000", "basis": "31770",
           "diff": "10.2"}
@@ -47,7 +49,7 @@ class Exp:
         shutil.copy(K10, self.p("cards/v0/K10.md"))
         os.makedirs(self.p("frozen"))
         with open(self.p("frozen/example_listings_v1.csv"), "w", encoding="utf-8", newline="\n") as f:
-            f.write("complex_id,deal,layer,split\n" + "".join(f"apt|00000|가동|0|12|0,매매,화성형,{sp}\n" for sp in ("연습", "연습", "본시험")))
+            f.write("complex_id,deal,layer,split\n" + "".join(f"apt|41591|가동|0|12|0,매매,화성형,{sp}\n" for sp in ("연습", "연습", "본시험")))
         os.makedirs(self.p("prep/out"))
         self.write_answers(fx_answers(score.sha256_lf(self.p("questions/questions_fx.json"))))
         self.settings = self.p("harness/settings/fx_v0.json")
@@ -111,13 +113,16 @@ class TestFixture(unittest.TestCase):
         code, out = self.x.run()
         self.assertEqual(code, 0, out)
         self.assertTrue(out[0].startswith("채점 검사: 문항 파일 "), out[0])
-        self.assertIn("기록 4개가 이 문항 파일과 plan.txt 지문으로 돎(단계·설정 판 같음), 판정 3개가 기록 해시에 묶임(판정 지문 CEA01B2E0224, 옛 줄 0, 다른 줄 0)",
+        self.assertIn("기록 10개가 이 문항 파일과 plan.txt 지문으로 돎(단계·설정 판 같음), 판정 7개가 기록 해시에 묶임(판정 지문 CEA01B2E0224, 옛 줄 0, 다른 줄 0)",
                       out[0])
-        self.assertEqual(out[1], "c01 B0: 계획 2, 제출 1, 값 1, 규칙 1, 판정 답함 1, 완전 정답 1, 수사 뺀 완전 정답 1")
-        self.assertEqual(out[2], "c07 ①+④: 계획 2, 제출 2, 값 2, 규칙 1, 판정 답함 1, 완전 정답 0, 수사 뺀 완전 정답 0")
+        self.assertEqual(out[1:6], ["c01 B0: 계획 2, 제출 1, 값 1, 규칙 1, 판정 답함 1, 완전 정답 1, 수사 뺀 완전 정답 1",
+                                    "c04 ①+⓪: 계획 2, 제출 1, 값 1, 규칙 1, 판정 답함 1, 완전 정답 1, 수사 뺀 완전 정답 1",
+                                    "c05 ①+②: 계획 2, 제출 1, 값 1, 규칙 1, 판정 답함 1, 완전 정답 1, 수사 뺀 완전 정답 1",
+                                    "c06 ①+③: 계획 2, 제출 2, 값 1, 규칙 1, 판정 답함 2, 완전 정답 1, 수사 뺀 완전 정답 1",
+                                    "c07 ①+④: 계획 2, 제출 2, 값 2, 규칙 1, 판정 답함 1, 완전 정답 0, 수사 뺀 완전 정답 0"])
         rows = self.x.results()
         self.assertEqual([r["run_id"] for r in rows], RUNS)
-        a, b, c, d = rows
+        a, b, c, d = rows[0], rows[1], rows[8], rows[9]
         self.assertEqual((a["outcome"], a["value"], a["rule"], a["judge"], a["full"], a["codes"]), ("SUBMITTED", True, True, True, True, []))
         self.assertEqual([(i["item"], i["claim"]) for i in a["items"]], [("기준값", "stat_claims[0]"), ("차이", "value_claims[0]")])
         self.assertEqual((b["outcome"], b["full"], b["codes"], b["items"], b["judge"]), ("FAILED_REFUSAL", False, ["FAILED_REFUSAL"], [], None))
@@ -130,27 +135,28 @@ class TestFixture(unittest.TestCase):
             tsv = [line.rstrip("\n").split("\t") for line in f]
         self.assertEqual(tsv[0], list(score.SUMMARY_HEAD))
         self.assertEqual(tsv[1][:10], ["c01", "B0", "2", "1", "1", "1", "1", "0", "1", "1"])
-        self.assertEqual(tsv[2][:10], ["c07", "①+④", "2", "2", "2", "1", "1", "0", "0", "0"])
+        self.assertEqual(tsv[5][:10], ["c07", "①+④", "2", "2", "2", "1", "1", "0", "0", "0"])
         self.assertEqual(len(tsv[1][10]), 64)
         self.assertEqual(tsv[1][11], "CEA01B2E0224544C9BE97B0C0FF325A647C747B90FA81D2A485C443553550E9E")
 
     def test_no_text_goes_into_the_outputs(self):
         self.assertEqual(self.x.run()[0], 0)
-        blob = (self.x.read("score/runs.jsonl") + self.x.read("score/summary.tsv")).decode("utf-8")
-        for text in ("시험 글", "이 매물은", "묻는 값을", "가로 1", "기준값보다"):
+        blob = b"".join(self.x.read("score/" + n) for n in OUTPUTS).decode("utf-8")
+        for text in ("시험 글", "이 매물은", "묻는 값을", "가로 1", "기준값보다", "같은 단지 거래는", "없는 길", "모르겠다", "길다", "잠시 뒤",
+                     "의도도", "지역 코드가", "41590", "먼저 카드"):
             self.assertNotIn(text, blob)
 
     def test_same_bytes_twice_and_from_crlf_records(self):
         self.assertEqual(self.x.run()[0], 0)
-        first = (self.x.read("score/runs.jsonl"), self.x.read("score/summary.tsv"))
+        first = tuple(self.x.read("score/" + n) for n in OUTPUTS)
         self.assertEqual(self.x.run()[0], 0)
-        self.assertEqual((self.x.read("score/runs.jsonl"), self.x.read("score/summary.tsv")), first)
+        self.assertEqual(tuple(self.x.read("score/" + n) for n in OUTPUTS), first)
         # git이 CRLF로 꺼낸 기록·plan.txt·판정 파일·문항 파일(판정 해시와 문항 해시는 LF로 맞춰 센다)
         for d, _, files in os.walk(self.x.root):
             if "score" in d.split(os.sep):
                 continue
             for f in files:
-                if f.endswith((".jsonl", ".txt", ".json", ".md", ".csv")):
+                if f.endswith((".jsonl", ".txt", ".json", ".md", ".csv", ".tsv")):
                     path = os.path.join(d, f)
                     with open(path, "rb") as h:
                         b = h.read()
@@ -158,7 +164,7 @@ class TestFixture(unittest.TestCase):
                         h.write(score.lf(b).replace(b"\n", b"\r\n"))
         code, out = self.x.run()
         self.assertEqual(code, 0, out)
-        self.assertEqual((self.x.read("score/runs.jsonl"), self.x.read("score/summary.tsv")), first)
+        self.assertEqual(tuple(self.x.read("score/" + n) for n in OUTPUTS), first)
 
     def test_rewrite_replaces_the_old_folder(self):
         os.makedirs(self.x.stage("score"))
@@ -167,8 +173,61 @@ class TestFixture(unittest.TestCase):
         os.makedirs(self.x.stage("score.tmp"))
         os.makedirs(self.x.stage("score.old"))
         self.assertEqual(self.x.run()[0], 0)
-        self.assertEqual(sorted(os.listdir(self.x.stage("score"))), ["runs.jsonl", "summary.tsv"])
+        self.assertEqual(sorted(os.listdir(self.x.stage("score"))), sorted(OUTPUTS))
         self.assertFalse(os.path.exists(self.x.stage("score.tmp")) or os.path.exists(self.x.stage("score.old")))
+
+    def swap(self, fail_rename=None, fail_rmtree=None):
+        """score 모듈의 os.rename·shutil.rmtree를 바꿔 끼워 한 자리에서 PermissionError를 낸다(8b 2절 나)."""
+        real_rename, real_rmtree = score.os.rename, score.shutil.rmtree
+        def rename(a, b):
+            if fail_rename and fail_rename(a, b):
+                raise PermissionError("열려 있다")
+            real_rename(a, b)
+        def rmtree(d, *k, **kw):
+            if fail_rmtree and fail_rmtree(d):
+                raise PermissionError("열려 있다")
+            real_rmtree(d, *k, **kw)
+        score.os.rename, score.shutil.rmtree = rename, rmtree
+        try:
+            return self.x.run()
+        finally:
+            score.os.rename, score.shutil.rmtree = real_rename, real_rmtree
+
+    def old_score(self):
+        os.makedirs(self.x.stage("score"))
+        with open(self.x.stage("score/old.txt"), "w") as f:
+            f.write("old")
+
+    def test_a_failed_swap_puts_the_old_folder_back_and_ends_with_2(self):
+        self.old_score()
+        code, out = self.swap(fail_rename=lambda a, b: a.endswith("score.tmp"))
+        self.assertEqual(code, 2, out)
+        self.assertIn("결과 폴더를 바꾸지 못했다", out[0])
+        self.assertEqual(os.listdir(self.x.stage("score")), ["old.txt"])
+        self.assertFalse(os.path.exists(self.x.stage("score.tmp")) or os.path.exists(self.x.stage("score.old")))
+        code, out = self.swap(fail_rename=lambda a, b: b.endswith("score.old"))
+        self.assertEqual(code, 2, out)
+        self.assertEqual(os.listdir(self.x.stage("score")), ["old.txt"])
+        self.assertFalse(os.path.exists(self.x.stage("score.tmp")))
+
+    def test_only_the_last_cleanup_failing_ends_with_0_and_a_line(self):
+        self.old_score()
+        code, out = self.swap(fail_rmtree=lambda d: d.endswith("score.old") and os.path.exists(os.path.join(self.x.stage("score"), "runs.jsonl")))
+        self.assertEqual(code, 0, out)
+        self.assertIn("score.old를 지우지 못했다(다음에 칠 때 지운다)", out)
+        self.assertEqual(sorted(os.listdir(self.x.stage("score"))), sorted(OUTPUTS))
+        self.assertEqual(self.x.run()[0], 0)  # 다음에 칠 때 지운다
+        self.assertFalse(os.path.exists(self.x.stage("score.old")))
+
+    def test_an_old_folder_from_an_earlier_cut_is_not_brought_back(self):
+        # 전에 끊긴 판: score를 old로 옮긴 뒤 끝나 score/가 없다. 이번 앞 정리에서 old 지우기가 실패해도 그 old를 score로 되살리지 않는다(상대 8b 1판 검토)
+        os.makedirs(self.x.stage("score.old"))
+        with open(self.x.stage("score.old/half.txt"), "w") as f:
+            f.write("half")
+        code, out = self.swap(fail_rmtree=lambda d: d.endswith("score.old"))
+        self.assertEqual(code, 2, out)
+        self.assertFalse(os.path.exists(self.x.stage("score")))
+        self.assertTrue(os.path.exists(self.x.stage("score.old/half.txt")))
 
     def test_unjudged_runs_can_be_counted_when_the_config_says_so(self):
         v = [x for x in self.x.lines("judge/verdicts.jsonl") if x["run_id"] != "c01-q001-r1"]
@@ -183,7 +242,7 @@ class TestFixture(unittest.TestCase):
             json.dump(cfg, f, ensure_ascii=False)
         code, out = self.x.run(config=path)
         self.assertEqual(code, 0, out)
-        self.assertIn("판정 2개가 기록 해시에 묶임(판정 지문 CEA01B2E0224, 옛 줄 0, 다른 줄 0, 판정 없음 1)", out[0])
+        self.assertIn("판정 6개가 기록 해시에 묶임(판정 지문 CEA01B2E0224, 옛 줄 0, 다른 줄 0, 판정 없음 1)", out[0])
         a = self.x.results()[0]
         self.assertEqual((a["judge"], a["full"], a["codes"]), (None, False, ["JUDGE_MISSING"]))
 
@@ -239,8 +298,16 @@ class TestBinding(unittest.TestCase):
         self.stops("기록 문제 1줄")
 
     def test_plan_txt_counts(self):
-        self.x.edit_text(f"{STAGE}/plan.txt".replace(os.sep, "/"), "끝난 것 4, 시작한 것 0, 남은 것 0", "끝난 것 3, 시작한 것 0, 남은 것 1")
-        self.stops("끝난 것 3, 시작한 것 0, 남은 것 1")
+        self.x.edit_text(f"{STAGE}/plan.txt".replace(os.sep, "/"), "끝난 것 10, 시작한 것 0, 남은 것 0", "끝난 것 9, 시작한 것 0, 남은 것 1")
+        self.stops("plan.txt: 남은 것 1(시작한 것 0). 모두 끝나야 매긴다")
+
+    def test_plan_txt_with_records_outside_the_plan_says_so(self):
+        # 하네스 Runner.status는 계획 밖 기록도 끝난 것·시작한 것에 넣는다(8b 2절 가, 상대 8a 검토)
+        rel = f"{STAGE}/plan.txt".replace(os.sep, "/")
+        self.x.edit_text(rel, "끝난 것 10, 시작한 것 0, 남은 것 0", "끝난 것 11, 시작한 것 0, 남은 것 0")
+        self.stops("plan.txt: 끝난 것 11·시작한 것 0가 계획(10)과 맞지 않다. 계획 밖 기록이 있다. 다른 폴더로 옮긴다")
+        self.x.edit_text(rel, "끝난 것 11, 시작한 것 0, 남은 것 0", "끝난 것 10, 시작한 것 1, 남은 것 0")
+        self.stops("계획 밖 기록이 있다")
 
     def test_plan_txt_must_be_readable(self):
         self.x.edit_text(f"{STAGE}/plan.txt".replace(os.sep, "/"), "요청 지문:\n", "요청 지문:\n이상한 줄\n")
@@ -710,7 +777,7 @@ class TestRealFiles(unittest.TestCase):
                 + f"(모두 {sum(items.values())}), 거래 없음 {no_trade}, 건수 0 {zero_count}")
         listings_path = os.path.join(root, score.LISTINGS)
         if os.path.exists(os.path.join(root, "questions", "templates_v0.json")) and os.path.exists(listings_path):
-            tnums, _ = score.template_numbers(root, qpath, version, questions, listings_path)
+            tnums = score.template_numbers(root, qpath, version, questions, listings_path)[0]
             test = [q for q in questions if q["split"] == "본시험"]
             line += f", 본시험 {len(test)}문항 가운데 AI 틀(다섯째) 뺀 것 {sum(1 for q in test if tnums[q['id']] != 5)}"
         print("\n" + line)

@@ -1,0 +1,30 @@
+# 순서 8b 커밋 해시목록 (2026-11-24). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# 새 파일: prep metrics.py(15.9 지표·진단·비용, 하네스 summary.tsv 대 보기, 같은 실수 표), 시험 tests/test_metrics.py, 하네스 시험 IntentClausesCheckTest(⓪ 의도 절 표, 표가 있을 때만), 시험 자료 score_fx에 ⓪·②·③ 판 기록 6개와 하네스 summary.tsv.
+# 고친 파일: prep score.py(8a 가·나, 응답 남기기, 판 parts, 결과 셋, mistakes), cli.py(mistakes 명령), score_v0.json(칸 둘), README.md, tests/test_score.py, 시험 자료 score_fx(하네스가 다시 지음), 하네스 시험 ScoreFixtureTest(판 셋·summary.tsv), questions/.gitignore(의도 절 표 한 줄). 하네스·ai-core의 main 코드는 그대로다.
+90E2E63BAEA06DC5EF256506043D6ACFBBA3BF6557C9FBC5A4748CFEBE991322  experiment/harness/src/test/java/com/zipinfo/harness/IntentClausesCheckTest.java
+8C668CEFFA4D37073B94E71E313F680332FD300835998C988BDEADEC2667F55D  experiment/harness/src/test/java/com/zipinfo/harness/ScoreFixtureTest.java
+1929A31118DEC78F2BC1CD3017335BF78DAF1995F0F87E9736F19221970FA292  experiment/prep/README.md
+2542D53C9A93DC9B8AB4938F3CF1D58F00C9B78BC6360C71571E2FE5A5F6E068  experiment/prep/cli.py
+7CBB32FDDB7397643572354341B18CA4C9F31B5B59A37021EC54620CEEC74983  experiment/prep/metrics.py
+A6A42EF804DB980E5AE5621D5212C99527476E21247D81E6C49F562FC4BEDB85  experiment/prep/score.py
+59F4E207D42B53E2FC0273F81EB70F6DDC23E497E1DFA9B61F67C129C9372349  experiment/prep/score_v0.json
+9303B30BAEB19DD14020FA9880C43BFB3E487C055A0BEA200FB19F5F8954DDCC  experiment/prep/tests/data/score_fx/harness/runs/pilot/c01-q001-r1.jsonl
+8766C1E4A5095644EACCF642F37FEBABC91327FF66E09A7362CA5352E8525428  experiment/prep/tests/data/score_fx/harness/runs/pilot/c01-q002-r1.jsonl
+38EAEC08B761CD25BCC1E39B94090A682E4B54151F472FF04F15C61A6DE6F1A3  experiment/prep/tests/data/score_fx/harness/runs/pilot/c04-q001-r1.jsonl
+7FADAFDA6DBD73CA7C55C7490150DBA2C701ED8A57575BC9B096E605072076CE  experiment/prep/tests/data/score_fx/harness/runs/pilot/c04-q002-r1.jsonl
+A3F71EB5E7B04BD4ACAB239C0AE639B383FC43A786ABB3F68B0110D4BE095033  experiment/prep/tests/data/score_fx/harness/runs/pilot/c05-q001-r1.jsonl
+E501A9FFF6DAD869473D72CCABA93BC717F2AD908859286CFC898BD21E30F2EE  experiment/prep/tests/data/score_fx/harness/runs/pilot/c05-q002-r1.jsonl
+1F854B13C60EC39542EB37713E68E5C8F99262FA72DE1FB3D2BD8C14ABF3ACDE  experiment/prep/tests/data/score_fx/harness/runs/pilot/c06-q001-r1.jsonl
+3CA5993564F8EA023FA786BC0C01F0F7756B09F5EF4E86F38A0BF75A2DE15908  experiment/prep/tests/data/score_fx/harness/runs/pilot/c06-q002-r1.jsonl
+5B713467066DA4DC1CC0B75A067A2470AFDFDF74EC99D1C85AC163BD2C8711A2  experiment/prep/tests/data/score_fx/harness/runs/pilot/c07-q001-r1.jsonl
+F0A830531F6A028198FF9006352638C6506852E4102E04BA6A633A0487C1674B  experiment/prep/tests/data/score_fx/harness/runs/pilot/c07-q002-r1.jsonl
+0A04551443ABE43073FD688F58157B206A55757CE40DA98482D59EEF75600C0D  experiment/prep/tests/data/score_fx/harness/runs/pilot/judge/batches.jsonl
+18C884301D58488D5308E5B0D4FD1AAFD6D26DB32850040F61DC9D7F7A20E8F6  experiment/prep/tests/data/score_fx/harness/runs/pilot/judge/results/msgbatch_fake1.jsonl
+664C73321665D10D7FDFDE56889E520FE05024EB8E20BF35570B1614A15A2255  experiment/prep/tests/data/score_fx/harness/runs/pilot/judge/verdicts.jsonl
+DEB2C1B6175A5682188BDE83B66FDB88B4D6FD350CDAF2B5489CCFC323A05D6E  experiment/prep/tests/data/score_fx/harness/runs/pilot/plan.txt
+B5B56245EB9D3841FDBFF4432E0789D3512AB5F0A6351FFE2120E20C78C848F1  experiment/prep/tests/data/score_fx/harness/runs/pilot/summary.tsv
+7359BFE59FF75A790E8BF21AA7D742EF520E27E3041A6933BB5E4981B72C27E0  experiment/prep/tests/data/score_fx/harness/settings/fx_v0.json
+48AE930A18308E18FB12D375E76F7653109097B6B3D867516E5A5D774218607D  experiment/prep/tests/data/score_fx/variants/variants_fx.json
+87019A5F087E9308139E5C350761E4B49107B74320815BD2064AFD3D7C6135A9  experiment/prep/tests/test_metrics.py
+31288A914B045C33CF270A6F353D35A80B9F0B03932E44357C4232C3AF59B96E  experiment/prep/tests/test_score.py
+D531689E11476727D39DA2FA2F3C63B8CA488470189E8571654FA266C56960E1  experiment/questions/.gitignore

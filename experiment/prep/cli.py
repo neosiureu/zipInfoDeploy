@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""순서 2·3·7·8 명령: build, check, freeze-juso, answers, questions, score, test.
+"""순서 2·3·7·8 명령: build, check, freeze-juso, answers, questions, score, mistakes, test.
 
 experiment 폴더에서 `python -X utf8 -B -m prep <명령>`으로 돌린다.
 화면에는 셈한 수, 코드, 해시만 낸다. 거래 줄, 매물 이름·주소, 단지ID, 키는 내지 않는다.
@@ -368,8 +368,14 @@ def cmd_questions(args):
 
 
 def cmd_score(args):
-    """순서 8a(순서 8 설계 d판): 한 단계의 기록을 묶기 검사하고 실행마다 값·규칙·판정을 매긴다. 끝 코드 0 다 매김, 3 묶기 검사, 2 설정·파일."""
+    """순서 8a·8b(순서 8 설계 d판, 8b 설계 2판): 한 단계의 기록을 묶기 검사하고 실행마다 값·규칙·판정을 매긴 뒤 15.9 지표·진단·비용을 낸다.
+    끝 코드 0 다 매김, 3 묶기 검사, 2 설정·파일."""
     return score.run(args.settings, listings=args.listings, pin=PINS["listings"])
+
+
+def cmd_mistakes(args):
+    """순서 8b(설계 2판 4.3): 연습 단계의 실패 코드로 같은 실수 표를 얼린다. 이미 있으면 쓰지 않는다(끝 코드 2)."""
+    return score.mistakes(args.settings, args.out, listings=args.listings, pin=PINS["listings"])
 
 
 def cmd_test(args):
@@ -401,6 +407,10 @@ def build_parser():
     s = sub.add_parser("score")
     s.add_argument("settings", help="하네스 설정 파일(experiment 폴더에서 본 경로, 예: harness/settings/pilot_v0.json)")
     s.add_argument("--listings", default=LISTINGS)
+    s = sub.add_parser("mistakes")
+    s.add_argument("settings", help="얼릴 단계의 하네스 설정 파일(예: harness/settings/pilot_v0.json)")
+    s.add_argument("out", help="얼릴 파일(experiment 폴더에서 본 경로, 예: harness/frozen/mistakes_v0.json)")
+    s.add_argument("--listings", default=LISTINGS)
     sub.add_parser("test")
     return p
 
@@ -409,7 +419,7 @@ def main(argv=None):
     args = build_parser().parse_args(argv)
     try:
         return {"build": cmd_build, "check": cmd_check, "freeze-juso": cmd_freeze_juso, "answers": cmd_answers,
-                "questions": cmd_questions, "score": cmd_score, "test": cmd_test}[args.cmd](args)
+                "questions": cmd_questions, "score": cmd_score, "mistakes": cmd_mistakes, "test": cmd_test}[args.cmd](args)
     except questions.BadTemplates as e:
         print("멈춤: 틀 문장 파일이 검사에 걸렸다. 아무것도 쓰지 않았다", file=sys.stderr)
         for p in e.problems:

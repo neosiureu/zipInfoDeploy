@@ -18,6 +18,7 @@ python -X utf8 -B -m prep freeze-juso
 python -X utf8 -B -m prep answers
 python -X utf8 -B -m prep questions
 python -X utf8 -B -m prep score harness/settings/<설정>.json
+python -X utf8 -B -m prep mistakes harness/settings/<설정>.json harness/frozen/mistakes_v0.json
 ```
 
 - 매물 파일(`--listings`)의 기본값은 `frozen/example_listings_v1.csv`다. 3단계에서 얼린 것이고, 5단계에 커밋한다.
@@ -119,32 +120,57 @@ python -X utf8 -B -m prep score harness/settings/<설정>.json
 - build와 answers를 먼저 돌려야 한다(해시를 대 본다).
 - 시험(`tests/test_questions.py`)은 지어낸 틀 문장과 매물로 본다.
 
-## score (순서 8a)
+## score (순서 8a·8b)
 
-순서 8 설계 d판의 채점기다(`score.py`). 하네스가 한 단계를 다 돌고 판정(judge)까지 0으로 끝난 뒤에 친다.
+순서 8 설계 d판의 채점기(`score.py`)와 8b 설계 2판의 지표(`metrics.py`)다. 하네스가 한 단계를 다 돌고 판정(judge)까지 0으로 끝난 뒤에 친다.
 
 ```
 python -X utf8 -B -m prep score harness/settings/pilot_v0.json
 ```
 
-- **채점 바로 전에 하네스 `plan`을 같은 설정으로 친다.** 채점기는 plan.txt의 판 지문으로 기록을 묶는다.
+- **채점 바로 전에 하네스 `plan`과 `summary`를 같은 설정으로 친다.** 채점기는 plan.txt의 판 지문으로 기록을 묶고, summary.tsv를 같은 셈으로 대 본다.
 - **묶기 검사(2.2):** 하나라도 걸리면 아무것도 쓰지 않고 3으로 끝난다. 설정·파일을 못 읽으면 2다.
     - 정답 파일(`prep/out/answers_<문항 파일 version>.json`)의 `questions_sha256`과 문항 ID·키·유형·나눔이 문항 파일과 같다.
     - plan.txt의 단계·나눔·설정 판, 판·문항·회차·블록·실행 수가 파이썬이 짠 계획(하네스 `Plan`과 같은 셈)과 같다. 기록 문제·지문이 다른 기록·남은 실행이 없다.
     - 기록마다: 파일 이름 = 실행 ID, 머리의 stage·settings_version·문항이 설정·문항 파일과 같다, 실행 지문 = SHA-256(plan.txt의 판 지문 + 키 + 질문 글), 끝이 있고 STOP_*가 아니다.
     - 계획의 실행이 모두 기록에 있고, 계획 밖 기록이 없다.
     - SUBMITTED 실행마다 (단계, 실행 ID, 기록 해시)가 같은 판정 줄이 꼭 하나다. 기록 해시는 줄 끝을 LF로 맞춘 SHA-256이다. 판정 지문은 하나다.
+    - plan.txt의 끝난 것·시작한 것이 계획과 맞지 않으면(남은 것 0인데) 계획 밖 기록이 있다고 말한다(하네스 Runner.status는 폴더의 모든 기록을 센다).
+    - **8b:** 하네스 `summary.tsv`가 있고, 채점기가 같은 셈(하네스 Summary와 같은 double 덧셈 차례, `BigDecimal.valueOf → HALF_UP`, 비용은 Decimal)으로 지은 것과 글자까지 같다.
 - **매기기(3절):** 항목(유형·거래·표본으로 정함)마다 대표 claim의 값과 규칙, 답 전체의 규칙(T2 넓히지 않음·금지 표현·방향 말·출처·검사기 깨끗), 판정.
     - 완전 정답 v0 = SUBMITTED, 값 통과, 규칙 통과, 판정 "답함". 보조로 수사(NUMERAL)만 뺀 완전 정답도 낸다.
     - 실패 코드와 진단 꼬리표(FALSE_NO_TRADE, 규칙 실패로 세지 않음)를 실행마다 남긴다.
-- **채점 설정 `score_v0.json`:** 판정 없는 SUBMITTED의 처리(`unjudged`: `stop`이 기본, `fail`은 완전 정답이 아님으로 셈), 방향 말 낱말. 하네스 설정 파일에는 칸을 더할 수 없어 따로 둔다.
-- **채점 지문:** "이름  해시" 줄(code, score, answers, questions, k10, templates)을 이은 글의 SHA-256이다. code는 prep·picker의 `.py`(tests 빼고)를 하네스 `Fingerprint.tree`와 같은 꼴로 센 값이다. 줄 끝을 LF로 맞춰 세므로 Windows와 리눅스에서 같다.
-- **남기는 것:** `<files.out>/<stage>/score/`의 `runs.jsonl`(계획의 실행마다 한 줄)과 `summary.tsv`(판마다 한 줄, 채점 지문·판정 지문). runs 아래라 git 밖이다.
-    - 질문·답·판정 이유·매물 이름은 쓰지 않는다. 실행 ID, 문항 ID·키, 코드, 수만 쓴다.
+- **8b 지표(`metrics.py`, 8b 설계 2판 3~7절)**
+    - 기록의 고리 사건에서 부름과 hook을 묶는다. 데이터 도구는 tool 사건 바로 앞의 hook, 제출은 submit 사건 바로 뒤의 hook이다(하네스 사건 resume·attempt·pause·end는 뺀다). 묶이지 않으면 멈춘다.
+    - 받은 거절은 묶음에서 처음 REJECT인 부품(모델에 간 것), 자기 거절은 부품마다의 REJECT다. ⓪의 declare_intents 거절은 `⓪선언`으로 따로 센다.
+    - 15.9 지표: 첫 시도 CI 통과, 거절 뒤 자력 완료·완전 정답(부품마다), 같은 실수 재발(표가 있을 때), 근거 없는 완료 보고(claim), 소요시간, 부당 거절(⓪②③④, ③은 면적 따로, ⓪은 틀마다).
+    - ④의 부당 거절은 멀쩡한 제출(그 submit까지의 사건으로 매겨 값이 맞고 수사 뺀 규칙을 지남) 가운데 ④가 막은 것이다. ⓪은 거절 결과의 「…」 절이 모두 의도 절 표의 '의도 아님'일 때다(표에 없는 절이 나오면 멈춘다).
+    - 비용은 설정의 단가표로 실행마다 캐시 있음·없음을 센다(하네스 Prices와 같은 식). 진단은 표본 0 부름, 도구 오류 코드, refusal 범주, 재촉, 턴, 받은·자기 거절, ④ 없는 판의 받은 답 findings, 머리의 단가표가 다른 기록이다.
+- **채점 설정 `score_v0.json`:** 판정 없는 SUBMITTED의 처리(`unjudged`: `stop`이 기본, `fail`은 완전 정답이 아님으로 셈), 방향 말 낱말, 같은 실수 표 자리(`mistakes`, 관문 3까지 null), ⓪ 의도 절 표 자리(`intent_clauses`). 하네스 설정 파일에는 칸을 더할 수 없어 따로 둔다.
+    - 의도 절 표(`questions/intent_clauses_v0.json`)는 틀 문장 파일처럼 관문 3까지 git 밖이다. 표나 틀 문장 파일이 없으면 ⓪ 부당 거절만 "-"이고 한 줄을 찍는다.
+    - 같은 실수 표의 단계가 매기는 단계와 같으면 재발은 "-"이고 한 줄을 찍는다(제 표로 저를 재지 않는다).
+- **채점 지문:** "이름  해시" 줄(code, score, answers, questions, k10, templates, 쓴 표 intent_clauses·mistakes)을 이은 글의 SHA-256이다. code는 prep·picker의 `.py`(tests 빼고)를 하네스 `Fingerprint.tree`와 같은 꼴로 센 값이다. 줄 끝을 LF로 맞춰 세므로 Windows와 리눅스에서 같다.
+- **남기는 것:** `<files.out>/<stage>/score/`의 `runs.jsonl`(계획의 실행마다 한 줄), `summary.tsv`(판마다 한 줄, 채점 지문·판정 지문), `metrics.tsv`(판·갈래·이름·분자·분모). runs 아래라 git 밖이다.
+    - 질문·답·판정 이유·매물 이름·⓪의 절 글은 쓰지 않는다. 실행 ID, 문항 ID·키, 코드, 수만 쓴다.
     - `score.tmp/`에 다 쓴 뒤 옛 `score/`와 바꾼다. 같은 입력이면 같은 바이트다(파이썬 3.11·3.12·3.13, CRLF로 꺼낸 기록에서도).
+    - 바꾸기가 실패하면(엑셀이 파일을 연 때 등) 2로 멈추고, 이번에 옮긴 옛 `score/`만 되돌린다. 마지막 `score.old` 지우기만 실패하면 0으로 끝내고 한 줄을 찍는다.
 - **틀 문장 파일이 있으면** 문항마다 틀 번호를 `questions.build`로 다시 낸다(다시 지은 글이 문항 파일과 다르면 멈춘다).
-- **시험(`tests/test_score.py`)**
-    - `tests/data/score_fx`는 하네스 시험 `ScoreFixtureTest`가 가짜 모델·배치 서버로 지은 단계 폴더다(기록 4개, plan.txt, 판정 파일). 매물·거래는 하네스 시험의 지어낸 자료다. 여기에 지어낸 정답·매물 파일과 K10을 더해 끝까지 매기고, 한 곳씩 바꿔 묶기 검사를 본다.
+- **시험(`tests/test_score.py`, 8b 지표는 `tests/test_metrics.py`)**
+    - `tests/data/score_fx`는 하네스 시험 `ScoreFixtureTest`가 가짜 모델·배치 서버로 지은 단계 폴더다(기록 10개: ⓪·②·③·④ 판 포함, plan.txt, summary.tsv, 판정 파일). 매물·거래는 하네스 시험의 지어낸 자료다. 여기에 지어낸 정답·매물 파일과 K10을 더해 끝까지 매기고, 한 곳씩 바꿔 묶기 검사를 본다.
     - 하네스가 쓰는 꼴이 바뀌면 `ScoreFixtureTest`가 걸린다. 그때는 `experiment/harness`에서 환경 변수 `SCORE_FIXTURE_OUT`에 이 폴더(`…/experiment/prep/tests/data/score_fx`)를 주고 그 시험을 다시 돌려 새로 짓는다.
     - 실행 하나 매기기는 같은 꼴의 사건을 지어 한 곳씩 바꿔 본다.
-    - 실제 문항·정답 파일이 있으면 항목 수를 찍는다(`채점 항목 검사: …`).
+    - 실제 문항·정답 파일이 있으면 항목 수를 찍는다(`채점 항목 검사: …`). 의도 절 표는 하네스 시험 `IntentClausesCheckTest`가 ⓪이 나누는 절과 대 본다(표가 있을 때만).
+
+## mistakes (순서 8b)
+
+같은 실수 표를 얼린다(8b 설계 2판 4.3). 관문 3에 연습 단계(시운전)로 한 번 친다.
+
+```
+python -X utf8 -B -m prep mistakes harness/settings/pilot_v0.json harness/frozen/mistakes_v0.json
+```
+
+- 그 단계를 score와 같은 함수로 묶기 검사하고 매긴 뒤 표를 쓴다. 이미 있으면 쓰지 않고 2로 끝난다(얼린 것은 덮어쓰지 않는다).
+- 꼴: `{"version": "v0", "stage", "score"(채점 지문), "judge"(판정 지문), "runs", "codes": {코드: 실행 수}, "code_areas": {"코드|시군구 번호": 실행 수}}`. UTF-8, LF, 키 차례.
+    - 유형은 runs.jsonl의 codes다(판정 없음 JUDGE_MISSING은 뺀다). 진단 꼬리표는 넣지 않는다.
+    - 시군구 번호는 매물 파일의 현재 시군구 코드를 오름차순으로 세운 차례(1부터)다. 코드 값은 쓰지 않는다.
+- 쓰려면 채점 설정 `mistakes`에 그 자리를 적는다. 표 파일의 해시가 채점 지문에 든다.

@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
-"""순서 8a 채점기(순서 8 설계 d판 2·3·6·8절): 한 단계의 기록을 묶기 검사한 뒤 실행마다 값·규칙·판정을 매긴다.
+"""순서 8a·8b 채점기(순서 8 설계 d판 2·3·6·8절, 8b 설계 2판): 한 단계의 기록을 묶기 검사한 뒤 실행마다 값·규칙·판정을 매기고,
+15.9 지표·진단·비용을 낸다(8b, metrics.py).
 
 experiment 폴더에서 `python -X utf8 -B -m prep score harness/settings/<설정>.json`으로 돌린다.
+같은 실수 표는 `python -X utf8 -B -m prep mistakes harness/settings/<설정>.json harness/frozen/mistakes_v0.json`으로 얼린다(8b 4.3).
 
 - 묶기 검사(2.2)에 하나라도 걸리면 아무것도 쓰지 않고 3으로 끝난다. 설정·파일 읽기 오류는 2, 다 매기면 0이다.
-- 결과는 <files.out>/<stage>/score/에 runs.jsonl·summary.tsv로 쓴다(runs 아래라 git 밖). 질문·답·판정 이유·매물 이름은 쓰지 않는다.
+  하네스 summary.tsv가 없거나 같은 셈과 다르면 그것도 묶기 검사다(8b 7절).
+- 결과는 <files.out>/<stage>/score/에 runs.jsonl·summary.tsv·metrics.tsv로 쓴다(runs 아래라 git 밖). 질문·답·판정 이유·매물 이름은 쓰지 않는다.
 - 화면에는 셈한 수, 실행 ID, 코드, 해시만 낸다.
-- 표준 라이브러리만 쓴다. 값은 JSON 수를 Decimal로 읽어 분수로 견준다(부동소수점을 쓰지 않는다).
+- 표준 라이브러리만 쓴다. 값은 JSON 수를 Decimal로 읽어 분수로 견준다. 하네스 Summary와 같은 셈(시간)만 double을 그대로 따라 한다.
 """
 import hashlib
 import json
@@ -52,7 +55,7 @@ PLACEHOLDER = re.compile(r"\{([가-힣]{1,3})(\.방향)?\}")
 SENTENCE_END = re.compile(r"[.?!\n]")
 SPACES = re.compile(r"\s+")
 
-CONFIG_FIELDS = ("version", "unjudged", "direction")
+CONFIG_FIELDS = ("version", "unjudged", "direction", "mistakes", "intent_clauses")
 DIRECTION_FIELDS = ("words", "high_low")
 HIGH_LOW_FIELDS = ("chars", "markers", "except", "window", "next_not")
 UNJUDGED = ("stop", "fail")
@@ -139,10 +142,11 @@ def fingerprint(parts):
 
 # ---------------------------------------------------------------- 읽기
 
-def read_json(path, what):
+def read_json(path, what, exact=False):
+    """exact면 소수를 Decimal로 읽는다(단가표)."""
     try:
         with open(path, "r", encoding="utf-8") as f:
-            return json.loads(f.read())
+            return json.loads(f.read(), parse_float=Decimal) if exact else json.loads(f.read())
     except FileNotFoundError:
         raise Bad(f"{what}이 없다: {path}") from None
     except (OSError, ValueError) as e:
@@ -187,7 +191,7 @@ def all_or_list(v, what):
 
 def load_settings(path):
     """하네스 설정 파일에서 채점이 쓰는 칸만 읽는다(칸이 더 있어도 된다. 하네스가 따로 엄격히 본다)."""
-    s = need(read_json(path, "하네스 설정"), ("version", "stage", "split", "files", "select", "block_size"), "하네스 설정")
+    s = need(read_json(path, "하네스 설정", exact=True), ("version", "stage", "split", "files", "select", "block_size", "cache", "prices"), "하네스 설정")
     need(s["files"], ("variants", "questions", "cards", "out"), "설정의 files")
     sel = need(s["select"], ("variants", "questions", "reps"), "설정의 select")
     reps = sel["reps"]
@@ -195,9 +199,11 @@ def load_settings(path):
         raise Bad("select.reps는 겹치지 않는 1~99의 정수 목록이다")
     if s["split"] not in SPLITS or integer(s["block_size"]) is None or s["block_size"] < 1:
         raise Bad("설정의 split이나 block_size가 맞지 않다")
+    need(s["cache"], ("system", "conversation", "ttl"), "설정의 cache")
+    from . import metrics as metrics_mod
     return {"version": s["version"], "stage": s["stage"], "split": s["split"], "files": s["files"], "block_size": s["block_size"],
             "variants": all_or_list(sel["variants"], "select.variants"), "questions": all_or_list(sel["questions"], "select.questions"),
-            "reps": list(reps)}
+            "reps": list(reps), "cache": s["cache"], "prices": metrics_mod.load_prices(s["prices"], "설정의 prices")}
 
 
 def load_config(path):
@@ -216,10 +222,14 @@ def load_config(path):
         raise Bad("채점 설정 direction의 낱말 목록이 맞지 않다")
     if c["unjudged"] not in UNJUDGED:
         raise Bad("채점 설정 unjudged는 stop이나 fail이다")
+    if c["mistakes"] is not None and not (isinstance(c["mistakes"], str) and c["mistakes"]):
+        raise Bad("채점 설정 mistakes는 null이나 같은 실수 표의 자리다")
+    if not (isinstance(c["intent_clauses"], str) and c["intent_clauses"]):
+        raise Bad("채점 설정 intent_clauses는 의도 절 표의 자리다")
     nfc = lambda xs: [unicodedata.normalize("NFC", x) for x in xs]
     return {"version": c["version"], "unjudged": c["unjudged"], "words": nfc(d["words"]), "chars": nfc(hl["chars"]),
             "markers": nfc(hl["markers"]), "except": nfc(hl["except"]), "window": hl["window"],
-            "next_not": unicodedata.normalize("NFC", hl["next_not"])}
+            "next_not": unicodedata.normalize("NFC", hl["next_not"]), "mistakes": c["mistakes"], "intent_clauses": c["intent_clauses"]}
 
 
 def load_variants(path):
@@ -228,8 +238,10 @@ def load_variants(path):
         raise Bad("판 설정 파일에 판이 없다")
     out = []
     for v in d["variants"]:
-        need(v, ("id", "name", "model"), "판")
-        out.append({"id": v["id"], "name": v["name"], "model": v["model"]})
+        need(v, ("id", "name", "model", "parts"), "판")
+        if not isinstance(v["parts"], list) or not all(p in ("⓪", "②", "③", "④", "⑤") for p in v["parts"]) or len(set(v["parts"])) != len(v["parts"]):
+            raise Bad("판의 parts는 ⓪·②·③·④·⑤ 가운데 겹치지 않는 목록이다")
+        out.append({"id": v["id"], "name": v["name"], "model": v["model"], "parts": list(v["parts"])})
     if len({v["id"] for v in out}) != len(out):
         raise Bad("판 설정 파일에 같은 판 ID가 둘이다")
     return out
@@ -389,8 +401,11 @@ def check_plan_txt(p, s, plan):
         raise Bind("plan.txt의 판·문항·회차·블록·실행 수가 파이썬이 짠 계획과 다르다")
     if p["problems"] or p["stale"]:
         raise Bind(f"plan.txt에 기록 문제 {p['problems']}줄, 요청 지문이 다른 기록 {p['stale']}줄이 있다")
-    if p["done"] != len(plan) or p["started"] or p["remaining"]:
-        raise Bind(f"plan.txt: 끝난 것 {p['done']}, 시작한 것 {p['started']}, 남은 것 {p['remaining']}(모두 끝나야 매긴다)")
+    if p["remaining"]:
+        raise Bind(f"plan.txt: 남은 것 {p['remaining']}(시작한 것 {p['started']}). 모두 끝나야 매긴다")
+    if p["done"] != len(plan) or p["started"]:
+        # 하네스 Runner.status는 폴더의 모든 기록을 끝난 것·시작한 것에 넣는다(8b 2절 가)
+        raise Bind(f"plan.txt: 끝난 것 {p['done']}·시작한 것 {p['started']}가 계획({len(plan)})과 맞지 않다. 계획 밖 기록이 있다. 다른 폴더로 옮긴다")
     miss = [v for v in vs if v not in p["prints"]]
     if miss:
         raise Bind("plan.txt에 요청 지문이 없는 판이 있다: " + " ".join(miss))
@@ -401,6 +416,35 @@ def check_plan_txt(p, s, plan):
 def run_print(variant_print, q):
     """하네스 Fingerprint.run과 같은 셈."""
     return sha256((variant_print + "\n" + q["key"] + "\n" + q["text"]).encode("utf-8"))
+
+
+RESPONSE_KEEP = ("type", "turn", "stop", "refusal_category", "input_tokens", "cache_read_tokens", "cache_write_tokens", "output_tokens", "millis")
+
+
+def slim(e):
+    """응답 원문은 크고 채점에 쓰지 않는다. 8b가 쓰는 칸(토큰 넷, 시간, 멈춘 까닭, refusal 범주)과 원문 usage.cache_creation만 남긴다.
+    첫 메시지는 읽은 뒤 버린다."""
+    if e.get("type") != "response":
+        return e
+    out = {k: e[k] for k in RESPONSE_KEEP if k in e}
+    raw = e.get("raw")
+    usage = raw.get("usage") if isinstance(raw, dict) else None
+    cc = usage.get("cache_creation") if isinstance(usage, dict) else None
+    out["cache_creation"] = cc if isinstance(cc, dict) else None
+    return out
+
+
+def head_of(h):
+    """기록 머리에서 8b가 쓰는 것: 판 ID·모델(Summary가 머리로 단가를 고른다), 캐시 유지 시간(없으면 5m), 머리의 단가표(못 읽으면 None)."""
+    from . import metrics as metrics_mod
+    v = h.get("variant") if isinstance(h.get("variant"), dict) else {}
+    ttl = (h.get("cache") if isinstance(h.get("cache"), dict) else {}).get("ttl")
+    try:
+        prices = metrics_mod.load_prices(h.get("prices"), "기록 머리의 단가표")
+    except Bad:
+        prices = None
+    return {"variant": metrics_mod.as_text(v.get("id", metrics_mod._MISSING)), "model": metrics_mod.as_text(v.get("model", metrics_mod._MISSING)),
+            "ttl": ttl if isinstance(ttl, str) else "5m", "prices": prices}
 
 
 def read_records(stage_dir, s, plan, prints):
@@ -445,9 +489,8 @@ def read_records(stage_dir, s, plan, prints):
             elif not isinstance(ends[0].get("outcome"), str) or ends[0]["outcome"].startswith("STOP_"):
                 problems.append(f"{name}: 끝난 꼴이 {ends[0].get('outcome')}다. 문구를 고쳐 그 판을 다시 돌릴 일이다")
             else:
-                # 응답 원문(response)과 첫 메시지는 크고 채점에 쓰지 않아 남기지 않는다
-                got[rid] = {"sha": sha256(lf(raw)), "events": [e for e in lines[1:] if e.get("type") not in ("response", "first_message")],
-                            "outcome": ends[0]["outcome"]}
+                got[rid] = {"sha": sha256(lf(raw)), "events": [slim(e) for e in lines[1:] if e.get("type") != "first_message"],
+                            "outcome": ends[0]["outcome"], "head": head_of(h)}
     if outside:
         problems.append(f"계획 밖 기록 {len(outside)}개(예: {outside[0]}.jsonl). 다른 폴더로 옮긴다")
     missing = [r["id"] for r in plan if r["id"] not in got and not any(p.startswith(r["id"] + ".jsonl") for p in problems)]
@@ -665,14 +708,8 @@ def direction(text, cfg):
     return hit, {"words": words, "high_low": {ch: v for ch, v in hl.items() if v != [0, 0]}}
 
 
-def score_run(events, a, outcome, judge, forbidden, cfg):
-    """실행 하나(3.1~3.7). a는 정답 줄, judge는 판정(답함 True·답하지 않음 False·없음 None)."""
-    if outcome != "SUBMITTED":
-        return {"outcome": outcome, "items": [], "value": None, "rule": None, "judge": None, "full": False, "full_no_numeral": False,
-                "codes": [outcome], "tags": [], "direction": None}
-    sub = accepted_submission(events)
-    if sub is None:
-        raise Bind("SUBMITTED 기록의 받아들여진 제출을 찾지 못했다")
+def judge_submission(sub, events, a, forbidden, cfg):
+    """제출 하나를 매긴다(3.2~3.6). events는 그 제출까지의 사건이다(근거를 잇는 도구 결과). 판정은 보지 않는다."""
     inp = sub["input"]
     text = inp.get("text") if isinstance(inp.get("text"), str) else ""
     cs = claims_of(inp)
@@ -706,7 +743,29 @@ def score_run(events, a, outcome, judge, forbidden, cfg):
     vok = all(x["value"] for x in items)
     rok = items_rule and not report and not checker
     rok_nn = items_rule and not report and all(f == "NUMERAL" for f in findings)
-    codes = {code for x in items for code in x["codes"]} | set(report) | set(checker)
+    return {"items": items, "report": report, "checker": checker, "vok": vok, "rok": rok, "rok_nn": rok_nn, "cs": cs, "stats": stats,
+            "counts": counts}
+
+
+def sound_submission(sub, events, a, forbidden, cfg):
+    """8b 4.4 ④의 멀쩡한 제출: 받아들였다고 치고 그 제출까지의 사건으로 매겨, 값이 맞고 수사 뺀 규칙(rok_nn)을 지나는 제출. 판정은 보지 않는다."""
+    if not isinstance(sub.get("input"), dict):
+        return False
+    j = judge_submission(sub, events, a, forbidden, cfg)
+    return j["vok"] and j["rok_nn"]
+
+
+def score_run(events, a, outcome, judge, forbidden, cfg):
+    """실행 하나(3.1~3.7). a는 정답 줄, judge는 판정(답함 True·답하지 않음 False·없음 None)."""
+    if outcome != "SUBMITTED":
+        return {"outcome": outcome, "items": [], "value": None, "rule": None, "judge": None, "full": False, "full_no_numeral": False,
+                "codes": [outcome], "tags": [], "direction": None}
+    sub = accepted_submission(events)
+    if sub is None:
+        raise Bind("SUBMITTED 기록의 받아들여진 제출을 찾지 못했다")
+    j = judge_submission(sub, events, a, forbidden, cfg)
+    items, vok, rok, rok_nn, cs, stats, counts = j["items"], j["vok"], j["rok"], j["rok_nn"], j["cs"], j["stats"], j["counts"]
+    codes = {code for x in items for code in x["codes"]} | set(j["report"]) | set(j["checker"])
     if judge is False:
         codes.add("JUDGE_NOT_ANSWERED")
     elif judge is None:
@@ -737,20 +796,22 @@ def false_no_trade(cs, a, stats):
 # ---------------------------------------------------------------- 틀 번호(있을 때만)
 
 def template_numbers(exp, qpath, qversion, questions, listings_path):
-    """틀 문장 파일이 있으면 questions.build로 문항마다 틀 번호(1부터)를 다시 낸다. 다시 지은 글이 문항 파일과 다르면 Bind."""
+    """틀 문장 파일이 있으면 questions.build로 문항마다 틀 번호(1부터)를 다시 낸다. 다시 지은 글이 문항 파일과 다르면 Bind.
+    (틀 번호, 틀 문장 파일 자리, 매물 키 → 이름, 유형마다 틀 수). 파일이 없으면 모두 None."""
     tpath = os.path.join(os.path.dirname(qpath), f"templates_{qversion}.json")
     if not os.path.exists(tpath):
-        return None, None
+        return None, None, None, None
     try:
         _, templates = questions_mod.load_templates(tpath)
         L = listings_mod.load(listings_path)
-        rows = questions_mod.build(L, questions_mod.names(os.path.join(exp, OUT_DIR, LISTINGS_INPUT), [k for k, _ in L]), templates)
+        names = questions_mod.names(os.path.join(exp, OUT_DIR, LISTINGS_INPUT), [k for k, _ in L])
+        rows = questions_mod.build(L, names, templates)
     except (questions_mod.BadTemplates, listings_mod.BadListing, OSError, ValueError, KeyError) as e:
         raise Bad(f"틀 문장 파일로 문항을 다시 짓지 못했다({type(e).__name__})") from None
     rebuilt = [{k: r[k] for k in ("id", "key", "qtype", "split", "text")} for r in rows]
     if rebuilt != [{k: q[k] for k in ("id", "key", "qtype", "split", "text")} for q in questions]:
         raise Bind("틀 문장 파일로 다시 지은 문항이 문항 파일과 다르다")
-    return {r["id"]: r["template"] + 1 for r in rows}, tpath
+    return {r["id"]: r["template"] + 1 for r in rows}, tpath, names, {t: len(templates[t]) for t in TYPES}
 
 
 # ---------------------------------------------------------------- 쓰기
@@ -775,28 +836,49 @@ def tally(plan, rows):
     return list(out.values())
 
 
-def write_outputs(stage_dir, runs_text, summary_text):
-    """다시 쓰기(6절): 남은 score.tmp·score.old를 지움 → tmp에 씀 → 옛 score를 old로 → tmp를 score로 → old를 지움."""
+def write_outputs(stage_dir, files):
+    """다시 쓰기(6절, 8b 2절 나): 남은 score.tmp·score.old를 지움 → tmp에 씀 → 옛 score를 old로 → tmp를 score로 → old를 지움.
+    바꾸기가 OSError로 실패하면 tmp를 지우고(할 수 있으면), 이번에 score를 old로 옮긴 때만 old를 score로 되돌린 뒤 Bad.
+    마지막 old 지우기만 실패하면 결과는 제자리이므로 한 줄을 돌려준다(끝 코드 0)."""
     final = os.path.join(stage_dir, "score")
     tmp, old = final + ".tmp", final + ".old"
-    for d in (tmp, old):
-        if os.path.exists(d):
-            shutil.rmtree(d)
-    os.makedirs(tmp)
-    for name, text in (("runs.jsonl", runs_text), ("summary.tsv", summary_text)):
-        with open(os.path.join(tmp, name), "w", encoding="utf-8", newline="\n") as f:
-            f.write(text)
-    if os.path.exists(final):
-        os.rename(final, old)
-    os.rename(tmp, final)
+    moved = False
+    try:
+        for d in (tmp, old):
+            if os.path.exists(d):
+                shutil.rmtree(d)
+        os.makedirs(tmp)
+        for name, text in files:
+            with open(os.path.join(tmp, name), "w", encoding="utf-8", newline="\n") as f:
+                f.write(text)
+        if os.path.exists(final):
+            os.rename(final, old)
+            moved = True
+        os.rename(tmp, final)
+    except OSError:
+        try:
+            if os.path.exists(tmp):
+                shutil.rmtree(tmp)
+        except OSError:
+            pass
+        if moved and not os.path.exists(final):
+            try:
+                os.rename(old, final)
+            except OSError:
+                pass
+        raise Bad("결과 폴더를 바꾸지 못했다. score 폴더의 파일을 연 프로그램(엑셀 등)을 닫고 다시 친다") from None
     if os.path.exists(old):
-        shutil.rmtree(old)
+        try:
+            shutil.rmtree(old)
+        except OSError:
+            return "score.old를 지우지 못했다(다음에 칠 때 지운다)"
+    return None
 
 
 # ---------------------------------------------------------------- 명령
 
 def run(settings_path, exp=".", listings=LISTINGS, pin=None, config=CONFIG, out=print):
-    """채점(8a). 끝 코드: 0 다 매김, 3 묶기 검사에 걸림, 2 설정·파일 읽기 오류."""
+    """채점(8a·8b). 끝 코드: 0 다 매김, 3 묶기 검사에 걸림, 2 설정·파일 읽기 오류."""
     try:
         return _run(settings_path, exp, listings, pin, config, out)
     except Bad as e:
@@ -807,7 +889,9 @@ def run(settings_path, exp=".", listings=LISTINGS, pin=None, config=CONFIG, out=
         return 3
 
 
-def _run(settings_path, exp, listings, pin, config, out):
+def prepare(settings_path, exp, listings, pin, config):
+    """설정·파일을 읽고 묶기 검사(2.2)를 한다. 채점과 같은 실수 표 얼리기가 같이 쓴다."""
+    from . import metrics as metrics_mod
     s = load_settings(settings_path)
     cfg = load_config(config)
     at = lambda p: p if os.path.isabs(p) else os.path.join(exp, *p.split("/"))
@@ -822,6 +906,7 @@ def _run(settings_path, exp, listings, pin, config, out):
     if not isinstance(ans, dict) or not isinstance(ans.get("answers"), list):
         raise Bad("정답 파일의 꼴이 아니다")
     plan = make_plan(s, variants, questions, metas)
+    current = metrics_mod.current_codes(metas)
     # 2.2의 1: 정답 ↔ 문항 파일
     qsha = sha256_lf(qpath)
     if ans.get("questions_sha256") != qsha or ans.get("version") != qversion:
@@ -836,7 +921,18 @@ def _run(settings_path, exp, listings, pin, config, out):
     if [(q["id"], q["key"], q["qtype"], q["split"]) for q in questions] != \
             [(x.get("id"), x.get("key"), x.get("qtype"), x.get("split")) for x in ans["answers"]]:
         raise Bind("정답 파일의 문항 ID·키·유형·나눔이 문항 파일과 1:1로 같지 않다")
-    tnums, tpath = template_numbers(exp, qpath, qversion, questions, at(listings))
+    tnums, tpath, names, counts = template_numbers(exp, qpath, qversion, questions, at(listings))
+    # 8b의 표: ⓪ 의도 절(git 밖, 없으면 ⓪ 부당 거절만 "-"), 같은 실수(설정에 자리를 적었으면 꼭 있어야 한다)
+    ipath = at(cfg["intent_clauses"])
+    intents = None
+    if os.path.exists(ipath) and tnums is not None:
+        intents = metrics_mod.intent_tables(metrics_mod.load_intent_clauses(ipath, counts), questions, tnums, names)
+    mpath = at(cfg["mistakes"]) if cfg["mistakes"] is not None else None
+    mtable = None
+    if mpath is not None:
+        if not os.path.exists(mpath):
+            raise Bad(f"채점 설정의 같은 실수 표가 없다: {cfg['mistakes']}")
+        mtable = metrics_mod.load_mistakes(mpath)
     # 2.2의 2·3·4
     stage_dir = at(s["files"]["out"] + "/" + s["stage"])
     if not os.path.isdir(stage_dir):
@@ -848,36 +944,91 @@ def _run(settings_path, exp, listings, pin, config, out):
         if r["outcome"] == "SUBMITTED" and sum(1 for e in r["events"] if e.get("type") == "accepted") != 1:
             raise Bind(f"{rid}.jsonl: SUBMITTED인데 받아들여진 답(accepted)이 하나가 아니다")
     verdicts, judge_print, old, other, unjudged = read_verdicts(stage_dir, s, records, cfg["unjudged"])
-    # 채점 지문(8절)
+    # 채점 지문(8절): 쓴 표는 이름 차례로 뒤에 더한다(8b 11절)
     parts = [("code", tree(CODE_ROOT, code_files())), ("score", sha256_lf(config)), ("answers", sha256_lf(apath)), ("questions", qsha),
              ("k10", sha256_lf(k10))]
     if tpath:
         parts.append(("templates", sha256_lf(tpath)))
-    print_ = fingerprint(parts)
-    # 3절: 실행마다
+    if intents is not None:
+        parts.append(("intent_clauses", sha256_lf(ipath)))
+    if mtable is not None:
+        parts.append(("mistakes", sha256_lf(mpath)))
+    env = {"forbidden": forbidden, "cfg": cfg, "current": current, "areas": metrics_mod.area_numbers(current), "mistakes": mtable,
+           "same_stage": mtable is not None and mtable["stage"] == s["stage"], "intents": intents, "prices": s["prices"]}
+    return {"s": s, "cfg": cfg, "at": at, "variants": variants, "questions": questions, "metas": metas, "forbidden": forbidden, "plan": plan,
+            "by_answer": by_answer, "qsha": qsha, "tnums": tnums, "stage_dir": stage_dir, "records": records, "verdicts": verdicts,
+            "judge_print": judge_print, "old": old, "other": other, "unjudged": unjudged, "print": fingerprint(parts), "env": env,
+            "intents_missing": intents is None}
+
+
+def score_rows(ctx):
+    """3절: 실행마다(8a 칸)."""
     rows = []
-    for r in plan:
-        rec = records[r["id"]]
+    for r in ctx["plan"]:
+        rec = ctx["records"][r["id"]]
         q = r["question"]
-        res = score_run(rec["events"], by_answer[q["id"]], rec["outcome"], verdicts.get(r["id"]), forbidden, cfg)
+        res = score_run(rec["events"], ctx["by_answer"][q["id"]], rec["outcome"], ctx["verdicts"].get(r["id"]), ctx["forbidden"], ctx["cfg"])
         head = {"run_id": r["id"], "variant": r["variant"]["id"], "question": q["id"], "key": q["key"], "qtype": q["qtype"], "split": q["split"],
-                "rep": r["rep"], "layer": metas[q["key"]]["layer"], "template": tnums.get(q["id"]) if tnums else None}
+                "rep": r["rep"], "layer": ctx["metas"][q["key"]]["layer"], "template": ctx["tnums"].get(q["id"]) if ctx["tnums"] else None}
         head.update(res)
         rows.append(head)
-    runs_text = "".join(json.dumps(x, ensure_ascii=False, separators=(",", ":")) + "\n" for x in rows)
-    t = tally(plan, rows)
+    return rows
+
+
+def _run(settings_path, exp, listings, pin, config, out):
+    from . import metrics as metrics_mod
+    ctx = prepare(settings_path, exp, listings, pin, config)
+    s, cfg, print_, judge_print = ctx["s"], ctx["cfg"], ctx["print"], ctx["judge_print"]
+    rows = score_rows(ctx)
+    n_variants, extra, metrics_text, n_lines = metrics_mod.compute(ctx, rows)
+    runs_text = "".join(json.dumps(dict(x, **y), ensure_ascii=False, separators=(",", ":")) + "\n" for x, y in zip(rows, extra))
+    t = tally(ctx["plan"], rows)
     lines = ["\t".join(SUMMARY_HEAD)]
     for x in t:
         lines.append("\t".join([x["variant"]["id"], x["variant"]["name"]] + [str(x[k]) for k in
                                ("plan", "submitted", "value", "rule", "answered", "unjudged", "full", "full_no_numeral")] + [print_, judge_print or "-"]))
-    write_outputs(stage_dir, runs_text, "\n".join(lines) + "\n")
+    note = write_outputs(ctx["stage_dir"], [("runs.jsonl", runs_text), ("summary.tsv", "\n".join(lines) + "\n"), ("metrics.tsv", metrics_text)])
+    records, unjudged = ctx["records"], ctx["unjudged"]
     n_sub = sum(1 for r in records.values() if r["outcome"] == "SUBMITTED")
     jp = judge_print[:12] if judge_print else "-"
-    out(f"채점 검사: 문항 파일 {qsha[:8]}… = 정답 파일, 기록 {len(records)}개가 이 문항 파일과 plan.txt 지문으로 돎(단계·설정 판 같음), "
-        f"판정 {n_sub - unjudged}개가 기록 해시에 묶임(판정 지문 {jp}, 옛 줄 {old}, 다른 줄 {other}"
+    out(f"채점 검사: 문항 파일 {ctx['qsha'][:8]}… = 정답 파일, 기록 {len(records)}개가 이 문항 파일과 plan.txt 지문으로 돎(단계·설정 판 같음), "
+        f"판정 {n_sub - unjudged}개가 기록 해시에 묶임(판정 지문 {jp}, 옛 줄 {ctx['old']}, 다른 줄 {ctx['other']}"
         + (f", 판정 없음 {unjudged}" if cfg["unjudged"] == "fail" else "") + f"), 채점 지문 {print_[:12]}, 완전 정답 {cfg['version']}")
     for x in t:
         out(f"{x['variant']['id']} {x['variant']['name']}: 계획 {x['plan']}, 제출 {x['submitted']}, 값 {x['value']}, 규칙 {x['rule']}, "
             f"판정 답함 {x['answered']}, 완전 정답 {x['full']}, 수사 뺀 완전 정답 {x['full_no_numeral']}")
-    out(f"{s['files']['out']}/{s['stage']}/score/runs.jsonl·summary.tsv를 썼다")
+    out(f"지표: 하네스 summary.tsv와 같음(판 {n_variants}개), 15.9·비용·진단 {n_lines}줄을 metrics.tsv에 썼다")
+    if ctx["intents_missing"] and any("⓪" in r["variant"]["parts"] for r in ctx["plan"]):
+        out(f"⓪ 부당 거절: 의도 절 표({cfg['intent_clauses']})나 틀 문장 파일이 없어 \"-\"로 두었다")
+    if ctx["env"]["same_stage"]:
+        out("같은 실수 재발: 표가 이 단계에서 얼린 것이라 재지 않았다")
+    if note:
+        out(note)
+    out(f"{s['files']['out']}/{s['stage']}/score/runs.jsonl·summary.tsv·metrics.tsv를 썼다")
     return 0
+
+
+def mistakes(settings_path, table_path, exp=".", listings=LISTINGS, pin=None, config=CONFIG, out=print):
+    """같은 실수 표 얼리기(8b 4.3). 그 단계를 채점과 같은 함수로 묶기 검사하고 매긴 뒤 표를 쓴다. 이미 있으면 쓰지 않는다(끝 코드 2)."""
+    try:
+        from . import metrics as metrics_mod
+        ctx = prepare(settings_path, exp, listings, pin, config)
+        path = ctx["at"](table_path)
+        if os.path.exists(path):
+            raise Bad(f"얼릴 파일이 이미 있다. 얼린 것은 덮어쓰지 않는다: {table_path}")
+        doc = metrics_mod.freeze_mistakes(ctx, score_rows(ctx))
+        try:
+            os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+            with open(path, "x", encoding="utf-8", newline="\n") as f:
+                f.write(json.dumps(doc, ensure_ascii=False, sort_keys=True, indent=2) + "\n")
+        except OSError as e:
+            raise Bad(f"같은 실수 표를 쓰지 못했다({type(e).__name__})") from None
+        out(f"같은 실수 표: 단계 {doc['stage']}, 실행 {doc['runs']}개, 코드 {len(doc['codes'])}가지, (코드, 시군구) {len(doc['code_areas'])}가지, "
+            f"채점 지문 {doc['score'][:12]}, SHA-256 {sha256_lf(path)[:12]}. {table_path}에 얼렸다")
+        return 0
+    except Bad as e:
+        out(f"멈춤(설정이나 파일): {e}")
+        return 2
+    except Bind as e:
+        out(f"멈춤(묶기 검사): {e}. 아무것도 쓰지 않았다")
+        return 3
