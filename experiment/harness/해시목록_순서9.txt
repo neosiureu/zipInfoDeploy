@@ -1,0 +1,4 @@
+# 순서 9 커밋 해시목록 (2026-11-24). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# 새 파일: PC 시험 설정 harness/settings/pctest_v0.json(단계 pctest, 연습 문항 q009·q010·q093·q099·q170 × 판 열 × 1회, 상한 5달러). pilot_v0와 stage·select·cost_cap_usd만 다르고, 판마다 요청 지문은 pilot_v0와 같다.
+# git 밖 파일(이어 돌리기 시험용 상한 복사본 harness/runs/pctest_cap_v0.json, 문항·틀 문장·의도 절 표·정답 파일)은 넣지 않는다. 실행 순서에서 따로 본다.
+DC63777701FF547EB286C5FBB8AE6B69BCD60EB4630430708D4524937DF088F4  experiment/harness/settings/pctest_v0.json
