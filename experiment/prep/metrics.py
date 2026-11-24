@@ -4,7 +4,7 @@
 - 3절: 기록의 고리 사건(하네스 사건을 뺀 것)에서 부름과 hook을 묶는다. 데이터 도구는 tool 사건 바로 앞의 hook들,
   제출은 submit 사건 바로 뒤의 hook들이다. 받은 거절은 묶음에서 처음 REJECT인 부품(모델에 간 것), 자기 거절은 부품마다의 REJECT다.
   ⓪의 declare_intents 거절(도구 결과 REJECTED)도 받은 거절·자기 거절이고 "⓪선언"으로 따로 센다.
-- 4·5·6절: 실행마다 지표 칸을 내고(runs.jsonl), 판마다 분자·분모로 모은다(metrics.tsv). 비율은 나누지 않는다(8c).
+- 4·5·6절: 실행마다 지표 칸을 내고(runs.jsonl), 판마다 분자·분모로 모은다(metrics.tsv). 비율은 나누지 않는다(8c의 report.md가 나눈다).
 - 7절: 하네스 Summary와 같은 셈으로 summary.tsv를 다시 지어 글자까지 대 본다. 시간은 double을 사건 차례로 실행마다 더한 뒤
   끝난 실행만 판 합에 더하고(파일 이름 차례), 반올림은 BigDecimal.valueOf → HALF_UP을 repr → Decimal로 따라 한다. 비용은 Decimal로 정확히 센다.
 - 글은 쓰지 않는다. ⓪의 절 글은 의도 절 표와 대 보기에만 쓰고 수로 남긴다.
@@ -700,7 +700,7 @@ def check_summary(ctx):
 # ---------------------------------------------------------------- 모두
 
 def compute(ctx, rows):
-    """8b: summary.tsv를 대 본 뒤 실행마다 칸을 더하고 metrics.tsv의 글을 낸다. (판 수, 더한 칸들, metrics 글, 줄 수)."""
+    """8b: summary.tsv를 대 본 뒤 실행마다 칸을 더하고 metrics.tsv의 글을 낸다. (판 수, 더한 칸들, metrics 글, 줄들(8c 보고가 씀))."""
     n = check_summary(ctx)
     extra, aggs = [], []
     for r, x in zip(ctx["plan"], rows):
@@ -710,4 +710,4 @@ def compute(ctx, rows):
         aggs.append(g)
     lines = metrics_rows(ctx, rows, extra, aggs)
     text = "".join("\t".join(x) + "\n" for x in [METRICS_HEAD] + lines)
-    return n, extra, text, len(lines)
+    return n, extra, text, lines

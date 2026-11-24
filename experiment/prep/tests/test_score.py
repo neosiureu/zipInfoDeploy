@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-"""순서 8a: 채점기(prep score, 순서 8 설계 d판 7절). 8b(설계 2판 2절 가·나, 시험 자료 넓힘)도 여기서 본다. 8b 지표는 test_metrics.py.
+"""순서 8a: 채점기(prep score, 순서 8 설계 d판 7절). 8b(설계 2판 2절 가·나, 시험 자료 넓힘)도 여기서 본다. 8b 지표는 test_metrics.py,
+8c 통계는 test_stats.py.
 
 - 실제 꼴의 기록: data/score_fx는 하네스(Java)가 가짜 모델·배치 서버로 지은 단계 폴더다(ScoreFixtureTest). 매물·거래는 하네스 시험의 지어낸 자료다.
   여기에 정답 파일·매물 파일·K10을 더해 experiment 폴더처럼 꾸리고 끝까지 매긴다. 묶기 검사는 그 폴더를 한 곳씩 바꿔 본다.
 - 실행 하나 매기기는 같은 꼴의 사건을 지어 본다(답을 아는 가짜 기록). 한 곳씩 바꿔 실패 코드가 하나씩 나는지 본다.
 - 실제 파일(정답·문항·틀 문장)이 있을 때만 항목 수를 찍는다.
+- 시험용 채점 설정(fx_config): score_v0.json에서 뽑기 수를 줄이고(시험 시간, 8c 설계 2판 12절), 비교 목록을 시험 자료의 판으로 바꾼 것이다.
 """
 import copy
 import io
@@ -25,7 +27,18 @@ STAGE = os.path.join("harness", "runs", "pilot")
 K10 = os.path.join(score.CODE_ROOT, "cards", "v0", "K10.md")
 RUNS = ["c01-q001-r1", "c01-q002-r1", "c04-q001-r1", "c04-q002-r1", "c05-q001-r1", "c05-q002-r1", "c06-q001-r1", "c06-q002-r1", "c07-q001-r1",
         "c07-q002-r1"]
-OUTPUTS = ("runs.jsonl", "summary.tsv", "metrics.tsv")
+OUTPUTS = ("runs.jsonl", "summary.tsv", "metrics.tsv", "stats.tsv", "report.md")
+DRAWS = 200
+
+
+def fx_config(**kw):
+    """시험용 채점 설정(사전). 시험 자료의 판은 c01·c04~c07이다."""
+    with open(score.CONFIG, encoding="utf-8") as f:
+        cfg = json.load(f)
+    cfg["bootstrap"]["draws"] = DRAWS
+    cfg["comparisons"] = {"main": ["c06", "c01"], "aux": [["c04", "c01"], ["c05", "c01"], ["c07", "c01"]]}
+    cfg.update(kw)
+    return cfg
 
 
 def fx_answers(qsha):
@@ -53,13 +66,19 @@ class Exp:
         os.makedirs(self.p("prep/out"))
         self.write_answers(fx_answers(score.sha256_lf(self.p("questions/questions_fx.json"))))
         self.settings = self.p("harness/settings/fx_v0.json")
-        self.config = score.CONFIG
+        self.config = self.write_config("prep/score_test.json")
 
     def p(self, rel):
         return os.path.join(self.root, *rel.split("/"))
 
     def stage(self, name=""):
         return os.path.join(self.root, STAGE, name) if name else os.path.join(self.root, STAGE)
+
+    def write_config(self, rel, **kw):
+        path = self.p(rel)
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(fx_config(**kw), f, ensure_ascii=False)
+        return path
 
     def write_answers(self, doc):
         with open(self.p("prep/out/answers_fx.json"), "w", encoding="utf-8", newline="\n") as f:
@@ -235,11 +254,7 @@ class TestFixture(unittest.TestCase):
         code, out = self.x.run()
         self.assertEqual(code, 3)
         self.assertIn("판정 없는 SUBMITTED 실행 1개(예: c01-q001-r1)", out[0])
-        cfg = json.load(open(score.CONFIG, encoding="utf-8"))
-        cfg["unjudged"] = "fail"
-        path = self.x.p("prep/score_fail.json")
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(cfg, f, ensure_ascii=False)
+        path = self.x.write_config("prep/score_fail.json", unjudged="fail")
         code, out = self.x.run(config=path)
         self.assertEqual(code, 0, out)
         self.assertIn("판정 6개가 기록 해시에 묶임(판정 지문 CEA01B2E0224, 옛 줄 0, 다른 줄 0, 판정 없음 1)", out[0])
@@ -389,12 +404,7 @@ class TestBinding(unittest.TestCase):
         self.stops("정답 파일이 없다", code=2)
         self.x.close()
         self.x = Exp()
-        cfg = json.load(open(score.CONFIG, encoding="utf-8"))
-        cfg["more"] = 1
-        path = self.x.p("prep/bad.json")
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(cfg, f)
-        self.stops("채점 설정의 칸은", code=2, config=path)
+        self.stops("채점 설정의 칸은", code=2, config=self.x.write_config("prep/bad.json", more=1))
 
     def test_a_non_t2_answer_without_trades_is_outside_the_design(self):
         doc = fx_answers(score.sha256_lf(self.x.p("questions/questions_fx.json")))

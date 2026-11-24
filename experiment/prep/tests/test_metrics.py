@@ -358,6 +358,23 @@ class TestFixture(unittest.TestCase):
         self.assertIn("하네스 summary.tsv가 없다", out[0])
         self.assertFalse(os.path.exists(self.x.stage("score")))
 
+    def test_a_record_with_other_prices_is_counted_and_costs_use_the_settings(self):
+        # 8b 상대 검토에서 고르라고 남긴 시험(8c 설계 2판 8절): 머리의 단가표가 설정과 다른 기록
+        self.assertEqual(self.x.run()[0], 0)
+        before = self.metrics()
+        name = "c01-q002-r1.jsonl"  # 제출 없는 실행(판정 해시에 묶이지 않는다). 실행 지문은 그대로다
+        with open(self.x.stage(name), "rb") as f:
+            head, rest = f.read().split(b"\n", 1)
+        self.assertEqual(head.count(b'"input":0.1'), 1)
+        with open(self.x.stage(name), "wb") as f:
+            f.write(head.replace(b'"input":0.1', b'"input":0.2') + b"\n" + rest)
+        code, out = self.x.run()
+        self.assertEqual(code, 0, out)
+        after = self.metrics()
+        key = ("c01", "진단", "단가표가 다른 기록")
+        self.assertEqual((before[key], after[key]), (("0", "2"), ("1", "2")))
+        self.assertEqual({k: v for k, v in after.items() if k != key}, {k: v for k, v in before.items() if k != key})  # 비용은 설정의 표로 센다
+
     def with_templates(self, table):
         """틀 번호와 이름을 지어 준다(시험 자료의 문항은 틀 문장으로 짓지 않았다). 의도 절 표는 그 틀에 맞춰 지은 것."""
         path = self.x.p("questions/intent_clauses_v0.json")
@@ -396,7 +413,7 @@ class TestFixture(unittest.TestCase):
     def test_freeze_and_use_the_same_mistakes_table(self):
         out = []
         rel = "harness/frozen/mistakes_v0.json"
-        self.assertEqual(score.mistakes(self.x.settings, rel, exp=self.x.root, out=out.append), 0, out)
+        self.assertEqual(score.mistakes(self.x.settings, rel, exp=self.x.root, config=self.x.config, out=out.append), 0, out)
         self.assertTrue(out[0].startswith("같은 실수 표: 단계 pilot, 실행 10개, 코드 "), out[0])
         with open(self.x.p(rel), encoding="utf-8") as f:
             text = f.read()
@@ -409,15 +426,10 @@ class TestFixture(unittest.TestCase):
         self.assertNotIn("41591", text)  # 시군구는 번호로만
         self.assertTrue(text.endswith("}\n") and "\r" not in text)
         out = []
-        self.assertEqual(score.mistakes(self.x.settings, rel, exp=self.x.root, out=out.append), 2)
+        self.assertEqual(score.mistakes(self.x.settings, rel, exp=self.x.root, config=self.x.config, out=out.append), 2)
         self.assertIn("얼릴 파일이 이미 있다", out[0])
         # 같은 단계를 그 표로 매기면 "-"(제 표로 저를 재지 않는다)
-        with open(score.CONFIG, encoding="utf-8") as f:
-            cfg = json.load(f)
-        cfg["mistakes"] = rel
-        path = self.x.p("prep/score_m.json")
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(cfg, f, ensure_ascii=False)
+        path = self.x.write_config("prep/score_m.json", mistakes=rel)
         code, out = self.x.run(config=path)
         self.assertEqual(code, 0, out)
         self.assertIn("같은 실수 재발: 표가 이 단계에서 얼린 것이라 재지 않았다", out)

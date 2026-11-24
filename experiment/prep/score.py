@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-"""순서 8a·8b 채점기(순서 8 설계 d판 2·3·6·8절, 8b 설계 2판): 한 단계의 기록을 묶기 검사한 뒤 실행마다 값·규칙·판정을 매기고,
-15.9 지표·진단·비용을 낸다(8b, metrics.py).
+"""순서 8a·8b·8c 채점기(순서 8 설계 d판 2·3·6·8절, 8b 설계 2판, 8c 설계 2판): 한 단계의 기록을 묶기 검사한 뒤 실행마다 값·규칙·판정을 매기고,
+15.9 지표·진단·비용(8b, metrics.py)과 통계·보고 표(8c, stats.py)를 낸다.
 
 experiment 폴더에서 `python -X utf8 -B -m prep score harness/settings/<설정>.json`으로 돌린다.
 같은 실수 표는 `python -X utf8 -B -m prep mistakes harness/settings/<설정>.json harness/frozen/mistakes_v0.json`으로 얼린다(8b 4.3).
 
 - 묶기 검사(2.2)에 하나라도 걸리면 아무것도 쓰지 않고 3으로 끝난다. 설정·파일 읽기 오류는 2, 다 매기면 0이다.
   하네스 summary.tsv가 없거나 같은 셈과 다르면 그것도 묶기 검사다(8b 7절).
-- 결과는 <files.out>/<stage>/score/에 runs.jsonl·summary.tsv·metrics.tsv로 쓴다(runs 아래라 git 밖). 질문·답·판정 이유·매물 이름은 쓰지 않는다.
+- 결과는 <files.out>/<stage>/score/에 runs.jsonl·summary.tsv·metrics.tsv·stats.tsv·report.md로 쓴다(runs 아래라 git 밖).
+  질문·답·판정 이유·매물 이름은 쓰지 않는다.
 - 화면에는 셈한 수, 실행 ID, 코드, 해시만 낸다.
 - 표준 라이브러리만 쓴다. 값은 JSON 수를 Decimal로 읽어 분수로 견준다. 하네스 Summary와 같은 셈(시간)만 double을 그대로 따라 한다.
 """
@@ -55,10 +56,11 @@ PLACEHOLDER = re.compile(r"\{([가-힣]{1,3})(\.방향)?\}")
 SENTENCE_END = re.compile(r"[.?!\n]")
 SPACES = re.compile(r"\s+")
 
-CONFIG_FIELDS = ("version", "unjudged", "direction", "mistakes", "intent_clauses")
+CONFIG_FIELDS = ("version", "unjudged", "direction", "mistakes", "intent_clauses", "bootstrap", "comparisons")
 DIRECTION_FIELDS = ("words", "high_low")
 HIGH_LOW_FIELDS = ("chars", "markers", "except", "window", "next_not")
 UNJUDGED = ("stop", "fail")
+MAX_DRAWS = 1_000_000
 
 
 class Bad(Exception):
@@ -226,10 +228,24 @@ def load_config(path):
         raise Bad("채점 설정 mistakes는 null이나 같은 실수 표의 자리다")
     if not (isinstance(c["intent_clauses"], str) and c["intent_clauses"]):
         raise Bad("채점 설정 intent_clauses는 의도 절 표의 자리다")
+    # 8c: 부트스트랩과 비교 목록(판 ID가 판 설정 파일에 있는지는 prepare에서 본다)
+    b = c["bootstrap"]
+    if not isinstance(b, dict) or sorted(b) != ["draws", "purpose"] or integer(b["draws"]) is None or not 1 <= b["draws"] <= MAX_DRAWS \
+            or not isinstance(b["purpose"], str) or not b["purpose"].strip():
+        raise Bad(f"채점 설정 bootstrap은 draws(1~{MAX_DRAWS}의 정수)·purpose(글)다")
+    cp = c["comparisons"]
+    pair = lambda p: isinstance(p, list) and len(p) == 2 and all(isinstance(x, str) and x for x in p) and p[0] != p[1]
+    if not isinstance(cp, dict) or sorted(cp) != ["aux", "main"] or not pair(cp["main"]) or not isinstance(cp["aux"], list) \
+            or not all(pair(p) for p in cp["aux"]):
+        raise Bad("채점 설정 comparisons는 main(서로 다른 판 ID 둘)·aux(그런 짝의 목록)다")
+    pairs = [tuple(cp["main"])] + [tuple(p) for p in cp["aux"]]
+    if len(set(pairs)) != len(pairs):
+        raise Bad("채점 설정 comparisons에 같은 비교가 둘이다")
     nfc = lambda xs: [unicodedata.normalize("NFC", x) for x in xs]
     return {"version": c["version"], "unjudged": c["unjudged"], "words": nfc(d["words"]), "chars": nfc(hl["chars"]),
             "markers": nfc(hl["markers"]), "except": nfc(hl["except"]), "window": hl["window"],
-            "next_not": unicodedata.normalize("NFC", hl["next_not"]), "mistakes": c["mistakes"], "intent_clauses": c["intent_clauses"]}
+            "next_not": unicodedata.normalize("NFC", hl["next_not"]), "mistakes": c["mistakes"], "intent_clauses": c["intent_clauses"],
+            "bootstrap": {"draws": b["draws"], "purpose": b["purpose"]}, "comparisons": {"main": pairs[0], "aux": pairs[1:]}}
 
 
 def load_variants(path):
@@ -906,6 +922,11 @@ def prepare(settings_path, exp, listings, pin, config):
     if not isinstance(ans, dict) or not isinstance(ans.get("answers"), list):
         raise Bad("정답 파일의 꼴이 아니다")
     plan = make_plan(s, variants, questions, metas)
+    # 8c: 비교 목록의 판은 판 설정 파일에 있어야 한다(그 단계에 없는 판이 든 비교는 "-")
+    known = {v["id"] for v in variants}
+    miss = [x for p in (cfg["comparisons"]["main"], *cfg["comparisons"]["aux"]) for x in p if x not in known]
+    if miss:
+        raise Bad(f"채점 설정 comparisons의 판이 판 설정 파일에 없다: {' '.join(dict.fromkeys(miss))}")
     current = metrics_mod.current_codes(metas)
     # 2.2의 1: 정답 ↔ 문항 파일
     qsha = sha256_lf(qpath)
@@ -945,7 +966,8 @@ def prepare(settings_path, exp, listings, pin, config):
             raise Bind(f"{rid}.jsonl: SUBMITTED인데 받아들여진 답(accepted)이 하나가 아니다")
     verdicts, judge_print, old, other, unjudged = read_verdicts(stage_dir, s, records, cfg["unjudged"])
     # 채점 지문(8절): 쓴 표는 이름 차례로 뒤에 더한다(8b 11절)
-    parts = [("code", tree(CODE_ROOT, code_files())), ("score", sha256_lf(config)), ("answers", sha256_lf(apath)), ("questions", qsha),
+    asha = sha256_lf(apath)
+    parts = [("code", tree(CODE_ROOT, code_files())), ("score", sha256_lf(config)), ("answers", asha), ("questions", qsha),
              ("k10", sha256_lf(k10))]
     if tpath:
         parts.append(("templates", sha256_lf(tpath)))
@@ -956,7 +978,7 @@ def prepare(settings_path, exp, listings, pin, config):
     env = {"forbidden": forbidden, "cfg": cfg, "current": current, "areas": metrics_mod.area_numbers(current), "mistakes": mtable,
            "same_stage": mtable is not None and mtable["stage"] == s["stage"], "intents": intents, "prices": s["prices"]}
     return {"s": s, "cfg": cfg, "at": at, "variants": variants, "questions": questions, "metas": metas, "forbidden": forbidden, "plan": plan,
-            "by_answer": by_answer, "qsha": qsha, "tnums": tnums, "stage_dir": stage_dir, "records": records, "verdicts": verdicts,
+            "by_answer": by_answer, "qsha": qsha, "asha": asha, "tnums": tnums, "stage_dir": stage_dir, "records": records, "verdicts": verdicts,
             "judge_print": judge_print, "old": old, "other": other, "unjudged": unjudged, "print": fingerprint(parts), "env": env,
             "intents_missing": intents is None}
 
@@ -977,17 +999,20 @@ def score_rows(ctx):
 
 def _run(settings_path, exp, listings, pin, config, out):
     from . import metrics as metrics_mod
+    from . import stats as stats_mod
     ctx = prepare(settings_path, exp, listings, pin, config)
     s, cfg, print_, judge_print = ctx["s"], ctx["cfg"], ctx["print"], ctx["judge_print"]
     rows = score_rows(ctx)
-    n_variants, extra, metrics_text, n_lines = metrics_mod.compute(ctx, rows)
+    n_variants, extra, metrics_text, mlines = metrics_mod.compute(ctx, rows)
     runs_text = "".join(json.dumps(dict(x, **y), ensure_ascii=False, separators=(",", ":")) + "\n" for x, y in zip(rows, extra))
     t = tally(ctx["plan"], rows)
     lines = ["\t".join(SUMMARY_HEAD)]
     for x in t:
         lines.append("\t".join([x["variant"]["id"], x["variant"]["name"]] + [str(x[k]) for k in
                                ("plan", "submitted", "value", "rule", "answered", "unjudged", "full", "full_no_numeral")] + [print_, judge_print or "-"]))
-    note = write_outputs(ctx["stage_dir"], [("runs.jsonl", runs_text), ("summary.tsv", "\n".join(lines) + "\n"), ("metrics.tsv", metrics_text)])
+    stats_text, report_text, stats_line = stats_mod.compute(ctx, rows, t, mlines)
+    note = write_outputs(ctx["stage_dir"], [("runs.jsonl", runs_text), ("summary.tsv", "\n".join(lines) + "\n"), ("metrics.tsv", metrics_text),
+                                            ("stats.tsv", stats_text), ("report.md", report_text)])
     records, unjudged = ctx["records"], ctx["unjudged"]
     n_sub = sum(1 for r in records.values() if r["outcome"] == "SUBMITTED")
     jp = judge_print[:12] if judge_print else "-"
@@ -997,14 +1022,15 @@ def _run(settings_path, exp, listings, pin, config, out):
     for x in t:
         out(f"{x['variant']['id']} {x['variant']['name']}: 계획 {x['plan']}, 제출 {x['submitted']}, 값 {x['value']}, 규칙 {x['rule']}, "
             f"판정 답함 {x['answered']}, 완전 정답 {x['full']}, 수사 뺀 완전 정답 {x['full_no_numeral']}")
-    out(f"지표: 하네스 summary.tsv와 같음(판 {n_variants}개), 15.9·비용·진단 {n_lines}줄을 metrics.tsv에 썼다")
+    out(f"지표: 하네스 summary.tsv와 같음(판 {n_variants}개), 15.9·비용·진단 {len(mlines)}줄을 metrics.tsv에 썼다")
+    out(stats_line)
     if ctx["intents_missing"] and any("⓪" in r["variant"]["parts"] for r in ctx["plan"]):
         out(f"⓪ 부당 거절: 의도 절 표({cfg['intent_clauses']})나 틀 문장 파일이 없어 \"-\"로 두었다")
     if ctx["env"]["same_stage"]:
         out("같은 실수 재발: 표가 이 단계에서 얼린 것이라 재지 않았다")
     if note:
         out(note)
-    out(f"{s['files']['out']}/{s['stage']}/score/runs.jsonl·summary.tsv·metrics.tsv를 썼다")
+    out(f"{s['files']['out']}/{s['stage']}/score/runs.jsonl·summary.tsv·metrics.tsv·stats.tsv·report.md를 썼다")
     return 0
 
 

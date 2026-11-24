@@ -120,9 +120,9 @@ python -X utf8 -B -m prep mistakes harness/settings/<설정>.json harness/frozen
 - build와 answers를 먼저 돌려야 한다(해시를 대 본다).
 - 시험(`tests/test_questions.py`)은 지어낸 틀 문장과 매물로 본다.
 
-## score (순서 8a·8b)
+## score (순서 8a·8b·8c)
 
-순서 8 설계 d판의 채점기(`score.py`)와 8b 설계 2판의 지표(`metrics.py`)다. 하네스가 한 단계를 다 돌고 판정(judge)까지 0으로 끝난 뒤에 친다.
+순서 8 설계 d판의 채점기(`score.py`), 8b 설계 2판의 지표(`metrics.py`), 8c 설계 2판의 통계(`stats.py`)다. 하네스가 한 단계를 다 돌고 판정(judge)까지 0으로 끝난 뒤에 친다.
 
 ```
 python -X utf8 -B -m prep score harness/settings/pilot_v0.json
@@ -146,16 +146,25 @@ python -X utf8 -B -m prep score harness/settings/pilot_v0.json
     - 15.9 지표: 첫 시도 CI 통과, 거절 뒤 자력 완료·완전 정답(부품마다), 같은 실수 재발(표가 있을 때), 근거 없는 완료 보고(claim), 소요시간, 부당 거절(⓪②③④, ③은 면적 따로, ⓪은 틀마다).
     - ④의 부당 거절은 멀쩡한 제출(그 submit까지의 사건으로 매겨 값이 맞고 수사 뺀 규칙을 지남) 가운데 ④가 막은 것이다. ⓪은 거절 결과의 「…」 절이 모두 의도 절 표의 '의도 아님'일 때다(표에 없는 절이 나오면 멈춘다).
     - 비용은 설정의 단가표로 실행마다 캐시 있음·없음을 센다(하네스 Prices와 같은 식). 진단은 표본 0 부름, 도구 오류 코드, refusal 범주, 재촉, 턴, 받은·자기 거절, ④ 없는 판의 받은 답 findings, 머리의 단가표가 다른 기록이다.
-- **채점 설정 `score_v0.json`:** 판정 없는 SUBMITTED의 처리(`unjudged`: `stop`이 기본, `fail`은 완전 정답이 아님으로 셈), 방향 말 낱말, 같은 실수 표 자리(`mistakes`, 관문 3까지 null), ⓪ 의도 절 표 자리(`intent_clauses`). 하네스 설정 파일에는 칸을 더할 수 없어 따로 둔다.
+- **8c 통계(`stats.py`, 8c 설계 2판 2~7절)**
+    - 판의 값은 문항마다 회차 평균의 평균이고, 비교는 같은 문항끼리 짝지은 차이다. 점 추정값은 원래 표본으로 낸다.
+    - 구간은 층(매물 파일의 `layer`) 안 매물 묶음 부트스트랩의 95%다. 뽑기 b·층 L·j마다 그 층의 매물을 키 차례로 세운 목록에서 0부터 센 `u64(H(purpose, "b|L|j")) mod n_L` 자리를 뽑는다(`picker.common`의 H·u64). 모든 판·비교·칸·결과가 같은 뽑기를 쓴다.
+    - 칸이 빈 뽑기는 빼고 센다. 구간은 남은 B′개 값의 ⌈B′/40⌉번째와 B′ + 1 − 그 차례번째다(B′ = 10,000이면 250·9,751번째).
+    - 칸: 전체, 층, 유형, ⑤ 나눔(본시험 단계만), AI 틀 뺌(틀 문장 파일이 있을 때). 보조 결과: 수사 뺀 완전 정답, 판정 없는 실행 뺀 결과(`unjudged`가 `fail`이고 그런 실행이 있을 때). 소요시간 비교는 캐시를 모두 끈 단계에서만 낸다.
+    - 모두 정수와 분수로 센다. 쓸 때만 반올림한다(HALF_UP, 동점은 0에서 먼 쪽). 본시험 크기(7,500실행, 뽑기 1만 번)에서 몇 초다.
+    - 사전 등록 글 초안은 `prereg_score_v0.md`다. [ ] 칸은 관문 3에서 채운다.
+- **채점 설정 `score_v0.json`:** 판정 없는 SUBMITTED의 처리(`unjudged`: `stop`이 기본, `fail`은 완전 정답이 아님으로 셈), 방향 말 낱말, 같은 실수 표 자리(`mistakes`, 관문 3까지 null), ⓪ 의도 절 표 자리(`intent_clauses`), 부트스트랩(`bootstrap`: 뽑기 수 10000, purpose `boot`), 비교 목록(`comparisons`: 주 가설 c09 − c02와 보조 일곱). 하네스 설정 파일에는 칸을 더할 수 없어 따로 둔다.
+    - 비교 목록의 판 ID가 판 설정 파일에 없으면 2로 멈춘다. 판 설정 파일에는 있지만 그 단계에 없는 판이 든 비교는 "-"다.
     - 의도 절 표(`questions/intent_clauses_v0.json`)는 틀 문장 파일처럼 관문 3까지 git 밖이다. 표나 틀 문장 파일이 없으면 ⓪ 부당 거절만 "-"이고 한 줄을 찍는다.
     - 같은 실수 표의 단계가 매기는 단계와 같으면 재발은 "-"이고 한 줄을 찍는다(제 표로 저를 재지 않는다).
 - **채점 지문:** "이름  해시" 줄(code, score, answers, questions, k10, templates, 쓴 표 intent_clauses·mistakes)을 이은 글의 SHA-256이다. code는 prep·picker의 `.py`(tests 빼고)를 하네스 `Fingerprint.tree`와 같은 꼴로 센 값이다. 줄 끝을 LF로 맞춰 세므로 Windows와 리눅스에서 같다.
-- **남기는 것:** `<files.out>/<stage>/score/`의 `runs.jsonl`(계획의 실행마다 한 줄), `summary.tsv`(판마다 한 줄, 채점 지문·판정 지문), `metrics.tsv`(판·갈래·이름·분자·분모). runs 아래라 git 밖이다.
+- **남기는 것:** `<files.out>/<stage>/score/`의 `runs.jsonl`(계획의 실행마다 한 줄), `summary.tsv`(판마다 한 줄, 채점 지문·판정 지문), `metrics.tsv`(판·갈래·이름·분자·분모), `stats.tsv`(갈래·이름·결과·칸·문항·값·하한·상한·값(분수)·빈 뽑기), `report.md`(사람이 읽는 표). runs 아래라 git 밖이다.
     - 질문·답·판정 이유·매물 이름·⓪의 절 글은 쓰지 않는다. 실행 ID, 문항 ID·키, 코드, 수만 쓴다.
     - `score.tmp/`에 다 쓴 뒤 옛 `score/`와 바꾼다. 같은 입력이면 같은 바이트다(파이썬 3.11·3.12·3.13, CRLF로 꺼낸 기록에서도).
     - 바꾸기가 실패하면(엑셀이 파일을 연 때 등) 2로 멈추고, 이번에 옮긴 옛 `score/`만 되돌린다. 마지막 `score.old` 지우기만 실패하면 0으로 끝내고 한 줄을 찍는다.
 - **틀 문장 파일이 있으면** 문항마다 틀 번호를 `questions.build`로 다시 낸다(다시 지은 글이 문항 파일과 다르면 멈춘다).
-- **시험(`tests/test_score.py`, 8b 지표는 `tests/test_metrics.py`)**
+- **시험(`tests/test_score.py`, 8b 지표는 `tests/test_metrics.py`, 8c 통계는 `tests/test_stats.py`)**
+    - 시험 자료로 매길 때는 시험용 채점 설정(`test_score.fx_config`: 뽑기 200번, 비교는 시험 자료의 판)을 쓴다. 뽑기 1만 번은 검산에서 본다.
     - `tests/data/score_fx`는 하네스 시험 `ScoreFixtureTest`가 가짜 모델·배치 서버로 지은 단계 폴더다(기록 10개: ⓪·②·③·④ 판 포함, plan.txt, summary.tsv, 판정 파일). 매물·거래는 하네스 시험의 지어낸 자료다. 여기에 지어낸 정답·매물 파일과 K10을 더해 끝까지 매기고, 한 곳씩 바꿔 묶기 검사를 본다.
     - 하네스가 쓰는 꼴이 바뀌면 `ScoreFixtureTest`가 걸린다. 그때는 `experiment/harness`에서 환경 변수 `SCORE_FIXTURE_OUT`에 이 폴더(`…/experiment/prep/tests/data/score_fx`)를 주고 그 시험을 다시 돌려 새로 짓는다.
     - 실행 하나 매기기는 같은 꼴의 사건을 지어 한 곳씩 바꿔 본다.

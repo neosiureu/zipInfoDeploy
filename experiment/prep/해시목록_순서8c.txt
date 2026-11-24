@@ -1,0 +1,12 @@
+# 순서 8c 커밋 해시목록 (2026-11-24). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# 새 파일: prep stats.py(통계: 판의 값·짝지은 차이·층 안 매물 묶음 부트스트랩·칸·보조 결과·시간, stats.tsv·report.md), 사전 등록 글 prereg_score_v0.md, 시험 tests/test_stats.py.
+# 고친 파일: prep score.py(채점 설정 bootstrap·comparisons, 통계 부르기, 결과 다섯), metrics.py(줄을 돌려줌), score_v0.json(칸 둘), README.md, tests/test_score.py(시험용 채점 설정), tests/test_metrics.py(단가표가 다른 기록). 하네스·ai-core는 그대로다.
+EF7EFA97009555CDDFEB25316695819B2C2A7139C3546D08DB360768049C913D  experiment/prep/README.md
+FF726045E5C163E9D5FE59B50DF08DDE35D92E48C8005C52062C49FD91C12D23  experiment/prep/metrics.py
+9C5F98B0D3BBCDCFC1BD8F7C67977054A05F3B39B1BF996466FBAE095A423A80  experiment/prep/prereg_score_v0.md
+58FC8976D64B8987431F8E7E8D6961380C933F231262D735839F1F042E97C7E7  experiment/prep/score.py
+5FB7E7F8097890FB0AFBA794C42D24650BAA8D9BD145113F9C99FE41D5B4F9C1  experiment/prep/score_v0.json
+E6FE0F8429CA91B2ECCE7ADD11611250BDAA38858988DEDC7701DA6BAB9C8AB6  experiment/prep/stats.py
+CBAEF668B69AA1DDC35C5C1EE06AACE762CAC23869AA59BE8B5EA010A1A788D0  experiment/prep/tests/test_metrics.py
+21286CBFDD71C0DFCFB5AA5E3BBEF44AC6F531195D975D2E0E136F8352AAEDE6  experiment/prep/tests/test_score.py
+5BC6F03B93896C2E7ADA2F3BE48F33DF934255C744374DB83BC45801B42F88D6  experiment/prep/tests/test_stats.py
