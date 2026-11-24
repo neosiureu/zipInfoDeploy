@@ -17,6 +17,7 @@ python -X utf8 -B -m prep check --snap <snapshot_T.zip> --codes <codes_snapshot.
 python -X utf8 -B -m prep freeze-juso
 python -X utf8 -B -m prep answers
 python -X utf8 -B -m prep questions
+python -X utf8 -B -m prep score harness/settings/<설정>.json
 ```
 
 - 매물 파일(`--listings`)의 기본값은 `frozen/example_listings_v1.csv`다. 3단계에서 얼린 것이고, 5단계에 커밋한다.
@@ -117,3 +118,33 @@ python -X utf8 -B -m prep questions
     - 정답 파일에는 문항 파일의 SHA-256(줄 끝 LF로 맞춤)을 적는다.
 - build와 answers를 먼저 돌려야 한다(해시를 대 본다).
 - 시험(`tests/test_questions.py`)은 지어낸 틀 문장과 매물로 본다.
+
+## score (순서 8a)
+
+순서 8 설계 d판의 채점기다(`score.py`). 하네스가 한 단계를 다 돌고 판정(judge)까지 0으로 끝난 뒤에 친다.
+
+```
+python -X utf8 -B -m prep score harness/settings/pilot_v0.json
+```
+
+- **채점 바로 전에 하네스 `plan`을 같은 설정으로 친다.** 채점기는 plan.txt의 판 지문으로 기록을 묶는다.
+- **묶기 검사(2.2):** 하나라도 걸리면 아무것도 쓰지 않고 3으로 끝난다. 설정·파일을 못 읽으면 2다.
+    - 정답 파일(`prep/out/answers_<문항 파일 version>.json`)의 `questions_sha256`과 문항 ID·키·유형·나눔이 문항 파일과 같다.
+    - plan.txt의 단계·나눔·설정 판, 판·문항·회차·블록·실행 수가 파이썬이 짠 계획(하네스 `Plan`과 같은 셈)과 같다. 기록 문제·지문이 다른 기록·남은 실행이 없다.
+    - 기록마다: 파일 이름 = 실행 ID, 머리의 stage·settings_version·문항이 설정·문항 파일과 같다, 실행 지문 = SHA-256(plan.txt의 판 지문 + 키 + 질문 글), 끝이 있고 STOP_*가 아니다.
+    - 계획의 실행이 모두 기록에 있고, 계획 밖 기록이 없다.
+    - SUBMITTED 실행마다 (단계, 실행 ID, 기록 해시)가 같은 판정 줄이 꼭 하나다. 기록 해시는 줄 끝을 LF로 맞춘 SHA-256이다. 판정 지문은 하나다.
+- **매기기(3절):** 항목(유형·거래·표본으로 정함)마다 대표 claim의 값과 규칙, 답 전체의 규칙(T2 넓히지 않음·금지 표현·방향 말·출처·검사기 깨끗), 판정.
+    - 완전 정답 v0 = SUBMITTED, 값 통과, 규칙 통과, 판정 "답함". 보조로 수사(NUMERAL)만 뺀 완전 정답도 낸다.
+    - 실패 코드와 진단 꼬리표(FALSE_NO_TRADE, 규칙 실패로 세지 않음)를 실행마다 남긴다.
+- **채점 설정 `score_v0.json`:** 판정 없는 SUBMITTED의 처리(`unjudged`: `stop`이 기본, `fail`은 완전 정답이 아님으로 셈), 방향 말 낱말. 하네스 설정 파일에는 칸을 더할 수 없어 따로 둔다.
+- **채점 지문:** "이름  해시" 줄(code, score, answers, questions, k10, templates)을 이은 글의 SHA-256이다. code는 prep·picker의 `.py`(tests 빼고)를 하네스 `Fingerprint.tree`와 같은 꼴로 센 값이다. 줄 끝을 LF로 맞춰 세므로 Windows와 리눅스에서 같다.
+- **남기는 것:** `<files.out>/<stage>/score/`의 `runs.jsonl`(계획의 실행마다 한 줄)과 `summary.tsv`(판마다 한 줄, 채점 지문·판정 지문). runs 아래라 git 밖이다.
+    - 질문·답·판정 이유·매물 이름은 쓰지 않는다. 실행 ID, 문항 ID·키, 코드, 수만 쓴다.
+    - `score.tmp/`에 다 쓴 뒤 옛 `score/`와 바꾼다. 같은 입력이면 같은 바이트다(파이썬 3.11·3.12·3.13, CRLF로 꺼낸 기록에서도).
+- **틀 문장 파일이 있으면** 문항마다 틀 번호를 `questions.build`로 다시 낸다(다시 지은 글이 문항 파일과 다르면 멈춘다).
+- **시험(`tests/test_score.py`)**
+    - `tests/data/score_fx`는 하네스 시험 `ScoreFixtureTest`가 가짜 모델·배치 서버로 지은 단계 폴더다(기록 4개, plan.txt, 판정 파일). 매물·거래는 하네스 시험의 지어낸 자료다. 여기에 지어낸 정답·매물 파일과 K10을 더해 끝까지 매기고, 한 곳씩 바꿔 묶기 검사를 본다.
+    - 하네스가 쓰는 꼴이 바뀌면 `ScoreFixtureTest`가 걸린다. 그때는 `experiment/harness`에서 환경 변수 `SCORE_FIXTURE_OUT`에 이 폴더(`…/experiment/prep/tests/data/score_fx`)를 주고 그 시험을 다시 돌려 새로 짓는다.
+    - 실행 하나 매기기는 같은 꼴의 사건을 지어 한 곳씩 바꿔 본다.
+    - 실제 문항·정답 파일이 있으면 항목 수를 찍는다(`채점 항목 검사: …`).
