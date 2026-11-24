@@ -13,7 +13,8 @@ public final class ToolSpecs {
     public record Spec(String name, String description, ObjectNode inputSchema) {}
 
     public static final String TEXT_PATTERN = "^[가-힣A-Za-z .,!?·(){}~-]*$";
-    public static final String SLOT_PATTERN = "^[가-힣]{1,3}$";
+    /** 한글 1~3자. API의 strict 꼴은 한글 범위에 {1,3}을 받지 않아(순서 9, 400 "Cannot apply a range quantifier") 같은 뜻을 ?로 적는다. */
+    public static final String SLOT_PATTERN = "^[가-힣][가-힣]?[가-힣]?$";
     public static final List<String> UNITS = List.of("원", "만원", "㎡", "평", "%", "건", "개월", "년", "층");
     public static final List<String> BASES = List.of("단지", "법정동", "시군구");
     public static final List<String> SOURCES = List.of("매물", "국토부 실거래가", "계산");
