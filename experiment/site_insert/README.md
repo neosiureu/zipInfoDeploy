@@ -42,3 +42,8 @@ python sql_gen/make_insert_sql.py <example_listings_v1.csv> <wgs84.csv> <빈 폴
 - 셋 모두 이 폴더의 파일과 같은 바이트가 나와야 한다.
 - 시험은 환경 변수 `LISTINGS`(예시 매물 파일)와 `JUSO`(도로명주소 파일)를 쓴다.
 - `sql_gen/test_make_insert_sql.py`의 칸 길이 확인(`test_values_fit_production_columns`)은 운영 DB의 DDL과 리허설 스키마 스크립트를 읽는다. 둘은 저장소에 넣지 않았으므로, 이 저장소만으로는 그 하나가 오류로 끝나고 나머지 여덟은 통과한다. 그 확인은 넣기 전에 했다(9개 통과).
+
+## 5단계에 더한 것 (2026-11-25)
+
+- `results/운영_결과_1119.txt` 62줄은 지도에서 시군구 묶음 이름이 "null"로 보이는 까닭을 운영 DB의 지역 표로 적었다. 실제 까닭은 프런트엔드의 지역 표다. 지도는 `zipinfo-project/frontend/src/components/stock/StockPageCopy.jsx`의 `getRegionName`으로 `zipinfo-project/frontend/src/components/common/Gonggong.jsx`의 `TOWN`에서 시군구 이름을 찾는데, 예시 매물이 있는 시군구 16곳 가운데 2026년에 새로 생긴 12곳(예시 매물 51개)의 코드가 이 표에 없다. 결과 파일은 그때 적은 그대로 둔다.
+- `coord/frozen_sgiscoord/`의 응답은 `sgiscoord.py` 3e 판(SHA-256 `0FB921F6614A719F9C6AFEB44E7647144FD720700FDDE952A363A9928CC22A73`)으로 받았다. 저장소의 `coord/sgiscoord.py`는 6b 판이다. 두 판이 다른 곳은 판정(`check_item`), `run`·`main`의 rejudge 갈래와 끝 줄의 "다름" 수, 파일 머리의 설명뿐이고, API를 부르는 부분은 같다(AST로 대 봄).
