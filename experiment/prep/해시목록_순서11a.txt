@@ -1,0 +1,8 @@
+# 순서 11a 커밋 해시목록 (2026-11-25). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# 새 파일: prep judge_sample.py(판정 표본 뽑기 judge-sample과 대 보기 judge-tally), 시험 tests/test_judge_sample.py.
+# 고친 파일: prep cli.py(명령 둘), README.md, 하네스 prereg_judge_v0.md(2.1절 판정 표본 읽기). 하네스 코드·ai-core·설정은 그대로다.
+F9FE5797B3508587A9CF833AD531603A4BCB3E8DA3B091AD0D83C81707430230  experiment/harness/prereg_judge_v0.md
+1A17D10834303D11FB4D38713DF7B584F9567359486F53DF262CA6A6CAE0BE79  experiment/prep/README.md
+9ADACD346283AC395E4229C8E1BD4C029D4735239A16CBFB7206FFA8208E8BC3  experiment/prep/cli.py
+0328AB5E2F48468BE986E14620A6F26FA33ACDC882A700462F952E8F72047202  experiment/prep/judge_sample.py
+C6DCBDA455DD213975740EA17D28AE6E9D52D1B0C1924960F8F89451580ACFBA  experiment/prep/tests/test_judge_sample.py

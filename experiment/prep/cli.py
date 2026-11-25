@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""순서 2·3·7·8 명령: build, check, freeze-juso, answers, questions, score, mistakes, test.
+"""순서 2·3·7·8·11 명령: build, check, freeze-juso, answers, questions, score, mistakes, judge-sample, judge-tally, test.
 
 experiment 폴더에서 `python -X utf8 -B -m prep <명령>`으로 돌린다.
 화면에는 셈한 수, 코드, 해시만 낸다. 거래 줄, 매물 이름·주소, 단지ID, 키는 내지 않는다.
@@ -20,7 +20,7 @@ from picker.clean import API_OF
 from picker.cli import DETAIL, HISTORY, LISTING_FIELDS, pick_all
 from picker.common import code_sorted, sha256_file
 
-from . import answers, juso_road, listings, questions, replay, score, validity
+from . import answers, judge_sample, juso_road, listings, questions, replay, score, validity
 
 # 들어가는 파일의 SHA-256(설계안 5.1: 547be6d의 값과 대조, 매물 파일은 3단계에서 얼린 것)
 PINS = {
@@ -378,6 +378,16 @@ def cmd_mistakes(args):
     return score.mistakes(args.settings, args.out, listings=args.listings, pin=PINS["listings"])
 
 
+def cmd_judge_sample(args):
+    """순서 11a(prereg_judge 2.1): 사람이 읽을 판정 표본을 뽑아 judge_sample/sample.txt에 쓴다. 이미 있으면 쓰지 않는다(끝 코드 2)."""
+    return judge_sample.sample(args.settings, listings=args.listings, pin=PINS["listings"])
+
+
+def cmd_judge_tally(args):
+    """순서 11a(prereg_judge 2.1): sample.txt에 적은 판단을 판정과 대 수를 낸다. 끝 코드 0 다 댐, 2 표시·파일, 3 묶기 검사·표본 지문."""
+    return judge_sample.tally(args.settings, listings=args.listings, pin=PINS["listings"])
+
+
 def cmd_test(args):
     here = os.path.dirname(os.path.abspath(__file__))
     suite = unittest.defaultTestLoader.discover(os.path.join(here, "tests"), top_level_dir=os.path.dirname(here))
@@ -411,6 +421,10 @@ def build_parser():
     s.add_argument("settings", help="얼릴 단계의 하네스 설정 파일(예: harness/settings/pilot_v0.json)")
     s.add_argument("out", help="얼릴 파일(experiment 폴더에서 본 경로, 예: harness/frozen/mistakes_v0.json)")
     s.add_argument("--listings", default=LISTINGS)
+    for name in ("judge-sample", "judge-tally"):
+        s = sub.add_parser(name)
+        s.add_argument("settings", help="판정이 끝난 단계의 하네스 설정 파일(예: harness/settings/pilot_v0.json)")
+        s.add_argument("--listings", default=LISTINGS)
     sub.add_parser("test")
     return p
 
@@ -419,7 +433,8 @@ def main(argv=None):
     args = build_parser().parse_args(argv)
     try:
         return {"build": cmd_build, "check": cmd_check, "freeze-juso": cmd_freeze_juso, "answers": cmd_answers,
-                "questions": cmd_questions, "score": cmd_score, "mistakes": cmd_mistakes, "test": cmd_test}[args.cmd](args)
+                "questions": cmd_questions, "score": cmd_score, "mistakes": cmd_mistakes, "judge-sample": cmd_judge_sample,
+                "judge-tally": cmd_judge_tally, "test": cmd_test}[args.cmd](args)
     except questions.BadTemplates as e:
         print("멈춤: 틀 문장 파일이 검사에 걸렸다. 아무것도 쓰지 않았다", file=sys.stderr)
         for p in e.problems:

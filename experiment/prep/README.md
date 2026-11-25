@@ -19,6 +19,8 @@ python -X utf8 -B -m prep answers
 python -X utf8 -B -m prep questions
 python -X utf8 -B -m prep score harness/settings/<설정>.json
 python -X utf8 -B -m prep mistakes harness/settings/<설정>.json harness/frozen/mistakes_v0.json
+python -X utf8 -B -m prep judge-sample harness/settings/<설정>.json
+python -X utf8 -B -m prep judge-tally harness/settings/<설정>.json
 ```
 
 - 매물 파일(`--listings`)의 기본값은 `frozen/example_listings_v1.csv`다. 3단계에서 얼린 것이고, 5단계에 커밋한다.
@@ -183,3 +185,23 @@ python -X utf8 -B -m prep mistakes harness/settings/pilot_v0.json harness/frozen
     - 유형은 runs.jsonl의 codes다(판정 없음 JUDGE_MISSING은 뺀다). 진단 꼬리표는 넣지 않는다.
     - 시군구 번호는 매물 파일의 현재 시군구 코드를 오름차순으로 세운 차례(1부터)다. 코드 값은 쓰지 않는다.
 - 쓰려면 채점 설정 `mistakes`에 그 자리를 적는다. 표 파일의 해시가 채점 지문에 든다.
+
+## judge-sample·judge-tally (순서 11a)
+
+판정 표본을 사람이 읽어 판정과 맞는 비율을 잰다(`harness/prereg_judge_v0.md` 2.1절). 판정과 채점이 끝난 단계에 친다.
+
+```
+python -X utf8 -B -m prep judge-sample harness/settings/pilot_v0.json
+python -X utf8 -B -m prep judge-tally harness/settings/pilot_v0.json
+```
+
+- 둘 다 score와 같은 함수로 묶기 검사하고 매긴다. 걸리면 아무것도 쓰지 않고 3으로 끝난다.
+- judge-sample: 표본 A(판정 있는 실행을 `H("judge_a", 실행 ID)` 순으로 앞 40개)와 표본 B(값·규칙을 지났는데 판정이 답하지 않음인 실행을 `H("judge_b", 실행 ID)` 순으로 앞 20개)를 합쳐 `H("judge_order", 실행 ID)` 순으로 세운다. `<files.out>/<단계>/judge_sample/sample.txt`에 판정 지시문과, 항목마다 판정 모델이 받은 질문과 답을 쓴다.
+    - 실행 ID, 어느 표본인지, 판정과 판정 이유는 쓰지 않는다(가린 채 읽는다). 머리에 표본 지문(판정 지문과 항목마다의 실행 ID·표본·기록 해시를 이은 SHA-256 앞 12자)을 적는다.
+    - 이미 있으면 적은 판단을 지우지 않으려고 쓰지 않고 2로 끝난다.
+- 사람은 항목 끝 `■ 내 판단: [ ]`의 괄호 안에 O(답했다)나 X(답하지 않았다)를 적고 저장한다. 메모장의 CRLF·BOM도 읽는다.
+- judge-tally: 표본을 다시 뽑아 표본 지문이 sample.txt와 같은지 본 뒤(다르면 3), 판단을 판정과 댄다. 빈칸이나 O·X가 아닌 칸이 있으면 항목 번호를 찍고 2로 끝난다.
+    - 화면: A의 같음 수와 다른 꼴 둘(판정 답함·사람 X, 판정 답하지 않음·사람 O), B에서 사람이 O라 한 수, 2.1절 기준을 넘는지
+    - `tally.tsv`: 항목, 실행 ID, 표본, 판정, 내 판단, 같음. 글이 없다.
+    - `differ.txt`: 판정과 판단이 다른 항목의 질문·답·판정 이유. 글이 있어 보내지 않는다.
+- `sample.txt`·`differ.txt`에는 질문 글과 답이 들어 있다. runs 아래라 git 밖이고, 보내지 않는다.
