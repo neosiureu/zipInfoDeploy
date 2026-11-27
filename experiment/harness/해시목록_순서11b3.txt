@@ -1,0 +1,5 @@
+# 순서 11b-3 커밋 해시목록 (2026-11-27). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# 고친 파일: ai-core ToolSpecs의 자리표시자 이름 꼴 ^[가-힣][가-힣]?[가-힣]?[가-힣]?[가-힣]?[가-힣]?$ → ^[가-힣][가-힣]*$. 11c 첫 요청(c01-q001-r1)이 400 Schema is too complex로 막혔다(쓴 돈 0, 끝난 실행 0).
+#   길이 1~6자는 검사기 v1(PLACEHOLDER_FORM)이 그대로 본다. 글 꼴(TEXT_PATTERN)·설명·다른 칸은 그대로다.
+# git 밖 파일(첫 요청 확인용 복사본 harness/runs/pcfirst2_v1.json)은 넣지 않는다. 실행 순서에서 따로 본다.
+09DB093C3E9A36B494A3F348334B578B9A85783B70A834829F586882D3EB72D4  zipinfo-project/ai-core/src/main/java/com/zipinfo/ai/tools/ToolSpecs.java

@@ -15,10 +15,12 @@ public final class ToolSpecs {
     /** 순서 11b-2: %와 ㎡를 더했다(모델이 퍼센트·프로·?·빈 괄호로 메우지 않게). 숫자는 계속 자리표시자로만 쓴다. */
     public static final String TEXT_PATTERN = "^[가-힣A-Za-z .,!?·(){}~%㎡-]*$";
     /**
-     * 한글 1~6자(순서 11b-2, 4판 5.4: 시운전의 PLACEHOLDER_FORM 120개 가운데 116개가 잘린 이름). API의 strict 꼴은 한글 범위에
-     * 수량 범위를 받지 않아(순서 9, 400 "Cannot apply a range quantifier") 같은 뜻을 ?로 적는다. "매물명"은 매물 이름 자리라 claim에 쓰지 않는다.
+     * 한글 1자 이상. 1~6자는 검사기 v1(PLACEHOLDER_FORM)이 본다(순서 11b-2, 4판 5.4: 시운전의 PLACEHOLDER_FORM 120개 가운데 116개가 잘린 이름).
+     * API의 strict 꼴은 한글 범위에 수량 범위를 받지 않고(순서 9, 400 "Cannot apply a range quantifier"), 1~6자를 ?로 이은 꼴을 넣은
+     * 11c 첫 요청은 400 "Schema is too complex"로 막혔다(순서 11b-3). 그래서 길이의 위 끝은 문법에서 빼고 *로 적는다.
+     * "매물명"은 매물 이름 자리라 claim에 쓰지 않는다.
      */
-    public static final String SLOT_PATTERN = "^[가-힣][가-힣]?[가-힣]?[가-힣]?[가-힣]?[가-힣]?$";
+    public static final String SLOT_PATTERN = "^[가-힣][가-힣]*$";
     public static final List<String> UNITS = List.of("원", "만원", "㎡", "평", "%", "건", "개월", "년", "층");
     public static final List<String> BASES = List.of("단지", "법정동", "시군구");
     public static final List<String> SOURCES = List.of("매물", "국토부 실거래가", "계산");
