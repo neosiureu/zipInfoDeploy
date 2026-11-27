@@ -9,6 +9,8 @@
 - 셈은 정수와 분수다. 계열마다 매물마다의 수를 64비트 칸에 이어 붙인 큰 정수로 두고, 뽑기마다 뽑힌 수를 곱해 더한 뒤 칸을 푼다.
   구간의 차례는 칸의 분모 최소공배수로 맞춘 정수 열쇠로 정렬해 고른다. 쓸 때만 반올림한다(HALF_UP, 동점은 0에서 먼 쪽).
 - 글은 쓰지 않는다. 판 ID·이름, 칸 이름, 수, 해시만 쓴다.
+- 11b-1(설계 4판 4.2): 결과는 완전 정답(주 (다)), 수사 모두 실패((가)), 수사 뺀((나)), 판정 없는 실행 뺀(주 정의), 소요시간이다.
+  판정을 완전 정답에서 뺐으면(full_with_judge false) 판정 없는 실행 뺀 결과는 내지 않는다.
 """
 import math
 import sys
@@ -21,7 +23,7 @@ from picker.common import H, u64
 from . import metrics as M
 from . import score as S
 
-OUTCOMES = ("완전 정답", "수사 뺀", "판정 없는 실행 뺀", "소요시간(초)")
+OUTCOMES = ("완전 정답", "수사 모두 실패", "수사 뺀", "판정 없는 실행 뺀", "소요시간(초)")
 STATS_HEAD = ("갈래", "이름", "결과", "칸", "문항", "값", "하한", "상한", "값(분수)", "빈 뽑기")
 AI_TEMPLATE = 5                               # 다섯째 틀(AI 틀)을 뺀 칸
 TIMED = frozenset(("response", "tool", "accepted"))  # 실행 시간의 사건(8b와 같음)
@@ -96,14 +98,14 @@ def gather(ctx, rows):
     cells += [("⑤ 있던", ids(lambda q: q["area"] is True), main), ("⑤ 없던", ids(lambda q: q["area"] is False), main)]
     cells.append(("AI 틀 뺌", ids(lambda q: q["template"] != AI_TEMPLATE), tn is not None))
     runs = [(r["variant"]["id"], r["question"]["id"], bool(x["full"]), bool(x["full_no_numeral"]),
-             x["outcome"] == "SUBMITTED" and x["judge"] is None, run_ms(ctx["records"][r["id"]]["events"]))
+             x["outcome"] == "SUBMITTED" and x["judge"] is None, run_ms(ctx["records"][r["id"]]["events"]), bool(x["full_all_numerals"]))
             for r, x in zip(ctx["plan"], rows)]
     c = s["cache"]
     cp, bs = cfg["comparisons"], cfg["bootstrap"]
     return {"R": len(s["reps"]), "variants": list(variants.values()), "questions": qs, "listings": listings, "layers": layers,
             "strata": [(L, xs) for L, xs in strata if xs], "cells": cells, "runs": runs,
             "timed": c.get("system") is False and c.get("conversation") is False,
-            "unjudged": cfg["unjudged"] == "fail" and any(x[4] for x in runs),
+            "unjudged": cfg["unjudged"] == "fail" and cfg["full_with_judge"] and any(x[4] for x in runs),
             "comparisons": [("주", *cp["main"])] + [("보조", *p) for p in cp["aux"]], "B": bs["draws"], "purpose": bs["purpose"]}
 
 
@@ -181,13 +183,14 @@ def estimate(D, draws):
     live = [(a, b) for _, a, b in D["comparisons"] if a in vids and b in vids]
     nl = len(D["listings"])
     per = {}
-    for vid, qid, full, nn, unj, ms in D["runs"]:
-        x = per.setdefault((vid, qid), [0, 0, 0, 0, Fraction(0)])
+    for vid, qid, full, nn, unj, ms, fa in D["runs"]:
+        x = per.setdefault((vid, qid), [0, 0, 0, 0, Fraction(0), 0])
         x[0] += full
         x[1] += nn
         x[2] += not unj
         x[3] += full and not unj
         x[4] += ms
+        x[5] += fa
     ts = 1
     if D["timed"]:
         if any(x[4] < 0 for x in per.values()):
@@ -210,6 +213,7 @@ def estimate(D, draws):
         add("n", lambda q: 1)
         for v in vids:
             add(("full", v), lambda q: per[(v, q["id"])][0])
+            add(("fa", v), lambda q: per[(v, q["id"])][5])
             add(("nn", v), lambda q: per[(v, q["id"])][1])
             if D["timed"]:
                 add(("time", v), lambda q: int(per[(v, q["id"])][4] * ts))
@@ -234,6 +238,7 @@ def estimate(D, draws):
 
         for v in vids:
             put("판", v, "완전 정답", ("full", v), None, "n", R)
+            put("판", v, "수사 모두 실패", ("fa", v), None, "n", R)
             put("판", v, "수사 뺀", ("nn", v), None, "n", R)
             if D["unjudged"]:
                 put("판", v, "판정 없는 실행 뺀", ("bs", v), None, ("bn", v), lr)
@@ -242,6 +247,7 @@ def estimate(D, draws):
         for a, b in live:
             name = f"{a}-{b}"
             put("비교", name, "완전 정답", ("full", a), ("full", b), "n", R)
+            put("비교", name, "수사 모두 실패", ("fa", a), ("fa", b), "n", R)
             put("비교", name, "수사 뺀", ("nn", a), ("nn", b), "n", R)
             if D["unjudged"]:
                 put("비교", name, "판정 없는 실행 뺀", ("bsa", a, b), ("bsb", a, b), ("bn", a, b), lr)
@@ -303,7 +309,10 @@ def report_text(ctx, D, res, tally, mlines):
     get = lambda kind, name, o, cell="전체": res.get((kind, name, o, cell))
     jp = ctx["judge_print"][:12] if ctx["judge_print"] else DASH
     out = [f"# 채점 보고: 단계 {s['stage']} ({s['split']})", "",
-           f"- 설정 판 {s['version']}, 완전 정답 {cfg['version']}. 채점 지문 {ctx['print'][:12]}, 판정 지문 {jp}",
+           f"- 설정 판 {s['version']}, 완전 정답 {cfg['version']}(판정을 {'넣음' if cfg['full_with_judge'] else '뺌. 판정 답함은 보조로 1절 표에만 낸다'}). "
+           f"채점 지문 {ctx['print'][:12]}, 판정 지문 {jp}",
+           "- 완전 정답은 주 정의 (다)다(같은 길이의 통계 claim이 있는 기간 말만 받음). 비교 정의 둘은 (가) 수사 모두 실패(기간 말까지), "
+           "(나) 수사 뺀이다. 셋 다 수사 사전 v1로 세고 자리표시자 꼴을 본다.",
            f"- 문항 파일 {ctx['qsha'][:12]}, 정답 파일 {ctx['asha'][:12]}(SHA-256 앞 12자)",
            f"- 판 {len(vinfo)}개, 문항 {len(D['questions'])}개, 회차 {D['R']}번({', '.join(map(str, s['reps']))}), 실행 {len(D['runs'])}개",
            f"- 부트스트랩: 층 안 매물 묶음. 매물 {len(D['listings'])}개(" + "·".join(f"{L} {len(xs)}" for L, xs in D["strata"])
@@ -316,9 +325,9 @@ def report_text(ctx, D, res, tally, mlines):
     for vid, v in vinfo.items():
         x = t[vid]
         rows.append([vid, v["name"], v["model"]] + [str(x[k]) for k in ("plan", "submitted", "value", "rule", "answered", "full")]
-                    + [ci(get("판", vid, "완전 정답"), pct), ci(get("판", vid, "수사 뺀"), pct)])
+                    + [ci(get("판", vid, "완전 정답"), pct), ci(get("판", vid, "수사 모두 실패"), pct), ci(get("판", vid, "수사 뺀"), pct)])
     out += table(("판", "이름", "모델", "계획", "제출", "값", "규칙", "판정 답함", "완전 정답", "완전 정답률(%) [95% 구간]",
-                  "수사 뺀(%) [95% 구간]"), rows) + [""]
+                  "(가) 수사 모두 실패(%) [95% 구간]", "(나) 수사 뺀(%) [95% 구간]"), rows) + [""]
     # 2. 주 가설
     _, a, b = D["comparisons"][0]
     name = f"{a}-{b}"
@@ -327,10 +336,11 @@ def report_text(ctx, D, res, tally, mlines):
         out += [f"이 단계에 {a}·{b}가 다 있지 않아 내지 않았다.", ""]
     else:
         out += [f"{a}({vinfo[a]['name']}) − {b}({vinfo[b]['name']}), 같은 문항끼리 짝지은 차이(%p)다.", ""]
-        for o, title in (("완전 정답", "완전 정답"), ("수사 뺀", "수사 뺀 완전 정답"), ("판정 없는 실행 뺀", "판정 없는 실행 뺀 완전 정답")):
+        for o, title in (("완전 정답", "완전 정답"), ("수사 모두 실패", "(가) 수사 모두 실패 완전 정답"), ("수사 뺀", "(나) 수사 뺀 완전 정답"),
+                         ("판정 없는 실행 뺀", "판정 없는 실행 뺀 완전 정답")):
             out += [f"### {title}", ""]
             if o == "판정 없는 실행 뺀" and not D["unjudged"]:
-                out += ["이 단계에는 판정 없는 실행이 없어 내지 않았다.", ""]
+                out += ["판정을 완전 정답에서 빼서 내지 않았다." if not cfg["full_with_judge"] else "이 단계에는 판정 없는 실행이 없어 내지 않았다.", ""]
                 continue
             rows = []
             for cell, _, _ in D["cells"]:
@@ -343,9 +353,10 @@ def report_text(ctx, D, res, tally, mlines):
     for _, a, b in D["comparisons"][1:]:
         name = f"{a}-{b}"
         x = get("비교", name, "완전 정답")
-        rows.append([f"{a} − {b}", DASH if x is None else str(x[0]), ci(x, pct), ci(get("비교", name, "수사 뺀"), pct),
-                     ci(get("비교", name, "판정 없는 실행 뺀"), pct)])
-    out += table(("비교", "문항", "완전 정답 차이(%p) [95% 구간]", "수사 뺀(%p) [95% 구간]", "판정 없는 실행 뺀(%p) [95% 구간]"), rows) + [""]
+        rows.append([f"{a} − {b}", DASH if x is None else str(x[0]), ci(x, pct), ci(get("비교", name, "수사 모두 실패"), pct),
+                     ci(get("비교", name, "수사 뺀"), pct), ci(get("비교", name, "판정 없는 실행 뺀"), pct)])
+    out += table(("비교", "문항", "완전 정답 차이(%p) [95% 구간]", "(가) 수사 모두 실패(%p) [95% 구간]", "(나) 수사 뺀(%p) [95% 구간]",
+                  "판정 없는 실행 뺀(%p) [95% 구간]"), rows) + [""]
     # 4. 15.9 지표
     out += ["## 4. 15.9 지표 (판마다, 구간 없이 기술만)", "", "metrics.tsv의 분자/분모를 비율로 썼다.", ""]
     rows = []

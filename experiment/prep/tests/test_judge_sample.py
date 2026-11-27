@@ -3,6 +3,7 @@
 
 채점 시험 자료(data/score_fx, 하네스가 가짜 모델·배치 서버로 지은 단계 폴더)를 test_score.Exp로 꾸려 쓴다.
 판정 있는 실행은 7개이고, 그 가운데 c07-q001-r1은 값·규칙을 지났는데 판정이 답하지 않음이다(표본 B).
+11b-1(설계 4판 4.4): 채점 설정 judge_sample_exclude에 적은 옛 표본(tally.tsv)의 실행을 두 바구니에서 빼는 것도 여기서 본다.
 """
 import os
 import shutil
@@ -193,6 +194,65 @@ class TestJudgeSample(unittest.TestCase):
         self.assertEqual(code, 3)
         self.assertIn("판정 없는 SUBMITTED 실행 1개", out[-1])
         self.assertFalse(os.path.exists(self.path()))
+
+    def write_old(self, ids, folder="judge_sample_v0", head=judge_sample.TALLY_HEAD):
+        """옛 표본 폴더의 tally.tsv(judge-tally가 쓴 꼴)."""
+        d = self.x.stage(folder)
+        os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, judge_sample.TALLY), "w", encoding="utf-8", newline="\n") as f:
+            f.write("\t".join(head) + "\n" + "".join(f"{n}\t{rid}\tA\t답함\tO\t1\n" for n, rid in enumerate(ids, 1)))
+
+    def exclude(self, ex):
+        self.x.config = self.x.write_config("prep/score_ex.json", judge_sample_exclude=ex)
+
+    def test_old_samples_are_left_out_of_both_baskets(self):
+        old = ["c01-q001-r1", "c07-q001-r1"]  # 판정 있는 실행 하나와 유일한 B 후보
+        self.write_old(old)
+        self.exclude({"pilot": ["judge_sample_v0"]})
+        code, out = self.sample()
+        self.assertEqual(code, 0, out)
+        self.assertEqual(out[0], "판정 표본: 뺀 옛 표본 judge_sample_v0 2개(판정 있는 실행에서 2개, B가 될 수 있는 실행에서 1개)")
+        self.assertTrue(out[1].startswith("판정 표본: 판정 있는 실행 5개 가운데 A 5개, 값·규칙을 지났는데 판정이 답하지 않음인 실행 0개 가운데 B 0개"
+                                          "(겹침 0개), 읽을 항목 5개, 표본 지문 "), out[1])
+        t = self.text()
+        self.assertIn("뺀 옛 표본 judge_sample_v0 2개(판정 있는 실행에서 2개, B가 될 수 있는 실행에서 1개)\n", t)
+        self.assertEqual(t.count(judge_sample.ITEM), 5)
+        verdict = {v["run_id"]: v["answered"] for v in self.x.lines("judge/verdicts.jsonl")}
+        left = [r for r in self.order() if r not in old]
+        self.mark(["O" if verdict[r] else "X" for r in left])
+        code, out = self.tally()
+        self.assertEqual(code, 0, out)
+        self.assertEqual(out[0], "판정 표본 대조: 뺀 옛 표본 judge_sample_v0 2개(판정 있는 실행에서 2개, B가 될 수 있는 실행에서 1개)")
+        self.assertEqual(out[1], "판정 표본 대조: 항목 5개(A 5개, B 0개, 겹침 0개), 표본 지문 " + out[1].rsplit(" ", 1)[1])
+        with open(self.path(judge_sample.TALLY), encoding="utf-8") as f:
+            self.assertEqual([x.split("\t")[1] for x in f.read().split("\n")[1:-1]], left)
+        # 빼기를 잊고 대조하면 표본이 달라져 멈춘다
+        self.exclude({})
+        code, out = self.tally()
+        self.assertEqual(code, 3, out)
+        self.assertIn("표본 지문", out[-1])
+
+    def test_old_samples_of_another_stage_change_nothing(self):
+        self.exclude({"main": ["judge_sample_v0"]})
+        code, out = self.sample()
+        self.assertEqual(code, 0, out)
+        self.assertTrue(out[0].startswith("판정 표본: 판정 있는 실행 7개 가운데 A 7개"), out[0])
+        self.assertNotIn("뺀 옛 표본", self.text())
+
+    def test_a_missing_or_bad_old_sample_stops(self):
+        self.exclude({"pilot": ["judge_sample_v0"]})
+        code, out = self.sample()
+        self.assertEqual((code, out[-1]), (2, "멈춤(설정이나 파일): 뺄 옛 표본의 tally.tsv가 없다: harness/runs/pilot/judge_sample_v0/tally.tsv"))
+        for ids, head, word in ((["c99-q001-r1"], judge_sample.TALLY_HEAD, "이 단계의 계획에 없다(없는 것 1개)"),
+                                (["c01-q001-r1", "c01-q001-r1"], judge_sample.TALLY_HEAD, "겹치거나"),
+                                (["c01-q001-r1"], ("항목", "실행"), "judge-tally가 쓴 꼴이 아니다"),
+                                ([], judge_sample.TALLY_HEAD, "judge-tally가 쓴 꼴이 아니다")):
+            with self.subTest(word=word, ids=ids):
+                self.write_old(ids, head=head)
+                code, out = self.sample()
+                self.assertEqual(code, 2, out)
+                self.assertIn(word, out[-1])
+                self.assertFalse(os.path.exists(self.path()))
 
     def test_the_cli_knows_both_commands(self):
         p = cli.build_parser()

@@ -6,7 +6,9 @@
   여기에 정답 파일·매물 파일·K10을 더해 experiment 폴더처럼 꾸리고 끝까지 매긴다. 묶기 검사는 그 폴더를 한 곳씩 바꿔 본다.
 - 실행 하나 매기기는 같은 꼴의 사건을 지어 본다(답을 아는 가짜 기록). 한 곳씩 바꿔 실패 코드가 하나씩 나는지 본다.
 - 실제 파일(정답·문항·틀 문장)이 있을 때만 항목 수를 찍는다.
-- 시험용 채점 설정(fx_config): score_v0.json에서 뽑기 수를 줄이고(시험 시간, 8c 설계 2판 12절), 비교 목록을 시험 자료의 판으로 바꾼 것이다.
+- 시험용 채점 설정(fx_config): score_v1.json에서 뽑기 수를 줄이고(시험 시간, 8c 설계 2판 12절), 비교 목록을 시험 자료의 판으로 바꾸고,
+  판정 표본 빼기를 비운 것이다(시험 자료의 단계 이름도 pilot이라). 빼기는 test_judge_sample.py가 따로 본다.
+- 11b-1 채점 v1(설계 4판 4.2): 수사·기간 말·자리표시자 꼴은 글에서 다시 센다. 예문은 data/numerals_v1.json(test_numerals.py)이다.
 """
 import copy
 import io
@@ -37,6 +39,7 @@ def fx_config(**kw):
         cfg = json.load(f)
     cfg["bootstrap"]["draws"] = DRAWS
     cfg["comparisons"] = {"main": ["c06", "c01"], "aux": [["c04", "c01"], ["c05", "c01"], ["c07", "c01"]]}
+    cfg["judge_sample_exclude"] = {}
     cfg.update(kw)
     return cfg
 
@@ -134,11 +137,14 @@ class TestFixture(unittest.TestCase):
         self.assertTrue(out[0].startswith("채점 검사: 문항 파일 "), out[0])
         self.assertIn("기록 10개가 이 문항 파일과 plan.txt 지문으로 돎(단계·설정 판 같음), 판정 7개가 기록 해시에 묶임(판정 지문 CEA01B2E0224, 옛 줄 0, 다른 줄 0)",
                       out[0])
-        self.assertEqual(out[1:6], ["c01 B0: 계획 2, 제출 1, 값 1, 규칙 1, 판정 답함 1, 완전 정답 1, 수사 뺀 완전 정답 1",
-                                    "c04 ①+⓪: 계획 2, 제출 1, 값 1, 규칙 1, 판정 답함 1, 완전 정답 1, 수사 뺀 완전 정답 1",
-                                    "c05 ①+②: 계획 2, 제출 1, 값 1, 규칙 1, 판정 답함 1, 완전 정답 1, 수사 뺀 완전 정답 1",
-                                    "c06 ①+③: 계획 2, 제출 2, 값 1, 규칙 1, 판정 답함 2, 완전 정답 1, 수사 뺀 완전 정답 1",
-                                    "c07 ①+④: 계획 2, 제출 2, 값 2, 규칙 1, 판정 답함 1, 완전 정답 0, 수사 뺀 완전 정답 0"])
+        self.assertTrue(out[0].endswith(", 완전 정답 v1(판정 넣음)"), out[0])
+        self.assertEqual(out[1:7], ["c01 B0: 계획 2, 제출 1, 값 1, 규칙 1, 판정 답함 1, 완전 정답 1, 수사 모두 실패 1, 수사 뺀 1",
+                                    "c04 ①+⓪: 계획 2, 제출 1, 값 1, 규칙 1, 판정 답함 1, 완전 정답 1, 수사 모두 실패 1, 수사 뺀 1",
+                                    "c05 ①+②: 계획 2, 제출 1, 값 1, 규칙 1, 판정 답함 1, 완전 정답 1, 수사 모두 실패 1, 수사 뺀 1",
+                                    "c06 ①+③: 계획 2, 제출 2, 값 1, 규칙 1, 판정 답함 2, 완전 정답 1, 수사 모두 실패 1, 수사 뺀 1",
+                                    "c07 ①+④: 계획 2, 제출 2, 값 2, 규칙 1, 판정 답함 1, 완전 정답 0, 수사 모두 실패 0, 수사 뺀 0",
+                                    "글 검사 v1(받아들여진 제출 7개): PLACEHOLDER_FORM 0개(잘린 이름 0), 기간 말 맞음 0·안 맞음 0, 그 밖의 수사 0, "
+                                    "수사 v0 0(기록 findings의 NUMERAL과 수가 다른 제출 0)"])
         rows = self.x.results()
         self.assertEqual([r["run_id"] for r in rows], RUNS)
         a, b, c, d = rows[0], rows[1], rows[8], rows[9]
@@ -153,10 +159,14 @@ class TestFixture(unittest.TestCase):
         with open(self.x.stage("score/summary.tsv"), encoding="utf-8") as f:
             tsv = [line.rstrip("\n").split("\t") for line in f]
         self.assertEqual(tsv[0], list(score.SUMMARY_HEAD))
-        self.assertEqual(tsv[1][:10], ["c01", "B0", "2", "1", "1", "1", "1", "0", "1", "1"])
-        self.assertEqual(tsv[5][:10], ["c07", "①+④", "2", "2", "2", "1", "1", "0", "0", "0"])
-        self.assertEqual(len(tsv[1][10]), 64)
-        self.assertEqual(tsv[1][11], "CEA01B2E0224544C9BE97B0C0FF325A647C747B90FA81D2A485C443553550E9E")
+        self.assertEqual(tsv[1][:11], ["c01", "B0", "2", "1", "1", "1", "1", "0", "1", "1", "1"])
+        self.assertEqual(tsv[5][:11], ["c07", "①+④", "2", "2", "2", "1", "1", "0", "0", "0", "0"])
+        self.assertEqual(len(tsv[1][11]), 64)
+        self.assertEqual(tsv[1][12], "CEA01B2E0224544C9BE97B0C0FF325A647C747B90FA81D2A485C443553550E9E")
+        # 글 검사 v1은 수만 남긴다(받아들여진 제출마다)
+        self.assertEqual(a["text_check"], {"form": False, "truncated": False, "periods": [], "numerals": 0, "v0": 0, "after": {"문장부호·끝": 1},
+                                           "v0_record": 0})
+        self.assertIsNone(b["text_check"])
 
     def test_no_text_goes_into_the_outputs(self):
         self.assertEqual(self.x.run()[0], 0)
@@ -394,6 +404,29 @@ class TestBinding(unittest.TestCase):
         self.x.write_lines("c01-q001-r1.jsonl", lines[:-1] + [acc, lines[-1]])
         self.stops("SUBMITTED인데 받아들여진 답(accepted)이 하나가 아니다")
 
+    def test_the_v1_config_fields(self):
+        """11b-1: full_with_judge는 참·거짓, judge_sample_exclude는 {단계: [옛 표본 폴더 이름]}(경로·judge_sample은 안 됨)."""
+        bad = [dict(full_with_judge="true"), dict(full_with_judge=None), dict(judge_sample_exclude=["judge_sample_v0"]),
+               dict(judge_sample_exclude={"pilot": []}), dict(judge_sample_exclude={"pilot": ["judge_sample"]}),
+               dict(judge_sample_exclude={"pilot": ["../judge_sample_v0"]}), dict(judge_sample_exclude={"pilot": ["a/b"]}),
+               dict(judge_sample_exclude={"pilot": ["x", "x"]}), dict(judge_sample_exclude={"": ["x"]})]
+        for kw in bad:
+            with self.subTest(kw=kw):
+                word = "full_with_judge는" if "full_with_judge" in kw else "judge_sample_exclude는"
+                self.stops(word, code=2, config=self.x.write_config("prep/bad.json", **kw))
+        cfg = fx_config()
+        del cfg["full_with_judge"]
+        with open(self.x.p("prep/bad.json"), "w", encoding="utf-8") as f:
+            json.dump(cfg, f, ensure_ascii=False)
+        self.stops("채점 설정의 칸은", code=2, config=self.x.p("prep/bad.json"))
+        # 판정을 뺀 채점: 판정 답함은 그대로 세고 완전 정답에는 넣지 않는다
+        code, out = self.x.run(config=self.x.write_config("prep/nojudge.json", full_with_judge=False))
+        self.assertEqual(code, 0, out)
+        self.assertTrue(out[0].endswith(", 완전 정답 v1(판정 뺌)"), out[0])
+        self.assertEqual(out[5], "c07 ①+④: 계획 2, 제출 2, 값 2, 규칙 1, 판정 답함 1, 완전 정답 1, 수사 모두 실패 1, 수사 뺀 1")
+        c = next(r for r in self.x.results() if r["run_id"] == "c07-q001-r1")
+        self.assertEqual((c["judge"], c["full"], c["codes"]), (False, True, []))
+
     def test_files_that_cannot_be_read_end_with_2(self):
         self.stops("매물 파일의 SHA-256이 다르다", code=2, pin="0" * 64)
         os.remove(self.x.p("cards/v0/K10.md"))
@@ -520,15 +553,46 @@ class TestScoreRun(unittest.TestCase):
         self.assertEqual(self.codes(edit(good_t1(), lambda i, s: i["stat_claims"][0].update(value=300000000, unit="원"))), [])
         self.assertEqual(self.codes(edit(good_t1(), lambda i, s: i["stat_claims"][0].update(value=300000000, unit="만원"))), ["BASIS_VALUE"])
 
-    def test_numeral_only_findings_pass_the_secondary_result(self):
-        r = scored(edit(good_t1(), lambda i, s: s.update(findings=["text NUMERAL"])))
-        self.assertEqual((r["full"], r["full_no_numeral"], r["codes"]), (False, True, ["CHECKER:NUMERAL"]))
+    def test_numerals_are_recounted_from_the_text(self):
+        """11b-1(4.2): 기록의 NUMERAL은 버리고 글에서 다시 센다. 주 (다)·(가)·(나) = full·full_all_numerals·full_no_numeral."""
+        three = lambda r: (r["full"], r["full_all_numerals"], r["full_no_numeral"], r["codes"])
+        # 글에 수사가 없으면 기록의 NUMERAL(v0)은 실패가 아니다
+        self.assertEqual(three(scored(edit(good_t1(), lambda i, s: s.update(findings=["text NUMERAL"])))), (True, True, True, []))
+        # 기간 말이 아닌 수사: (다)·(가) 실패, (나) 통과
+        cases = [("같은 법정동 실거래 일곱 건의 기준값보다 {가} {가.방향}.", (False, False, True, ["CHECKER:NUMERAL"])),
+                 # 같은 길이(12달)의 통계 claim이 있는 기간 말: (다)는 받고 (가)만 실패
+                 ("최근 일 년 같은 법정동 실거래 기준값보다 {가} {가.방향}.", (True, False, True, [])),
+                 ("최근 열두 달 같은 법정동 실거래 기준값보다 {가} {가.방향}.", (True, False, True, [])),
+                 # 길이가 맞는 claim이 없는 기간 말은 PERIOD_WORD
+                 ("마지막 두 달이 든 같은 법정동 실거래 기준값보다 {가} {가.방향}.", (False, False, True, ["CHECKER:PERIOD_WORD"])),
+                 # 자리표시자 꼴은 세 정의 모두 실패
+                 ("같은 법정동 실거래 기준값 {보증금차이}보다 {가} {가.방향}.", (False, False, False, ["CHECKER:PLACEHOLDER_FORM"])),
+                 ("최근 일 년 단지 거래 한 건과 견준 기준값보다 {가} {가.방향}.", (False, False, True, ["CHECKER:NUMERAL"]))]
+        for text, want in cases:
+            with self.subTest(text=text):
+                self.assertEqual(three(scored(edit(good_t1(), lambda i, s: i.update(text=text)))), want)
+        # 다시 세지 않는 검사기 코드는 기록 그대로: (나)도 실패
         r = scored(edit(good_t1(), lambda i, s: s.update(findings=["text NUMERAL", "text TEXT_FORM"])))
-        self.assertEqual((r["full"], r["full_no_numeral"]), (False, False))
+        self.assertEqual(three(r), (False, False, False, ["CHECKER:TEXT_FORM"]))
+        # 기록에 PERIOD_WORD·PLACEHOLDER_FORM이 있어도(11b-2의 자바 검사기 v1) 글로 다시 센다
+        r = scored(edit(good_t1(), lambda i, s: s.update(findings=["text PERIOD_WORD", "text PLACEHOLDER_FORM"])))
+        self.assertEqual(three(r), (True, True, True, []))
+        # 받아들여진 제출의 v0 셈과 기록의 NUMERAL 수는 따로 남는다(대 보는 진단)
+        r = scored(edit(good_t1(), lambda i, s: (i.update(text="최근 두 달 " + TEXT), s.update(findings=["text NUMERAL"]))))
+        self.assertEqual((r["text_check"]["v0"], r["text_check"]["v0_record"], r["text_check"]["periods"]), (1, 1, [[2, False]]))
+
+    def test_the_judge_can_be_left_out_of_full(self):
+        cfg = dict(CFG, full_with_judge=False)
+        r = score.score_run(good_t1(), answer(), "SUBMITTED", False, FORBIDDEN, cfg)
+        self.assertEqual((r["full"], r["full_all_numerals"], r["full_no_numeral"], r["judge"], r["codes"]), (True, True, True, False, []))
+        r = score.score_run(good_t1(), answer(), "SUBMITTED", None, FORBIDDEN, cfg)
+        self.assertEqual((r["full"], r["codes"]), (True, []))
+        r = score.score_run(edit(good_t1(), lambda i, s: i["stat_claims"][0].update(basis="단지")), answer(), "SUBMITTED", True, FORBIDDEN, cfg)
+        self.assertEqual((r["full"], r["codes"]), (False, ["SCOPE"]))
 
     def test_the_judge(self):
         r = scored(good_t1(), judge=False)
-        self.assertEqual((r["full"], r["codes"]), (False, ["JUDGE_NOT_ANSWERED"]))
+        self.assertEqual((r["full"], r["full_all_numerals"], r["full_no_numeral"], r["codes"]), (False, False, False, ["JUDGE_NOT_ANSWERED"]))
 
     def test_not_submitted(self):
         r = scored([], outcome="FAILED_TURN_LIMIT", judge=None)

@@ -179,13 +179,15 @@ class TestRunMetrics(unittest.TestCase):
         tools = [e for e in good if e["type"] == "tool"]
         return tools + [sub, hook("SUBMIT", "④", "submit_report", "REJECT"), rejected("submit_report")]
 
-    def test_unjust_gate_counts_only_numeral_blocks(self):
-        # 2판(상대 안): 값이 맞고 수사 뺀 규칙(rok_nn)을 지나는 제출만 멀쩡하다
+    def test_unjust_gate_counts_only_sound_numeral_blocks(self):
+        # 2판(상대 안)에 11b-1(4.2의 4.4 맞춤): 값이 맞고 주 정의 (다)의 규칙을 지나는 제출만 멀쩡하다.
+        # 같은 길이(12달) claim이 있는 기간 말을 v0이 막은 것은 부당, 기간 말이 아닌 수사(일곱 건)를 막은 것은 정당하다.
+        period = self.blocked(lambda i, s: i.update(text="최근 십이 개월 같은 법정동 실거래 기준값보다 {가} {가.방향}."), ["text NUMERAL"])
         numeral = self.blocked(lambda i, s: i.update(text="같은 법정동 실거래 일곱 건의 기준값보다 {가} {가.방향}."), ["text NUMERAL"])
         missing = self.blocked(lambda i, s: i["value_claims"][0].update(evidence="C2.차이"), ["value_claims[0] EVIDENCE_MISSING"])
         wrong = self.blocked(lambda i, s: i["value_claims"][0].update(value=Decimal("12.6")), ["value_claims[0] VALUE"])
         good = [e for e in TS.good_t1() if e["type"] == "submit"] + [hook("SUBMIT", "④", "submit_report", "PASS"), accepted()]
-        ev = numeral + missing[2:] + wrong[2:] + good + [end()]
+        ev = period + numeral[2:] + missing[2:] + wrong[2:] + good + [end()]
         self.assertEqual(metrics_of(ev, ["④"])["unjust"], {"④": [1, 2]})
 
     def test_checker_only_findings_are_not_sound(self):
@@ -309,7 +311,7 @@ class TestFixture(unittest.TestCase):
     def test_rejections_and_unjust_denominators(self):
         code, out = self.x.run()
         self.assertEqual(code, 0, out)
-        self.assertIn("지표: 하네스 summary.tsv와 같음(판 5개), 15.9·비용·진단 106줄을 metrics.tsv에 썼다", out)
+        self.assertIn("지표: 하네스 summary.tsv와 같음(판 5개), 15.9·비용·진단 191줄을 metrics.tsv에 썼다", out)
         self.assertIn('⓪ 부당 거절: 의도 절 표(questions/intent_clauses_v0.json)나 틀 문장 파일이 없어 "-"로 두었다', out)
         rows = {r["run_id"]: r for r in self.x.results()}
         want = {
@@ -337,6 +339,14 @@ class TestFixture(unittest.TestCase):
         self.assertEqual(m[("c07", "비용", "완전 정답 한 건당 캐시 있음($)")], ("0.0002744", "0"))
         self.assertEqual(m[("c05", "진단", "받은 거절 ②")], ("1", "-"))
         self.assertNotIn(("c07", "진단", "받은 답 findings ZERO_INVALID T2"), m)  # ④ 판은 받은 답 findings를 내지 않는다
+        # 11b-1 글 검사 v1(4.2 진단): 판마다 같은 줄(기간 말 길이 줄은 안 맞은 것이 있을 때만)
+        self.assertEqual(m[("c06", "진단", "글 PLACEHOLDER_FORM 제출")], ("0", "2"))
+        self.assertEqual(m[("c06", "진단", "글 PLACEHOLDER_FORM 가운데 잘린 이름")], ("0", "0"))
+        self.assertEqual(m[("c06", "진단", "글 기간 말 맞음")], ("0", "0"))
+        self.assertEqual(m[("c06", "진단", "글 수사 v0이 기록 findings의 NUMERAL과 다른 제출")], ("0", "2"))
+        self.assertEqual(m[("c01", "진단", "글 방향 자리 뒤 문장부호·끝")], ("1", "1"))
+        self.assertEqual(m[("c01", "진단", "글 방향 자리 뒤 표에 없음")], ("0", "1"))
+        self.assertFalse(any(k[2].startswith("글 기간 말 안 맞음 ") for k in m))
 
     def test_the_harness_summary_must_match(self):
         path = self.x.stage("summary.tsv")

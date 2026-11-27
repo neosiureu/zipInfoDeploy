@@ -26,8 +26,10 @@ import java.util.stream.Collectors;
  *     본실험 설정의 files.memory에 같은 경로를 적는다. 이미 있으면 쓰지 않는다.</li>
  * <li>judge: 그 단계의 끝난 SUBMITTED 실행을 답변 판정 Batch로 낸다(순서 6c, Judge). 끝날 때까지 기다려 결과를 기록 폴더의 judge 폴더에 적는다.
  *     ANTHROPIC_API_KEY를 쓴다. 끊겨도 다시 치면 잇는다(낸 배치를 다시 내지 않는다).</li>
+ * <li>intent-audit: ⓪ 감사와 ⓪ 목록 v1 뽑기(순서 11b-1, IntentAudit). 요청을 보내지 않는다. 쓸 목록 파일은 experiment 폴더에서 본 경로이고,
+ *     이미 있으면 쓰지 않는다. 받는 검사에 걸리면 쓰지 않고 3으로 끝난다.</li>
  * </ul>
- * 끝 코드: 0 다 됨, 3 멈춤(run·judge의 멈춤과 나중에 이어서 모두), 2 쓰는 법·설정·파일 읽기 오류.
+ * 끝 코드: 0 다 됨, 3 멈춤(run·judge의 멈춤과 나중에 이어서 모두, intent-audit의 받는 검사), 2 쓰는 법·설정·파일 읽기 오류.
  * 기록 폴더는 experiment/(files.out)/(stage)다. 찍는 글은 UTF-8이다.
  */
 public final class Main {
@@ -41,11 +43,13 @@ public final class Main {
 
     static String usage() {
         return "쓰는 법: plan|run|summary|judge <설정 파일>  (예: plan settings/pilot_v0.json)\n"
-                + "        memory <설정 파일> <채울 판> <얼릴 파일>  (예: memory settings/pilot_v0.json c09 harness/frozen/memory_v0.json, 얼릴 파일은 experiment 폴더에서 본 경로)";
+                + "        memory <설정 파일> <채울 판> <얼릴 파일>  (예: memory settings/pilot_v0.json c09 harness/frozen/memory_v0.json, 얼릴 파일은 experiment 폴더에서 본 경로)\n"
+                + "        intent-audit <설정 파일> <쓸 ⓪ 목록 파일>  (예: intent-audit settings/pilot_v0.json intents/intent_lists_v1.json, experiment 폴더에서 본 경로)";
     }
 
     static int run(String[] args, PrintStream out, Path experiment, String apiKey) throws Exception {
-        boolean known = args.length == 2 && List.of("plan", "run", "summary", "judge").contains(args[0]) || args.length == 4 && args[0].equals("memory");
+        boolean known = args.length == 2 && List.of("plan", "run", "summary", "judge").contains(args[0]) || args.length == 4 && args[0].equals("memory")
+                || args.length == 3 && args[0].equals("intent-audit");
         if (!known) {
             out.println(usage());
             return 2;
@@ -84,6 +88,9 @@ public final class Main {
                 Runner r = new Runner(in, s, dir, clients, Thread::sleep, out);
                 out.print(MemoryFile.report(MemoryFile.freeze(r, in, s, args[2], experiment.resolve(args[3])), args[3]));
                 return 0;
+            }
+            case "intent-audit" -> {
+                return IntentAudit.run(in, s, experiment, dir, args[2], out);
             }
             case "judge" -> {
                 if (apiKey == null || apiKey.isBlank()) {

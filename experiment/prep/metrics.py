@@ -8,6 +8,7 @@
 - 7절: 하네스 Summary와 같은 셈으로 summary.tsv를 다시 지어 글자까지 대 본다. 시간은 double을 사건 차례로 실행마다 더한 뒤
   끝난 실행만 판 합에 더하고(파일 이름 차례), 반올림은 BigDecimal.valueOf → HALF_UP을 repr → Decimal로 따라 한다. 비용은 Decimal로 정확히 센다.
 - 글은 쓰지 않는다. ⓪의 절 글은 의도 절 표와 대 보기에만 쓰고 수로 남긴다.
+- 11b-1(설계 4판 4.2 진단): 받아들여진 제출의 글 검사 v1(자리표시자 꼴·잘린 이름·기간 말·수사 v1·v0·방향 자리 뒤 말)을 판마다 수로 낸다.
 """
 import json
 import os
@@ -16,6 +17,7 @@ import unicodedata
 from collections import Counter
 from decimal import Decimal, Inexact, ROUND_HALF_UP, localcontext
 
+from . import numerals as N
 from . import score as S
 
 PART_ORDER = ("⓪", "③", "②", "④", "⑤")           # 사슬 차례(Part)
@@ -589,6 +591,25 @@ def metrics_rows(ctx, rows, extra, aggs):
             for code in sorted(env["mistakes"]["codes"]):
                 line("진단", f"같은 실수 코드 {code}", sum(code in t[1]["codes"] for t in runs), n)
         line("진단", "단가표가 다른 기록", sum(not t[3]["prices_same"] for t in runs), n)
+        # 11b-1 글 검사 v1(4.2 진단): 받아들여진 제출의 수만(글은 쓰지 않는다)
+        tcs = [t[1]["text_check"] for t in sub]
+        form = sum(tc["form"] for tc in tcs)
+        line("진단", "글 PLACEHOLDER_FORM 제출", form, len(tcs))
+        line("진단", "글 PLACEHOLDER_FORM 가운데 잘린 이름", sum(tc["form"] and tc["truncated"] for tc in tcs), form)
+        ps = [p for tc in tcs for p in tc["periods"]]
+        line("진단", "글 기간 말 맞음", sum(1 for p in ps if p[1]), len(ps))
+        line("진단", "글 기간 말 안 맞음", sum(1 for p in ps if not p[1]), len(ps))
+        bad = Counter(p[0] for p in ps if not p[1])
+        for k in sorted(bad, key=lambda k: (k is None, k or 0)):
+            line("진단", f"글 기간 말 안 맞음 {'셀 수 없음' if k is None else str(k) + '달'}", bad[k], None)
+        line("진단", "글 PERIOD_WORD 제출", sum(any(not p[1] for p in tc["periods"]) for tc in tcs), len(tcs))
+        line("진단", "글 그 밖의 수사", sum(tc["numerals"] for tc in tcs), None)
+        line("진단", "글 NUMERAL 제출", sum(tc["numerals"] > 0 for tc in tcs), len(tcs))
+        line("진단", "글 수사 v0", sum(tc["v0"] for tc in tcs), None)
+        line("진단", "글 수사 v0이 기록 findings의 NUMERAL과 다른 제출", sum(tc["v0"] != tc["v0_record"] for tc in tcs), len(tcs))
+        n_dir = sum(sum(tc["after"].values()) for tc in tcs)
+        for k in N.AFTER_KINDS:
+            line("진단", f"글 방향 자리 뒤 {k}", sum(tc["after"].get(k, 0) for tc in tcs), n_dir)
     return out
 
 

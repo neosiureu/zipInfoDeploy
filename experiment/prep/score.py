@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """순서 8a·8b·8c 채점기(순서 8 설계 d판 2·3·6·8절, 8b 설계 2판, 8c 설계 2판): 한 단계의 기록을 묶기 검사한 뒤 실행마다 값·규칙·판정을 매기고,
 15.9 지표·진단·비용(8b, metrics.py)과 통계·보고 표(8c, stats.py)를 낸다.
+순서 11b-1(설계 4판 4.2)의 채점 v1: 수사·기간 말·자리표시자 꼴은 기록의 findings 대신 글에서 다시 센다(numerals.py). 완전 정답은 정의 셋
+(주 (다), 비교 (가)·(나))으로 내고, 판정을 넣을지는 채점 설정 full_with_judge로 정한다.
 
 experiment 폴더에서 `python -X utf8 -B -m prep score harness/settings/<설정>.json`으로 돌린다.
 같은 실수 표는 `python -X utf8 -B -m prep mistakes harness/settings/<설정>.json harness/frozen/mistakes_v0.json`으로 얼린다(8b 4.3).
@@ -25,11 +27,12 @@ from picker.common import read_csv
 
 from . import answers as answers_mod
 from . import listings as listings_mod
+from . import numerals as numerals_mod
 from . import questions as questions_mod
 
 # 채점기 자신의 코드가 있는 experiment 폴더(채점 지문의 code는 지금 도는 코드로 센다)
 CODE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CONFIG = os.path.join(CODE_ROOT, "prep", "score_v0.json")
+CONFIG = os.path.join(CODE_ROOT, "prep", "score_v1.json")
 LISTINGS = "frozen/example_listings_v1.csv"
 OUT_DIR = "prep/out"
 LISTINGS_INPUT = "listings_input_v1.json"
@@ -56,11 +59,15 @@ PLACEHOLDER = re.compile(r"\{([가-힣]{1,3})(\.방향)?\}")
 SENTENCE_END = re.compile(r"[.?!\n]")
 SPACES = re.compile(r"\s+")
 
-CONFIG_FIELDS = ("version", "unjudged", "direction", "mistakes", "intent_clauses", "bootstrap", "comparisons")
+CONFIG_FIELDS = ("version", "unjudged", "full_with_judge", "direction", "mistakes", "intent_clauses", "judge_sample_exclude", "bootstrap",
+                 "comparisons")
 DIRECTION_FIELDS = ("words", "high_low")
 HIGH_LOW_FIELDS = ("chars", "markers", "except", "window", "next_not")
 UNJUDGED = ("stop", "fail")
 MAX_DRAWS = 1_000_000
+SAMPLE_DIR = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.-]*")  # 빼는 판정 표본 폴더 이름(단계 폴더 바로 아래)
+# 채점 v1이 글에서 다시 세는 검사기 코드(순서 11b 설계 4판 4.2). 기록의 이 코드는 버리고 numerals.scan의 셈으로 채운다.
+RECOUNTED = frozenset(("NUMERAL", "PERIOD_WORD", "PLACEHOLDER_FORM"))
 
 
 class Bad(Exception):
@@ -228,6 +235,14 @@ def load_config(path):
         raise Bad("채점 설정 mistakes는 null이나 같은 실수 표의 자리다")
     if not (isinstance(c["intent_clauses"], str) and c["intent_clauses"]):
         raise Bad("채점 설정 intent_clauses는 의도 절 표의 자리다")
+    # 11b-1: 완전 정답에 판정을 넣는지(prereg_judge 2.1을 못 넘으면 false), 판정 표본에서 뺄 옛 표본(단계 → 그 단계 폴더 아래 폴더 이름)
+    if not isinstance(c["full_with_judge"], bool):
+        raise Bad("채점 설정 full_with_judge는 true나 false다")
+    ex = c["judge_sample_exclude"]
+    folder = lambda x: isinstance(x, str) and SAMPLE_DIR.fullmatch(x) is not None and x != "judge_sample"
+    if not isinstance(ex, dict) or not all(isinstance(k, str) and k and isinstance(v, list) and v and all(folder(x) for x in v)
+                                           and len(set(v)) == len(v) for k, v in ex.items()):
+        raise Bad("채점 설정 judge_sample_exclude는 {단계: [옛 판정 표본 폴더 이름, …]}다(이름은 영문·숫자·_·.·-, judge_sample은 쓰지 않는다)")
     # 8c: 부트스트랩과 비교 목록(판 ID가 판 설정 파일에 있는지는 prepare에서 본다)
     b = c["bootstrap"]
     if not isinstance(b, dict) or sorted(b) != ["draws", "purpose"] or integer(b["draws"]) is None or not 1 <= b["draws"] <= MAX_DRAWS \
@@ -242,7 +257,8 @@ def load_config(path):
     if len(set(pairs)) != len(pairs):
         raise Bad("채점 설정 comparisons에 같은 비교가 둘이다")
     nfc = lambda xs: [unicodedata.normalize("NFC", x) for x in xs]
-    return {"version": c["version"], "unjudged": c["unjudged"], "words": nfc(d["words"]), "chars": nfc(hl["chars"]),
+    return {"version": c["version"], "unjudged": c["unjudged"], "full_with_judge": c["full_with_judge"],
+            "judge_sample_exclude": {k: list(v) for k, v in ex.items()}, "words": nfc(d["words"]), "chars": nfc(hl["chars"]),
             "markers": nfc(hl["markers"]), "except": nfc(hl["except"]), "window": hl["window"],
             "next_not": unicodedata.normalize("NFC", hl["next_not"]), "mistakes": c["mistakes"], "intent_clauses": c["intent_clauses"],
             "bootstrap": {"draws": b["draws"], "purpose": b["purpose"]}, "comparisons": {"main": pairs[0], "aux": pairs[1:]}}
@@ -753,42 +769,52 @@ def judge_submission(sub, events, a, forbidden, cfg):
         if want is not None and c.get("source") != want:
             report.append("SOURCE")
             break
+    # 검사기 깨끗(11b-1, 4.2): 기록의 findings에서 다시 세는 코드를 버리고, 글에서 센 수사 v1·기간 말·자리표시자 꼴로 채운다.
+    # 주 (다): 같은 길이의 통계 claim이 있는 기간 말만 받는다. (가): 기간 말까지 모든 수사가 실패. (나): 수사를 모두 뺀다. 셋 다 자리표시자 꼴을 본다.
     findings = [f.rsplit(" ", 1)[-1] for f in (sub.get("findings") or []) if isinstance(f, str)]
-    checker = sorted({"CHECKER:" + f for f in findings})
+    t = numerals_mod.scan(text, inp)
+    t["v0_record"] = findings.count("NUMERAL")
+    kept = [f for f in findings if f not in RECOUNTED] + (["PLACEHOLDER_FORM"] if t["form"] else [])
+    main = kept + (["NUMERAL"] if t["numerals"] else []) + (["PERIOD_WORD"] if any(not ok for _, ok in t["periods"]) else [])
+    every = kept + (["NUMERAL"] if t["numerals"] or t["periods"] else [])
+    checker = sorted({"CHECKER:" + f for f in main})
     items_rule = all(x["rule"] for x in items)
     vok = all(x["value"] for x in items)
-    rok = items_rule and not report and not checker
-    rok_nn = items_rule and not report and all(f == "NUMERAL" for f in findings)
-    return {"items": items, "report": report, "checker": checker, "vok": vok, "rok": rok, "rok_nn": rok_nn, "cs": cs, "stats": stats,
-            "counts": counts}
+    base = items_rule and not report
+    return {"items": items, "report": report, "checker": checker, "vok": vok, "rok": base and not main, "rok_all": base and not every,
+            "rok_nn": base and not kept, "cs": cs, "stats": stats, "counts": counts, "text_check": t}
 
 
 def sound_submission(sub, events, a, forbidden, cfg):
-    """8b 4.4 ④의 멀쩡한 제출: 받아들였다고 치고 그 제출까지의 사건으로 매겨, 값이 맞고 수사 뺀 규칙(rok_nn)을 지나는 제출. 판정은 보지 않는다."""
+    """8b 4.4 ④의 멀쩡한 제출: 받아들였다고 치고 그 제출까지의 사건으로 매겨, 값이 맞고 주 정의((다))의 규칙을 지나는 제출(11b-1, 4.2의 4.4 맞춤).
+    판정은 보지 않는다."""
     if not isinstance(sub.get("input"), dict):
         return False
     j = judge_submission(sub, events, a, forbidden, cfg)
-    return j["vok"] and j["rok_nn"]
+    return j["vok"] and j["rok"]
 
 
 def score_run(events, a, outcome, judge, forbidden, cfg):
     """실행 하나(3.1~3.7). a는 정답 줄, judge는 판정(답함 True·답하지 않음 False·없음 None)."""
     if outcome != "SUBMITTED":
-        return {"outcome": outcome, "items": [], "value": None, "rule": None, "judge": None, "full": False, "full_no_numeral": False,
-                "codes": [outcome], "tags": [], "direction": None}
+        return {"outcome": outcome, "items": [], "value": None, "rule": None, "judge": None, "full": False, "full_all_numerals": False,
+                "full_no_numeral": False, "codes": [outcome], "tags": [], "direction": None, "text_check": None}
     sub = accepted_submission(events)
     if sub is None:
         raise Bind("SUBMITTED 기록의 받아들여진 제출을 찾지 못했다")
     j = judge_submission(sub, events, a, forbidden, cfg)
-    items, vok, rok, rok_nn, cs, stats, counts = j["items"], j["vok"], j["rok"], j["rok_nn"], j["cs"], j["stats"], j["counts"]
+    items, vok, rok, cs, stats, counts = j["items"], j["vok"], j["rok"], j["cs"], j["stats"], j["counts"]
     codes = {code for x in items for code in x["codes"]} | set(j["report"]) | set(j["checker"])
-    if judge is False:
+    # 판정을 완전 정답에서 뺐으면(full_with_judge false) 판정은 실패 까닭이 아니다(코드에 넣지 않는다, 4.5)
+    with_judge = cfg["full_with_judge"]
+    if with_judge and judge is False:
         codes.add("JUDGE_NOT_ANSWERED")
-    elif judge is None:
+    elif with_judge and judge is None:
         codes.add("JUDGE_MISSING")
-    return {"outcome": outcome, "items": items, "value": vok, "rule": rok, "judge": judge, "full": vok and rok and judge is True,
-            "full_no_numeral": vok and rok_nn and judge is True, "codes": sorted(codes), "tags": false_no_trade(cs, a, stats),
-            "direction": counts}
+    jok = judge is True or not with_judge
+    return {"outcome": outcome, "items": items, "value": vok, "rule": rok, "judge": judge, "full": vok and rok and jok,
+            "full_all_numerals": vok and j["rok_all"] and jok, "full_no_numeral": vok and j["rok_nn"] and jok, "codes": sorted(codes),
+            "tags": false_no_trade(cs, a, stats), "direction": counts, "text_check": j["text_check"]}
 
 
 def false_no_trade(cs, a, stats):
@@ -830,16 +856,27 @@ def template_numbers(exp, qpath, qversion, questions, listings_path):
     return {r["id"]: r["template"] + 1 for r in rows}, tpath, names, {t: len(templates[t]) for t in TYPES}
 
 
+def text_line(rows):
+    """글 검사 v1(4.2 진단)을 모든 판에 걸쳐 한 줄로: 받아들여진 제출의 수만."""
+    ts = [x["text_check"] for x in rows if x["text_check"] is not None]
+    periods = [p for t in ts for p in t["periods"]]
+    form = sum(t["form"] for t in ts)
+    return (f"글 검사 v1(받아들여진 제출 {len(ts)}개): PLACEHOLDER_FORM {form}개(잘린 이름 {sum(t['form'] and t['truncated'] for t in ts)}), "
+            f"기간 말 맞음 {sum(1 for p in periods if p[1])}·안 맞음 {sum(1 for p in periods if not p[1])}, 그 밖의 수사 {sum(t['numerals'] for t in ts)}, "
+            f"수사 v0 {sum(t['v0'] for t in ts)}(기록 findings의 NUMERAL과 수가 다른 제출 {sum(t['v0'] != t['v0_record'] for t in ts)})")
+
+
 # ---------------------------------------------------------------- 쓰기
 
-SUMMARY_HEAD = ("판", "이름", "계획", "제출", "값", "규칙", "판정 답함", "판정 없음", "완전 정답", "수사 뺀 완전 정답", "채점 지문", "판정 지문")
+SUMMARY_HEAD = ("판", "이름", "계획", "제출", "값", "규칙", "판정 답함", "판정 없음", "완전 정답", "수사 모두 실패 완전 정답", "수사 뺀 완전 정답",
+                "채점 지문", "판정 지문")
 
 
 def tally(plan, rows):
     out = {}
     for r, x in zip(plan, rows):
         t = out.setdefault(r["variant"]["id"], {"variant": r["variant"], "plan": 0, "submitted": 0, "value": 0, "rule": 0, "answered": 0,
-                                                 "unjudged": 0, "full": 0, "full_no_numeral": 0})
+                                                 "unjudged": 0, "full": 0, "full_all_numerals": 0, "full_no_numeral": 0})
         t["plan"] += 1
         if x["outcome"] == "SUBMITTED":
             t["submitted"] += 1
@@ -848,6 +885,7 @@ def tally(plan, rows):
             t["answered"] += x["judge"] is True
             t["unjudged"] += x["judge"] is None
         t["full"] += x["full"]
+        t["full_all_numerals"] += x["full_all_numerals"]
         t["full_no_numeral"] += x["full_no_numeral"]
     return list(out.values())
 
@@ -1009,7 +1047,8 @@ def _run(settings_path, exp, listings, pin, config, out):
     lines = ["\t".join(SUMMARY_HEAD)]
     for x in t:
         lines.append("\t".join([x["variant"]["id"], x["variant"]["name"]] + [str(x[k]) for k in
-                               ("plan", "submitted", "value", "rule", "answered", "unjudged", "full", "full_no_numeral")] + [print_, judge_print or "-"]))
+                               ("plan", "submitted", "value", "rule", "answered", "unjudged", "full", "full_all_numerals", "full_no_numeral")]
+                     + [print_, judge_print or "-"]))
     stats_text, report_text, stats_line = stats_mod.compute(ctx, rows, t, mlines)
     note = write_outputs(ctx["stage_dir"], [("runs.jsonl", runs_text), ("summary.tsv", "\n".join(lines) + "\n"), ("metrics.tsv", metrics_text),
                                             ("stats.tsv", stats_text), ("report.md", report_text)])
@@ -1018,10 +1057,12 @@ def _run(settings_path, exp, listings, pin, config, out):
     jp = judge_print[:12] if judge_print else "-"
     out(f"채점 검사: 문항 파일 {ctx['qsha'][:8]}… = 정답 파일, 기록 {len(records)}개가 이 문항 파일과 plan.txt 지문으로 돎(단계·설정 판 같음), "
         f"판정 {n_sub - unjudged}개가 기록 해시에 묶임(판정 지문 {jp}, 옛 줄 {ctx['old']}, 다른 줄 {ctx['other']}"
-        + (f", 판정 없음 {unjudged}" if cfg["unjudged"] == "fail" else "") + f"), 채점 지문 {print_[:12]}, 완전 정답 {cfg['version']}")
+        + (f", 판정 없음 {unjudged}" if cfg["unjudged"] == "fail" else "") + f"), 채점 지문 {print_[:12]}, 완전 정답 {cfg['version']}"
+        + f"(판정 {'넣음' if cfg['full_with_judge'] else '뺌'})")
     for x in t:
         out(f"{x['variant']['id']} {x['variant']['name']}: 계획 {x['plan']}, 제출 {x['submitted']}, 값 {x['value']}, 규칙 {x['rule']}, "
-            f"판정 답함 {x['answered']}, 완전 정답 {x['full']}, 수사 뺀 완전 정답 {x['full_no_numeral']}")
+            f"판정 답함 {x['answered']}, 완전 정답 {x['full']}, 수사 모두 실패 {x['full_all_numerals']}, 수사 뺀 {x['full_no_numeral']}")
+    out(text_line(rows))
     out(f"지표: 하네스 summary.tsv와 같음(판 {n_variants}개), 15.9·비용·진단 {len(mlines)}줄을 metrics.tsv에 썼다")
     out(stats_line)
     if ctx["intents_missing"] and any("⓪" in r["variant"]["parts"] for r in ctx["plan"]):

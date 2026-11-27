@@ -9,6 +9,8 @@ experiment 폴더에서 친다.
 - 표본 A: 판정 있는 실행을 H("judge_a", 실행 ID)가 작은 순으로 세워 앞 40개. 판정과 사람이 맞는 비율을 잰다.
 - 표본 B: 값·규칙을 다 지났는데 판정이 "답하지 않음"인 실행(판정 하나로 완전 정답이 못 된 실행)을 H("judge_b", 실행 ID) 순으로 앞 20개.
 - 읽는 차례는 H("judge_order", 실행 ID) 순이다. 어느 항목이 A인지 B인지, 판정이 무엇인지는 sample.txt에 없다(가린 채 읽는다).
+- 순서 11b-1(설계 4판 4.4, prereg_judge 2.1): 채점 설정 judge_sample_exclude에 그 단계의 옛 표본 폴더가 있으면, 그 폴더 tally.tsv의 실행을
+  두 바구니에서 뺀 뒤 같은 법으로 뽑는다. 표본과 대조 모두 뺀다(대조는 표본을 다시 뽑아 지문을 댄다).
 - sample.txt·differ.txt에는 질문 글과 답이 들어 있다. 보내지 않는다(runs 아래라 git 밖). 화면과 tally.tsv에는 수, 항목 번호, 실행 ID만 낸다.
 - 표준 라이브러리만 쓴다.
 """
@@ -34,9 +36,9 @@ PRINT = "■ 표본 지문: "
 TALLY_HEAD = ("항목", "실행 ID", "표본", "판정", "내 판단", "같음")
 
 
-def pick(rows):
-    """(표본 A, 표본 B, 판정 있는 실행 수, B가 될 수 있는 실행 수). 줄은 score_rows의 줄이다."""
-    judged = [x for x in rows if x["outcome"] == "SUBMITTED" and x["judge"] is not None]
+def pick(rows, skip=frozenset()):
+    """(표본 A, 표본 B, 판정 있는 실행 수, B가 될 수 있는 실행 수). 줄은 score_rows의 줄이다. skip의 실행(옛 표본)은 두 바구니에서 뺀다."""
+    judged = [x for x in rows if x["outcome"] == "SUBMITTED" and x["judge"] is not None and x["run_id"] not in skip]
     a = sorted(judged, key=lambda x: (H(PURPOSE_A, x["run_id"]), x["run_id"]))[:N_A]
     pool = [x for x in judged if x["value"] and x["rule"] and x["judge"] is False]
     b = sorted(pool, key=lambda x: (H(PURPOSE_B, x["run_id"]), x["run_id"]))[:N_B]
@@ -85,29 +87,42 @@ def instructions(settings_path, ctx):
 
 def sample_text(settings_path, ctx, items, print_):
     body, rel = instructions(settings_path, ctx)
-    out = [f"판정 표본 읽기: 단계 {ctx['s']['stage']}, 판정 지문 {(ctx['judge_print'] or '-')[:12]}, 항목 {len(items)}개\n",
-           "이 파일은 보내지 않는다. 질문 글과 답이 들어 있다.\n\n",
-           "읽는 법\n",
-           "- 항목마다 [질문]과 [답]을 읽고, 아래 지시문의 잣대로 답이 질문에 답했는지만 본다. 판정 모델이 받은 지시문 그대로다.\n",
-           "- 항목 끝의 \"내 판단\" 줄 괄호 안에, 답했으면 O, 답하지 않았으면 X를 적는다(영문 대문자 O·X). 다른 줄은 고치지 않고 저장한다.\n",
-           "- 판정 모델의 판정은 일부러 보이지 않는다. 모두 적은 뒤 judge-tally를 친다.\n\n",
-           f"판정 지시문({rel})\n", indent(body), "\n", f"{PRINT}{print_}\n"]
+    out = [f"판정 표본 읽기: 단계 {ctx['s']['stage']}, 판정 지문 {(ctx['judge_print'] or '-')[:12]}, 항목 {len(items)}개\n"]
+    if skip_text(ctx):
+        out.append(skip_text(ctx) + "\n")
+    out += ["이 파일은 보내지 않는다. 질문 글과 답이 들어 있다.\n\n",
+            "읽는 법\n",
+            "- 항목마다 [질문]과 [답]을 읽고, 아래 지시문의 잣대로 답이 질문에 답했는지만 본다. 판정 모델이 받은 지시문 그대로다.\n",
+            "- 항목 끝의 \"내 판단\" 줄 괄호 안에, 답했으면 O, 답하지 않았으면 X를 적는다(영문 대문자 O·X). 다른 줄은 고치지 않고 저장한다.\n",
+            "- 판정 모델의 판정은 일부러 보이지 않는다. 모두 적은 뒤 judge-tally를 친다.\n\n",
+            f"판정 지시문({rel})\n", indent(body), "\n", f"{PRINT}{print_}\n"]
     for n, (rid, _, _) in enumerate(items, 1):
         q, ans = texts(ctx, rid)
         out += [f"\n{ITEM}{n}\n", "[질문]\n", indent(q), "\n[답]\n", indent(ans), f"\n{MARK} ]\n"]
     return "".join(out)
 
 
-def read_marks(path, n):
-    """sample.txt에서 항목마다 적은 판단("O"·"X")을 읽는다. 꼴이 틀리면 Bad(항목 번호만 적는다)."""
+def sample_lines(path):
+    """sample.txt의 줄(BOM은 떼고 줄 끝은 LF로)."""
     with open(path, "rb") as f:
         raw = f.read()
     if raw.startswith(b"\xef\xbb\xbf"):
         raw = raw[3:]
     try:
-        lines = score.lf(raw).decode("utf-8").split("\n")
+        return score.lf(raw).decode("utf-8").split("\n")
     except UnicodeDecodeError:
         raise score.Bad(f"{SAMPLE}가 UTF-8이 아니다. 메모장에서 인코딩을 UTF-8로 골라 다시 저장한다") from None
+
+
+def printed_of(path):
+    """sample.txt에 찍힌 표본 지문(그 줄이 꼭 하나일 때만, 아니면 None)."""
+    printed = [x[len(PRINT):].strip() for x in sample_lines(path) if x.startswith(PRINT)]
+    return printed[0] if len(printed) == 1 else None
+
+
+def read_marks(path, n):
+    """sample.txt에서 항목마다 적은 판단("O"·"X")을 읽는다. 꼴이 틀리면 Bad(항목 번호만 적는다)."""
+    lines = sample_lines(path)
     printed = [x[len(PRINT):].strip() for x in lines if x.startswith(PRINT)]
     heads, marks, cur = [], {}, None
     for x in lines:
@@ -144,12 +159,52 @@ def reasons(ctx):
     return {v["run_id"]: v.get("reason") for v in lines if (v.get("stage"), v.get("run_id"), v.get("record_sha256")) in want}
 
 
+def excluded(ctx):
+    """뺄 옛 표본(채점 설정 judge_sample_exclude의 그 단계 폴더들): 실행 ID 모음과 [(폴더, 실행 수)]. tally.tsv의 실행 ID 칸을 읽는다."""
+    where = f"{ctx['s']['files']['out']}/{ctx['s']['stage']}"
+    ids, per = set(), []
+    for name in ctx["cfg"]["judge_sample_exclude"].get(ctx["s"]["stage"], []):
+        path = os.path.join(ctx["stage_dir"], name, TALLY)
+        if not os.path.exists(path):
+            raise score.Bad(f"뺄 옛 표본의 {TALLY}가 없다: {where}/{name}/{TALLY}")
+        with open(path, "rb") as f:
+            raw = f.read()
+        try:
+            lines = score.lf(raw).decode("utf-8").split("\n")
+        except UnicodeDecodeError:
+            raise score.Bad(f"{where}/{name}/{TALLY}가 UTF-8이 아니다") from None
+        while lines and lines[-1] == "":
+            lines.pop()
+        rows = [x.split("\t") for x in lines[1:]]
+        if not lines or lines[0].split("\t") != list(TALLY_HEAD) or not rows or any(len(r) != len(TALLY_HEAD) for r in rows):
+            raise score.Bad(f"{where}/{name}/{TALLY}가 judge-tally가 쓴 꼴이 아니다")
+        got = [r[1] for r in rows]
+        miss = [x for x in got if x not in ctx["records"]]
+        if len(set(got)) != len(got) or miss:
+            raise score.Bad(f"{where}/{name}/{TALLY}의 실행 ID가 겹치거나 이 단계의 계획에 없다(없는 것 {len(miss)}개)")
+        ids |= set(got)
+        per.append((name, len(got)))
+    return ids, per
+
+
 def _prepare(settings_path, exp, listings, pin, config):
     ctx = score.prepare(settings_path, exp, listings, pin, config)
     rows = score.score_rows(ctx)
-    a, b, n_judged, n_pool = pick(rows)
+    skip, per = excluded(ctx)
+    a, b, n_judged, n_pool = pick(rows, skip)
     items = items_of(a, b)
+    _, _, all_judged, all_pool = pick(rows)
+    ctx["skip"] = {"per": per, "judged": all_judged - n_judged, "pool": all_pool - n_pool}
     return ctx, a, b, n_judged, n_pool, items
+
+
+def skip_text(ctx):
+    """화면·sample.txt 머리에 낼 뺀 옛 표본의 수. 없으면 빈 글."""
+    k = ctx["skip"]
+    if not k["per"]:
+        return ""
+    return ("뺀 옛 표본 " + ", ".join(f"{name} {n}개" for name, n in k["per"]) + f"(판정 있는 실행에서 {k['judged']}개, "
+            f"B가 될 수 있는 실행에서 {k['pool']}개)")
 
 
 def _guard(fn, out):
@@ -179,6 +234,8 @@ def sample(settings_path, exp=".", listings=score.LISTINGS, pin=None, config=sco
         with open(path, "x", encoding="utf-8", newline="\n") as f:
             f.write(text)
         both = sum(1 for _, t, _ in items if t == "AB")
+        if skip_text(ctx):
+            out("판정 표본: " + skip_text(ctx))
         out(f"판정 표본: 판정 있는 실행 {n_judged}개 가운데 A {len(a)}개, 값·규칙을 지났는데 판정이 답하지 않음인 실행 {n_pool}개 가운데 B {len(b)}개"
             f"(겹침 {both}개), 읽을 항목 {len(items)}개, 표본 지문 {print_}")
         out(f"{ctx['s']['files']['out']}/{ctx['s']['stage']}/{DIR}/{SAMPLE}에 썼다. 질문 글과 답이 들어 있어 보내지 않는다")
@@ -195,10 +252,11 @@ def tally(settings_path, exp=".", listings=score.LISTINGS, pin=None, config=scor
         if not os.path.exists(path):
             raise score.Bad(f"{ctx['s']['files']['out']}/{ctx['s']['stage']}/{DIR}/{SAMPLE}가 없다. 먼저 judge-sample을 친다")
         print_ = sample_print(ctx, items)
-        marks, printed = read_marks(path, len(items))
+        printed = printed_of(path)  # 표본이 다르면(판정을 다시 냈거나 빼기 설정이 다름) 판단을 읽기 전에 멈춘다
         if printed != print_:
             raise score.Bind(f"{SAMPLE}의 표본 지문({printed})이 지금 기록·판정으로 뽑은 표본({print_})과 다르다. 판정을 다시 냈으면 그 폴더를 옮기고 "
                              "judge-sample부터 다시 한다")
+        marks, _ = read_marks(path, len(items))
         rows, diff = [], []
         for n, ((rid, t, judge), m) in enumerate(zip(items, marks), 1):
             same = (m == "O") == judge
@@ -227,6 +285,8 @@ def tally(settings_path, exp=".", listings=score.LISTINGS, pin=None, config=scor
             f.write("\n".join(tsv) + "\n")
         with open(os.path.join(d, DIFFER), "w", encoding="utf-8", newline="\n") as f:
             f.write("".join(dtext))
+        if skip_text(ctx):
+            out("판정 표본 대조: " + skip_text(ctx))
         out(f"판정 표본 대조: 항목 {len(items)}개(A {len(A)}개, B {len(B)}개, 겹침 {sum(1 for r in rows if r[2] == 'AB')}개), 표본 지문 {print_}")
         out(f"표본 A(판정 있는 실행 {n_judged}개 가운데 {len(A)}개): 같음 {same_a}개, 판정 답함·내 판단 X {len(a_yes_x)}개{nums(a_yes_x)}, "
             f"판정 답하지 않음·내 판단 O {len(a_no_o)}개{nums(a_no_o)}")

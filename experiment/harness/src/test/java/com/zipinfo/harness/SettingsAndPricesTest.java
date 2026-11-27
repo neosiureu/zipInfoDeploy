@@ -10,11 +10,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.zipinfo.ai.model.CachePolicy;
 import com.zipinfo.ai.model.ModelSettings;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 
-/** 순서 6a: 설정 파일(pilot_v0.json)과 단가표(01 333·342줄). 6b: files.memory가 얼린 기억 파일의 경로를 받는다. 6c: 판정 설정(judge 칸). */
+/**
+ * 순서 6a: 설정 파일(pilot_v0.json)과 단가표(01 333·342줄). 6b: files.memory가 얼린 기억 파일의 경로를 받는다. 6c: 판정 설정(judge 칸).
+ * 11b-1: 판정 v1 설정(pilot_v0_judge_v1.json)은 pilot_v0.json에서 judge.instructions만 다르다.
+ */
 class SettingsAndPricesTest {
     static void bad(Consumer<ObjectNode> edit) {
         assertThrows(IllegalArgumentException.class, () -> Fixture.settings(edit));
@@ -38,6 +43,22 @@ class SettingsAndPricesTest {
         assertEquals("harness/frozen/memory_v0.json", frozen.files().memory(), "순서 6b: 얼린 기억 파일의 경로를 받는다");
         assertEquals(new JudgeSettings("claude-haiku-5-5", 8000, 16000, ModelSettings.Thinking.ADAPTIVE, null, "auto", "harness/judge/judge_v0.md", 60),
                 s.judge(), "순서 6c: 판정 설정 v0");
+    }
+
+    @Test
+    void theJudgeV1SettingsDifferOnlyInTheInstructions() throws Exception {
+        // 순서 11b 설계 4판 4.3·2.4의 1: 판정만 v1 지시문으로 다시 낸다. version은 v0 그대로라 기록·plan.txt·채점이 같은 단계로 읽는다
+        ObjectNode a = (ObjectNode) Fixture.M.readTree(Files.readString(Fixture.EXP.resolve("harness/settings/pilot_v0.json"), StandardCharsets.UTF_8));
+        ObjectNode b = (ObjectNode) Fixture.M.readTree(Files.readString(Fixture.EXP.resolve("harness/settings/pilot_v0_judge_v1.json"), StandardCharsets.UTF_8));
+        assertEquals("harness/judge/judge_v1.md", b.get("judge").get("instructions").asText());
+        judge(a).remove("instructions");
+        judge(b).remove("instructions");
+        assertEquals(a, b, "judge.instructions 밖의 칸은 pilot_v0.json과 같다");
+        RunSettings s = RunSettings.load(Fixture.EXP.resolve("harness/settings/pilot_v0_judge_v1.json"));
+        assertEquals("v0", s.version());
+        assertEquals(new JudgeSettings("claude-haiku-5-5", 8000, 16000, ModelSettings.Thinking.ADAPTIVE, null, "auto", "harness/judge/judge_v1.md", 60),
+                s.judge());
+        assertTrue(Files.exists(Fixture.EXP.resolve("harness/judge/judge_v1.md")));
     }
 
     static ObjectNode judge(ObjectNode n) {

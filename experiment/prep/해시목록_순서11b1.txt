@@ -1,0 +1,29 @@
+# 순서 11b-1 커밋 해시목록 (2026-11-26, b판 11/27). SHA-256, 저장소 뿌리에서 본 경로. 이 파일 자신은 뺀다.
+# 새 파일: prep numerals.py(글 검사 v1)·score_v1.json(채점 설정 v1), 시험 tests/test_numerals.py·tests/data/numerals_v1.json(같은 예문 묶음),
+#   하네스 IntentAudit.java(intent-audit 명령)·IntentAuditTest.java, judge/judge_v1.md(판정 지시문 v1), settings/pilot_v0_judge_v1.json, intents/.gitignore.
+# 고친 파일: prep score.py·metrics.py·stats.py(채점 v1)·judge_sample.py(옛 표본 빼기)·README.md·prereg_score_v0.md와 시험 넷,
+#   하네스 Main.java(명령 하나)·prereg_judge_v0.md와 시험 둘(HarnessCheckTest·SettingsAndPricesTest). ai-core는 그대로다.
+# b판(11/27): IntentAuditTest가 화면 줄을 "\n"으로 찾아 윈도(줄 끝 CRLF)에서 실패하던 것을 줄로 나눠 대게 고쳤다. 다른 파일은 그대로다.
+360F93C1EEDB5F64AD2DC8CD7982FC93AA7F0CB705478D8272B7F28FBD599815  experiment/harness/judge/judge_v1.md
+E4CAA205D2FDC16CE212FFA7C2C31D928E6EFD0B42A7926FB3C481F5EB5E380E  experiment/harness/prereg_judge_v0.md
+98166400948086A79E6A7185A8A3EAE0CD6C37CC1DB4505B7DE694D2CAEB0F27  experiment/harness/settings/pilot_v0_judge_v1.json
+3F958CC8A88BA5D29D13122FB27457C9BD7797E56ECA9F501DEBC5BD9D88B046  experiment/harness/src/main/java/com/zipinfo/harness/IntentAudit.java
+5F1E0176DE1AE7F3E9B4DE21F97E22FEFD35C7ED8AB744102969BE20C0F20EC1  experiment/harness/src/main/java/com/zipinfo/harness/Main.java
+8BE4F46DB6B7B23D6E1AE2CB5406E8EDCB66B9247EB1727C3160E2B10A107B66  experiment/harness/src/test/java/com/zipinfo/harness/HarnessCheckTest.java
+2F34BADDD21B3934899D4CECCE51E159C5793F61E8FFB4204B1E3BA427923752  experiment/harness/src/test/java/com/zipinfo/harness/IntentAuditTest.java
+E5F9746CBA141B82559FBC3B8926E9C323378D303BECD8CFD108F6039E59AE4C  experiment/harness/src/test/java/com/zipinfo/harness/SettingsAndPricesTest.java
+0688E71353B0D5FCDFF6B825BAA74A566AF6A1BFC38D5E318300E2FB4F819B0E  experiment/intents/.gitignore
+E4A04AF5B4EE9D263FFA02AD3B58637882F59E2F55ADFF26058B9D87A6183141  experiment/prep/README.md
+6E8EB80D3FA32989628B484454C719C659BE148830A2B06753729E43A0A62ED6  experiment/prep/judge_sample.py
+7B1E69F01EA6B217F8BA7D9C4CE67F5E56CC640409CBA21D8D6904FA577823AC  experiment/prep/metrics.py
+941907D395B885B33F1077159CAA4904176D32C97D00AE505BF01CC159797AB1  experiment/prep/numerals.py
+5EB3F347F9B3826663F30468A91813CAEA7500B0421ABC76F2CB4D7F0BB605C5  experiment/prep/prereg_score_v0.md
+CE35A14B20F8AEF2910A133AC8377BD9C06B50DE7ABDB6F84CA9E6738408C448  experiment/prep/score.py
+3C6E5C4446D1529CC34110AA3E85A64DE10E1203A582B8467BBB4F9C69D57800  experiment/prep/score_v1.json
+EEE6FD8236B2D458F457F490B75264D5A79E967C8E498D30E09589A7EBB6F137  experiment/prep/stats.py
+C3A0CC98080732B2FB497CA16391E628B341C83C538BA402CA84B93DDBA3AE34  experiment/prep/tests/data/numerals_v1.json
+42187DFDB27BABF7EEE26F61C1F6CA55D1619F6FE0FB8CDA8DAA5C829CD361F6  experiment/prep/tests/test_judge_sample.py
+5DC30BFB5CBCC1F55D168E5DA0BE2B2D7DFE252C249139C5E21BB826A3570940  experiment/prep/tests/test_metrics.py
+05D83527DAFB20BA196771E100AD505A0BD504DEB0296589ED9353943F48A141  experiment/prep/tests/test_numerals.py
+D8BA9B29898929D866E9516E19812239224A1FCD5FDCC32E68FD04D2F744F1AB  experiment/prep/tests/test_score.py
+A0CA85B64237540876A7090D1F38CD3C713BA40402F2B5B2D144338C443E0711  experiment/prep/tests/test_stats.py

@@ -19,9 +19,9 @@ from prep.tests import test_score as TS
 
 
 def fake(listings, questions, variants, reps, result, split="본시험", cache_off=False, unjudged="stop", draws=200, comparisons=None,
-         tnums=None):
+         tnums=None, with_judge=True):
     """지어낸 단계(ctx, 실행 결과). listings: [(층, 나눔, 시군구 코드)] → 키 L01부터. questions: [(문항 ID, 키, 유형)](나눔은 매물의 것).
-    result(판, 문항, 회차) → (완전 정답, 수사 뺀, 끝난 꼴, 판정, millis)."""
+    result(판, 문항, 회차) → (완전 정답, 수사 뺀, 끝난 꼴, 판정, millis[, 수사 모두 실패]). 수사 모두 실패((가), 11b-1)를 주지 않으면 완전 정답과 같다."""
     metas = {"L%02d" % (i + 1): {"complex_id": f"apt|{a}|가동|0|1|0", "deal": "매매", "layer": ly, "split": sp}
              for i, (ly, sp, a) in enumerate(listings)}
     qs = [{"id": q, "key": k, "qtype": t, "split": metas[k]["split"], "text": "글"} for q, k, t in questions]
@@ -33,12 +33,15 @@ def fake(listings, questions, variants, reps, result, split="본시험", cache_o
                 if q["split"] != split:
                     continue
                 rid = f"{v['id']}-{q['id']}-r{rep}"
-                full, nn, outcome, judge, ms = result(v["id"], q["id"], rep)
+                got = result(v["id"], q["id"], rep)
+                full, nn, outcome, judge, ms = got[:5]
+                fa = got[5] if len(got) > 5 else full
                 plan.append({"id": rid, "variant": v, "question": q, "rep": rep})
-                rows.append({"full": full, "full_no_numeral": nn, "outcome": outcome, "judge": judge, "value": full, "rule": full})
+                rows.append({"full": full, "full_all_numerals": fa, "full_no_numeral": nn, "outcome": outcome, "judge": judge, "value": full,
+                             "rule": full})
                 records[rid] = {"events": [{"type": "response", "millis": ms}, {"type": "hook", "millis": 1000}]}
     cfg = dict(score.load_config(score.CONFIG), unjudged=unjudged, bootstrap={"draws": draws, "purpose": "boot"},
-               comparisons=comparisons or {"main": (variants[-1], variants[0]), "aux": []})
+               comparisons=comparisons or {"main": (variants[-1], variants[0]), "aux": []}, full_with_judge=with_judge)
     s = {"stage": "t", "split": split, "version": "v0", "reps": list(reps), "cache": {"system": not cache_off, "conversation": not cache_off}}
     ctx = {"s": s, "cfg": cfg, "metas": metas, "plan": plan, "tnums": tnums, "records": records,
            "env": {"current": {k: m["complex_id"].split("|")[1] for k, m in metas.items()}},
@@ -145,7 +148,7 @@ class TestValues(unittest.TestCase):
         self.assertEqual(t[("비교", "a-b", "완전 정답", "전체")], ["10", "1.000000", "1.000000", "1.000000", "1/1", "0"])
         self.assertEqual(t[("비교", "b-a", "수사 뺀", "층 일반")], ["4", "-1.000000", "-1.000000", "-1.000000", "-1/1", "0"])
         self.assertEqual(t[("비교", "c-b", "완전 정답", "유형 T2")], ["5", "0.000000", "0.000000", "0.000000", "0/1", "0"])
-        self.assertEqual(len(t), 6 * 4 * 11)  # 이름(판 셋, 비교 셋) × 결과 넷 × 칸(전체, 층 둘, 유형 다섯, ⑤ 둘, AI 틀 뺌)
+        self.assertEqual(len(t), 6 * 5 * 11)  # 이름(판 셋, 비교 셋) × 결과 다섯 × 칸(전체, 층 둘, 유형 다섯, ⑤ 둘, AI 틀 뺌)
         self.assertTrue(line.startswith("통계: 매물 5개(화성형 3·일반 2) 뽑기 200번, 판 3개·비교 3개(주 1, 보조 2, 단계에 없는 판이 든 것 0), 빈 뽑기 "))
 
     def test_pairs_by_question(self):
@@ -216,7 +219,26 @@ class TestOtherOutcomes(unittest.TestCase):
     def test_numeral_only_runs_pass_only_the_numeral_free_outcome(self):
         ctx, rows = fake(L3, q10(), ["a", "b"], [1], lambda v, q, r: (False, v == "b", "SUBMITTED", True, 10))
         t, _, _ = run(ctx, rows)
-        self.assertEqual((t[("비교", "b-a", "완전 정답", "전체")][4], t[("비교", "b-a", "수사 뺀", "전체")][4]), ("0/1", "1/1"))
+        self.assertEqual((t[("비교", "b-a", "완전 정답", "전체")][4], t[("비교", "b-a", "수사 모두 실패", "전체")][4],
+                          t[("비교", "b-a", "수사 뺀", "전체")][4]), ("0/1", "0/1", "1/1"))
+
+    def test_the_all_numerals_outcome(self):
+        # 11b-1 (가): 기간 말을 받은 완전 정답(b)은 (가)에서 실패다
+        ctx, rows = fake(L3, q10(), ["a", "b"], [1], lambda v, q, r: (True, True, "SUBMITTED", True, 10, v == "a"))
+        t, report, _ = run(ctx, rows)
+        self.assertEqual((t[("비교", "b-a", "완전 정답", "전체")][4], t[("비교", "b-a", "수사 모두 실패", "전체")][4],
+                          t[("판", "b", "수사 모두 실패", "층 일반")][4]), ("0/1", "-1/1", "0/1"))
+        self.assertIn("### (가) 수사 모두 실패 완전 정답", report)
+        self.assertIn("### (나) 수사 뺀 완전 정답", report)
+
+    def test_without_the_judge_the_unjudged_outcome_is_not_given(self):
+        # 판정을 완전 정답에서 뺐으면(full_with_judge false) 판정 없는 실행 뺀 결과는 "-"이고 보고에 까닭을 적는다
+        res = lambda v, q, r: (True, True, "SUBMITTED", None if q == "q0" else True, 10)
+        ctx, rows = fake(L3, q10(), ["a", "b"], [1], res, unjudged="fail", with_judge=False)
+        t, report, _ = run(ctx, rows)
+        self.assertEqual(t[("판", "a", "판정 없는 실행 뺀", "전체")], DASHES)
+        self.assertIn("판정을 완전 정답에서 빼서 내지 않았다.", report)
+        self.assertIn("완전 정답 v1(판정을 뺌. 판정 답함은 보조로 1절 표에만 낸다)", report)
 
     def test_unjudged_runs_are_left_out_and_empty_questions_drop_from_the_pair(self):
         # a: q0은 두 회차 모두 판정 없음, q1은 한 회차만. b는 모두 판정 있음
@@ -302,11 +324,11 @@ class TestFixture(unittest.TestCase):
         code, out = self.x.run()
         self.assertEqual(code, 0, out)
         self.assertIn("통계: 매물 2개(화성형 2) 뽑기 200번, 판 5개·비교 4개(주 1, 보조 3, 단계에 없는 판이 든 것 0), 빈 뽑기 유형 T1 54번, 유형 T2 36번, "
-                      "stats.tsv 360줄과 report.md를 썼다", out)
+                      "stats.tsv 450줄과 report.md를 썼다", out)
         self.assertEqual(out[-1], "harness/runs/pilot/score/runs.jsonl·summary.tsv·metrics.tsv·stats.tsv·report.md를 썼다")
         with open(self.x.stage("score/stats.tsv"), encoding="utf-8") as f:
             t = {tuple(x.rstrip("\n").split("\t")[:4]): x.rstrip("\n").split("\t")[4:] for x in list(f)[1:]}
-        self.assertEqual(len(t), (5 + 4) * 4 * 10)  # 칸: 전체, 층 하나, 유형 다섯, ⑤ 둘, AI 틀 뺌
+        self.assertEqual(len(t), (5 + 4) * 5 * 10)  # 결과 다섯, 칸: 전체, 층 하나, 유형 다섯, ⑤ 둘, AI 틀 뺌
         self.assertEqual(t[("판", "c01", "완전 정답", "전체")], ["2", "0.500000", "0.000000", "1.000000", "1/2", "0"])
         self.assertEqual(t[("비교", "c07-c01", "완전 정답", "전체")], ["2", "-0.500000", "-1.000000", "0.000000", "-1/2", "0"])
         self.assertEqual(t[("판", "c01", "완전 정답", "유형 T1")], ["1", "1.000000", "1.000000", "1.000000", "1/1", "54"])
@@ -319,8 +341,9 @@ class TestFixture(unittest.TestCase):
         for part in ("# 채점 보고: 단계 pilot (연습)", "## 1. 판마다 (전체 칸)", "## 2. 주 가설: c06 − c01", "## 3. 보조 비교 (전체 칸)",
                      "여러 번 견준 보조 결과다.", "## 4. 15.9 지표 (판마다, 구간 없이 기술만)", "## 5. 비용 (판마다)", "같은 모델의 판끼리만 견준다.",
                      "## 6. 소요시간 (캐시를 끈 단계만)", "캐시를 켠 단계라 내지 않았다.",
-                     "| c01 | B0 | claude-haiku-5-5 | 2 | 1 | 1 | 1 | 1 | 1 | 50.0 [0.0, 100.0] | 50.0 [0.0, 100.0] |",
-                     "| c07 − c01 | 2 | -50.0 [-100.0, 0.0] | -50.0 [-100.0, 0.0] | - |",
+                     "| c01 | B0 | claude-haiku-5-5 | 2 | 1 | 1 | 1 | 1 | 1 | 50.0 [0.0, 100.0] | 50.0 [0.0, 100.0] | 50.0 [0.0, 100.0] |",
+                     "| c07 − c01 | 2 | -50.0 [-100.0, 0.0] | -50.0 [-100.0, 0.0] | -50.0 [-100.0, 0.0] | - |",
+                     "완전 정답 v1(판정을 넣음)", "(가) 수사 모두 실패(기간 말까지), (나) 수사 뺀이다.",
                      "| c06 | ③(면적) |  |  | 100.0 (1/1) |", "| c07 | claude-haiku-5-5 | 0.0003 | 0.0003 | - |"):
             self.assertIn(part, report)
         self.assertTrue(report.endswith("\n") and "\r" not in report)

@@ -24,16 +24,17 @@
 ## 2. 판정 모델과 설정(v0)
 
 - 설정 파일의 `judge` 칸이다. v0(`settings/pilot_v0.json`)
+- v1(`settings/pilot_v0_judge_v1.json`, `judge/judge_v1.md`, 순서 11b-1): v0에서 instructions만 바꿨다. 그 밖의 칸과 설정 version("v0")은 pilot_v0.json과 같다. 판정 칸은 요청 지문에 들지 않아 기록·plan.txt가 같은 단계로 읽힌다.
 
-    | 칸 | v0 |
-    | --- | --- |
-    | model | claude-haiku-5-5 |
-    | max_tokens / max_tokens_raised | 8000 / 16000 |
-    | thinking | adaptive |
-    | effort | null(보내지 않음) |
-    | tool_choice | auto |
-    | instructions | harness/judge/judge_v0.md |
-    | poll_seconds | 60 |
+    | 칸 | v0 | v1 |
+    | --- | --- | --- |
+    | model | claude-haiku-5-5 | 같음 |
+    | max_tokens / max_tokens_raised | 8000 / 16000 | 같음 |
+    | thinking | adaptive | 같음 |
+    | effort | null(보내지 않음) | 같음 |
+    | tool_choice | auto | 같음 |
+    | instructions | harness/judge/judge_v0.md | harness/judge/judge_v1.md |
+    | poll_seconds | 60 | 같음 |
 
 - 지시문은 읽을 때 줄 끝을 LF로, 글자를 NFC로 맞추고 그 글을 그대로 시스템 글로 보낸다.
 - 판정은 strict 도구 `submit_verdict` 하나로 받는다. 칸은 `answered`(답했으면 true)와 `reason`(근거 한 문장)이고, 둘 다 필수, `additionalProperties`는 false다.
@@ -57,7 +58,14 @@
 - **적는 것:** A의 같음 수(맞는 비율)와 다른 꼴 둘(판정 답함·사람 X, 판정 답하지 않음·사람 O), B에서 사람이 O라 한 수. 수와 항목 번호, 실행 ID만 밖에 낸다. 질문 글과 답은 내지 않는다.
 - **기준:** A의 같음이 90% 이상(40개면 36개 이상)이고, B에서 사람이 O라 한 것이 B의 4분의 1 이하이면 판정 v0을 본실험에 쓴다.
     - 못 넘으면 지시문(또는 모델)을 고친 판정 v1로 시운전을 다시 판정하고(판정 폴더를 옮기고 처음부터), 새 표본을 읽는다. 새 표본은 v0 표본에 든 실행을 빼고 같은 법(같은 H 순서, A 40개·B 20개)으로 뽑는다. 고친 까닭과 두 번의 수를 모두 적는다.
-- 읽은 표본 수, 같음 수, B의 수: [ ]
+- 읽은 표본 수, 같음 수, B의 수: v0은 아래(11a). v1은 [ ]
+- **v0 결과(순서 11a, 11/26):** 읽은 항목 43개(A 40, B 3, 겹침 0). A 같음 38/40(기준 36 넘음), B에서 사람이 O라 한 것 2/3(기준 0 이하, 못 넘음). 판정 v0은 본실험에 쓰지 않는다.
+- **고친 까닭(사용자 답, 순서 11b 설계 4판 1절):** 판정과 사람이 다른 항목 넷을 지시문 세 줄로 고쳤다(v1).
+    - 범위 줄: 질문이 주위·근처·주변, 기간, '거래가' 같은 말을 써도, 어느 범위·기간·거래 종류로든 매물과 견준 차이를 말했으면 답한 것이다(항목 17·30).
+    - 중괄호 줄: 채워지지 않은 자리(`{…}`, `.방향`으로 끝나는 자리만 남은 것은 빼고)가 남으면 다른 줄과 상관없이 답하지 않은 것이다(항목 15). 첫 줄 바로 다음에 둔다.
+    - 묶은 줄: 물은 것마다 답했거나 답하지 못한 까닭(거래가 없음, 자료를 찾지 못함 등)을 밝혔으면 답한 것이다(항목 29).
+- **v1 표본:** v0 표본에 든 실행 43개(`runs/pilot/judge_sample_v0/tally.tsv`)를 두 바구니에서 빼고 같은 법으로 뽑는다(채점 설정 `judge_sample_exclude`). B는 채점 v1·판정 v1로 정한다. 사람은 sample.txt 머리에 찍힌 v1 지시문으로 읽는다. 기준은 위와 같다.
+- **v1도 못 넘으면:** v2를 두지 않는다. 판정을 완전 정답에서 빼고(값·규칙 v1만, 채점 설정 `full_with_judge`를 false로), 판정 v1의 답함 비율은 보조 지표로 낸다. 11c와 본실험에서도 판정은 돌려 보조로 낸다. 이 길은 v1을 돌리기 전에 여기 적었다.
 
 ## 3. 결과 가르기
 

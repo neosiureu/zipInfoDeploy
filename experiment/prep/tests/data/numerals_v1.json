@@ -1,0 +1,1962 @@
+{
+ "version": "v1",
+ "about": "순서 11b 설계 4판 4.2의 같은 예문 묶음. prep/numerals.py(채점 v1)와 11b-2의 자바 검사기가 함께 쓴다. want: form(PLACEHOLDER_FORM), truncated(잘린 이름), periods(기간 말마다 [달 수 또는 null, 같은 길이의 통계 claim이 있는가]), numerals(기간 말이 아닌 수사 v1의 수), v0(수사 v0의 수, 원래 글), after(방향 자리 뒤 말 갈래의 수)",
+ "cases": [
+  {
+   "name": "일 년(12달 claim)",
+   "text": "최근 일 년 같은 법정동 기준값보다 {가} {가.방향}.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      12,
+      true
+     ]
+    ],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "일년 붙여 씀",
+   "text": "최근 일년 거래로 보면 {가} {가.방향}.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      12,
+      true
+     ]
+    ],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "한 해",
+   "text": "최근 한 해 거래 기준값보다 {가} {가.방향}.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      12,
+      true
+     ]
+    ],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "열두 달",
+   "text": "최근 열두 달 거래 기준값보다 {가} {가.방향}.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      12,
+      true
+     ]
+    ],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "십이 개월",
+   "text": "최근 십이 개월 거래로 보면 {가} {가.방향}.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      12,
+      true
+     ]
+    ],
+    "numerals": 0,
+    "v0": 1,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "석 달(3달 claim)",
+   "text": "최근 석 달 거래로 보면 {가} {가.방향}.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202608",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      3,
+      true
+     ]
+    ],
+    "numerals": 0,
+    "v0": 1,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "세 달(12달 claim만)",
+   "text": "최근 세 달 거래로 보면 {가} {가.방향}.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      3,
+      false
+     ]
+    ],
+    "numerals": 0,
+    "v0": 1,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "반년(6달 claim)",
+   "text": "최근 반년 거래",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202605",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      6,
+      true
+     ]
+    ],
+    "numerals": 0,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "육 개월(6달 claim)",
+   "text": "최근 육 개월 거래",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202605",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      6,
+      true
+     ]
+    ],
+    "numerals": 0,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "여섯 달(6달 claim)",
+   "text": "최근 여섯 달 거래",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202605",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      6,
+      true
+     ]
+    ],
+    "numerals": 0,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "마지막 두 달(잠정 설명)",
+   "text": "마지막 두 달 거래가 들어 있어 잠정이다.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      2,
+      false
+     ]
+    ],
+    "numerals": 0,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "한 달(1달 claim)",
+   "text": "최근 한 달 거래",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202610",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      1,
+      true
+     ]
+    ],
+    "numerals": 0,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "어림 두세 달",
+   "text": "두세 달 사이 거래",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      null,
+      false
+     ]
+    ],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "어림 한두 해",
+   "text": "한두 해 사이 거래",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      null,
+      false
+     ]
+    ],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "삼 년(36달 claim)",
+   "text": "최근 삼 년 거래",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202311",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      36,
+      true
+     ]
+    ],
+    "numerals": 0,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "반 달",
+   "text": "반 달 사이 거래",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      null,
+      false
+     ]
+    ],
+    "numerals": 0,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "기간 말 둘",
+   "text": "최근 일 년 가운데 마지막 두 달",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      12,
+      true
+     ],
+     [
+      2,
+      false
+     ]
+    ],
+    "numerals": 0,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "claim 둘(12·3)",
+   "text": "최근 일 년과 최근 석 달",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    },
+    {
+     "slot": "다",
+     "start_month": "202608",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      12,
+      true
+     ],
+     [
+      3,
+      true
+     ]
+    ],
+    "numerals": 0,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "claim 달이 꼴이 아님",
+   "text": "최근 일 년 거래",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202613"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      12,
+      false
+     ]
+    ],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "claim 끝이 앞섬",
+   "text": "최근 일 년 거래",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202610",
+     "end_month": "202511"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      12,
+      false
+     ]
+    ],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "claim 없음",
+   "text": "최근 일 년 거래",
+   "stat_claims": [],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      12,
+      false
+     ]
+    ],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "일곱 건",
+   "text": "같은 법정동 실거래 일곱 건의 기준값보다 {가} {가.방향}.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 1,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "다섯 퍼센트",
+   "text": "전환율 다섯 퍼센트로 환산하면",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "한 건",
+   "text": "단지 거래 한 건과 비교하면",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "열다섯 건",
+   "text": "거래 열다섯 건",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "스물두 건",
+   "text": "거래 스물두 건",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "예순 건",
+   "text": "거래 예순 건",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "백 건",
+   "text": "거래 백 건",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "천 원",
+   "text": "천 원 차이",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "십 층",
+   "text": "십 층 매물",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "스물여섯 제곱미터",
+   "text": "전용 면적 스물여섯 제곱미터 매물",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "칠십사 제곱미터",
+   "text": "전용 면적 칠십사 제곱미터 매물",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "삼십 ㎡",
+   "text": "전용 삼십 ㎡ 매물",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "서너 건",
+   "text": "거래 서너 건",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "이십 퍼센트",
+   "text": "이십 퍼센트 비싸다",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "오 퍼센트",
+   "text": "전환율 오 퍼센트",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "두 배",
+   "text": "두 배 가깝다",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "세 곳",
+   "text": "세 곳 단지",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 1,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "기간 말과 수사",
+   "text": "최근 일 년 단지 거래 한 건과 비교하면 {가} {가.방향}.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      12,
+      true
+     ]
+    ],
+    "numerals": 1,
+    "v0": 1,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "오퍼센트(빈칸 없음)",
+   "text": "전환율 오퍼센트",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "사건",
+   "text": "사건이 있었다",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "앞이 한글(비교한 건물)",
+   "text": "비교한 건물",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "이 층",
+   "text": "이 층의 매물",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "일 층(일은 년 앞만)",
+   "text": "일 층 매물",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "한 번",
+   "text": "한 번 더 본다",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "두 가지",
+   "text": "두 가지를 본다",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "반값",
+   "text": "반값에 가깝다",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "지난해·올해",
+   "text": "지난해와 올해",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "자리표시자 뒤 만원",
+   "text": "{가}만원 {가.방향}",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "자리표시자 이름(v0만 셈)",
+   "text": "{한달} 사이",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "한달"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 1,
+    "after": {}
+   }
+  },
+  {
+   "name": "빈칸 꼴(U+00A0은 빈칸 아님)",
+   "text": "최근 일 년 거래",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "탭은 빈칸",
+   "text": "최근 일\t년 거래",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [
+     [
+      12,
+      true
+     ]
+    ],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "잘린 이름",
+   "text": "{보증금차이}만큼 {가.방향}.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    },
+    {
+     "slot": "보증금"
+    }
+   ],
+   "want": {
+    "form": true,
+    "truncated": true,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "긴 이름(같은 slot 없음)",
+   "text": "{보증금차이}만큼 {가.방향}.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": true,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "빈칸 든 방향",
+   "text": "{가 .방향}",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": true,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "닫지 않음",
+   "text": "보증금은 {가",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": true,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "열지 않음",
+   "text": "가} 차이",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": true,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "빈 중괄호",
+   "text": "{} 차이",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": true,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "영문 이름",
+   "text": "{abc} 차이",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": true,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "잘린 이름의 방향",
+   "text": "{보증금차이.방향}",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    },
+    {
+     "slot": "보증금"
+    }
+   ],
+   "want": {
+    "form": true,
+    "truncated": true,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "겹친 중괄호",
+   "text": "{{가}}",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": true,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "풀어 쓴 한글(NFD)",
+   "text": "{가}",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": true,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {}
+   }
+  },
+  {
+   "name": "바른 자리 둘",
+   "text": "{가}{가.방향}",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "뒤 입니다",
+   "text": "{가} {가.방향}입니다.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "입니다": 1
+    }
+   }
+  },
+  {
+   "name": "뒤 이다",
+   "text": "{가} {가.방향}이다.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "이다": 1
+    }
+   }
+  },
+  {
+   "name": "뒤 이고",
+   "text": "{가} {가.방향}이고 거래도 적다.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "이고": 1
+    }
+   }
+  },
+  {
+   "name": "뒤 이며",
+   "text": "{가} {가.방향}이며 거래도 적다.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "이며": 1
+    }
+   }
+  },
+  {
+   "name": "뒤 빈칸 편",
+   "text": "{가} {가.방향} 편이다.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "편": 1
+    }
+   }
+  },
+  {
+   "name": "뒤 고(따옴)",
+   "text": "{가} {가.방향}고 볼 수 있다.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "고": 1
+    }
+   }
+  },
+  {
+   "name": "뒤 표에 없음",
+   "text": "{가} {가.방향} 수준이다.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "표에 없음": 1
+    }
+   }
+  },
+  {
+   "name": "뒤 줄바꿈",
+   "text": "{가} {가.방향}\n다음 줄",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "뒤 쉼표",
+   "text": "{가} {가.방향}, 거래는 적다",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "뒤 끝",
+   "text": "{가} {가.방향}",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "문장부호·끝": 1
+    }
+   }
+  },
+  {
+   "name": "방향 자리 둘",
+   "text": "{가} {가.방향}이고 {나} {나.방향}.",
+   "stat_claims": [
+    {
+     "slot": "나",
+     "start_month": "202511",
+     "end_month": "202610"
+    }
+   ],
+   "value_claims": [
+    {
+     "slot": "가"
+    },
+    {
+     "slot": "나"
+    }
+   ],
+   "want": {
+    "form": false,
+    "truncated": false,
+    "periods": [],
+    "numerals": 0,
+    "v0": 0,
+    "after": {
+     "이고": 1,
+     "문장부호·끝": 1
+    }
+   }
+  }
+ ]
+}
