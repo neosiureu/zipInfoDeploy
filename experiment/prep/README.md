@@ -122,10 +122,15 @@ python -X utf8 -B -m prep judge-tally harness/settings/<설정>.json
 - build와 answers를 먼저 돌려야 한다(해시를 대 본다).
 - 시험(`tests/test_questions.py`)은 지어낸 틀 문장과 매물로 본다.
 
-## score (순서 8a·8b·8c, 채점 v1은 순서 11b-1)
+## score (순서 8a·8b·8c, 채점 v1은 순서 11b-1, 채점 v2는 순서 11b-2)
 
 순서 8 설계 d판의 채점기(`score.py`), 8b 설계 2판의 지표(`metrics.py`), 8c 설계 2판의 통계(`stats.py`)다. 하네스가 한 단계를 다 돌고 판정(judge)까지 0으로 끝난 뒤에 친다.
 순서 11b-1(설계 4판 4.2)부터 채점 v1이다(채점 설정 `score_v1.json`, 글 검사 `numerals.py`). `score_v0.json`은 11a의 기록으로 남긴다(지금 코드는 v0 설정을 읽지 않는다).
+순서 11b-2(설계 b판 5.4)의 채점 v2는 11c(`pilot2`)부터다(채점 설정 `score_v2.json`, 그린 글 검사 `textcheck.py`).
+
+- **기록의 검사기 판:** 하네스 설정의 version으로 고른다. v0(시운전 `pilot`)은 검사기 v0, 그 밖(11c부터)은 검사기 v1이다.
+    - 검사기 v1 기록은 자리표시자 이름이 한글 1~6자이고(v0은 1~3자), 제출 사건에 그린 글(`rendered`)과 5.3의 코드가 있다.
+    - 채점 설정은 명령에 주는 칸이 없다. 검사기 v0 기록은 `score_v1.json`, 검사기 v1 기록은 `score_v2.json`으로 매긴다. 채점 v2를 검사기 v0 기록에 걸면 2로 멈춘다.
 
 ```
 python -X utf8 -B -m prep score harness/settings/pilot_v0.json
@@ -150,6 +155,12 @@ python -X utf8 -B -m prep score harness/settings/pilot_v0.json
     - 판정을 완전 정답에서 빼면(`full_with_judge` false) 판정 코드(JUDGE_NOT_ANSWERED·JUDGE_MISSING)를 실패 코드에 넣지 않는다. 판정 답함 수는 그대로 낸다.
     - 받아들여진 제출마다 `text_check`(자리표시자 꼴·잘린 이름·기간 말 [길이, 맞음]·그 밖의 수사 수·v0 수와 기록 findings의 NUMERAL 수·방향 자리 뒤 말 갈래)를 runs.jsonl에 수로만 남긴다. 글은 남기지 않는다.
     - 같은 예문 묶음 `tests/data/numerals_v1.json`(손으로 정한 기대값)은 11b-2의 자바 검사기도 쓴다. 시험은 `tests/test_numerals.py`다.
+    - **채점 v2(11b-2):** 완전 정답 v2 = SUBMITTED, 값 통과, 규칙 v2 통과, 판정 "답함"(`full_with_judge`). 규칙 v2 = 규칙 v1 + 설계 b판 5.3의 코드다. 정의 셋 모두에 더한다.
+        - 그린 글의 여섯(BRACE·UNIT_NO_VALUE·GARBLED·QMARK·REGISTER·FORMAT)은 제출 사건의 `rendered`를 `textcheck.py`로 다시 센 것이다. DIFF_HIDDEN은 기록의 것을 쓴다.
+        - 규칙 v1은 기록의 5.3 코드를 보지 않는다(검사기 v1 기록도 v1으로 매길 수 있다).
+        - `textcheck.py`는 자바 `KoText.check`와 같은 규칙이고, 같은 예문 묶음 `tests/data/text_v1.json`의 checks로 둘 다 시험한다(`tests/test_textcheck.py`). 로마자는 매물 입력 파일(`prep/out/listings_input_v1.json`)의 stockName·stockAddress와 문항 글의 것을 받는다.
+        - 받아들여진 답(accepted)이 그 제출의 `rendered`와 다르거나, 검사기 v1 기록의 제출 사건에 `rendered`가 없으면 묶기 검사(3)다.
+    - **기록 대조(검사기 v1 기록, 11b-1 상대 검토):** 받아들여진 제출마다 기록 findings와 글에서 다시 센 것을 대 본다. NUMERAL 수, PERIOD_WORD 수, PLACEHOLDER_FORM 있고 없음, 그린 글 코드(차례 그대로)가 다르면 `text_check.record_diff`에 그 갈래를 남기고, 화면 한 줄과 metrics.tsv 진단에 수를 낸다(0이어야 한다). 검사기 v0 기록은 지금처럼 수사 v0 수와 기록 NUMERAL 수를 댄다.
     - 실패 코드와 진단 꼬리표(FALSE_NO_TRADE, 규칙 실패로 세지 않음)를 실행마다 남긴다.
 - **8b 지표(`metrics.py`, 8b 설계 2판 3~7절)**
     - 기록의 고리 사건에서 부름과 hook을 묶는다. 데이터 도구는 tool 사건 바로 앞의 hook, 제출은 submit 사건 바로 뒤의 hook이다(하네스 사건 resume·attempt·pause·end는 뺀다). 묶이지 않으면 멈춘다.
@@ -158,6 +169,7 @@ python -X utf8 -B -m prep score harness/settings/pilot_v0.json
     - ④의 부당 거절은 멀쩡한 제출(그 submit까지의 사건으로 매겨 값이 맞고 주 정의 (다)의 규칙을 지남, 11b-1) 가운데 ④가 막은 것이다. ⓪은 거절 결과의 「…」 절이 모두 의도 절 표의 '의도 아님'일 때다(표에 없는 절이 나오면 멈춘다).
     - 비용은 설정의 단가표로 실행마다 캐시 있음·없음을 센다(하네스 Prices와 같은 식). 진단은 표본 0 부름, 도구 오류 코드, refusal 범주, 재촉, 턴, 받은·자기 거절, ④ 없는 판의 받은 답 findings, 머리의 단가표가 다른 기록이다.
     - 11b-1 진단(글 검사 v1, 판마다): PLACEHOLDER_FORM 제출과 그 가운데 잘린 이름, 기간 말 맞음·안 맞음(안 맞은 길이마다), PERIOD_WORD·NUMERAL 제출, 수사 v0 수와 기록 findings와 수가 다른 제출, 방향 자리 뒤 말 갈래(이다·입니다·이고·이며·편·고·문장부호·끝·표에 없음).
+    - 11b-2 진단(검사기 v1 기록, 판마다): 수사 v0 두 줄 대신 기록 대조가 다른 제출(갈래마다), 그린 글 코드마다의 제출 수, DIFF_HIDDEN 제출.
 - **8c 통계(`stats.py`, 8c 설계 2판 2~7절)**
     - 판의 값은 문항마다 회차 평균의 평균이고, 비교는 같은 문항끼리 짝지은 차이다. 점 추정값은 원래 표본으로 낸다.
     - 구간은 층(매물 파일의 `layer`) 안 매물 묶음 부트스트랩의 95%다. 뽑기 b·층 L·j마다 그 층의 매물을 키 차례로 세운 목록에서 0부터 센 `u64(H(purpose, "b|L|j")) mod n_L` 자리를 뽑는다(`picker.common`의 H·u64). 모든 판·비교·칸·결과가 같은 뽑기를 쓴다.
@@ -165,11 +177,11 @@ python -X utf8 -B -m prep score harness/settings/pilot_v0.json
     - 칸: 전체, 층, 유형, ⑤ 나눔(본시험 단계만), AI 틀 뺌(틀 문장 파일이 있을 때). 결과: 완전 정답(주 (다)), 수사 모두 실패((가)), 수사 뺀((나)), 판정 없는 실행 뺀 결과(`unjudged`가 `fail`이고 판정을 완전 정답에 넣고 그런 실행이 있을 때). 소요시간 비교는 캐시를 모두 끈 단계에서만 낸다.
     - 모두 정수와 분수로 센다. 쓸 때만 반올림한다(HALF_UP, 동점은 0에서 먼 쪽). 본시험 크기(7,500실행, 뽑기 1만 번)에서 몇 초다.
     - 사전 등록 글 초안은 `prereg_score_v0.md`다. [ ] 칸은 관문 3에서 채운다.
-- **채점 설정 `score_v1.json`:** 판정 없는 SUBMITTED의 처리(`unjudged`: `stop`이 기본, `fail`은 완전 정답이 아님으로 셈), 완전 정답에 판정을 넣는지(`full_with_judge`, 처음은 true. prereg_judge 2.1을 못 넘으면 false), 방향 말 낱말, 같은 실수 표 자리(`mistakes`, 관문 3까지 null), ⓪ 의도 절 표 자리(`intent_clauses`), 판정 표본에서 뺄 옛 표본(`judge_sample_exclude`: {단계: [그 단계 폴더 아래 폴더 이름]}), 부트스트랩(`bootstrap`: 뽑기 수 10000, purpose `boot`), 비교 목록(`comparisons`: 주 가설 c09 − c02와 보조 일곱). 하네스 설정 파일에는 칸을 더할 수 없어 따로 둔다.
+- **채점 설정 `score_v1.json`(`score_v2.json`은 version과 같은 실수 표 자리 `harness/frozen/mistakes_v0.json`만 다르다):** 판정 없는 SUBMITTED의 처리(`unjudged`: `stop`이 기본, `fail`은 완전 정답이 아님으로 셈), 완전 정답에 판정을 넣는지(`full_with_judge`, 처음은 true. prereg_judge 2.1을 못 넘으면 false), 방향 말 낱말, 같은 실수 표 자리(`mistakes`, 관문 3까지 null), ⓪ 의도 절 표 자리(`intent_clauses`), 판정 표본에서 뺄 옛 표본(`judge_sample_exclude`: {단계: [그 단계 폴더 아래 폴더 이름]}), 부트스트랩(`bootstrap`: 뽑기 수 10000, purpose `boot`), 비교 목록(`comparisons`: 주 가설 c09 − c02와 보조 일곱). 하네스 설정 파일에는 칸을 더할 수 없어 따로 둔다.
     - 비교 목록의 판 ID가 판 설정 파일에 없으면 2로 멈춘다. 판 설정 파일에는 있지만 그 단계에 없는 판이 든 비교는 "-"다.
     - 의도 절 표(`questions/intent_clauses_v0.json`)는 틀 문장 파일처럼 관문 3까지 git 밖이다. 표나 틀 문장 파일이 없으면 ⓪ 부당 거절만 "-"이고 한 줄을 찍는다.
     - 같은 실수 표의 단계가 매기는 단계와 같으면 재발은 "-"이고 한 줄을 찍는다(제 표로 저를 재지 않는다).
-- **채점 지문:** "이름  해시" 줄(code, score, answers, questions, k10, templates, 쓴 표 intent_clauses·mistakes)을 이은 글의 SHA-256이다. code는 prep·picker의 `.py`(tests 빼고)를 하네스 `Fingerprint.tree`와 같은 꼴로 센 값이다. 줄 끝을 LF로 맞춰 세므로 Windows와 리눅스에서 같다.
+- **채점 지문:** "이름  해시" 줄(code, score, answers, questions, k10, templates, 쓴 표 intent_clauses·mistakes, 검사기 v1 기록이면 listings_input)을 이은 글의 SHA-256이다. code는 prep·picker의 `.py`(tests 빼고)를 하네스 `Fingerprint.tree`와 같은 꼴로 센 값이다. 줄 끝을 LF로 맞춰 세므로 Windows와 리눅스에서 같다.
 - **남기는 것:** `<files.out>/<stage>/score/`의 `runs.jsonl`(계획의 실행마다 한 줄), `summary.tsv`(판마다 한 줄, 채점 지문·판정 지문), `metrics.tsv`(판·갈래·이름·분자·분모), `stats.tsv`(갈래·이름·결과·칸·문항·값·하한·상한·값(분수)·빈 뽑기), `report.md`(사람이 읽는 표). runs 아래라 git 밖이다.
     - 질문·답·판정 이유·매물 이름·⓪의 절 글은 쓰지 않는다. 실행 ID, 문항 ID·키, 코드, 수만 쓴다.
     - `score.tmp/`에 다 쓴 뒤 옛 `score/`와 바꾼다. 같은 입력이면 같은 바이트다(파이썬 3.11·3.12·3.13, CRLF로 꺼낸 기록에서도).
@@ -178,7 +190,9 @@ python -X utf8 -B -m prep score harness/settings/pilot_v0.json
 - **시험(`tests/test_score.py`, 8b 지표는 `tests/test_metrics.py`, 8c 통계는 `tests/test_stats.py`)**
     - 시험 자료로 매길 때는 시험용 채점 설정(`test_score.fx_config`: 뽑기 200번, 비교는 시험 자료의 판)을 쓴다. 뽑기 1만 번은 검산에서 본다.
     - `tests/data/score_fx`는 하네스 시험 `ScoreFixtureTest`가 가짜 모델·배치 서버로 지은 단계 폴더다(기록 10개: ⓪·②·③·④ 판 포함, plan.txt, summary.tsv, 판정 파일). 매물·거래는 하네스 시험의 지어낸 자료다. 여기에 지어낸 정답·매물 파일과 K10을 더해 끝까지 매기고, 한 곳씩 바꿔 묶기 검사를 본다.
-    - 하네스가 쓰는 꼴이 바뀌면 `ScoreFixtureTest`가 걸린다. 그때는 `experiment/harness`에서 환경 변수 `SCORE_FIXTURE_OUT`에 이 폴더(`…/experiment/prep/tests/data/score_fx`)를 주고 그 시험을 다시 돌려 새로 짓는다.
+        - 순서 11b-2부터 이 폴더는 시운전 꼴(검사기 v0, 설정 version v0)의 옛 자료로 얼려 둔다. 채점 v1이 시운전 기록에서 바뀌지 않았는지를 본다.
+    - `tests/data/score_fx_v1`은 같은 시험이 검사기 v1·그리기 v1로 지은 것이다(설정 version v1, 제출 사건의 `rendered`). 채점 v2 시험(`tests/test_score_v2.py`)이 쓴다.
+    - 하네스가 쓰는 꼴이 바뀌면 `ScoreFixtureTest`가 걸린다. 그때는 `experiment/harness`에서 환경 변수 `SCORE_FIXTURE_OUT`에 `…/experiment/prep/tests/data/score_fx_v1`을 주고 그 시험을 다시 돌려 새로 짓는다.
     - 실행 하나 매기기는 같은 꼴의 사건을 지어 한 곳씩 바꿔 본다.
     - 실제 문항·정답 파일이 있으면 항목 수를 찍는다(`채점 항목 검사: …`). 의도 절 표는 하네스 시험 `IntentClausesCheckTest`가 ⓪이 나누는 절과 대 본다(표가 있을 때만).
 
@@ -187,8 +201,10 @@ python -X utf8 -B -m prep score harness/settings/pilot_v0.json
 같은 실수 표를 얼린다(8b 설계 2판 4.3). 관문 3에 연습 단계(시운전)로 한 번 친다.
 
 ```
-python -X utf8 -B -m prep mistakes harness/settings/pilot_v0.json harness/frozen/mistakes_v0.json
+python -X utf8 -B -m prep mistakes harness/settings/pilot_v0_judge_v1.json harness/frozen/mistakes_v0.json
 ```
+
+- 순서 11b-2에서 시운전(채점 v1·판정 v1)으로 얼린다. 11b-2 묶음을 받기 전(채점 지문 `AB978A04…`의 코드)에 친다. `score_v2.json`이 그 자리를 건다.
 
 - 그 단계를 score와 같은 함수로 묶기 검사하고 매긴 뒤 표를 쓴다. 이미 있으면 쓰지 않고 2로 끝난다(얼린 것은 덮어쓰지 않는다).
 - 꼴: `{"version": "v0", "stage", "score"(채점 지문), "judge"(판정 지문), "runs", "codes": {코드: 실행 수}, "code_areas": {"코드|시군구 번호": 실행 수}}`. UTF-8, LF, 키 차례.

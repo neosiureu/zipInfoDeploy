@@ -218,7 +218,7 @@ def _guard(fn, out):
         return 3
 
 
-def sample(settings_path, exp=".", listings=score.LISTINGS, pin=None, config=score.CONFIG, out=print):
+def sample(settings_path, exp=".", listings=score.LISTINGS, pin=None, config=None, out=print):
     """표본을 뽑아 sample.txt에 쓴다. 이미 있으면 적은 판단을 지우지 않으려고 쓰지 않는다(끝 코드 2)."""
     def go():
         ctx, a, b, n_judged, n_pool, items = _prepare(settings_path, exp, listings, pin, config)
@@ -243,7 +243,7 @@ def sample(settings_path, exp=".", listings=score.LISTINGS, pin=None, config=sco
     return _guard(go, out)
 
 
-def tally(settings_path, exp=".", listings=score.LISTINGS, pin=None, config=score.CONFIG, out=print):
+def tally(settings_path, exp=".", listings=score.LISTINGS, pin=None, config=None, out=print):
     """sample.txt에 적은 판단을 판정과 대 화면과 tally.tsv(수·번호·실행 ID), differ.txt(다른 항목의 글과 판정 이유)에 쓴다."""
     def go():
         ctx, a, b, n_judged, n_pool, items = _prepare(settings_path, exp, listings, pin, config)

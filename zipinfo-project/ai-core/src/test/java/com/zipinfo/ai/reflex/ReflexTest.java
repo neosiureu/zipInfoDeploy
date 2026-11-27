@@ -322,7 +322,7 @@ class ReflexTest {
             api.then(tool("t4", "submit_report", report(4)));
             RunRecord rec = run(api, setup(Part.REFLEX));
             assertEquals(RunRecord.Outcome.SUBMITTED, rec.outcome());
-            assertEquals("이 매물은 주변보다 3.7% 비싸다.", rec.answer());
+            assertEquals("이 매물은 주변보다 3.7% 비쌉니다.", rec.answer());
             List<Map<String, Object>> tools = events(rec, "tool");
             assertEquals(true, tools.get(0).get("is_error"));
             assertEquals("REJECTED", tools.get(0).get("error_code"));

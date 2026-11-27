@@ -8,42 +8,59 @@ import com.zipinfo.ai.tools.StatsCall;
 import com.zipinfo.ai.tools.ToolSpecs;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 대조 코드(설계안 7.5). ④(막음)와 기록 전용 검사기(모든 판)가 같은 코드를 쓴다. 걸린 것을 모두 차례대로 낸다.
+ * 대조 코드 v1(설계안 7.5, 순서 11b-2 설계 b판 5.3). ④(막음)와 기록 전용 검사기(모든 판)가 같은 코드를 쓴다. 걸린 것을 모두 차례대로 낸다.
  * ④는 첫째 것의 처방 한 줄만 돌려준다. 범위를 옳게 골랐는지, 꼭 있어야 할 claim이 있는지는 보지 않는다(채점의 몫).
+ * <ul>
+ * <li>claim과 원래 글(그리기 전 text)을 본다: SLOT_DUP·SLOT_RESERVED, 근거·값·기준·기간·표본·잠정, TEXT_FORM, NUMERAL(수사 v1),
+ *     PERIOD_WORD(같은 길이의 통계 claim이 없는 기간 말), PLACEHOLDER, PLACEHOLDER_FORM, DIRECTION, DIFF_HIDDEN.</li>
+ * <li>그린 글을 본다(KoText.check): BRACE, UNIT_NO_VALUE, GARBLED, QMARK, REGISTER, FORMAT. 로마자는 매물 칸과 질문 글의 것을 받는다.</li>
+ * </ul>
  */
 public final class Checker {
-    static final Pattern PLACEHOLDER = Pattern.compile("\\{([가-힣]{1,3})(\\.방향)?\\}");
+    static final Pattern PLACEHOLDER = KoText.PLACEHOLDER;
     static final Pattern TEXT = Pattern.compile(ToolSpecs.TEXT_PATTERN);
     static final Q MANWON = Q.of(10000);
-    static final Q PYEONG = Q.of(121, 400);
 
     private Checker() {}
 
-    public static List<Finding> check(Report r, RunState st, ValidityTable validity) {
+    public static List<Finding> check(Report r, RunState st, ValidityTable validity, String rendered) {
         List<Finding> out = new ArrayList<>();
         Set<String> slots = new HashSet<>();
-        Set<String> diffSlots = new HashSet<>();
+        Set<String> diffSlots = new LinkedHashSet<>();
+        Set<Integer> lengths = new HashSet<>();
         // 같은 slot을 두 claim에 쓰면 그린 값·방향이 갈린다(상대 3a 검토 3). 모든 판에서 기록하고 ④ 판은 거절한다.
         Set<String> seenSlot = new HashSet<>();
         for (String slot : allSlots(r)) {
             if (!seenSlot.add(slot)) {
                 out.add(new Finding("slot", "SLOT_DUP", "자리표시자 이름 " + slot + "를 두 claim에 썼다. claim마다 다른 이름을 쓴다"));
             }
+            if (slot.equals(KoText.NAME_SLOT)) {
+                out.add(new Finding("slot", "SLOT_RESERVED", "자리표시자 이름 매물명은 매물 이름 자리라 claim에 쓰지 않는다"));
+            }
         }
         for (int i = 0; i < r.stats().size(); i++) {
             Report.StatClaim c = r.stats().get(i);
             String w = "stat_claims[" + i + "]";
             slots.add(c.slot());
+            Integer n = NumeralsV1.monthsOf(c.start(), c.end());
+            if (n != null) {
+                lengths.add(n);
+            }
             Evidence e = st.find(c.evidence());
             if (e == null) {
                 out.add(new Finding(w, "EVIDENCE_MISSING", "근거 ID " + c.evidence() + "는 이 실행의 도구 결과나 매물에 없다"));
                 continue;
+            }
+            if (e.kind() == Evidence.Kind.C_DIFF) {
+                diffSlots.add(c.slot());
             }
             if (!e.kind().fromTradeStats()) {
                 out.add(new Finding(w, "NOT_STATS", "통계 claim의 근거는 trade_stats 결과(S?)여야 한다"));
@@ -116,17 +133,41 @@ public final class Checker {
         if (!TEXT.matcher(r.text()).matches()) {
             out.add(new Finding("text", "TEXT_FORM", "답 글에는 숫자나 허용되지 않은 글자를 쓰지 않는다"));
         }
-        for (String n : Numerals.find(r.text())) {
-            out.add(new Finding("text", "NUMERAL", "답 글에 수를 낱말로 쓰지 않는다(" + n + "). 값은 자리표시자와 claim으로 쓴다"));
+        for (NumeralsV1.Hit h : NumeralsV1.scan(PLACEHOLDER.matcher(r.text()).replaceAll(" "))) {
+            if (!h.period()) {
+                out.add(new Finding("text", "NUMERAL", "답 글에 수를 낱말로 쓰지 않는다(" + h.word() + "). 값은 자리표시자와 claim으로 쓴다"));
+            } else if (h.months() == null || !lengths.contains(h.months())) {
+                out.add(new Finding("text", "PERIOD_WORD", "기간 말(" + h.word() + ")의 길이가 통계 claim의 기간과 다르다. 기간 말을 빼거나 claim 기간과 같게 쓴다"));
+            }
         }
+        Set<String> valueSlotsInText = new HashSet<>();
         Matcher m = PLACEHOLDER.matcher(r.text());
         while (m.find()) {
             String slot = m.group(1);
+            if (slot.equals(KoText.NAME_SLOT) && m.group(2) == null) {
+                continue;
+            }
+            if (m.group(2) == null) {
+                valueSlotsInText.add(slot);
+            }
             if (!slots.contains(slot)) {
                 out.add(new Finding("text", "PLACEHOLDER", "자리표시자 {" + slot + "}의 claim이 없다"));
             } else if (m.group(2) != null && !diffSlots.contains(slot)) {
                 out.add(new Finding("text", "DIRECTION", "{" + slot + ".방향}은 근거가 차이(C?.차이)인 claim에만 쓴다"));
             }
+        }
+        String rest = PLACEHOLDER.matcher(r.text()).replaceAll("");
+        if (rest.indexOf('{') >= 0 || rest.indexOf('}') >= 0) {
+            out.add(new Finding("text", "PLACEHOLDER_FORM", "자리표시자 꼴이 틀렸다. {이름}의 이름은 한글 1~6자이고 방향은 {이름.방향}으로 쓴다"));
+        }
+        for (String slot : diffSlots) {
+            if (!valueSlotsInText.contains(slot)) {
+                out.add(new Finding("text", "DIFF_HIDDEN", "차이 claim {" + slot + "}의 크기를 글에 쓰지 않았다. 차이는 {" + slot + "}로 글에 쓴다"));
+            }
+        }
+        Map<String, String> f = st.listing().fields();
+        for (KoText.Hit h : KoText.check(rendered, KoText.latinWords(f.get("stockName"), f.get("stockAddress"), st.question()))) {
+            out.add(new Finding("answer", h.code(), h.prescription()));
         }
         return out;
     }

@@ -18,8 +18,9 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 
 /**
- * 연습 전 카드(experiment/cards/v0, 설계안 8절)의 글을 본다(계획 3판 순서 4 시험).
+ * 연습 전 카드(experiment/cards/v0, 설계안 8절)와 시운전 뒤 카드(cards/v1, 순서 11b-2)의 글을 본다(계획 3판 순서 4 시험).
  * 카드는 장치를 말하지 않고, 사고 과정을 적게 하지 않으며(01 209줄), 달 숫자와 매물 값이 없다. 찾기 낱말이 질문의 흔한 뜻을 잡는지도 본다.
+ * v1은 v0과 제목·태그·핵심·사용법이 같고 기록 층만 다르다(기록 줄은 '- '로 시작한다).
  */
 class CardsCheckTest {
     static final Path EXP = Path.of("..").toAbsolutePath().normalize();
@@ -29,12 +30,18 @@ class CardsCheckTest {
             "생각", "사고 과정", "단계별", "추론",
             "장치", "거절", "의도", "잠금", "게이트", "해마", "좋아요", "반사", "declare_intents", "search_cards", "read_card");
 
+    static final List<String> VERSIONS = List.of("v0", "v1");
+
     static Cards cards() throws Exception {
-        return Cards.load(EXP.resolve("cards/v0"));
+        return cards("v0");
     }
 
-    static String raw(Card c) throws Exception {
-        return Files.readString(EXP.resolve("cards/v0/" + c.id() + ".md"), StandardCharsets.UTF_8);
+    static Cards cards(String v) throws Exception {
+        return Cards.load(EXP.resolve("cards/" + v));
+    }
+
+    static String raw(String v, Card c) throws Exception {
+        return Files.readString(EXP.resolve("cards/" + v + "/" + c.id() + ".md"), StandardCharsets.UTF_8);
     }
 
     @Test
@@ -55,14 +62,37 @@ class CardsCheckTest {
 
     @Test
     void cardsDoNotTalkAboutDevicesOrReasoningOrMonths() throws Exception {
-        for (Card c : cards().all()) {
-            String t = raw(c);
-            for (String bad : BANNED) {
-                assertFalse(t.contains(bad), c.id() + ": " + bad);
+        for (String v : VERSIONS) {
+            for (Card c : cards(v).all()) {
+                String t = raw(v, c);
+                for (String bad : BANNED) {
+                    assertFalse(t.contains(bad), v + " " + c.id() + ": " + bad);
+                }
+                assertFalse(DEVICE_MARK.matcher(t).find(), v + " " + c.id() + ": 부품 표시");
+                assertFalse(MONTH.matcher(t).find(), v + " " + c.id() + ": 달 숫자(YYYYMM)");
             }
-            assertFalse(DEVICE_MARK.matcher(t).find(), c.id() + ": 부품 표시");
-            assertFalse(MONTH.matcher(t).find(), c.id() + ": 달 숫자(YYYYMM)");
         }
+    }
+
+    /** 순서 11b-2: v1은 기록 층만 더한 판이다. 기록 줄은 K05 셋과 K09 하나이고 '- '로 시작한다. */
+    @Test
+    void version1OnlyAddsRecordLines() throws Exception {
+        List<Card> a = cards("v0").all();
+        List<Card> b = cards("v1").all();
+        assertEquals(a.stream().map(Card::id).toList(), b.stream().map(Card::id).toList());
+        List<String> withLog = new ArrayList<>();
+        for (int i = 0; i < a.size(); i++) {
+            Card x = a.get(i);
+            Card y = b.get(i);
+            assertEquals(List.of(x.title(), x.englishTags(), x.koreanWords(), x.core(), x.usage()),
+                    List.of(y.title(), y.englishTags(), y.koreanWords(), y.core(), y.usage()), y.id());
+            if (!y.log().isEmpty()) {
+                withLog.add(y.id() + ":" + y.log().lines().count());
+                assertTrue(y.log().lines().allMatch(l -> l.startsWith("- ")), y.id());
+            }
+        }
+        assertEquals(List.of("K05:3", "K09:1"), withLog);
+        assertTrue(Cards.render(b.get(4)).endsWith("\n\n## 기록\n\n" + b.get(4).log()), "모델에게 기록 층이 간다");
     }
 
     /** 매물 이름·주소·가격이 카드에 없다. 실패해도 매물 키만 보인다. */
@@ -71,8 +101,10 @@ class CardsCheckTest {
         Path in = EXP.resolve("prep/out/listings_input_v1.json");
         assumeTrue(Files.exists(in), "prep build 결과가 있을 때만 돈다");
         List<String> texts = new ArrayList<>();
-        for (Card c : cards().all()) {
-            texts.add(raw(c).replace(" ", ""));
+        for (String v : VERSIONS) {
+            for (Card c : cards(v).all()) {
+                texts.add(raw(v, c).replace(" ", ""));
+            }
         }
         int checked = 0;
         for (Listing l : Listing.load(in)) {

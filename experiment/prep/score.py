@@ -3,6 +3,9 @@
 15.9 지표·진단·비용(8b, metrics.py)과 통계·보고 표(8c, stats.py)를 낸다.
 순서 11b-1(설계 4판 4.2)의 채점 v1: 수사·기간 말·자리표시자 꼴은 기록의 findings 대신 글에서 다시 센다(numerals.py). 완전 정답은 정의 셋
 (주 (다), 비교 (가)·(나))으로 내고, 판정을 넣을지는 채점 설정 full_with_judge로 정한다.
+순서 11b-2(설계 b판 5.4)의 채점 v2: 규칙 v2 = 규칙 v1 + 5.3(그린 글의 여섯 코드는 제출 사건의 rendered에서 textcheck로 다시 세고,
+DIFF_HIDDEN은 기록의 것). 기록의 검사기 판은 하네스 설정 version으로 고른다(v0 시운전 → 검사기 v0, 그 밖 → 검사기 v1).
+채점 설정을 주지 않으면 검사기 v0 기록은 score_v1.json, 검사기 v1 기록은 score_v2.json으로 매긴다.
 
 experiment 폴더에서 `python -X utf8 -B -m prep score harness/settings/<설정>.json`으로 돌린다.
 같은 실수 표는 `python -X utf8 -B -m prep mistakes harness/settings/<설정>.json harness/frozen/mistakes_v0.json`으로 얼린다(8b 4.3).
@@ -29,10 +32,12 @@ from . import answers as answers_mod
 from . import listings as listings_mod
 from . import numerals as numerals_mod
 from . import questions as questions_mod
+from . import textcheck as textcheck_mod
 
 # 채점기 자신의 코드가 있는 experiment 폴더(채점 지문의 code는 지금 도는 코드로 센다)
 CODE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG = os.path.join(CODE_ROOT, "prep", "score_v1.json")
+CONFIG_V2 = os.path.join(CODE_ROOT, "prep", "score_v2.json")
 LISTINGS = "frozen/example_listings_v1.csv"
 OUT_DIR = "prep/out"
 LISTINGS_INPUT = "listings_input_v1.json"
@@ -68,6 +73,11 @@ MAX_DRAWS = 1_000_000
 SAMPLE_DIR = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.-]*")  # 빼는 판정 표본 폴더 이름(단계 폴더 바로 아래)
 # 채점 v1이 글에서 다시 세는 검사기 코드(순서 11b 설계 4판 4.2). 기록의 이 코드는 버리고 numerals.scan의 셈으로 채운다.
 RECOUNTED = frozenset(("NUMERAL", "PERIOD_WORD", "PLACEHOLDER_FORM"))
+# 채점 v2(순서 11b-2 설계 b판 5.4): 규칙 v2 = 규칙 v1 + 5.3의 코드. 그린 글의 여섯은 제출 사건의 rendered에서 다시 세고(textcheck),
+# DIFF_HIDDEN은 기록의 것을 쓴다(claim과 원래 글로 보는 코드라 PLACEHOLDER·DIRECTION처럼). 규칙 v1은 기록의 5.3 코드를 보지 않는다.
+TEXT_CODES = textcheck_mod.CODES
+V2_CODES = frozenset(TEXT_CODES) | {"DIFF_HIDDEN"}
+RULES = ("v1", "v2")
 
 
 class Bad(Exception):
@@ -219,6 +229,8 @@ def load_config(path):
     c = read_json(path, "채점 설정")
     if not isinstance(c, dict) or sorted(c) != sorted(CONFIG_FIELDS):
         raise Bad(f"채점 설정의 칸은 {'·'.join(CONFIG_FIELDS)}다")
+    if c["version"] not in RULES:
+        raise Bad("채점 설정 version은 v1이나 v2다(규칙 v1, 규칙 v2 = v1 + 5.3)")
     d = c["direction"]
     if not isinstance(d, dict) or sorted(d) != sorted(DIRECTION_FIELDS):
         raise Bad("채점 설정 direction의 칸은 words·high_low다")
@@ -262,6 +274,33 @@ def load_config(path):
             "markers": nfc(hl["markers"]), "except": nfc(hl["except"]), "window": hl["window"],
             "next_not": unicodedata.normalize("NFC", hl["next_not"]), "mistakes": c["mistakes"], "intent_clauses": c["intent_clauses"],
             "bootstrap": {"draws": b["draws"], "purpose": b["purpose"]}, "comparisons": {"main": pairs[0], "aux": pairs[1:]}}
+
+
+def checker_of(settings_version):
+    """기록의 검사기 판(11b-1 상대 검토 (3)): 하네스 설정 version이 v0이면 검사기 v0(시운전), 아니면 검사기 v1(11c부터).
+    검사기 v1 기록은 자리표시자 이름이 1~6자이고, 제출 사건에 그린 글(rendered)과 5.3의 코드가 있다."""
+    return "v0" if settings_version == "v0" else "v1"
+
+
+def default_config(settings_version):
+    """채점 설정을 주지 않았을 때: 검사기 v0 기록은 채점 v1(score_v1.json), 검사기 v1 기록은 채점 v2(score_v2.json)."""
+    return CONFIG if checker_of(settings_version) == "v0" else CONFIG_V2
+
+
+def listing_latin(path, questions):
+    """문항마다 글 검사가 받는 로마자 낱말: 매물 입력 파일(하네스가 읽는 것)의 stockName·stockAddress와 문항 글(자바 Checker와 같다)."""
+    d = read_json(path, "매물 입력 파일")
+    fields = {}
+    for x in d if isinstance(d, list) else []:
+        if isinstance(x, dict) and isinstance(x.get("key"), str) and isinstance(x.get("fields"), dict):
+            fields[x["key"]] = x["fields"]
+    out = {}
+    for q in questions:
+        f = fields.get(q["key"])
+        if f is None:
+            raise Bad(f"매물 입력 파일에 문항 {q['id']}의 매물 {q['key']}이 없다")
+        out[q["id"]] = textcheck_mod.latin_words(f.get("stockName"), f.get("stockAddress"), q["text"])
+    return out
 
 
 def load_variants(path):
@@ -662,9 +701,9 @@ def value_ok(item, c):
     return u == item.unit and v == item.want
 
 
-def marks_of(text):
-    """글의 자리표시자: (slot, 방향인가)."""
-    return {(m.group(1), m.group(2) is not None) for m in PLACEHOLDER.finditer(text)}
+def marks_of(text, ph=PLACEHOLDER):
+    """글의 자리표시자: (slot, 방향인가). ph는 기록의 검사기 판의 자리표시자 꼴이다."""
+    return {(m.group(1), m.group(2) is not None) for m in ph.finditer(text)}
 
 
 def rule_codes(item, kind, c, marks):
@@ -703,9 +742,9 @@ def score_item(item, cs, marks):
     return {"item": item.name, "claim": where, "value": vok, "rule": not rc, "codes": ([] if vok else [item.code + "_VALUE"]) + rc}
 
 
-def blank(text):
+def blank(text, ph=PLACEHOLDER):
     """볼 글: NFC로 맞추고 자리표시자를 빈칸으로 바꾼 글."""
-    return PLACEHOLDER.sub(" ", unicodedata.normalize("NFC", text))
+    return ph.sub(" ", unicodedata.normalize("NFC", text))
 
 
 def squeeze(text):
@@ -744,8 +783,10 @@ def judge_submission(sub, events, a, forbidden, cfg):
     """제출 하나를 매긴다(3.2~3.6). events는 그 제출까지의 사건이다(근거를 잇는 도구 결과). 판정은 보지 않는다."""
     inp = sub["input"]
     text = inp.get("text") if isinstance(inp.get("text"), str) else ""
+    n = cfg.get("placeholder", 3)
+    ph = numerals_mod.PLACEHOLDERS[n]
     cs = claims_of(inp)
-    marks = marks_of(text)
+    marks = marks_of(text, ph)
     stats, compares = tool_index(events)
     items = [score_item(it, cs, marks) for it in items_for(a)]
     report = []
@@ -755,10 +796,10 @@ def judge_submission(sub, events, a, forbidden, cfg):
             widened = True
         if widened:
             report.append("T2_WIDENED")
-    look = [blank(text)] + [x.get("text") for x in (inp.get("context_claims") or []) if isinstance(x, dict) and isinstance(x.get("text"), str)]
+    look = [blank(text, ph)] + [x.get("text") for x in (inp.get("context_claims") or []) if isinstance(x, dict) and isinstance(x.get("text"), str)]
     if any(squeeze(w) in squeeze(t) for w in forbidden for t in look):
         report.append("FORBIDDEN")
-    hit, counts = direction(blank(text), cfg)
+    hit, counts = direction(blank(text, ph), cfg)
     if hit:
         report.append("LITERAL_DIRECTION")
     for kind, _, c in cs:
@@ -771,18 +812,47 @@ def judge_submission(sub, events, a, forbidden, cfg):
             break
     # 검사기 깨끗(11b-1, 4.2): 기록의 findings에서 다시 세는 코드를 버리고, 글에서 센 수사 v1·기간 말·자리표시자 꼴로 채운다.
     # 주 (다): 같은 길이의 통계 claim이 있는 기간 말만 받는다. (가): 기간 말까지 모든 수사가 실패. (나): 수사를 모두 뺀다. 셋 다 자리표시자 꼴을 본다.
+    # 채점 v2(11b-2, 5.4): 기록의 5.3 코드는 규칙 v1에 넣지 않는다. 검사기 v1 기록이면 그린 글을 textcheck로 다시 세어 기록과 대 보고,
+    # 규칙 v2면 그 여섯과 기록의 DIFF_HIDDEN을 더한다. 셋(주·(가)·(나)) 모두에 더한다.
     findings = [f.rsplit(" ", 1)[-1] for f in (sub.get("findings") or []) if isinstance(f, str)]
-    t = numerals_mod.scan(text, inp)
+    t = numerals_mod.scan(text, inp, n)
     t["v0_record"] = findings.count("NUMERAL")
-    kept = [f for f in findings if f not in RECOUNTED] + (["PLACEHOLDER_FORM"] if t["form"] else [])
+    kept = [f for f in findings if f not in RECOUNTED and f not in V2_CODES] + (["PLACEHOLDER_FORM"] if t["form"] else [])
     main = kept + (["NUMERAL"] if t["numerals"] else []) + (["PERIOD_WORD"] if any(not ok for _, ok in t["periods"]) else [])
     every = kept + (["NUMERAL"] if t["numerals"] or t["periods"] else [])
-    checker = sorted({"CHECKER:" + f for f in main})
+    v2 = []
+    if cfg.get("checker") == "v1":
+        rendered = sub.get("rendered")
+        if not isinstance(rendered, str):
+            raise Bind("검사기 v1 기록의 제출 사건에 그린 글(rendered)이 없다")
+        tc = textcheck_mod.check(rendered, cfg["latin"].get(a.get("id"), set()))
+        t["text_codes"] = tc
+        t["diff_hidden"] = "DIFF_HIDDEN" in findings
+        t["record_diff"] = record_diff(findings, t, tc)
+        if cfg["version"] == "v2":
+            v2 = tc + (["DIFF_HIDDEN"] if t["diff_hidden"] else [])
+    checker = sorted({"CHECKER:" + f for f in main + v2})
     items_rule = all(x["rule"] for x in items)
     vok = all(x["value"] for x in items)
-    base = items_rule and not report
+    base = items_rule and not report and not v2
     return {"items": items, "report": report, "checker": checker, "vok": vok, "rok": base and not main, "rok_all": base and not every,
             "rok_nn": base and not kept, "cs": cs, "stats": stats, "counts": counts, "text_check": t}
+
+
+def record_diff(findings, t, tc):
+    """검사기 v1 기록의 대조(11b-1 상대 검토 (1)): 기록 findings와 글에서 다시 센 것이 다른 갈래. 같으면 빈 목록.
+    NUMERAL은 기간 말 밖 수사의 수, PERIOD_WORD는 같은 길이의 통계 claim이 없는 기간 말의 수(자바는 걸린 말마다 하나씩 낸다),
+    PLACEHOLDER_FORM은 있고 없음, TEXT는 그린 글의 여섯 코드(기록의 차례 그대로)다."""
+    out = []
+    if findings.count("NUMERAL") != t["numerals"]:
+        out.append("NUMERAL")
+    if findings.count("PERIOD_WORD") != sum(1 for _, ok in t["periods"] if not ok):
+        out.append("PERIOD_WORD")
+    if ("PLACEHOLDER_FORM" in findings) != t["form"]:
+        out.append("PLACEHOLDER_FORM")
+    if [f for f in findings if f in TEXT_CODES] != tc:
+        out.append("TEXT")
+    return out
 
 
 def sound_submission(sub, events, a, forbidden, cfg):
@@ -802,6 +872,10 @@ def score_run(events, a, outcome, judge, forbidden, cfg):
     sub = accepted_submission(events)
     if sub is None:
         raise Bind("SUBMITTED 기록의 받아들여진 제출을 찾지 못했다")
+    if cfg.get("checker") == "v1":
+        acc = next(e for e in events if e.get("type") == "accepted")
+        if acc.get("answer") != sub.get("rendered"):
+            raise Bind("받아들여진 답(accepted)이 그 제출 사건의 그린 글(rendered)과 다르다")
     j = judge_submission(sub, events, a, forbidden, cfg)
     items, vok, rok, cs, stats, counts = j["items"], j["vok"], j["rok"], j["cs"], j["stats"], j["counts"]
     codes = {code for x in items for code in x["codes"]} | set(j["report"]) | set(j["checker"])
@@ -857,13 +931,20 @@ def template_numbers(exp, qpath, qversion, questions, listings_path):
 
 
 def text_line(rows):
-    """글 검사 v1(4.2 진단)을 모든 판에 걸쳐 한 줄로: 받아들여진 제출의 수만."""
+    """글 검사 v1(4.2 진단)을 모든 판에 걸쳐 한 줄로: 받아들여진 제출의 수만. 검사기 v1 기록(11b-2)이면 기록 대조와 그린 글 코드의 수를 더한다."""
     ts = [x["text_check"] for x in rows if x["text_check"] is not None]
     periods = [p for t in ts for p in t["periods"]]
     form = sum(t["form"] for t in ts)
-    return (f"글 검사 v1(받아들여진 제출 {len(ts)}개): PLACEHOLDER_FORM {form}개(잘린 이름 {sum(t['form'] and t['truncated'] for t in ts)}), "
-            f"기간 말 맞음 {sum(1 for p in periods if p[1])}·안 맞음 {sum(1 for p in periods if not p[1])}, 그 밖의 수사 {sum(t['numerals'] for t in ts)}, "
-            f"수사 v0 {sum(t['v0'] for t in ts)}(기록 findings의 NUMERAL과 수가 다른 제출 {sum(t['v0'] != t['v0_record'] for t in ts)})")
+    head = (f"글 검사 v1(받아들여진 제출 {len(ts)}개): PLACEHOLDER_FORM {form}개(잘린 이름 {sum(t['form'] and t['truncated'] for t in ts)}), "
+            f"기간 말 맞음 {sum(1 for p in periods if p[1])}·안 맞음 {sum(1 for p in periods if not p[1])}, 그 밖의 수사 {sum(t['numerals'] for t in ts)}, ")
+    v1 = [t for t in ts if "record_diff" in t]
+    if not v1:
+        return head + f"수사 v0 {sum(t['v0'] for t in ts)}(기록 findings의 NUMERAL과 수가 다른 제출 {sum(t['v0'] != t['v0_record'] for t in ts)})"
+    kinds = ("NUMERAL", "PERIOD_WORD", "PLACEHOLDER_FORM", "TEXT")
+    diff = "·".join(f"{k} {sum(k in t['record_diff'] for t in v1)}" for k in kinds)
+    codes = "·".join(f"{c} {sum(c in t['text_codes'] for t in v1)}" for c in TEXT_CODES)
+    return (head + f"기록 대조(검사기 v1)가 다른 제출 {sum(bool(t['record_diff']) for t in v1)}({diff}), 그린 글 코드가 든 제출 {codes}, "
+            f"DIFF_HIDDEN {sum(t['diff_hidden'] for t in v1)}")
 
 
 # ---------------------------------------------------------------- 쓰기
@@ -931,8 +1012,8 @@ def write_outputs(stage_dir, files):
 
 # ---------------------------------------------------------------- 명령
 
-def run(settings_path, exp=".", listings=LISTINGS, pin=None, config=CONFIG, out=print):
-    """채점(8a·8b). 끝 코드: 0 다 매김, 3 묶기 검사에 걸림, 2 설정·파일 읽기 오류."""
+def run(settings_path, exp=".", listings=LISTINGS, pin=None, config=None, out=print):
+    """채점(8a·8b). 끝 코드: 0 다 매김, 3 묶기 검사에 걸림, 2 설정·파일 읽기 오류. config가 None이면 기록의 검사기 판으로 고른다(default_config)."""
     try:
         return _run(settings_path, exp, listings, pin, config, out)
     except Bad as e:
@@ -947,7 +1028,12 @@ def prepare(settings_path, exp, listings, pin, config):
     """설정·파일을 읽고 묶기 검사(2.2)를 한다. 채점과 같은 실수 표 얼리기가 같이 쓴다."""
     from . import metrics as metrics_mod
     s = load_settings(settings_path)
+    if config is None:
+        config = default_config(s["version"])
     cfg = load_config(config)
+    checker = checker_of(s["version"])
+    if cfg["version"] == "v2" and checker == "v0":
+        raise Bad("채점 v2는 검사기 v1 기록(하네스 설정 version이 v0이 아닌 단계, 11c부터)에만 쓴다. 시운전은 채점 v1로 매긴다")
     at = lambda p: p if os.path.isabs(p) else os.path.join(exp, *p.split("/"))
     variants = load_variants(at(s["files"]["variants"]))
     qpath = at(s["files"]["questions"])
@@ -981,6 +1067,9 @@ def prepare(settings_path, exp, listings, pin, config):
             [(x.get("id"), x.get("key"), x.get("qtype"), x.get("split")) for x in ans["answers"]]:
         raise Bind("정답 파일의 문항 ID·키·유형·나눔이 문항 파일과 1:1로 같지 않다")
     tnums, tpath, names, counts = template_numbers(exp, qpath, qversion, questions, at(listings))
+    # 11b-2: 검사기 v1 기록은 자리표시자 이름 1~6자, 그린 글 검사의 로마자는 매물 입력 파일과 문항 글에서 받는다
+    lipath = at(f"{OUT_DIR}/{LISTINGS_INPUT}") if checker == "v1" else None
+    cfg = dict(cfg, checker=checker, placeholder=6 if checker == "v1" else 3, latin=listing_latin(lipath, questions) if lipath else {})
     # 8b의 표: ⓪ 의도 절(git 밖, 없으면 ⓪ 부당 거절만 "-"), 같은 실수(설정에 자리를 적었으면 꼭 있어야 한다)
     ipath = at(cfg["intent_clauses"])
     intents = None
@@ -1013,6 +1102,8 @@ def prepare(settings_path, exp, listings, pin, config):
         parts.append(("intent_clauses", sha256_lf(ipath)))
     if mtable is not None:
         parts.append(("mistakes", sha256_lf(mpath)))
+    if lipath is not None:
+        parts.append(("listings_input", sha256_lf(lipath)))
     env = {"forbidden": forbidden, "cfg": cfg, "current": current, "areas": metrics_mod.area_numbers(current), "mistakes": mtable,
            "same_stage": mtable is not None and mtable["stage"] == s["stage"], "intents": intents, "prices": s["prices"]}
     return {"s": s, "cfg": cfg, "at": at, "variants": variants, "questions": questions, "metas": metas, "forbidden": forbidden, "plan": plan,
@@ -1075,7 +1166,7 @@ def _run(settings_path, exp, listings, pin, config, out):
     return 0
 
 
-def mistakes(settings_path, table_path, exp=".", listings=LISTINGS, pin=None, config=CONFIG, out=print):
+def mistakes(settings_path, table_path, exp=".", listings=LISTINGS, pin=None, config=None, out=print):
     """같은 실수 표 얼리기(8b 4.3). 그 단계를 채점과 같은 함수로 묶기 검사하고 매긴 뒤 표를 쓴다. 이미 있으면 쓰지 않는다(끝 코드 2)."""
     try:
         from . import metrics as metrics_mod

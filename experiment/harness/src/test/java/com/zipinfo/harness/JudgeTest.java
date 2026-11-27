@@ -37,7 +37,7 @@ import org.junit.jupiter.api.io.TempDir;
  * 요청 꼴, 결과 가르기(4.3 표의 줄마다), 기록에 묶기(가), 다시 치기(나), 판정 지문(다), 파일 줄 규칙과 잇기, 배치 API 오류, 비용.
  */
 class JudgeTest {
-    static final String ANSWER = "이 매물은 주변보다 3.7% 비싸다.";
+    static final String ANSWER = "이 매물은 주변보다 3.7% 비쌉니다.";
     FakeAnthropic api;
     FakeBatches fb;
     Inputs in;

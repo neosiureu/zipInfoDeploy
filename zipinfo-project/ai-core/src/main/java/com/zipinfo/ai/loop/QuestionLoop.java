@@ -26,7 +26,8 @@ import java.util.function.BiFunction;
 
 /**
  * 문항 하나를 푸는 고리(설계안 4.2 loop, 01 하네스 규칙). 대화는 덧붙이기만 한다.
- * - tool_use: 거는 자리를 돌고 도구를 돌려 결과를 덧붙인다. submit_report는 대조 코드를 모든 판에서 기록 전용으로 돌리고, 제출 자리(④)를 지나면 글을 그려 끝낸다.
+ * - tool_use: 거는 자리를 돌고 도구를 돌려 결과를 덧붙인다. submit_report는 글을 먼저 그리고(그린 글도 검사가 본다), 대조 코드를 모든 판에서
+ *   기록 전용으로 돌리고, 제출 자리(④)를 지나면 그린 글로 끝낸다(순서 11b-2). 제출 사건에는 그린 글(rendered)도 남긴다(막힌 제출의 글을 채점·읽기가 본다).
  * - end_turn: 제출이 없으면 재촉 한 줄을 한 번 보낸다(모든 판 같음). 또 없으면 실패다.
  * - max_tokens, model_context_window_exceeded, refusal: 실패. refusal 가운데 reasoning_extraction은 멈추고 본다. 그 밖의 멈춘 까닭도 멈추고 본다.
  * - 턴 상한(모델 응답 수)을 넘으면 실패다. 모델 오류는 그대로 던지고, 하네스가 갈래대로 resume()으로 같은 요청을 다시 보낸다(턴으로 세지 않음).
@@ -224,8 +225,9 @@ public final class QuestionLoop {
             results.add(new UserPart.ToolResult(c.id(), text, true));
             return null;
         }
-        List<Finding> findings = Checker.check(r, st, data.validity());
-        rec.add("submit", "input", c.input(), "findings", findings.stream().map(f -> f.where() + " " + f.code()).toList());
+        String answer = Renderer.render(r, st);
+        List<Finding> findings = Checker.check(r, st, data.validity(), answer);
+        rec.add("submit", "input", c.input(), "rendered", answer, "findings", findings.stream().map(f -> f.where() + " " + f.code()).toList());
         Hook.Context ctx = new Hook.Context(st, c.name(), c.input(), r, findings);
         Hook.Decision d = firstReject(chain(Hook.Point.START, ctx), chain(Hook.Point.SUBMIT, ctx));
         if (d.kind() == Hook.Decision.Kind.REJECT) {
@@ -235,7 +237,6 @@ public final class QuestionLoop {
             results.add(new UserPart.ToolResult(c.id(), text, true));
             return null;
         }
-        String answer = Renderer.render(r, st);
         rec.add("accepted", "answer", answer, "millis", millisSince(t0));
         return answer;
     }

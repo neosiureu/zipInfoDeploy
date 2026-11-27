@@ -605,8 +605,18 @@ def metrics_rows(ctx, rows, extra, aggs):
         line("진단", "글 PERIOD_WORD 제출", sum(any(not p[1] for p in tc["periods"]) for tc in tcs), len(tcs))
         line("진단", "글 그 밖의 수사", sum(tc["numerals"] for tc in tcs), None)
         line("진단", "글 NUMERAL 제출", sum(tc["numerals"] > 0 for tc in tcs), len(tcs))
-        line("진단", "글 수사 v0", sum(tc["v0"] for tc in tcs), None)
-        line("진단", "글 수사 v0이 기록 findings의 NUMERAL과 다른 제출", sum(tc["v0"] != tc["v0_record"] for tc in tcs), len(tcs))
+        v1 = [tc for tc in tcs if "record_diff" in tc]
+        if len(v1) != len(tcs):
+            line("진단", "글 수사 v0", sum(tc["v0"] for tc in tcs), None)
+            line("진단", "글 수사 v0이 기록 findings의 NUMERAL과 다른 제출", sum(tc["v0"] != tc["v0_record"] for tc in tcs), len(tcs))
+        else:
+            # 11b-2: 검사기 v1 기록. 기록 findings와 글에서 다시 센 것의 대조(0이어야 한다)와 그린 글 코드(5.3)의 제출 수
+            line("진단", "기록 대조(검사기 v1)가 다른 제출", sum(bool(tc["record_diff"]) for tc in v1), len(v1))
+            for k in ("NUMERAL", "PERIOD_WORD", "PLACEHOLDER_FORM", "TEXT"):
+                line("진단", f"기록 대조가 다른 제출 {k}", sum(k in tc["record_diff"] for tc in v1), len(v1))
+            for code in S.TEXT_CODES:
+                line("진단", f"그린 글 {code} 제출", sum(code in tc["text_codes"] for tc in v1), len(v1))
+            line("진단", "DIFF_HIDDEN 제출", sum(tc["diff_hidden"] for tc in v1), len(v1))
         n_dir = sum(sum(tc["after"].values()) for tc in tcs)
         for k in N.AFTER_KINDS:
             line("진단", f"글 방향 자리 뒤 {k}", sum(tc["after"].get(k, 0) for tc in tcs), n_dir)

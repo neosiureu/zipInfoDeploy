@@ -12,9 +12,13 @@ import java.util.List;
 public final class ToolSpecs {
     public record Spec(String name, String description, ObjectNode inputSchema) {}
 
-    public static final String TEXT_PATTERN = "^[가-힣A-Za-z .,!?·(){}~-]*$";
-    /** 한글 1~3자. API의 strict 꼴은 한글 범위에 {1,3}을 받지 않아(순서 9, 400 "Cannot apply a range quantifier") 같은 뜻을 ?로 적는다. */
-    public static final String SLOT_PATTERN = "^[가-힣][가-힣]?[가-힣]?$";
+    /** 순서 11b-2: %와 ㎡를 더했다(모델이 퍼센트·프로·?·빈 괄호로 메우지 않게). 숫자는 계속 자리표시자로만 쓴다. */
+    public static final String TEXT_PATTERN = "^[가-힣A-Za-z .,!?·(){}~%㎡-]*$";
+    /**
+     * 한글 1~6자(순서 11b-2, 4판 5.4: 시운전의 PLACEHOLDER_FORM 120개 가운데 116개가 잘린 이름). API의 strict 꼴은 한글 범위에
+     * 수량 범위를 받지 않아(순서 9, 400 "Cannot apply a range quantifier") 같은 뜻을 ?로 적는다. "매물명"은 매물 이름 자리라 claim에 쓰지 않는다.
+     */
+    public static final String SLOT_PATTERN = "^[가-힣][가-힣]?[가-힣]?[가-힣]?[가-힣]?[가-힣]?$";
     public static final List<String> UNITS = List.of("원", "만원", "㎡", "평", "%", "건", "개월", "년", "층");
     public static final List<String> BASES = List.of("단지", "법정동", "시군구");
     public static final List<String> SOURCES = List.of("매물", "국토부 실거래가", "계산");
@@ -86,13 +90,19 @@ public final class ToolSpecs {
                         "매물 전용면적(매물.면적)을 ㎡나 평으로 바꾼다.",
                         object("area_evidence", str("면적 근거 ID(매물.면적)"), "to_unit", enumOf(List.of("㎡", "평"), "바꿀 단위"))),
                 new Spec("submit_report",
-                        "최종 답을 낸다. text에는 숫자를 쓰지 않는다. 값은 {가}처럼 자리표시자로 쓰고, 자리표시자마다 같은 slot의 claim을 하나 낸다. "
-                                + "비싸다·싸다 같은 방향 말은 쓰지 않고 {가.방향}으로 쓴다. 차이 claim(근거 C?.차이)의 {가}는 부호 없는 크기로, {가.방향}은 비싸다·싸다·같다 가운데 하나로 그려진다. "
-                                + "stat_claims는 trade_stats 결과의 값(기준값, 건수)이고, value_claims는 값 하나(매물 칸, 계산 결과)이며, context_claims는 숫자 없는 근거 문장이다. "
-                                + "모든 claim에 근거 ID를 적는다.",
-                        object("text", pattern(TEXT_PATTERN, "숫자 없는 답 글"),
+                        "최종 답을 냅니다. 답은 합니다체(-습니다·-ㅂ니다)로 씁니다. 인사와 '-세요' 부탁 밖의 해요체와 반말은 쓰지 않습니다. "
+                                + "text에는 숫자를 쓰지 않습니다. 값은 {가}처럼 자리표시자로 쓰고, 자리표시자마다 같은 slot의 claim을 하나 냅니다. "
+                                + "단위는 그릴 때 값에 붙으므로 자리표시자 뒤에 단위(원·만원·%·건·㎡ 등)를 쓰지 않습니다. 돈은 억·만으로 그려집니다. "
+                                + "매물 이름은 {매물명}으로 씁니다(claim 없이 매물 칸의 이름이 그려집니다). "
+                                + "비싸다·싸다 같은 방향 말은 쓰지 않고 {가.방향}으로 씁니다. 차이 claim(근거 C?.차이)의 value에는 근거의 값을 부호까지 그대로 적습니다. "
+                                + "글의 {가}는 부호 없는 크기로, {가.방향}은 "
+                                + "문장 끝에서 비쌉니다·쌉니다·같습니다, 문장 가운데서 비싸고·싸고·같고, '편' 앞에서 비싼·싼·비슷한으로 그려집니다. "
+                                + "방향 자리는 문장 끝이나 '편' 앞에 둡니다. "
+                                + "stat_claims는 trade_stats 결과의 값(기준값, 건수)이고, value_claims는 값 하나(매물 칸, 계산 결과)이며, context_claims는 숫자 없는 근거 문장입니다. "
+                                + "모든 claim에 근거 ID를 적습니다.",
+                        object("text", pattern(TEXT_PATTERN, "숫자 없는 답 글(합니다체)"),
                                 "stat_claims", array(object(
-                                        "slot", pattern(SLOT_PATTERN, "자리표시자 이름"),
+                                        "slot", pattern(SLOT_PATTERN, "자리표시자 이름(한글 1~6자, 매물명은 쓰지 않음)"),
                                         "value", F.objectNode().put("type", "number"),
                                         "unit", enumOf(UNITS, "단위"),
                                         "basis", enumOf(BASES, "비교 기준"),
@@ -102,7 +112,7 @@ public final class ToolSpecs {
                                         "provisional", F.objectNode().put("type", "boolean"),
                                         "evidence", str("근거 ID")), "통계 claim"),
                                 "value_claims", array(object(
-                                        "slot", pattern(SLOT_PATTERN, "자리표시자 이름"),
+                                        "slot", pattern(SLOT_PATTERN, "자리표시자 이름(한글 1~6자, 매물명은 쓰지 않음)"),
                                         "value", F.objectNode().put("type", "number"),
                                         "unit", enumOf(UNITS, "단위"),
                                         "source", enumOf(SOURCES, "출처"),

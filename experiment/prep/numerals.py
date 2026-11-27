@@ -5,13 +5,15 @@
 - 11b-2의 자바 검사기(Checker·Numerals v1)도 같은 규칙을 같은 예문 묶음(tests/data/numerals_v1.json)으로 시험한다.
 - 글은 NFC로 바꾸지 않는다(검사기와 그리기가 원래 글을 그대로 보듯이). 빈칸은 자바 정규식 \\s(유니코드 꼴 아님)와 같은 여섯 자다.
 - 수사 v1은 바른 자리표시자를 빈칸 하나로 바꾼 글에서 센다(자리표시자 이름은 글이 아니다). v0은 자바 v0처럼 원래 글에서 센다.
+- 바른 자리표시자의 이름 길이는 기록의 검사기 판을 따른다(순서 11b-2): 검사기 v0 기록(시운전)은 한글 1~3자, 검사기 v1 기록(11c부터)은 1~6자다.
 - 돌려주는 것은 수와 길이뿐이다. 걸린 말(답 글의 조각)은 돌려주지 않는다.
 """
 import re
 from fractions import Fraction
 
 SP = "[ \\t\\n\\x0b\\f\\r]"
-PLACEHOLDER = re.compile(r"\{([가-힣]{1,3})(\.방향)?\}")  # score.PLACEHOLDER, 검사기 Checker.PLACEHOLDER와 같다
+PLACEHOLDER = re.compile(r"\{([가-힣]{1,3})(\.방향)?\}")  # 검사기 v0(score.PLACEHOLDER)
+PLACEHOLDERS = {3: PLACEHOLDER, 6: re.compile(r"\{([가-힣]{1,6})(\.방향)?\}")}  # 이름 길이 상한 → 꼴(6은 자바 KoText.PLACEHOLDER와 같다)
 
 # ---------------------------------------------------------------- v0: 자바 Numerals v0 그대로(11a의 수와 잇는 데만 쓴다)
 V0_NATIVE = "한|두|세|네|석|넉|다섯|여섯|일곱|여덟|아홉|열|스무|스물|서른|마흔|쉰|반"
@@ -136,11 +138,11 @@ def after_kind(rest):
     return "표에 없음"
 
 
-def scan(text, inp):
-    """원래 글 하나를 본다. inp는 그 제출의 input(claim의 기간과 slot을 쓴다).
+def scan(text, inp, n=3):
+    """원래 글 하나를 본다. inp는 그 제출의 input(claim의 기간과 slot을 쓴다). n은 바른 자리표시자 이름의 길이 상한(3이나 6)이다.
 
     - form: 바른 자리표시자를 다 지운 뒤 '{'나 '}'가 남음(PLACEHOLDER_FORM)
-    - truncated: 남은 중괄호 묶음 가운데, 안의 이름(끝 '.방향'은 뗌)이 네 글자 이상 한글이고 앞 한~세 글자가 그 제출의 claim slot과 같은 것이 있음
+    - truncated: 남은 중괄호 묶음 가운데, 안의 이름(끝 '.방향'은 뗌)이 n+1자 이상 한글이고 앞 1~n자가 그 제출의 claim slot과 같은 것이 있음
     - periods: 기간 말마다 [길이(달, 셀 수 없으면 None), 같은 길이의 통계 claim이 있는가]
     - numerals: 기간 말이 아닌 수사 v1의 수
     - v0: 수사 v0(자바 v0과 같은 식, 원래 글)의 수
@@ -148,17 +150,18 @@ def scan(text, inp):
     """
     if not isinstance(text, str):
         text = ""
-    rest = PLACEHOLDER.sub("", text)
+    ph = PLACEHOLDERS[n]
+    rest = ph.sub("", text)
     form = "{" in rest or "}" in rest
     slots = claim_slots(inp)
     truncated = False
     for g in BRACES.findall(rest):
         name = g[:-3] if g.endswith(".방향") else g
-        if len(name) >= 4 and HANGUL.fullmatch(name) and any(name.startswith(s) for s in slots if 1 <= len(s) <= 3):
+        if len(name) > n and HANGUL.fullmatch(name) and any(name.startswith(s) for s in slots if 1 <= len(s) <= n):
             truncated = True
     lengths = claim_months(inp)
     periods, numerals = [], 0
-    for m in V1.finditer(PLACEHOLDER.sub(" ", text)):
+    for m in V1.finditer(ph.sub(" ", text)):
         token, unit = split_match(m)
         if unit not in PERIOD_UNITS:
             numerals += 1
@@ -168,7 +171,7 @@ def scan(text, inp):
         n = int(n) if n is not None and n.denominator == 1 and n >= 1 else None
         periods.append([n, n is not None and n in lengths])
     after = {}
-    for m in PLACEHOLDER.finditer(text):
+    for m in ph.finditer(text):
         if m.group(2):
             k = after_kind(text[m.end():])
             after[k] = after.get(k, 0) + 1

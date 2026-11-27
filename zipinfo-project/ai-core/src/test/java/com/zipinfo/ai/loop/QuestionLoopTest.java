@@ -115,7 +115,7 @@ class QuestionLoopTest {
         QuestionLoop q = loop(10, List.of());
         RunRecord rec = q.start(Prompts.SYSTEM, ToolSpecs.all(), "이 매물 가격이 주변보다 비싼가요?", listing());
         assertEquals(RunRecord.Outcome.SUBMITTED, rec.outcome());
-        assertEquals("이 매물은 주변보다 3.7% 비싸다.", rec.answer());
+        assertEquals("이 매물은 주변보다 3.7% 비쌉니다.", rec.answer());
         assertEquals(3, rec.turns());
         assertEquals(3, api.requests.size());
         for (JsonNode req : api.requests) {
@@ -146,6 +146,11 @@ class QuestionLoopTest {
         assertTrue(result.toString().contains("S1.기준"));
         assertTrue(api.requests.get(0).get("messages").get(0).toString().contains("[근거 매물.가격]"));
         assertTrue(rec.events().stream().anyMatch(e -> e.get("type").equals("submit") && ((List<?>) e.get("findings")).isEmpty()));
+        // 순서 11b-2: 제출 사건에 그린 글이 남고, 받아들여진 답과 같다
+        Map<String, Object> submit = rec.events().stream().filter(e -> e.get("type").equals("submit")).findFirst().orElseThrow();
+        Map<String, Object> accepted = rec.events().stream().filter(e -> e.get("type").equals("accepted")).findFirst().orElseThrow();
+        assertEquals(accepted.get("answer"), submit.get("rendered"));
+        assertEquals(List.of("type", "input", "rendered", "findings"), List.copyOf(submit.keySet()));
         // 기록(설계안 10.1): 토큰 넷, 응답 원문(thinking 포함), 도구 시간(01 213줄)
         Map<String, Object> first = rec.events().stream().filter(e -> e.get("type").equals("response")).findFirst().orElseThrow();
         assertEquals(List.of(100L, 80L, 20L, 42L), List.of(first.get("input_tokens"), first.get("cache_read_tokens"), first.get("cache_write_tokens"),

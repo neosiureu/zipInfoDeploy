@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 /**
  * 순서 6a: 설정 파일(pilot_v0.json)과 단가표(01 333·342줄). 6b: files.memory가 얼린 기억 파일의 경로를 받는다. 6c: 판정 설정(judge 칸).
  * 11b-1: 판정 v1 설정(pilot_v0_judge_v1.json)은 pilot_v0.json에서 judge.instructions만 다르다.
+ * 11b-2: 11c 설정(pilot2_v1.json)은 판정 v1 설정에서 version·stage·카드·⓪ 목록·기억·회차·동시 수·상한만 다르다.
  */
 class SettingsAndPricesTest {
     static void bad(Consumer<ObjectNode> edit) {
@@ -59,6 +60,29 @@ class SettingsAndPricesTest {
         assertEquals(new JudgeSettings("claude-haiku-5-5", 8000, 16000, ModelSettings.Thinking.ADAPTIVE, null, "auto", "harness/judge/judge_v1.md", 60),
                 s.judge());
         assertTrue(Files.exists(Fixture.EXP.resolve("harness/judge/judge_v1.md")));
+    }
+
+    @Test
+    void the11cSettingsDifferOnlyWhereTheDesignSays() throws Exception {
+        // 순서 11b-2(설계 b판 8절, 4판 7절): 검사기 v1 기록(version v1), 시운전 뒤 카드 v1, ⓪ 목록 v1, 얼린 기억, 연습 문항 한 번, 동시 2, 상한 $10
+        ObjectNode a = (ObjectNode) Fixture.M.readTree(Files.readString(Fixture.EXP.resolve("harness/settings/pilot_v0_judge_v1.json"), StandardCharsets.UTF_8));
+        ObjectNode b = (ObjectNode) Fixture.M.readTree(Files.readString(Fixture.EXP.resolve("harness/settings/pilot2_v1.json"), StandardCharsets.UTF_8));
+        RunSettings s = RunSettings.load(Fixture.EXP.resolve("harness/settings/pilot2_v1.json"));
+        assertEquals(List.of("v1", "pilot2", "연습"), List.of(s.version(), s.stage(), s.split()));
+        assertEquals(List.of("cards/v1", "intents/intent_lists_v1.json", "harness/frozen/memory_v0.json"),
+                List.of(s.files().cards(), s.files().lists(), s.files().memory()));
+        assertEquals(List.of(1), s.select().reps());
+        assertEquals(List.of(20, 2), List.of(s.maxTurns(), s.concurrency()));
+        assertEquals(0, new BigDecimal("10").compareTo(s.costCapUsd()));
+        for (String k : List.of("version", "stage", "select", "concurrency", "cost_cap_usd")) {
+            a.remove(k);
+            b.remove(k);
+        }
+        for (String k : List.of("cards", "lists", "memory")) {
+            ((ObjectNode) a.get("files")).remove(k);
+            ((ObjectNode) b.get("files")).remove(k);
+        }
+        assertEquals(a, b, "그 밖의 칸(모델·턴 상한·캐시·재시도·단가표·판정 v1)은 판정 v1 설정과 같다");
     }
 
     static ObjectNode judge(ObjectNode n) {

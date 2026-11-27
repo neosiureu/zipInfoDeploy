@@ -108,7 +108,7 @@ class RunnerTest {
             assertTrue(f.events().stream().allMatch(e -> e.has("at")));
             assertEquals("SUBMITTED", f.end().get("outcome").asText());
             assertEquals(3, f.end().get("turns").asInt());
-            assertEquals("이 매물은 주변보다 3.7% 비싸다.", f.end().get("answer").asText());
+            assertEquals("이 매물은 주변보다 3.7% 비쌉니다.", f.end().get("answer").asText());
             assertEquals("sig-1", f.responses().get(0).raw().get("content").get(0).get("signature").asText());
         }
         assertEquals(ToolSpecs.all().size(), file("c01-q001-r1").header().get("tools").size());

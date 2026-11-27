@@ -42,11 +42,13 @@ import org.junit.jupiter.api.io.TempDir;
  * <li>c07-q001-r1: ④ 판. 첫 제출은 차이 값이 틀려 막히고, 고쳐 낸 둘째 제출이 받아들여진다. 판정 답하지 않음.</li>
  * <li>c07-q002-r1: T2, 단지로 견주고 시군구 0건 claim을 덧붙여 제출. 판정 답함.</li>
  * </ul>
- * 지은 폴더가 커밋한 시험 자료(experiment/prep/tests/data/score_fx)와 같은 꼴인지(파일, 줄마다 사건의 type·이름과 칸 이름, 설정 파일의 칸) 본다.
+ * 지은 폴더가 커밋한 시험 자료(experiment/prep/tests/data/score_fx_v1)와 같은 꼴인지(파일, 줄마다 사건의 type·이름과 칸 이름, 설정 파일의 칸) 본다.
  * 다르면 하네스가 쓰는 꼴이 바뀐 것이다. 환경 변수 SCORE_FIXTURE_OUT에 그 폴더를 주고 이 시험을 돌리면 새로 쓴다(그 뒤 파이썬 시험을 다시 돌린다).
+ * 순서 11b-2: 검사기 v1·그리기 v1의 기록이다(설정 version v1, 제출 사건의 rendered). 시운전 꼴(검사기 v0, 설정 version v0)의 옛 자료
+ * score_fx는 그대로 두고(이 시험은 다시 짓지 않는다), 파이썬 시험이 시운전 기록의 채점 v1을 보는 데 쓴다.
  */
 class ScoreFixtureTest {
-    static final Path FX = Fixture.EXP.resolve("prep/tests/data/score_fx");
+    static final Path FX = Fixture.EXP.resolve("prep/tests/data/score_fx_v1");
     static final Variant INTENT = new Variant("c04", "①+⓪", Fixture.HAIKU, Variant.CardMode.TOOLS, List.of(Part.INTENT));
     static final Variant REFLEX = new Variant("c05", "①+②", Fixture.HAIKU, Variant.CardMode.TOOLS, List.of(Part.REFLEX));
     static final Variant LOCK = new Variant("c06", "①+③", Fixture.HAIKU, Variant.CardMode.TOOLS, List.of(Part.LOCK));
@@ -58,7 +60,7 @@ class ScoreFixtureTest {
 
     @Test
     void theScorerFixtureHasTheShapeTheHarnessWrites() throws Exception {
-        Path root = tmp.resolve("score_fx");
+        Path root = tmp.resolve("score_fx_v1");
         build(root);
         String out = System.getenv("SCORE_FIXTURE_OUT");
         if (out != null && !out.isBlank()) {
@@ -80,6 +82,7 @@ class ScoreFixtureTest {
         Inputs in = Fixture.inputs(data, Fixture.digests("CODE", "CARDS"), List.of(T1, T2, Fixture.Q9), List.of(Fixture.B0, INTENT, REFLEX, LOCK, GATE),
                 Memory.EMPTY);
         ObjectNode n = (ObjectNode) Fixture.M.readTree(Files.readString(Fixture.EXP.resolve("harness/settings/pilot_v0.json"), StandardCharsets.UTF_8));
+        n.put("version", "v1");
         ((ObjectNode) n.get("select")).putArray("reps").add(1);
         Fixture.variants(n, "c01", "c04", "c05", "c06", "c07");
         Fixture.questions(n, "q001", "q002");
@@ -112,7 +115,7 @@ class ScoreFixtureTest {
             assertEquals(List.of(7, 7, 6), List.of(j.targets(), j.judged(), j.answered()));
         }
         Files.delete(stage.resolve(".lock"));
-        Path settings = root.resolve("harness/settings/fx_v0.json");
+        Path settings = root.resolve("harness/settings/fx_v1.json");
         Files.createDirectories(settings.getParent());
         Files.writeString(settings, n.toString() + "\n", StandardCharsets.UTF_8);
         ObjectNode vs = Fixture.M.createObjectNode().put("version", "fx");
@@ -237,7 +240,7 @@ class ScoreFixtureTest {
     static List<FakeAnthropic.Reply> t2Run() {
         ObjectNode unit = Fixture.statsInput().put("dong", "가동").put("jibun", "12");
         ObjectNode zero = Fixture.statsInput().put("start_month", "202609").put("end_month", "202609");
-        ObjectNode r = Fixture.M.createObjectNode().put("text", "이 매물은 같은 단지 기준값보다 {가} {가.방향}. 시군구 전달 거래는 {다}.");
+        ObjectNode r = Fixture.M.createObjectNode().put("text", "이 매물은 같은 단지 기준값보다 {가} {가.방향}. 시군구 전달 거래는 {다}입니다.");
         ArrayNode st = r.putArray("stat_claims");
         st.addObject().put("slot", "나").put("value", 31770).put("unit", "만원").put("basis", "단지").put("start_month", "202610")
                 .put("end_month", "202610").put("sample_size", 2).put("provisional", true).put("evidence", "S1.기준");
@@ -253,10 +256,10 @@ class ScoreFixtureTest {
                 FakeAnthropic.sse(List.of(FakeAnthropic.toolUse("toolu_4", "submit_report", r)), "tool_use", null));
     }
 
-    /** 지은 폴더를 out에 쓴다. out은 이름이 score_fx인 폴더여야 하고, 있으면 지우고 새로 쓴다. */
+    /** 지은 폴더를 out에 쓴다. out은 이름이 score_fx_v1인 폴더여야 하고, 있으면 지우고 새로 쓴다. */
     static void write(Path root, Path out) throws IOException {
-        if (!out.getFileName().toString().equals("score_fx")) {
-            throw new IllegalArgumentException("SCORE_FIXTURE_OUT은 score_fx 폴더다: " + out);
+        if (!out.getFileName().toString().equals("score_fx_v1")) {
+            throw new IllegalArgumentException("SCORE_FIXTURE_OUT은 score_fx_v1 폴더다: " + out);
         }
         if (Files.exists(out)) {
             try (Stream<Path> st = Files.walk(out)) {

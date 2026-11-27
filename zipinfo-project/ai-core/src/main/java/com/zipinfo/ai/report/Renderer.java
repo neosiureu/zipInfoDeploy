@@ -3,75 +3,47 @@ package com.zipinfo.ai.report;
 import com.zipinfo.ai.num.Q;
 import com.zipinfo.ai.tools.Evidence;
 import com.zipinfo.ai.tools.RunState;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
 
-/** 글 그리기(설계안 6.3, 순서 3 메모 5절): 자리표시자를 값·단위와 방향 말로 바꾼 글이 사용자와 판정 모델이 보는 답이다. */
+/**
+ * 글 그리기 v1(순서 11b-2 설계 b판 5.1): 자리표시자를 값·단위와 방향 말로 바꾼 글이 사용자와 판정 모델이 보는 답이다.
+ * <ul>
+ * <li>값과 차이의 크기·방향은 근거(도구 결과·매물 칸)에서 그린다. claim과 근거가 다르면 검사기의 VALUE가 따로 잡는다.</li>
+ * <li>근거가 없거나 근거 단위가 claim 단위와 맞지 않으면(원·만원끼리는 맞음) 자리를 그대로 남긴다. 검사기의 BRACE가 잡는다.</li>
+ * <li>방향 자리는 근거가 C?.차이이면 claim의 갈래(stat·value)를 가리지 않고 그린다.</li>
+ * <li>같은 slot의 claim이 둘이면 앞의 것(stat 먼저)으로 그린다. 검사기의 SLOT_DUP가 잡는다.</li>
+ * <li>{매물명}은 매물 칸의 이름이다. 글 규칙(돈 표기·겹침·조사·방향 말·빈 괄호·빈칸·끝 마침표)은 KoText에 있다.</li>
+ * </ul>
+ */
 public final class Renderer {
     private Renderer() {}
 
     public static String render(Report r, RunState st) {
-        Map<String, Q> value = new HashMap<>();
-        Map<String, String> unit = new HashMap<>();
-        Map<String, Boolean> isDiff = new HashMap<>();
-        Map<String, Q> diff = new HashMap<>();  // {X.방향}은 근거가 C?.차이인 claim에서만 그린다(상대 3a 검토 3)
+        Map<String, KoText.Slot> slots = new HashMap<>();
         for (Report.StatClaim c : r.stats()) {
-            value.putIfAbsent(c.slot(), c.value());
-            unit.putIfAbsent(c.slot(), c.unit());
-            isDiff.putIfAbsent(c.slot(), false);
+            slots.putIfAbsent(c.slot(), slot(c.value(), c.unit(), c.evidence(), st));
         }
         for (Report.ValueClaim c : r.values()) {
-            Evidence e = st.find(c.evidence());
-            boolean d = e != null && e.kind() == Evidence.Kind.C_DIFF;
-            value.putIfAbsent(c.slot(), c.value());
-            unit.putIfAbsent(c.slot(), c.unit());
-            isDiff.putIfAbsent(c.slot(), d);
-            if (d) {
-                diff.putIfAbsent(c.slot(), c.value());
-            }
+            slots.putIfAbsent(c.slot(), slot(c.value(), c.unit(), c.evidence(), st));
         }
-        Matcher m = Checker.PLACEHOLDER.matcher(r.text());
-        StringBuilder sb = new StringBuilder();
-        while (m.find()) {
-            String slot = m.group(1);
-            String rep;
-            if (m.group(2) != null) {
-                if (!diff.containsKey(slot)) {
-                    rep = m.group();
-                } else {
-                    int s = diff.get(slot).signum();
-                    rep = s > 0 ? "비싸다" : (s < 0 ? "싸다" : "같다");
-                }
-            } else if (!value.containsKey(slot)) {
-                rep = m.group();
-            } else {
-                Q v = isDiff.getOrDefault(slot, false) ? value.get(slot).abs() : value.get(slot);
-                rep = format(v, unit.get(slot));
-            }
-            m.appendReplacement(sb, Matcher.quoteReplacement(rep));
-        }
-        m.appendTail(sb);
-        return sb.toString();
+        return KoText.render(r.text(), slots, st.listing().fields().get("stockName"));
     }
 
-    static String format(Q v, String unit) {
-        int scale = switch (unit) {
-            case "%" -> 1;
-            case "평" -> 2;
-            default -> -1;
-        };
-        BigDecimal d = scale >= 0 ? v.approx(scale) : v.approx(4).stripTrailingZeros();
-        if (d.scale() < 0) {
-            d = d.setScale(0, RoundingMode.UNNECESSARY);
+    static KoText.Slot slot(Q claimValue, String claimUnit, String evidence, RunState st) {
+        Evidence e = st.find(evidence);
+        if (e == null || e.value() == null) {
+            return new KoText.Slot(claimValue, claimUnit, false, false);
         }
-        DecimalFormat f = new DecimalFormat("#,##0" + (d.scale() > 0 ? "." + "0".repeat(d.scale()) : ""),
-                DecimalFormatSymbols.getInstance(Locale.ROOT));
-        return f.format(d) + unit;
+        boolean diff = e.kind() == Evidence.Kind.C_DIFF;
+        boolean money = isMoney(claimUnit) && isMoney(e.unit());
+        if (!claimUnit.equals(e.unit()) && !money) {
+            return new KoText.Slot(claimValue, claimUnit, diff, false);
+        }
+        return new KoText.Slot(e.value(), e.unit(), diff, true);
+    }
+
+    private static boolean isMoney(String unit) {
+        return unit.equals("원") || unit.equals("만원");
     }
 }
